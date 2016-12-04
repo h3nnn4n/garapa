@@ -37,7 +37,8 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->flags.cy  = 0;
     cpu->flags.ac  = 0;
 
-    cpu->enable_interrupts = 0;
+    cpu->enable_interrupts     = 0;
+    cpu->instructions_executed = 0;
 }
 
 void unimplemented_opcode( _cpu_info *cpu ) {

@@ -11,13 +11,14 @@
 void print_registers ( _cpu_info *cpu ) {
     printf(" A: %02x B: %02x C: %02x D: %02x E: %02x H: %02x L: %02x M: %04x SP: %08x PC: %08x",
             cpu->a, cpu->b, cpu->c, cpu->d, cpu->e, cpu->h, cpu->l, cpu->h << 8 | cpu-> l, cpu->sp, cpu->pc);
-    printf(" F: %c%c%c%c%c CYCLES: %8d\n",
+    printf(" F: %c%c%c%c%c CYCLES: %8d IPS: %8d\n",
             cpu->flags.z  ? 'z' : '.',
             cpu->flags.s  ? 's' : '.',
             cpu->flags.p  ? 'p' : '.',
             cpu->flags.cy ? 'c' : '.',
             cpu->flags.ac ? 'a' : '.',
-            cpu->cycles               );
+            cpu->cycles              ,
+            cpu->instructions_executed % 16667);
 }
 
 void emulate_EI ( _cpu_info *cpu ) {
@@ -574,7 +575,7 @@ void emulate_JNZ ( _cpu_info *cpu ) {
             addr = opcode[2] << 8 | opcode[1];
             if ( !cpu->flags.z ) {
                 cpu->pc = addr;
-                cpu->cycle += 5; // FIXME this is 3
+                cpu->cycles += 5; // FIXME this is 3
             } else {
                 cpu->pc += 2;
             }
@@ -687,6 +688,8 @@ unsigned short int emulator( _cpu_info *cpu ) {
         printf(" %2X is not implemented\n", cpu->memory[cpu->pc]);
         exit(-1);
     }
+
+    cpu->instructions_executed += 1;
 
     print_registers(cpu);
     puts("");

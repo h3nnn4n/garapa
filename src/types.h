@@ -16,6 +16,7 @@ typedef struct {
     unsigned char enable_interrupts;
 
     uint32_t cycles;
+    uint32_t instructions_executed;
 
     _cpu_flags flags;
 

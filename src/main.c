@@ -27,6 +27,8 @@ int main(int argc, char *argv[]) {
             printf("Something went weird while reding into buffer\n");
         }
 
+        fclose(f);
+
         printf("Opening: %s\nFile contains: %lu bytes\n", argv[1], buffer_size);
     }
 
@@ -35,9 +37,6 @@ int main(int argc, char *argv[]) {
     while ( 1 ) {
         /*cpu.pc += disassembler(cpu.memory, cpu.pc);*/
         emulator ( &cpu );
-
-        if ( cpu.pc == 0x0ade )
-            break;
     }
 
     sdl_quit();
