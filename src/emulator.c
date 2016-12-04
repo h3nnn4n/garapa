@@ -577,7 +577,7 @@ void emulate_JNZ ( _cpu_info *cpu ) {
                 cpu->pc = addr;
                 cpu->cycles += 5; // FIXME this is 3
             } else {
-                cpu->pc += 2;
+                cpu->pc += 3;
             }
             break;
         default:
