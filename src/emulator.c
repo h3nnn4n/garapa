@@ -17,8 +17,8 @@ void print_registers ( _cpu_info *cpu ) {
             cpu->flags.p  ? 'p' : '.',
             cpu->flags.cy ? 'c' : '.',
             cpu->flags.ac ? 'a' : '.',
-            cpu->cycles              ,
-            cpu->instructions_executed % 16667);
+            cpu->cycles  % 16667     ,
+            cpu->instructions_executed);
 }
 
 void emulate_EI ( _cpu_info *cpu ) {
