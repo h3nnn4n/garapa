@@ -19,6 +19,120 @@ void print_registers ( _cpu_info *cpu ) {
             cpu->flags.ac ? 'a' : '.' );
 }
 
+void emulate_ADI ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+
+    switch ( *opcode ) {
+        case 0xc6: // ADI
+            cpu->a       += opcode[1];
+            cpu->flags.cy = cpu->flags.ac = 0;
+            cpu->flags.z  = (cpu->a == 0);
+            cpu->flags.s  = (0x80 == (cpu->a & 0x80));
+            cpu->flags.p  = parity_bit(cpu->a);
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->pc += 2 ;
+}
+
+void emulate_ANI ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+
+    switch ( *opcode ) {
+        case 0xe6: // ANI
+            cpu->a       &= opcode[1];
+            cpu->flags.cy = cpu->flags.ac = 0;
+            cpu->flags.z  = (cpu->a == 0);
+            cpu->flags.s  = (0x80 == (cpu->a & 0x80));
+            cpu->flags.p  = parity_bit(cpu->a);
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->pc += 2 ;
+}
+
+void emulate_DAD ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint32_t       answer = 0;
+
+    switch ( *opcode ) {
+        case 0x09: // DAD D
+            answer  = cpu->h << 8 | cpu->l;
+            answer += cpu->b << 8 | cpu->c;
+            cpu->flags.cy = answer & 0xffff0000;
+            break;
+        case 0x19: // DAD D
+            answer  = cpu->h << 8 | cpu->l;
+            answer += cpu->d << 8 | cpu->e;
+            cpu->flags.cy = answer & 0xffff0000;
+            break;
+        case 0x29: // DAD H
+            answer  = cpu->h << 8 | cpu->l;
+            answer += cpu->h << 8 | cpu->l;
+            cpu->flags.cy = answer & 0xffff0000;
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+
+    cpu->pc += 1 ;
+}
+
+void emulate_RRC ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint8_t t = 0;
+
+    switch ( *opcode ) {
+        case 0x0f: // RRC A
+            t = cpu->a;
+            cpu->a = ( t >> 1 ) | (( t & 0x1 ) << 7 );
+            cpu->flags.cy = t & 0x1;
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->pc += 1 ;
+}
+
+void emulate_XCHG ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint8_t t = 0;
+
+    switch ( *opcode ) {
+        case 0xeb: // CPI A
+            t = cpu->d;
+            cpu->d = cpu->h;
+            cpu->h = t;
+
+            t = cpu->e;
+            cpu->e = cpu->l;
+            cpu->l = t;
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->pc += 1 ;
+}
+
+void emulate_OUT ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+
+    switch ( *opcode ) {
+        case 0xd3: // CPI A
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->pc += 2;
+}
 void emulate_CPI ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
     uint8_t        answer = 0;
@@ -48,6 +162,10 @@ void emulate_DCR ( _cpu_info *cpu ) {
             cpu->b -= 1;
             answer = cpu->b;
             break;
+        case 0x0D: // DCR C
+            cpu->c -= 1;
+            answer = cpu->c;
+            break;
         default:
             assert( 0 && "Code should not get here\n" );
     }
@@ -57,6 +175,67 @@ void emulate_DCR ( _cpu_info *cpu ) {
     cpu->flags.cy   = ( answer > 0xff )            ; // Checks for the carry bit
     cpu->flags.p    = parity_bit ( answer & 0xff ) ; // Returns 1 if the number os bits set as 1 is even
     /*cpu->a          = answer & 0xff                ; // Stores the 8 bit result in the A register*/
+
+    cpu->pc += 1 ;
+}
+
+void emulate_POP ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+
+    switch ( *opcode ) {
+        case 0xc1: // POP B
+            cpu->c = cpu->memory[cpu->sp - 0];
+            cpu->b = cpu->memory[cpu->sp + 1];
+            cpu->sp += 2;
+            break;
+        case 0xd1: // POP D
+            cpu->e = cpu->memory[cpu->sp - 0];
+            cpu->d = cpu->memory[cpu->sp + 1];
+            cpu->sp += 2;
+            break;
+        case 0xe1: // POP H
+            cpu->l = cpu->memory[cpu->sp - 0];
+            cpu->h = cpu->memory[cpu->sp + 1];
+            cpu->sp += 2;
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->pc += 1 ;
+}
+
+void emulate_PUSH ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+
+    switch ( *opcode ) {
+        case 0xc5: // PUSH B
+            cpu->memory[cpu->sp-2] = cpu->c;
+            cpu->memory[cpu->sp-1] = cpu->b;
+            cpu->sp -= 2;
+            break;
+        case 0xd5: // PUSH D
+            cpu->memory[cpu->sp-2] = cpu->e;
+            cpu->memory[cpu->sp-1] = cpu->d;
+            cpu->sp -= 2;
+            break;
+        case 0xe5: // PUSH H
+            cpu->memory[cpu->sp-2] = cpu->l;
+            cpu->memory[cpu->sp-1] = cpu->h;
+            cpu->sp -= 2;
+            break;
+        case 0xf5: // PUSH PSW
+            cpu->memory[cpu->sp-1] = cpu->a;
+            cpu->memory[cpu->sp-2] = cpu->flags.z       |
+                                     cpu->flags.s  << 1 |
+                                     cpu->flags.p  << 2 |
+                                     cpu->flags.cy << 3 |
+                                     cpu->flags.ac << 4 ;
+            cpu->sp = cpu->sp - 2;
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
 
     cpu->pc += 1 ;
 }
@@ -132,6 +311,10 @@ void emulate_LXI ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
     switch ( *opcode ) {
+        case 0x01:
+            cpu->b = opcode[2];
+            cpu->c = opcode[1];
+            break;
         case 0x11:
             cpu->d = opcode[2];
             cpu->e = opcode[1];
@@ -154,13 +337,19 @@ void emulate_MVI ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
     switch ( *opcode ) {
-        case 0x06:
-            cpu->b = cpu->memory[opcode[1]];
+        case 0x06: // MVI B
+            cpu->b = opcode[1];
             break;
-        case 0x36:
+        case 0x0e: // MVI C
+            cpu->c = opcode[1];
+            break;
+        case 0x26: // MVI H
+            cpu->h = opcode[1];
+            break;
+        case 0x36: // MVI M
             cpu->memory[cpu->h << 8 | cpu->l] = cpu->memory[opcode[1]];
             break;
-        case 0x3e:
+        case 0x3e: // MVI A, M
             cpu->a = cpu->memory[opcode[1]];
             break;
         default:
@@ -192,14 +381,37 @@ void emulate_MOV ( _cpu_info *cpu ) {
     uint16_t addr;
 
     switch ( *opcode ) {
+        case 0x7e: // MOV A, M
+            addr = cpu->h << 8 | cpu->l;
+            cpu->d = cpu->memory[addr];
+            break;
+        case 0x66: // MOV H, M
+            addr = cpu->h << 8 | cpu->l;
+            cpu->h = cpu->memory[addr];
+            break;
+        case 0x56: // MOV D, M
+            addr = cpu->h << 8 | cpu->l;
+            cpu->d = cpu->memory[addr];
+            break;
+        case 0x5e: // MOV E, M
+            addr = cpu->h << 8 | cpu->l;
+            cpu->e = cpu->memory[addr];
+            break;
         case 0x77:
             addr = cpu->h << 8 | cpu->l;
             cpu->memory[addr] = cpu->a;
             break;
-        case 0x7c:
+        case 0x7a: // MOV A, D
+            cpu->a = cpu->d;
+            break;
+        case 0x7c: // MOV A, H
             cpu->a = cpu->h;
             break;
-        default:
+        case 0x6f: // MOV L, A
+            cpu->l = cpu->a;
+            break;
+        default: // Too lazy to do all the MOVs now
+            printf(" %2X is not implemented\n", cpu->memory[cpu->pc]);
             assert( 0 && "Code should not get here\n" );
     }
 
@@ -284,17 +496,22 @@ unsigned short int emulator( _cpu_info *cpu ) {
 
            if ( *opcode == 0x00 ) {
         emulate_NOP ( cpu );
-    } else if ( *opcode == 0x05 || *opcode == 0x05 || *opcode == 0x05 ) {
+    } else if ( *opcode == 0x05 || *opcode == 0x0d || *opcode == 0x05 ) {
         emulate_DCR ( cpu );
+    } else if ( *opcode == 0x0f ) {
+        emulate_RRC ( cpu );
     } else if ( *opcode == 0x1a || *opcode == 0x1a || *opcode == 0x1a ) {
         emulate_LDAX ( cpu );
-    } else if ( *opcode == 0x11 || *opcode == 0x21 || *opcode == 0x31 ) {
+    } else if ( *opcode == 0x01 || *opcode == 0x11 || *opcode == 0x21 || *opcode == 0x31 ) {
         emulate_LXI ( cpu );
     } else if ( *opcode == 0x13 || *opcode == 0x23 || *opcode == 0x13 ) {
         emulate_INX ( cpu );
-    } else if ( *opcode == 0x3e || *opcode == 0x36 || *opcode == 0x06 ) {
+    } else if ( *opcode == 0x09 || *opcode == 0x19 || *opcode == 0x29 ) {
+        emulate_DAD ( cpu );
+    } else if ( *opcode == 0x3e || *opcode == 0x36 || *opcode == 0x26 || *opcode == 0x06 || *opcode == 0x0e ) {
         emulate_MVI ( cpu );
-    } else if ( *opcode >= 0x77 && *opcode <= 0x7c ) {
+    /*} else if ( ( *opcode >= 0x77 && *opcode <= 0x7c ) || *opcode == 0x6f || *opcode == 0x5e || *opcode == 0x56  || *opcode == 0x7e ) {*/
+    } else if ( ( *opcode >= 0x40 && *opcode <= 0x75 ) || ( *opcode >= 0x77 && *opcode <= 0x7f ) ) {
         emulate_MOV ( cpu );
     } else if ( *opcode >= 0x80 && *opcode <= 0x87 ) {
         emulate_ADD ( cpu );
@@ -302,10 +519,22 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_JNZ ( cpu );
     } else if ( *opcode == 0xc3 ) {
         emulate_JMP ( cpu );
+    } else if ( *opcode == 0xc6 ) {
+        emulate_ADI ( cpu );
     } else if ( *opcode == 0xc9 ) {
         emulate_RET ( cpu );
     } else if ( *opcode == 0xd4 || *opcode == 0xcd ) {
         emulate_CALL ( cpu );
+    } else if ( *opcode == 0xe1 || *opcode == 0xd1 || *opcode == 0xc1 ) {
+        emulate_POP ( cpu );
+    } else if ( *opcode == 0xc5 || *opcode == 0xd5 || *opcode == 0xe5 || *opcode == 0xf5 ) {
+        emulate_PUSH ( cpu );
+    } else if ( *opcode == 0xd3 ) {
+        emulate_OUT ( cpu );
+    } else if ( *opcode == 0xe6 ) {
+        emulate_ANI ( cpu );
+    } else if ( *opcode == 0xeb ) {
+        emulate_XCHG ( cpu );
     } else if ( *opcode == 0xfe ) {
         emulate_CPI ( cpu );
     } else {
