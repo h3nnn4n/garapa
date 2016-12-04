@@ -1,11 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include <sys/types.h>
 
 #include "utils.h"
 #include "types.h"
 #include "emulator.h"
+#include "graphics.h"
 #include "disassembler.h"
 
 int main(int argc, char *argv[]) {
@@ -28,13 +30,17 @@ int main(int argc, char *argv[]) {
         printf("Opening: %s\nFile contains: %lu bytes\n", argv[1], buffer_size);
     }
 
-    /*cpu.pc = 0x18d4;*/
+    sdl_init();
 
     while ( 1 ) {
         /*cpu.pc += disassembler(cpu.memory, cpu.pc);*/
         emulator ( &cpu );
+
+        if ( cpu.pc == 0x0ade )
+            break;
     }
 
+    sdl_quit();
 
     return 0;
 }
