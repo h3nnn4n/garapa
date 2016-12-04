@@ -5,6 +5,8 @@
 
 #include "utils.h"
 #include "types.h"
+#include "emulator.h"
+#include "disassembler.h"
 
 int main(int argc, char *argv[]) {
     FILE *f = NULL;
@@ -18,7 +20,6 @@ int main(int argc, char *argv[]) {
         off_t buffer_size = -1;
         f = fopen(argv[1], "rb");
         buffer_size = fsize( argv[1] );
-        /*buffer = malloc( buffer_size );*/
 
         if ( fread(cpu.memory, buffer_size, 1, f) != 1 ) {
             printf("Something went weird while reding into buffer\n");
@@ -28,10 +29,12 @@ int main(int argc, char *argv[]) {
     }
 
     while ( cpu.pc < 100 ) {
-        cpu.pc += disassembler(cpu.memory, cpu.pc);
+        /*cpu.pc += disassembler(cpu.memory, cpu.pc);*/
+        emulator ( &cpu );
 
-        if ( cpu.pc > 100 ) break;
+        if ( cpu.pc > 0x3f ) break;
     }
+
 
     return 0;
 }

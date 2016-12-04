@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-lm -Wall -Wextra -pedantic --std=c11 -Og -g
-SOURCES=main.c utils.c
+SOURCES=main.c utils.c disassembler.c emulator.c
 EXECUTABLE=main
 
 OBJECTS=$(SOURCES:.c=.o)

@@ -2,7 +2,17 @@
 #define TYPES_H
 
 typedef struct {
+    unsigned char z  ; // Zero flag
+    unsigned char s  ; // Signal bit
+    unsigned char p  ; // Parity bit
+    unsigned char cy ; // Cary bit
+    unsigned char ac ; // Auxiliary carry
+} _cpu_flags;
+
+typedef struct {
     unsigned char *memory;
+
+    _cpu_flags flags;
 
     unsigned int pc;
     unsigned int sp;
@@ -12,7 +22,8 @@ typedef struct {
     unsigned int c;
     unsigned int d;
     unsigned int e;
-    unsigned int f;
+    unsigned int h;
+    unsigned int l;
 } _cpu_info;
 
 #endif /* TYPES_H */
