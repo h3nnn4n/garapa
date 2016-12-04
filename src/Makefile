@@ -1,6 +1,6 @@
 CC=gcc
-CFLAGS=-lm -Wall -Wextra -pedantic --std=c11 -Og -g
-SOURCES=main.c utils.c disassembler.c emulator.c
+CFLAGS=-lm -Wall -Wextra -pedantic --std=c11 -Og -g `sdl-config --libs` -lSDL
+SOURCES=main.c utils.c disassembler.c emulator.c graphics.c
 EXECUTABLE=main
 
 OBJECTS=$(SOURCES:.c=.o)
