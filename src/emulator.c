@@ -8,20 +8,47 @@
 #include "emulator.h"
 #include "disassembler.h"
 
+void print_registers ( _cpu_info *cpu ) {
+    printf(" A: %02x B: %02x C: %02x D: %02x E: %02x H: %02x L: %02x M: %04x SP: %08x PC: %08x\n",
+            cpu->a, cpu->b, cpu->c, cpu->d, cpu->e, cpu->h, cpu->l, cpu->h << 8 | cpu-> l, cpu->sp, cpu->pc);
+}
+
 void emulate_NOP ( _cpu_info *cpu ) {
-    printf(" %08x : NOP\n", cpu->pc);
+    /*printf(" %08x : NOP\n", cpu->pc);*/
     cpu->pc += 1;
+}
+
+void emulate_MVI ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+
+    switch ( *opcode ) {
+        case 0x06:
+            cpu->b = cpu->memory[opcode[2] << 8 | opcode[1]];
+            break;
+        case 0x3e:
+            cpu->a = cpu->memory[opcode[2] << 8 | opcode[1]];
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->pc += 1;
+}
+
+void emulate_MOV ( _cpu_info *cpu ) {
+    // STUB
 }
 
 void emulate_JMP ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
-    uint8_t addr = 0;
+    uint16_t addr = 0;
 
     switch ( *opcode ) {
         case 0xc3:
-            printf(" %08x : JMP %x %x\n", cpu->pc, opcode[1], opcode[2]);
-            addr = opcode[2] << 8 | opcode[1];
+            addr = (opcode[2] << 8) + opcode[1];
             break;
+        default:
+            assert( 0 && "Code should not get here\n" );
     }
 
     cpu->pc += addr;
@@ -43,8 +70,12 @@ unsigned short int emulator( _cpu_info *cpu ) {
 
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
+    disassembler ( cpu->memory, cpu->pc );
+
            if ( *opcode == 0x00 ) {
         emulate_NOP ( cpu );
+    } else if ( *opcode == 0x3e || *opcode == 0x06 ) {
+        emulate_MVI ( cpu );
     } else if ( *opcode >= 0x80 && *opcode <= 0x87 ) {
         emulate_ADD ( cpu );
     } else if ( *opcode == 0xc3 ) {
@@ -52,10 +83,13 @@ unsigned short int emulator( _cpu_info *cpu ) {
     } else if ( *opcode == 0xd4 ) {
         emulate_CALL ( cpu );
     } else {
-        /*printf(" %8x %2X is not implemented\n", cpu->pc, cpu->memory[cpu->pc]);*/
-        /*exit(-1);*/
-        unimplemented_opcode( cpu ) ;
+        printf(" %2X is not implemented\n", cpu->memory[cpu->pc]);
+        exit(-1);
+        /*unimplemented_opcode( cpu ) ;*/
     }
+
+    print_registers(cpu);
+    puts("");
 
     /*switch ( *opcode ) {*/
         /*case 0x00: // NOP*/
@@ -128,7 +162,7 @@ unsigned short int emulator( _cpu_info *cpu ) {
         /*case 0x3b: printf( " %08X : %02X \t DCX SP\n"          , pc, buffer[pc]                             ) ; op_size = 1; break;*/
         /*case 0x3c: printf( " %08X : %02X \t INR A\n"           , pc, buffer[pc]                             ) ; op_size = 1; break;*/
         /*case 0x3d: printf( " %08X : %02X \t DCR A\n"           , pc, buffer[pc]                             ) ; op_size = 1; break;*/
-        /*case 0x3e: printf( " %08X : %02X \t MVI A, %X\n"       , pc, buffer[pc], buffer[pc+1]               ) ; op_size = 1; break;*/
+        /*case 0x3e: printf( " %08X : %02X \t MVI A, %X\n"       , pc, buffer[pc], buffer[pc+1]               ) ; op_size = 2; break;*/
         /*case 0x3f: printf( " %08X : %02X \t STC\n"             , pc, buffer[pc]                             ) ; op_size = 1; break;*/
 
         /*case 0x40: printf( " %08X : %02X \t MOV B, B\n"        , pc, buffer[pc]                             ) ; op_size = 1; break ;*/
