@@ -19,13 +19,33 @@ void print_registers ( _cpu_info *cpu ) {
             cpu->flags.ac ? 'a' : '.' );
 }
 
-void emulate_ADI ( _cpu_info *cpu ) {
+void emulate_XRA ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
     switch ( *opcode ) {
-        case 0xc6: // ADI
-            cpu->a       += opcode[1];
+        case 0xaf: // XRA A
+            cpu->a       ^= cpu->a;
             cpu->flags.cy = cpu->flags.ac = 0;
+            cpu->flags.z  = (cpu->a == 0);
+            cpu->flags.s  = (0x80 == (cpu->a & 0x80));
+            cpu->flags.p  = parity_bit(cpu->a);
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->pc += 2 ;
+}
+
+void emulate_ADI ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint16_t t;
+
+    switch ( *opcode ) {
+        case 0xc6: // ADI
+            t             = cpu->a + opcode[1];
+            cpu->a        = (uint8_t) t;
+            cpu->flags.cy = (t > 0xff);
             cpu->flags.z  = (cpu->a == 0);
             cpu->flags.s  = (0x80 == (cpu->a & 0x80));
             cpu->flags.p  = parity_bit(cpu->a);
@@ -198,6 +218,15 @@ void emulate_POP ( _cpu_info *cpu ) {
             cpu->h = cpu->memory[cpu->sp + 1];
             cpu->sp += 2;
             break;
+        case 0xf1: // POP PSW
+            cpu->a = cpu->memory[cpu->sp+1];
+            cpu->flags.z  = (0x01 == (cpu->memory[cpu->sp] & 0x01));
+            cpu->flags.s  = (0x02 == (cpu->memory[cpu->sp] & 0x02));
+            cpu->flags.p  = (0x04 == (cpu->memory[cpu->sp] & 0x04));
+            cpu->flags.cy = (0x08 == (cpu->memory[cpu->sp] & 0x08));
+            cpu->flags.ac = (0x10 == (cpu->memory[cpu->sp] & 0x10));
+            cpu->sp += 2;
+            break;
         default:
             assert( 0 && "Code should not get here\n" );
     }
@@ -244,6 +273,11 @@ void emulate_INX ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
     switch ( *opcode ) {
+        case 0x03: // INX B
+            cpu->c += 1;
+            if ( cpu->c == 0 )
+                cpu->b += 1;
+            break;
         case 0x13: // INX D
             cpu->e += 1;
             if ( cpu->e == 0 )
@@ -397,9 +431,12 @@ void emulate_MOV ( _cpu_info *cpu ) {
             addr = cpu->h << 8 | cpu->l;
             cpu->e = cpu->memory[addr];
             break;
-        case 0x77:
+        case 0x77: // MOV M, A
             addr = cpu->h << 8 | cpu->l;
             cpu->memory[addr] = cpu->a;
+            break;
+        case 0x7b: // MOV A, E
+            cpu->a = cpu->e;
             break;
         case 0x7a: // MOV A, D
             cpu->a = cpu->d;
@@ -416,6 +453,38 @@ void emulate_MOV ( _cpu_info *cpu ) {
     }
 
     cpu->pc += 1;
+}
+
+void emulate_STA ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint16_t addr = 0;
+
+    switch ( *opcode ) {
+        case 0x32:
+            addr = opcode[2] << 8 | opcode[1];
+            cpu->memory[addr] = cpu->a;
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->pc += 3;
+}
+
+void emulate_LDA ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint16_t addr = 0;
+
+    switch ( *opcode ) {
+        case 0x3a:
+            addr = opcode[2] << 8 | opcode[1];
+            cpu->a = cpu->memory[addr];
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->pc += 3;
 }
 
 void emulate_LDAX ( _cpu_info *cpu ) {
@@ -500,21 +569,26 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_DCR ( cpu );
     } else if ( *opcode == 0x0f ) {
         emulate_RRC ( cpu );
-    } else if ( *opcode == 0x1a || *opcode == 0x1a || *opcode == 0x1a ) {
+    } else if ( *opcode == 0x32 ) {
+        emulate_STA ( cpu );
+    } else if ( *opcode == 0x3a ) {
+        emulate_LDA ( cpu );
+    } else if ( *opcode == 0x1a ) {
         emulate_LDAX ( cpu );
     } else if ( *opcode == 0x01 || *opcode == 0x11 || *opcode == 0x21 || *opcode == 0x31 ) {
         emulate_LXI ( cpu );
-    } else if ( *opcode == 0x13 || *opcode == 0x23 || *opcode == 0x13 ) {
+    } else if ( *opcode == 0x03 || *opcode == 0x13 || *opcode == 0x23 ) {
         emulate_INX ( cpu );
     } else if ( *opcode == 0x09 || *opcode == 0x19 || *opcode == 0x29 ) {
         emulate_DAD ( cpu );
     } else if ( *opcode == 0x3e || *opcode == 0x36 || *opcode == 0x26 || *opcode == 0x06 || *opcode == 0x0e ) {
         emulate_MVI ( cpu );
-    /*} else if ( ( *opcode >= 0x77 && *opcode <= 0x7c ) || *opcode == 0x6f || *opcode == 0x5e || *opcode == 0x56  || *opcode == 0x7e ) {*/
     } else if ( ( *opcode >= 0x40 && *opcode <= 0x75 ) || ( *opcode >= 0x77 && *opcode <= 0x7f ) ) {
         emulate_MOV ( cpu );
     } else if ( *opcode >= 0x80 && *opcode <= 0x87 ) {
         emulate_ADD ( cpu );
+    } else if ( *opcode == 0xaf ) {
+        emulate_XRA ( cpu );
     } else if ( *opcode == 0xc2 ) {
         emulate_JNZ ( cpu );
     } else if ( *opcode == 0xc3 ) {
@@ -525,7 +599,7 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_RET ( cpu );
     } else if ( *opcode == 0xd4 || *opcode == 0xcd ) {
         emulate_CALL ( cpu );
-    } else if ( *opcode == 0xe1 || *opcode == 0xd1 || *opcode == 0xc1 ) {
+    } else if ( *opcode == 0xe1 || *opcode == 0xd1 || *opcode == 0xc1 || *opcode == 0xf1 ) {
         emulate_POP ( cpu );
     } else if ( *opcode == 0xc5 || *opcode == 0xd5 || *opcode == 0xe5 || *opcode == 0xf5 ) {
         emulate_PUSH ( cpu );
