@@ -37,6 +37,23 @@ int main(int argc, char *argv[]) {
     while ( 1 ) {
         /*cpu.pc += disassembler(cpu.memory, cpu.pc);*/
         emulator ( &cpu );
+
+        if ( cpu.cycles > 16667 ) {
+            cpu.cycles -= 16667;
+
+            if ( cpu.interrupt_addr == 0x10 ) {
+                cpu.interrupt_addr = 0x08;
+            } else {
+                cpu.interrupt_addr = 0x10;
+            }
+
+            emulate_INTERRUPT( &cpu );
+            update_screen ( &cpu );
+            SDL_Delay(16);
+        }
+
+        /*if ( cpu.instructions_executed > 100000 )*/
+            /*break;*/
     }
 
     sdl_quit();
