@@ -8,6 +8,11 @@
 #include "emulator.h"
 #include "disassembler.h"
 
+void emulate_NOP ( _cpu_info *cpu ) {
+    printf(" %08x : NOP\n", cpu->pc);
+    cpu->pc += 1;
+}
+
 void emulate_JMP ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
     uint8_t addr = 0;
@@ -39,8 +44,7 @@ unsigned short int emulator( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
            if ( *opcode == 0x00 ) {
-        printf(" %08x : NOP\n", cpu->pc);
-        cpu->pc += 1;
+        emulate_NOP ( cpu );
     } else if ( *opcode >= 0x80 && *opcode <= 0x87 ) {
         emulate_ADD ( cpu );
     } else if ( *opcode == 0xc3 ) {
