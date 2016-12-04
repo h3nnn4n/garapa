@@ -8,9 +8,31 @@
 #include "emulator.h"
 #include "disassembler.h"
 
+/*void print_registers ( _cpu_info *cpu ) {*/
+    /*printf(" A: %02x B: %02x C: %02x D: %02x E: %02x H: %02x L: %02x M: %04x SP: %08x PC: %08x",*/
+            /*cpu->a, cpu->b, cpu->c, cpu->d, cpu->e, cpu->h, cpu->l, cpu->h << 8 | cpu-> l, cpu->sp, cpu->pc);*/
+    /*printf(" F: %c%c%c%c%c CYCLES: %8d IPS: %8d\n",*/
+            /*cpu->flags.z  ? 'z' : '.',*/
+            /*cpu->flags.s  ? 's' : '.',*/
+            /*cpu->flags.p  ? 'p' : '.',*/
+            /*cpu->flags.cy ? 'c' : '.',*/
+            /*cpu->flags.ac ? 'a' : '.',*/
+            /*cpu->cycles  % 16667     ,*/
+            /*cpu->instructions_executed);*/
+/*}*/
+
 void print_registers ( _cpu_info *cpu ) {
-    printf(" A: %02x B: %02x C: %02x D: %02x E: %02x H: %02x L: %02x M: %04x SP: %08x PC: %08x",
-            cpu->a, cpu->b, cpu->c, cpu->d, cpu->e, cpu->h, cpu->l, cpu->h << 8 | cpu-> l, cpu->sp, cpu->pc);
+    uint8_t f = cpu->flags.cy << 0 |
+                            0 << 1 |
+                cpu->flags.p  << 2 |
+                            0 << 3 |
+                cpu->flags.ac << 4 |
+                            0 << 5 |
+                cpu->flags.z  << 6 |
+                cpu->flags.s  << 7;
+
+    printf(" AF: %02x%02x BC: %02x%02x DE: %02x%02x HL: %02x%02x PC: %08x SP: %08x",
+            cpu->a, f, cpu->b, cpu->c, cpu->d, cpu->e, cpu->h, cpu->l, cpu->pc, cpu->sp);
     printf(" F: %c%c%c%c%c CYCLES: %8d IPS: %8d\n",
             cpu->flags.z  ? 'z' : '.',
             cpu->flags.s  ? 's' : '.',
@@ -119,7 +141,7 @@ void emulate_DAD ( _cpu_info *cpu ) {
     uint32_t       answer = 0;
 
     switch ( *opcode ) {
-        case 0x09: // DAD D
+        case 0x09: // DAD B
             answer  = cpu->h << 8 | cpu->l;
             answer += cpu->b << 8 | cpu->c;
             cpu->flags.cy = answer & 0xffff0000;
@@ -137,6 +159,9 @@ void emulate_DAD ( _cpu_info *cpu ) {
         default:
             assert( 0 && "Code should not get here\n" );
     }
+
+    cpu->h  = (answer >> 8 ) & 0xffff;
+    cpu->l  = (answer >> 0 ) & 0xffff;
 
     cpu->cycles += 11; // FIXME This is actually 10
     cpu->pc     += 1 ;
