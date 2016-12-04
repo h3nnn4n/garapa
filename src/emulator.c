@@ -19,6 +19,20 @@ void print_registers ( _cpu_info *cpu ) {
             cpu->flags.ac ? 'a' : '.' );
 }
 
+void emulate_EI ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+
+    switch ( *opcode ) {
+            case 0xfb: // EI
+            cpu->enable_interrupts = 1;
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->pc += 1 ;
+}
+
 void emulate_XRA ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
@@ -55,6 +69,24 @@ void emulate_ADI ( _cpu_info *cpu ) {
     }
 
     cpu->pc += 2 ;
+}
+
+void emulate_ANA ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+
+    switch ( *opcode ) {
+        case 0xa7: // ANI
+            cpu->a       &= opcode[1];
+            cpu->flags.cy = cpu->flags.ac = 0;
+            cpu->flags.z  = (cpu->a == 0);
+            cpu->flags.s  = (0x80 == (cpu->a & 0x80));
+            cpu->flags.p  = parity_bit(cpu->a);
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->pc += 1 ;
 }
 
 void emulate_ANI ( _cpu_info *cpu ) {
@@ -605,10 +637,14 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_PUSH ( cpu );
     } else if ( *opcode == 0xd3 ) {
         emulate_OUT ( cpu );
+    } else if ( *opcode == 0xa7 ) {
+        emulate_ANA ( cpu );
     } else if ( *opcode == 0xe6 ) {
         emulate_ANI ( cpu );
     } else if ( *opcode == 0xeb ) {
         emulate_XCHG ( cpu );
+    } else if ( *opcode == 0xfb ) {
+        emulate_EI ( cpu );
     } else if ( *opcode == 0xfe ) {
         emulate_CPI ( cpu );
     } else {

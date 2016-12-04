@@ -13,6 +13,7 @@ typedef struct {
 
 typedef struct {
     unsigned char *memory;
+    unsigned char enable_interrupts;
 
     _cpu_flags flags;
 
