@@ -14,8 +14,7 @@ off_t fsize(const char *filename) {
     if (stat(filename, &st) == 0)
         return st.st_size;
 
-    fprintf(stderr, "Cannot determine size of %s: %s\n",
-            filename, strerror(errno));
+    fprintf(stderr, "Cannot determine size of %s: %s\n", filename, strerror(errno));
 
     return -1;
 }
@@ -42,7 +41,6 @@ void init_cpu( _cpu_info *cpu ) {
 
 void unimplemented_opcode( _cpu_info *cpu ) {
     disassembler ( cpu->memory, cpu->pc );
-    /*fprintf(stderr, "%08x:%x  \t Unimplemented OP!\n", cpu->pc, cpu->memory[cpu->pc]);*/
     exit(-1);
 }
 
