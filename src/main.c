@@ -33,6 +33,7 @@ int main(int argc, char *argv[]) {
     }
 
     sdl_init();
+    atexit(SDL_Quit);
 
     while ( 1 ) {
         /*cpu.pc += disassembler(cpu.memory, cpu.pc);*/
@@ -43,20 +44,16 @@ int main(int argc, char *argv[]) {
 
             if ( cpu.interrupt_addr == 0x10 ) {
                 cpu.interrupt_addr = 0x08;
+                emulate_INTERRUPT( &cpu );
+                update_screen ( &cpu );
             } else {
                 cpu.interrupt_addr = 0x10;
+                emulate_INTERRUPT( &cpu );
+                update_input ( &cpu );
+                SDL_Delay(16);
             }
-
-            emulate_INTERRUPT( &cpu );
-            update_screen ( &cpu );
-            SDL_Delay(16);
         }
-
-        /*if ( cpu.instructions_executed > 100000 )*/
-            /*break;*/
     }
-
-    sdl_quit();
 
     return 0;
 }

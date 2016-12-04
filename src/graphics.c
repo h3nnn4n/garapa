@@ -17,6 +17,20 @@ void sdl_init ( ) {
     white = SDL_MapRGB(screen->format, 0xff, 0xff, 0xff);
 }
 
+void update_input ( _cpu_info *cpu ) {
+    SDL_Event ev;
+
+    while (SDL_PollEvent(&ev)) {
+        switch (ev.type) {
+            case SDL_QUIT:
+                exit(0);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
 void update_screen ( _cpu_info *cpu ) {
     unsigned char* raster = screen->pixels;
     uint16_t base = 0x2400;
@@ -29,40 +43,16 @@ void update_screen ( _cpu_info *cpu ) {
         }
     }
 
+    // DEAD PIXEL
+    // for debuggging
+    *raster = (cpu->memory[base + 700]) = 0xff;
+
     SDL_UnlockSurface( screen );
     SDL_UpdateRect(screen, 0, 0, 256, 224);
 }
 
 void sdl_quit ( ) {
     SDL_Quit();
-}
-
-void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel) {
-    int bpp = surface->format->BytesPerPixel;
-    Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
-
-    switch(bpp) {
-        case 1:
-            *p = pixel;
-            break;
-
-        case 2: *(Uint16 *)p = pixel; break;
-        case 3:
-                if(SDL_BYTEORDER == SDL_BIG_ENDIAN) {
-                    p[0] = (pixel >> 16) & 0xff;
-                    p[1] = (pixel >> 8) & 0xff;
-                    p[2] = pixel & 0xff;
-                } else {
-                    p[0] = pixel & 0xff;
-                    p[1] = (pixel >> 8) & 0xff;
-                    p[2] = (pixel >> 16) & 0xff;
-                }
-                break;
-
-        case 4:
-                *(Uint32 *)p = pixel;
-                break;
-    }
 }
 
 #else
