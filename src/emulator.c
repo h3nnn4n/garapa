@@ -13,9 +13,115 @@ void print_registers ( _cpu_info *cpu ) {
             cpu->a, cpu->b, cpu->c, cpu->d, cpu->e, cpu->h, cpu->l, cpu->h << 8 | cpu-> l, cpu->sp, cpu->pc);
 }
 
+void emulate_DCR ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint16_t answer = 0;
+
+    switch ( *opcode ) {
+        case 0x05: // DCR B
+            cpu->b -= 1;
+            answer = cpu->b;
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->flags.z    = ( answer & 0xff ) == 0       ; // Only the last 8 bits matters, hence the mask
+    cpu->flags.s    = ( answer & 0x80 ) != 0       ; // Checks if the MSB is 1
+    cpu->flags.cy   = ( answer > 0xff )            ; // Checks for the carry bit
+    cpu->flags.p    = parity_bit ( answer & 0xff ) ; // Returns 1 if the number os bits set as 1 is even
+    /*cpu->a          = answer & 0xff                ; // Stores the 8 bit result in the A register*/
+
+    cpu->pc += 1 ;
+}
+
+void emulate_INX ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+
+    switch ( *opcode ) {
+        case 0x13: // INX D
+            cpu->e += 1;
+            if ( cpu->e == 0 )
+                cpu->d += 1;
+            break;
+        case 0x23: // INX H
+            cpu->l += 1;
+            if ( cpu->l == 0 )
+                cpu->h += 1;
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->pc += 1 ;
+}
+
+void emulate_ADD ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint16_t answer = (uint16_t) cpu->a;
+
+    switch ( *opcode ) {
+        case 0x80:
+            answer += (uint16_t) cpu->b;
+            break;
+        case 0x81:
+            answer += (uint16_t) cpu->c;
+            break;
+        case 0x82:
+            answer += (uint16_t) cpu->d;
+            break;
+        case 0x83:
+            answer += (uint16_t) cpu->e;
+            break;
+        case 0x84:
+            answer += (uint16_t) cpu->h;
+            break;
+        case 0x85:
+            answer += (uint16_t) cpu->l;
+            break;
+        case 0x86:
+            answer += (uint16_t) cpu->memory[(cpu->h<<8) | (cpu->l)];
+            break;
+        case 0x87:
+            answer += (uint16_t) cpu->a;
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->flags.z    = ( answer & 0xff ) == 0       ; // Only the last 8 bits matters, hence the mask
+    cpu->flags.s    = ( answer & 0x80 ) != 0       ; // Checks if the MSB is 1
+    cpu->flags.cy   = ( answer > 0xff )            ; // Checks for the carry bit
+    cpu->flags.p    = parity_bit ( answer & 0xff ) ; // Returns 1 if the number os bits set as 1 is even
+    cpu->a          = answer & 0xff                ; // Stores the 8 bit result in the A register
+    cpu->pc        += 1                            ; // Moves the program counter
+}
+
 void emulate_NOP ( _cpu_info *cpu ) {
     /*printf(" %08x : NOP\n", cpu->pc);*/
     cpu->pc += 1;
+}
+
+void emulate_LXI ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+
+    switch ( *opcode ) {
+        case 0x11:
+            cpu->d = opcode[2];
+            cpu->e = opcode[1];
+            break;
+        case 0x21:
+            cpu->h = opcode[2];
+            cpu->l = opcode[1];
+            break;
+        case 0x31:
+            cpu->sp = opcode[2] << 8 | opcode[1];
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->pc += 3;
 }
 
 void emulate_MVI ( _cpu_info *cpu ) {
@@ -23,10 +129,26 @@ void emulate_MVI ( _cpu_info *cpu ) {
 
     switch ( *opcode ) {
         case 0x06:
-            cpu->b = cpu->memory[opcode[2] << 8 | opcode[1]];
+            cpu->b = cpu->memory[opcode[1]];
             break;
         case 0x3e:
-            cpu->a = cpu->memory[opcode[2] << 8 | opcode[1]];
+            cpu->a = cpu->memory[opcode[1]];
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->pc += 2;
+}
+
+void emulate_MOV ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint16_t addr;
+
+    switch ( *opcode ) {
+        case 0x77:
+            addr = cpu->h << 8 | cpu->l;
+            cpu->memory[addr] = cpu->a;
             break;
         default:
             assert( 0 && "Code should not get here\n" );
@@ -35,8 +157,20 @@ void emulate_MVI ( _cpu_info *cpu ) {
     cpu->pc += 1;
 }
 
-void emulate_MOV ( _cpu_info *cpu ) {
-    // STUB
+void emulate_LDAX ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint16_t addr = 0;
+
+    switch ( *opcode ) {
+        case 0x1a:
+            addr = cpu->d << 8 | cpu->e;
+            cpu->a = cpu->memory[addr];
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->pc += 1;
 }
 
 void emulate_JMP ( _cpu_info *cpu ) {
@@ -45,13 +179,13 @@ void emulate_JMP ( _cpu_info *cpu ) {
 
     switch ( *opcode ) {
         case 0xc3:
-            addr = (opcode[2] << 8) + opcode[1];
+            addr = opcode[2] << 8 | opcode[1];
             break;
         default:
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->pc += addr;
+    cpu->pc = addr;
 }
 
 void emulate_CALL ( _cpu_info *cpu ) {
@@ -59,10 +193,19 @@ void emulate_CALL ( _cpu_info *cpu ) {
     /*uint16_t addr = 0;*/
 
     switch ( *opcode ) {
+        case 0xcd:
+            {
+                assert ( cpu->sp >= 2 && "Got a segfault in the 8080" );
+                uint16_t ret           = cpu->pc + 2;
+                cpu->memory[cpu->sp-1] = (ret >> 8) & 0xff;
+                cpu->memory[cpu->sp-2] = (ret & 0xff);
+                cpu->sp                = cpu->sp - 2;
+                cpu->pc                = opcode[2] << 8 | opcode[1];
+            }
+            break;
         case 0xd4:
             break;
     }
-    assert( 0 && "This is not working yet, gtfo!");
 }
 
 unsigned short int emulator( _cpu_info *cpu ) {
@@ -71,16 +214,27 @@ unsigned short int emulator( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
     disassembler ( cpu->memory, cpu->pc );
+    print_registers(cpu);
 
            if ( *opcode == 0x00 ) {
         emulate_NOP ( cpu );
+    } else if ( *opcode == 0x05 || *opcode == 0x05 || *opcode == 0x05 ) {
+        emulate_DCR ( cpu );
+    } else if ( *opcode == 0x1a || *opcode == 0x1a || *opcode == 0x1a ) {
+        emulate_LDAX ( cpu );
+    } else if ( *opcode == 0x11 || *opcode == 0x21 || *opcode == 0x31 ) {
+        emulate_LXI ( cpu );
+    } else if ( *opcode == 0x13 || *opcode == 0x23 || *opcode == 0x13 ) {
+        emulate_INX ( cpu );
     } else if ( *opcode == 0x3e || *opcode == 0x06 ) {
         emulate_MVI ( cpu );
+    } else if ( *opcode >= 0x77 && *opcode <= 0x77 ) {
+        emulate_MOV ( cpu );
     } else if ( *opcode >= 0x80 && *opcode <= 0x87 ) {
         emulate_ADD ( cpu );
     } else if ( *opcode == 0xc3 ) {
         emulate_JMP ( cpu );
-    } else if ( *opcode == 0xd4 ) {
+    } else if ( *opcode == 0xd4 || *opcode == 0xcd ) {
         emulate_CALL ( cpu );
     } else {
         printf(" %2X is not implemented\n", cpu->memory[cpu->pc]);
@@ -381,45 +535,4 @@ unsigned short int emulator( _cpu_info *cpu ) {
     /*}*/
 
     return op_size;
-}
-
-void emulate_ADD ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
-    uint16_t answer = (uint16_t) cpu->a;
-
-    switch ( *opcode ) {
-        case 0x80:
-            answer += (uint16_t) cpu->b;
-            break;
-        case 0x81:
-            answer += (uint16_t) cpu->c;
-            break;
-        case 0x82:
-            answer += (uint16_t) cpu->d;
-            break;
-        case 0x83:
-            answer += (uint16_t) cpu->e;
-            break;
-        case 0x84:
-            answer += (uint16_t) cpu->h;
-            break;
-        case 0x85:
-            answer += (uint16_t) cpu->l;
-            break;
-        case 0x86:
-            answer += (uint16_t) cpu->memory[(cpu->h<<8) | (cpu->l)];
-            break;
-        case 0x87:
-            answer += (uint16_t) cpu->a;
-            break;
-        default:
-            exit(-1);
-    }
-
-    cpu->flags.z    = ( answer & 0xff ) == 0       ; // Only the last 8 bits matters, hence the mask
-    cpu->flags.s    = ( answer & 0x80 ) != 0       ; // Checks if the MSB is 1
-    cpu->flags.cy   = ( answer > 0xff )            ; // Checks for the carry bit
-    cpu->flags.p    = parity_bit ( answer & 0xff ) ; // Returns 1 if the number os bits set as 1 is even
-    cpu->a          = answer & 0xff                ; // Stores the 8 bit result in the A register
-    cpu->pc        += 1                            ; // Moves the program counter
 }

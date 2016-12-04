@@ -1,12 +1,14 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#include <stdint.h>
+
 typedef struct {
-    unsigned char z  ; // Zero flag
-    unsigned char s  ; // Signal bit
-    unsigned char p  ; // Parity bit
-    unsigned char cy ; // Cary bit
-    unsigned char ac ; // Auxiliary carry
+    uint8_t z  ; // Zero flag
+    uint8_t s  ; // Signal bit
+    uint8_t p  ; // Parity bit
+    uint8_t cy ; // Cary bit
+    uint8_t ac ; // Auxiliary carry
 } _cpu_flags;
 
 typedef struct {
@@ -14,16 +16,16 @@ typedef struct {
 
     _cpu_flags flags;
 
-    unsigned int pc;
-    unsigned int sp;
+    uint16_t pc;
+    uint16_t sp;
 
-    unsigned int a;
-    unsigned int b;
-    unsigned int c;
-    unsigned int d;
-    unsigned int e;
-    unsigned int h;
-    unsigned int l;
+    uint8_t a;
+    uint8_t b;
+    uint8_t c;
+    uint8_t d;
+    uint8_t e;
+    uint8_t h;
+    uint8_t l;
 } _cpu_info;
 
 #endif /* TYPES_H */

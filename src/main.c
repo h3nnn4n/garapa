@@ -28,6 +28,8 @@ int main(int argc, char *argv[]) {
         printf("Opening: %s\nFile contains: %lu bytes\n", argv[1], buffer_size);
     }
 
+    /*cpu.pc = 0x18d4;*/
+
     while ( 1 ) {
         /*cpu.pc += disassembler(cpu.memory, cpu.pc);*/
         emulator ( &cpu );
