@@ -15,7 +15,7 @@ void emulate_JMP ( _cpu_info *cpu ) {
     switch ( *opcode ) {
         case 0xc3:
             printf(" %8x: JMP %x %x\n", cpu->pc, opcode[1], opcode[2]);
-            addr = opcode[1] << 8 | opcode[2];
+            addr = opcode[2] << 8 | opcode[1];
             break;
     }
 
