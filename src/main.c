@@ -28,11 +28,9 @@ int main(int argc, char *argv[]) {
         printf("Opening: %s\nFile contains: %lu bytes\n", argv[1], buffer_size);
     }
 
-    while ( cpu.pc < 100 ) {
+    while ( 1 ) {
         /*cpu.pc += disassembler(cpu.memory, cpu.pc);*/
         emulator ( &cpu );
-
-        if ( cpu.pc > 0x3f ) break;
     }
 
 

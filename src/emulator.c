@@ -14,7 +14,7 @@ void emulate_JMP ( _cpu_info *cpu ) {
 
     switch ( *opcode ) {
         case 0xc3:
-            printf(" %8x: JMP %x %x\n", cpu->pc, opcode[1], opcode[2]);
+            printf(" %08x : JMP %x %x\n", cpu->pc, opcode[1], opcode[2]);
             addr = opcode[2] << 8 | opcode[1];
             break;
     }
@@ -39,7 +39,7 @@ unsigned short int emulator( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
            if ( *opcode == 0x00 ) {
-        printf(" %8x: NOP\n", cpu->pc);
+        printf(" %08x : NOP\n", cpu->pc);
         cpu->pc += 1;
     } else if ( *opcode >= 0x80 && *opcode <= 0x87 ) {
         emulate_ADD ( cpu );
@@ -48,9 +48,9 @@ unsigned short int emulator( _cpu_info *cpu ) {
     } else if ( *opcode == 0xd4 ) {
         emulate_CALL ( cpu );
     } else {
-        printf(" %8x %2X is not implemented\n", cpu->pc, cpu->memory[cpu->pc]);
-        exit(-1);
-        /*unimplemented_opcode( cpu ) ;*/
+        /*printf(" %8x %2X is not implemented\n", cpu->pc, cpu->memory[cpu->pc]);*/
+        /*exit(-1);*/
+        unimplemented_opcode( cpu ) ;
     }
 
     /*switch ( *opcode ) {*/
