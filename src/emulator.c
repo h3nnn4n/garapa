@@ -9,8 +9,34 @@
 #include "disassembler.h"
 
 void print_registers ( _cpu_info *cpu ) {
-    printf(" A: %02x B: %02x C: %02x D: %02x E: %02x H: %02x L: %02x M: %04x SP: %08x PC: %08x\n",
+    printf(" A: %02x B: %02x C: %02x D: %02x E: %02x H: %02x L: %02x M: %04x SP: %08x PC: %08x",
             cpu->a, cpu->b, cpu->c, cpu->d, cpu->e, cpu->h, cpu->l, cpu->h << 8 | cpu-> l, cpu->sp, cpu->pc);
+    printf(" F: %c%c%c%c%c\n",
+            cpu->flags.z  ? 'z' : '.',
+            cpu->flags.s  ? 's' : '.',
+            cpu->flags.p  ? 'p' : '.',
+            cpu->flags.cy ? 'c' : '.',
+            cpu->flags.ac ? 'a' : '.' );
+}
+
+void emulate_CPI ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint8_t        answer = 0;
+
+    switch ( *opcode ) {
+        case 0xfe: // CPI A
+            answer = cpu->a - opcode[1];
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->flags.z    = answer == 0                  ; // Only the last 8 bits matters, hence the mask
+    cpu->flags.s    = ( answer & 0x80 ) != 0       ; // Checks if the MSB is 1
+    cpu->flags.cy   = ( cpu->a < opcode[1] )       ; // Checks for the carry bit
+    cpu->flags.p    = parity_bit ( answer & 0xff ) ; // Returns 1 if the number os bits set as 1 is even
+
+    cpu->pc += 2 ;
 }
 
 void emulate_DCR ( _cpu_info *cpu ) {
@@ -131,6 +157,9 @@ void emulate_MVI ( _cpu_info *cpu ) {
         case 0x06:
             cpu->b = cpu->memory[opcode[1]];
             break;
+        case 0x36:
+            cpu->memory[cpu->h << 8 | cpu->l] = cpu->memory[opcode[1]];
+            break;
         case 0x3e:
             cpu->a = cpu->memory[opcode[1]];
             break;
@@ -141,6 +170,23 @@ void emulate_MVI ( _cpu_info *cpu ) {
     cpu->pc += 2;
 }
 
+void emulate_RET ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint16_t addr;
+
+    switch ( *opcode ) {
+        case 0xc9:
+            addr = cpu->memory[cpu->sp+1] << 8 | cpu->memory[cpu->sp];
+            cpu->sp += 2;
+            cpu->pc = addr;
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->pc += 1;
+}
+
 void emulate_MOV ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
     uint16_t addr;
@@ -149,6 +195,9 @@ void emulate_MOV ( _cpu_info *cpu ) {
         case 0x77:
             addr = cpu->h << 8 | cpu->l;
             cpu->memory[addr] = cpu->a;
+            break;
+        case 0x7c:
+            cpu->a = cpu->h;
             break;
         default:
             assert( 0 && "Code should not get here\n" );
@@ -171,6 +220,23 @@ void emulate_LDAX ( _cpu_info *cpu ) {
     }
 
     cpu->pc += 1;
+}
+
+void emulate_JNZ ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint16_t addr = 0;
+
+    switch ( *opcode ) {
+        case 0xc2:
+            addr = opcode[2] << 8 | opcode[1];
+            if ( !cpu->flags.z )
+                cpu->pc = addr;
+            else
+                cpu->pc += 3;
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
 }
 
 void emulate_JMP ( _cpu_info *cpu ) {
@@ -226,16 +292,22 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_LXI ( cpu );
     } else if ( *opcode == 0x13 || *opcode == 0x23 || *opcode == 0x13 ) {
         emulate_INX ( cpu );
-    } else if ( *opcode == 0x3e || *opcode == 0x06 ) {
+    } else if ( *opcode == 0x3e || *opcode == 0x36 || *opcode == 0x06 ) {
         emulate_MVI ( cpu );
-    } else if ( *opcode >= 0x77 && *opcode <= 0x77 ) {
+    } else if ( *opcode >= 0x77 && *opcode <= 0x7c ) {
         emulate_MOV ( cpu );
     } else if ( *opcode >= 0x80 && *opcode <= 0x87 ) {
         emulate_ADD ( cpu );
+    } else if ( *opcode == 0xc2 ) {
+        emulate_JNZ ( cpu );
     } else if ( *opcode == 0xc3 ) {
         emulate_JMP ( cpu );
+    } else if ( *opcode == 0xc9 ) {
+        emulate_RET ( cpu );
     } else if ( *opcode == 0xd4 || *opcode == 0xcd ) {
         emulate_CALL ( cpu );
+    } else if ( *opcode == 0xfe ) {
+        emulate_CPI ( cpu );
     } else {
         printf(" %2X is not implemented\n", cpu->memory[cpu->pc]);
         exit(-1);
