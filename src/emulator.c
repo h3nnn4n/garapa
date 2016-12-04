@@ -137,7 +137,7 @@ void emulate_DAD ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 10;
+    cpu->cycles += 11; // FIXME This is actually 10
     cpu->pc     += 1 ;
 }
 
@@ -177,7 +177,7 @@ void emulate_XCHG ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 5 ;
+    cpu->cycles += 4 ; // FIXME THis is 5
     cpu->pc     += 1 ;
 }
 
@@ -337,7 +337,7 @@ void emulate_INX ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 5 ;
+    cpu->cycles += 6 ; // FIXME This is 5
     cpu->pc     += 1 ;
 }
 
@@ -366,6 +366,7 @@ void emulate_ADD ( _cpu_info *cpu ) {
             break;
         case 0x86:
             answer += (uint16_t) cpu->memory[(cpu->h<<8) | (cpu->l)];
+            cpu->cycles += 3;
             break;
         case 0x87:
             answer += (uint16_t) cpu->a;
@@ -431,6 +432,7 @@ void emulate_MVI ( _cpu_info *cpu ) {
             break;
         case 0x36: // MVI M
             cpu->memory[cpu->h << 8 | cpu->l] = cpu->memory[opcode[1]];
+            cpu->cycles += 3;
             break;
         case 0x3e: // MVI A, M
             cpu->a = cpu->memory[opcode[1]];
@@ -440,7 +442,7 @@ void emulate_MVI ( _cpu_info *cpu ) {
     }
 
     cpu->cycles += 7 ;
-    cpu->pc     += 2;
+    cpu->pc     += 2 ;
 }
 
 void emulate_RET ( _cpu_info *cpu ) {
@@ -570,10 +572,12 @@ void emulate_JNZ ( _cpu_info *cpu ) {
     switch ( *opcode ) {
         case 0xc2:
             addr = opcode[2] << 8 | opcode[1];
-            if ( !cpu->flags.z )
+            if ( !cpu->flags.z ) {
                 cpu->pc = addr;
-            else
-                cpu->pc += 3;
+                cpu->cycle += 5; // FIXME this is 3
+            } else {
+                cpu->pc += 2;
+            }
             break;
         default:
             assert( 0 && "Code should not get here\n" );
@@ -594,13 +598,12 @@ void emulate_JMP ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->pc = addr;
-    cpu->cycles += 10;
+    cpu->cycles += 10  ;
+    cpu->pc      = addr;
 }
 
 void emulate_CALL ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
-    /*uint16_t addr = 0;*/
 
     switch ( *opcode ) {
         case 0xcd:
