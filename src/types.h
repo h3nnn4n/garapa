@@ -15,6 +15,8 @@ typedef struct {
     unsigned char *memory;
     unsigned char enable_interrupts;
 
+    uint32_t cycles;
+
     _cpu_flags flags;
 
     uint16_t pc;

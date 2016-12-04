@@ -11,12 +11,13 @@
 void print_registers ( _cpu_info *cpu ) {
     printf(" A: %02x B: %02x C: %02x D: %02x E: %02x H: %02x L: %02x M: %04x SP: %08x PC: %08x",
             cpu->a, cpu->b, cpu->c, cpu->d, cpu->e, cpu->h, cpu->l, cpu->h << 8 | cpu-> l, cpu->sp, cpu->pc);
-    printf(" F: %c%c%c%c%c\n",
+    printf(" F: %c%c%c%c%c CYCLES: %8d\n",
             cpu->flags.z  ? 'z' : '.',
             cpu->flags.s  ? 's' : '.',
             cpu->flags.p  ? 'p' : '.',
             cpu->flags.cy ? 'c' : '.',
-            cpu->flags.ac ? 'a' : '.' );
+            cpu->flags.ac ? 'a' : '.',
+            cpu->cycles               );
 }
 
 void emulate_EI ( _cpu_info *cpu ) {
@@ -30,7 +31,8 @@ void emulate_EI ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->pc += 1 ;
+    cpu->cycles += 4 ;
+    cpu->pc     += 1 ;
 }
 
 void emulate_XRA ( _cpu_info *cpu ) {
@@ -48,7 +50,8 @@ void emulate_XRA ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->pc += 2 ;
+    cpu->cycles += 4 ;
+    cpu->pc     += 1 ;
 }
 
 void emulate_ADI ( _cpu_info *cpu ) {
@@ -68,7 +71,8 @@ void emulate_ADI ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->pc += 2 ;
+    cpu->cycles += 7 ;
+    cpu->pc     += 2 ;
 }
 
 void emulate_ANA ( _cpu_info *cpu ) {
@@ -86,7 +90,8 @@ void emulate_ANA ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->pc += 1 ;
+    cpu->cycles += 4 ;
+    cpu->pc     += 1 ;
 }
 
 void emulate_ANI ( _cpu_info *cpu ) {
@@ -104,7 +109,8 @@ void emulate_ANI ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->pc += 2 ;
+    cpu->cycles += 7 ;
+    cpu->pc     += 2 ;
 }
 
 void emulate_DAD ( _cpu_info *cpu ) {
@@ -131,8 +137,8 @@ void emulate_DAD ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-
-    cpu->pc += 1 ;
+    cpu->cycles += 10;
+    cpu->pc     += 1 ;
 }
 
 void emulate_RRC ( _cpu_info *cpu ) {
@@ -149,7 +155,8 @@ void emulate_RRC ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->pc += 1 ;
+    cpu->cycles += 4 ;
+    cpu->pc     += 1 ;
 }
 
 void emulate_XCHG ( _cpu_info *cpu ) {
@@ -170,20 +177,22 @@ void emulate_XCHG ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->pc += 1 ;
+    cpu->cycles += 5 ;
+    cpu->pc     += 1 ;
 }
 
 void emulate_OUT ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
     switch ( *opcode ) {
-        case 0xd3: // CPI A
+        case 0xd3: // OUT
             break;
         default:
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->pc += 2;
+    cpu->cycles += 10;
+    cpu->pc     += 2 ;
 }
 void emulate_CPI ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
@@ -202,7 +211,8 @@ void emulate_CPI ( _cpu_info *cpu ) {
     cpu->flags.cy   = ( cpu->a < opcode[1] )       ; // Checks for the carry bit
     cpu->flags.p    = parity_bit ( answer & 0xff ) ; // Returns 1 if the number os bits set as 1 is even
 
-    cpu->pc += 2 ;
+    cpu->cycles += 7 ;
+    cpu->pc     += 2 ;
 }
 
 void emulate_DCR ( _cpu_info *cpu ) {
@@ -228,7 +238,8 @@ void emulate_DCR ( _cpu_info *cpu ) {
     cpu->flags.p    = parity_bit ( answer & 0xff ) ; // Returns 1 if the number os bits set as 1 is even
     /*cpu->a          = answer & 0xff                ; // Stores the 8 bit result in the A register*/
 
-    cpu->pc += 1 ;
+    cpu->cycles += 5 ;
+    cpu->pc     += 1 ;
 }
 
 void emulate_POP ( _cpu_info *cpu ) {
@@ -263,7 +274,8 @@ void emulate_POP ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->pc += 1 ;
+    cpu->cycles += 10;
+    cpu->pc     += 1 ;
 }
 
 void emulate_PUSH ( _cpu_info *cpu ) {
@@ -298,7 +310,8 @@ void emulate_PUSH ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->pc += 1 ;
+    cpu->cycles += 11;
+    cpu->pc     += 1 ;
 }
 
 void emulate_INX ( _cpu_info *cpu ) {
@@ -324,7 +337,8 @@ void emulate_INX ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->pc += 1 ;
+    cpu->cycles += 5 ;
+    cpu->pc     += 1 ;
 }
 
 void emulate_ADD ( _cpu_info *cpu ) {
@@ -366,11 +380,13 @@ void emulate_ADD ( _cpu_info *cpu ) {
     cpu->flags.p    = parity_bit ( answer & 0xff ) ; // Returns 1 if the number os bits set as 1 is even
     cpu->a          = answer & 0xff                ; // Stores the 8 bit result in the A register
     cpu->pc        += 1                            ; // Moves the program counter
+    cpu->cycles    += 4                            ; // Update the total of cycles spent
 }
 
 void emulate_NOP ( _cpu_info *cpu ) {
     /*printf(" %08x : NOP\n", cpu->pc);*/
-    cpu->pc += 1;
+    cpu->cycles += 4 ;
+    cpu->pc     += 1 ;
 }
 
 void emulate_LXI ( _cpu_info *cpu ) {
@@ -396,7 +412,8 @@ void emulate_LXI ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->pc += 3;
+    cpu->cycles += 10;
+    cpu->pc     += 3 ;
 }
 
 void emulate_MVI ( _cpu_info *cpu ) {
@@ -422,7 +439,8 @@ void emulate_MVI ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->pc += 2;
+    cpu->cycles += 7 ;
+    cpu->pc     += 2;
 }
 
 void emulate_RET ( _cpu_info *cpu ) {
@@ -439,7 +457,8 @@ void emulate_RET ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->pc += 1;
+    cpu->cycles += 10;
+    cpu->pc     += 1 ;
 }
 
 void emulate_MOV ( _cpu_info *cpu ) {
@@ -450,22 +469,27 @@ void emulate_MOV ( _cpu_info *cpu ) {
         case 0x7e: // MOV A, M
             addr = cpu->h << 8 | cpu->l;
             cpu->d = cpu->memory[addr];
+            cpu->cycles += 2;
             break;
         case 0x66: // MOV H, M
             addr = cpu->h << 8 | cpu->l;
             cpu->h = cpu->memory[addr];
+            cpu->cycles += 2;
             break;
         case 0x56: // MOV D, M
             addr = cpu->h << 8 | cpu->l;
             cpu->d = cpu->memory[addr];
+            cpu->cycles += 2;
             break;
         case 0x5e: // MOV E, M
             addr = cpu->h << 8 | cpu->l;
             cpu->e = cpu->memory[addr];
+            cpu->cycles += 2;
             break;
         case 0x77: // MOV M, A
             addr = cpu->h << 8 | cpu->l;
             cpu->memory[addr] = cpu->a;
+            cpu->cycles += 2;
             break;
         case 0x7b: // MOV A, E
             cpu->a = cpu->e;
@@ -484,7 +508,8 @@ void emulate_MOV ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->pc += 1;
+    cpu->cycles += 5 ;
+    cpu->pc     += 1 ;
 }
 
 void emulate_STA ( _cpu_info *cpu ) {
@@ -500,7 +525,8 @@ void emulate_STA ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->pc += 3;
+    cpu->cycles += 13;
+    cpu->pc     += 3 ;
 }
 
 void emulate_LDA ( _cpu_info *cpu ) {
@@ -516,7 +542,8 @@ void emulate_LDA ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->pc += 3;
+    cpu->cycles += 13;
+    cpu->pc     += 3;
 }
 
 void emulate_LDAX ( _cpu_info *cpu ) {
@@ -532,7 +559,8 @@ void emulate_LDAX ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->pc += 1;
+    cpu->cycles += 7 ;
+    cpu->pc     += 1 ;
 }
 
 void emulate_JNZ ( _cpu_info *cpu ) {
@@ -550,6 +578,8 @@ void emulate_JNZ ( _cpu_info *cpu ) {
         default:
             assert( 0 && "Code should not get here\n" );
     }
+
+    cpu->cycles += 10;
 }
 
 void emulate_JMP ( _cpu_info *cpu ) {
@@ -565,6 +595,7 @@ void emulate_JMP ( _cpu_info *cpu ) {
     }
 
     cpu->pc = addr;
+    cpu->cycles += 10;
 }
 
 void emulate_CALL ( _cpu_info *cpu ) {
@@ -585,6 +616,8 @@ void emulate_CALL ( _cpu_info *cpu ) {
         case 0xd4:
             break;
     }
+
+    cpu->cycles += 17;
 }
 
 unsigned short int emulator( _cpu_info *cpu ) {
