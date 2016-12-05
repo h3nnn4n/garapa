@@ -250,6 +250,17 @@ void emulate_IN ( _cpu_info *cpu ) {
 
     switch ( *opcode ) {
         case 0xdb: // IN
+            {
+                uint8_t port = opcode[1];
+                switch ( port ) {
+                    case 0x03:
+                        {
+                        uint16_t v = (cpu->shift1<<8) | cpu->shift0;
+                        cpu->a = ((v >> (8 - cpu->shift_offset)) & 0xff);
+                        }
+                        break;
+                }
+            }
             break;
         default:
             assert( 0 && "Code should not get here\n" );
@@ -264,6 +275,20 @@ void emulate_OUT ( _cpu_info *cpu ) {
 
     switch ( *opcode ) {
         case 0xd3: // OUT
+            {
+                uint8_t port = opcode[1];
+                switch ( port ) {
+                    case 0x02:
+                        cpu->shift_offset = cpu->a & 0x7;
+                        break;
+                    case 0x04:
+                        cpu->shift0 = cpu->shift1;
+                        cpu->shift1 = cpu->a;
+                        break;
+                    default:
+                        break;
+                }
+            }
             break;
         default:
             assert( 0 && "Code should not get here\n" );
@@ -337,10 +362,9 @@ void emulate_DCR ( _cpu_info *cpu ) {
             answer = cpu->c;
             break;
         case 0x35: // DCR M
-            answer = cpu->h << 8 | cpu->l;
+            answer = cpu->memory[cpu->h << 8 | cpu->l];
             answer -= 1;
-            cpu->h = (answer >> 8) & 0xffff;
-            cpu->l = (answer >> 0) & 0xffff;
+            cpu->memory[cpu->h << 8 | cpu->l] = answer;
             break;
         default:
             assert( 0 && "Code should not get here\n" );
@@ -394,9 +418,8 @@ void emulate_POP ( _cpu_info *cpu ) {
 
 void emulate_INTERRUPT ( _cpu_info *cpu ) {
     if ( cpu->enable_interrupts ) {
-        /*printf("INTERRUPT %08x   PC: %08x\n", cpu->interrupt_addr, cpu->pc);*/
-        printf("INTERRUPT: %08x  -  ", cpu->interrupt_addr );
-        print_registers(cpu);
+        /*printf("INTERRUPT: %08x  -  ", cpu->interrupt_addr );*/
+        /*print_registers(cpu);*/
 
         uint16_t ret           = cpu->pc;
         cpu->memory[cpu->sp-1] = (ret >> 8) & 0xff;
@@ -863,15 +886,15 @@ void emulate_CALL ( _cpu_info *cpu ) {
         case 0xcd:
             {
                 assert ( cpu->sp >= 2 && "Got a segfault in the 8080" );
-                uint16_t ret           = cpu->pc + 2;
+                uint16_t ret           = cpu->pc + 3;
                 cpu->memory[cpu->sp-1] = (ret >> 8) & 0xff;
                 cpu->memory[cpu->sp-2] = (ret & 0xff);
                 cpu->sp                = cpu->sp - 2;
                 cpu->pc                = opcode[2] << 8 | opcode[1];
             }
             break;
-        case 0xd4:
-            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
     }
 
     cpu->cycles += 17;
@@ -933,7 +956,7 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_RZ ( cpu );
     } else if ( *opcode == 0xc9 ) {
         emulate_RET ( cpu );
-    } else if ( *opcode == 0xd4 || *opcode == 0xcd ) {
+    } else if ( *opcode == 0xcd || *opcode == 0xcd ) {
         emulate_CALL ( cpu );
     } else if ( *opcode == 0xe1 || *opcode == 0xd1 || *opcode == 0xc1 || *opcode == 0xf1 ) {
         emulate_POP ( cpu );

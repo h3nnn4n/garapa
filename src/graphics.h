@@ -12,6 +12,7 @@ Uint32 white;
 
 void sdl_init ( ) ;
 void update_screen ( _cpu_info *cpu ) ;
+void update_input ( _cpu_info *cpu ) ;
 void sdl_quit ( ) ;
 void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel) ;
 

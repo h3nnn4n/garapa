@@ -22,7 +22,11 @@ typedef struct {
 
     uint16_t pc;
     uint16_t sp;
+
     uint16_t interrupt_addr;
+    uint16_t shift_offset;
+    uint16_t shift0;
+    uint16_t shift1;
 
     uint8_t a;
     uint8_t b;

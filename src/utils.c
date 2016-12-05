@@ -39,6 +39,12 @@ void init_cpu( _cpu_info *cpu ) {
 
     cpu->enable_interrupts     = 0;
     cpu->instructions_executed = 0;
+
+    cpu->interrupt_addr = 0x10;
+    cpu->interrupt_addr = 0x08;
+    cpu->shift_offset   = 0;
+    cpu->shift0         = 0;
+    cpu->shift1         = 0;
 }
 
 void unimplemented_opcode( _cpu_info *cpu ) {

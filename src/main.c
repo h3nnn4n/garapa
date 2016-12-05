@@ -39,8 +39,16 @@ int main(int argc, char *argv[]) {
         /*cpu.pc += disassembler(cpu.memory, cpu.pc);*/
         emulator ( &cpu );
 
+        /*if ( cpu.pc == 0x0019 ) {*/
+            /*printf("\n-- %4x\n\n", cpu.memory[0x20c0]);*/
+        /*}*/
+
         if ( cpu.cycles > 16667 ) {
             cpu.cycles -= 16667;
+
+            /*update_screen ( &cpu );*/
+            /*update_input ( &cpu );*/
+            /*SDL_Delay(16);*/
 
             if ( cpu.interrupt_addr == 0x10 ) {
                 cpu.interrupt_addr = 0x08;
@@ -50,7 +58,7 @@ int main(int argc, char *argv[]) {
                 cpu.interrupt_addr = 0x10;
                 emulate_INTERRUPT( &cpu );
                 update_input ( &cpu );
-                SDL_Delay(16);
+                /*SDL_Delay(16);*/
             }
         }
     }
