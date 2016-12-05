@@ -319,6 +319,31 @@ void emulate_CPI ( _cpu_info *cpu ) {
     cpu->pc     += 2 ;
 }
 
+void emulate_ADC ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint16_t answer = 0;
+
+    switch ( *opcode ) {
+        case 0x8c: // ADC H
+            {
+            answer = cpu->a + cpu->h + cpu->flags.cy;
+            cpu->a = answer & 0xff;
+            }
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->flags.z    = ( answer & 0xff ) == 0       ; // Only the last 8 bits matters, hence the mask
+    cpu->flags.s    = ( answer & 0x80 ) != 0       ; // Checks if the MSB is 1
+    cpu->flags.cy   = ( answer > 0xff )            ; // Checks for the carry bit
+    cpu->flags.p    = parity_bit ( answer & 0xff ) ; // Returns 1 if the number os bits set as 1 is even
+    /*cpu->a          = answer & 0xff                ; // Stores the 8 bit result in the A register*/
+
+    cpu->cycles += 7 ;
+    cpu->pc     += 1 ;
+}
+
 void emulate_SBB ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
     uint16_t answer = 0;
@@ -691,6 +716,12 @@ void emulate_MOV ( _cpu_info *cpu ) {
     uint16_t addr;
 
     switch ( *opcode ) {
+        case 0x41: // MOV B, C
+            cpu->b = cpu->c;
+            break;
+        case 0x4f: // MOV C, A
+            cpu->c = cpu->a;
+            break;
         case 0x7e: // MOV A, M
             addr = cpu->h << 8 | cpu->l;
             cpu->d = cpu->memory[addr];
@@ -936,6 +967,8 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_MOV ( cpu );
     } else if ( *opcode >= 0x80 && *opcode <= 0x87 ) {
         emulate_ADD ( cpu );
+    } else if ( *opcode == 0x8c ) {
+        emulate_ADC ( cpu );
     } else if ( *opcode == 0x9e ) {
         emulate_SBB ( cpu );
     } else if ( *opcode == 0xaf ) {
@@ -950,6 +983,8 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_JC ( cpu );
     } else if ( *opcode == 0xc6 ) {
         emulate_ADI ( cpu );
+    } else if ( *opcode == 0xd8 ) {
+        emulate_RC ( cpu );
     } else if ( *opcode == 0xc0 ) {
         emulate_RNZ ( cpu );
     } else if ( *opcode == 0xc8 ) {
@@ -977,7 +1012,8 @@ unsigned short int emulator( _cpu_info *cpu ) {
     } else if ( *opcode == 0xfe ) {
         emulate_CPI ( cpu );
     } else {
-        /*print_registers(cpu);*/
+        disassembler ( cpu->memory, cpu->pc );
+        print_registers(cpu);
         printf(" %2X is not implemented\n", cpu->memory[cpu->pc]);
         exit(-1);
     }
