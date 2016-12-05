@@ -13,6 +13,8 @@ void sdl_init ( ) {
 
     SDL_WM_SetCaption("8080 Emulator", NULL);
 
+    SDL_EnableKeyRepeat(0, 0);
+
     black = SDL_MapRGB(screen->format, 0x00, 0x00, 0x00);
     white = SDL_MapRGB(screen->format, 0xff, 0xff, 0xff);
 }
@@ -43,10 +45,6 @@ void update_screen ( _cpu_info *cpu ) {
         }
     }
 
-    // DEAD PIXEL
-    // for debuggging
-    *raster = (cpu->memory[base + 700]) = 0xff;
-
     SDL_UnlockSurface( screen );
     SDL_UpdateRect(screen, 0, 0, 256, 224);
 }
@@ -61,6 +59,7 @@ void sdl_quit ( ) {
 
 void sdl_init ( ) {}
 void update_screen ( _cpu_info *cpu ) {}
+void update_input ( _cpu_info *cpu ) {}
 void sdl_quit ( ) {}
 void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel) {}
 

@@ -39,27 +39,22 @@ int main(int argc, char *argv[]) {
         /*cpu.pc += disassembler(cpu.memory, cpu.pc);*/
         emulator ( &cpu );
 
-        /*if ( cpu.pc == 0x0019 ) {*/
-            /*printf("\n-- %4x\n\n", cpu.memory[0x20c0]);*/
-        /*}*/
+        if ( cpu.instructions_executed % 100000 == 0 ) {
+            printf(" -- %8d\n", cpu.instructions_executed);
+        }
 
-        if ( cpu.cycles > 16667 ) {
-            cpu.cycles -= 16667;
 
-            /*update_screen ( &cpu );*/
-            /*update_input ( &cpu );*/
+        if ( cpu.interrupt_addr == 0x10 && cpu.cycles > 28500 ) {
+            cpu.cycles -= 28500;
+            cpu.interrupt_addr = 0x08;
+            emulate_INTERRUPT( &cpu );
+            update_screen ( &cpu );
+        } else if ( cpu.interrupt_addr == 0x08 && cpu.cycles > 4850 ) {
+            cpu.cycles -= 4850;
+            cpu.interrupt_addr = 0x10;
+            emulate_INTERRUPT( &cpu );
+            update_input ( &cpu );
             /*SDL_Delay(16);*/
-
-            if ( cpu.interrupt_addr == 0x10 ) {
-                cpu.interrupt_addr = 0x08;
-                emulate_INTERRUPT( &cpu );
-                update_screen ( &cpu );
-            } else {
-                cpu.interrupt_addr = 0x10;
-                emulate_INTERRUPT( &cpu );
-                update_input ( &cpu );
-                /*SDL_Delay(16);*/
-            }
         }
     }
 
