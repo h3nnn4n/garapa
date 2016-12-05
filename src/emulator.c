@@ -620,8 +620,8 @@ void emulate_MVI ( _cpu_info *cpu ) {
             cpu->memory[cpu->h << 8 | cpu->l] = cpu->memory[opcode[1]];
             cpu->cycles += 3;
             break;
-        case 0x3e: // MVI A, M
-            cpu->a = cpu->memory[opcode[1]];
+        case 0x3e: // MVI A, D*
+            cpu->a = opcode[1];
             break;
         default:
             assert( 0 && "Code should not get here\n" );
