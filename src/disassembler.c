@@ -237,7 +237,7 @@ unsigned short int disassembler( unsigned char *buffer, unsigned int pc ) {
         case 0xd0: printf( " %08X : %02X \t RNC\n"             , pc, buffer[pc]                             ) ; op_size = 1; break;
         case 0xd1: printf( " %08X : %02X \t POP D\n"           , pc, buffer[pc]                             ) ; op_size = 1; break;
         case 0xd2: printf( " %08X : %02X \t JNC %X %X\n"       , pc, buffer[pc], buffer[pc+1], buffer[pc+2] ) ; op_size = 3; break;
-        case 0xd3: printf( " %08X : %02X \t OUT D8\n"          , pc, buffer[pc]                             ) ; op_size = 2; break;
+        case 0xd3: printf( " %08X : %02X \t OUT %2X\n"         , pc, buffer[pc], buffer[pc+1]               ) ; op_size = 2; break;
         case 0xd4: printf( " %08X : %02X \t CNC %X %X\n"       , pc, buffer[pc], buffer[pc+1], buffer[pc+2] ) ; op_size = 3; break;
         case 0xd5: printf( " %08X : %02X \t PUSH D\n"          , pc, buffer[pc]                             ) ; op_size = 1; break;
         case 0xd6: printf( " %08X : %02X \t SUI D8\n"          , pc, buffer[pc]                             ) ; op_size = 2; break;
@@ -246,7 +246,7 @@ unsigned short int disassembler( unsigned char *buffer, unsigned int pc ) {
         case 0xd9: printf( " %08X : %02X \t -\n"               , pc, buffer[pc]                             ) ; op_size = 1; break;
 
         case 0xda: printf( " %08X : %02X \t JC %X %X\n"        , pc, buffer[pc], buffer[pc+1], buffer[pc+2] ) ; op_size = 3; break;
-        case 0xdb: printf( " %08X : %02X \t IN D8\n"           , pc, buffer[pc]                             ) ; op_size = 2; break;
+        case 0xdb: printf( " %08X : %02X \t IN %2X\n"          , pc, buffer[pc], buffer[pc+1]               ) ; op_size = 2; break;
         case 0xdc: printf( " %08X : %02X \t CC %X %X\n"        , pc, buffer[pc], buffer[pc+1], buffer[pc+2] ) ; op_size = 3; break;
         case 0xdd: printf( " %08X : %02X \t -\n"               , pc, buffer[pc]                             ) ; op_size = 1; break;
         case 0xde: printf( " %08X : %02X \t SBI D8\n"          , pc, buffer[pc]                             ) ; op_size = 2; break;
