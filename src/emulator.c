@@ -616,6 +616,9 @@ void emulate_MVI ( _cpu_info *cpu ) {
         case 0x26: // MVI H
             cpu->h = opcode[1];
             break;
+        case 0x2e: // MVI L
+            cpu->l = opcode[1];
+            break;
         case 0x36: // MVI M
             cpu->memory[cpu->h << 8 | cpu->l] = cpu->memory[opcode[1]];
             cpu->cycles += 3;
@@ -766,11 +769,17 @@ void emulate_MOV ( _cpu_info *cpu ) {
         case 0x7b: // MOV A, E
             cpu->a = cpu->e;
             break;
+        case 0x79: // MOV A, C
+            cpu->a = cpu->c;
+            break;
         case 0x7a: // MOV A, D
             cpu->a = cpu->d;
             break;
         case 0x7c: // MOV A, H
             cpu->a = cpu->h;
+            break;
+        case 0x7d: // MOV A, L
+            cpu->a = cpu->l;
             break;
         case 0x6f: // MOV L, A
             cpu->l = cpu->a;
@@ -990,7 +999,7 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_INX ( cpu );
     } else if ( *opcode == 0x09 || *opcode == 0x19 || *opcode == 0x29 || *opcode == 0x39 ) {
         emulate_DAD ( cpu );
-    } else if ( *opcode == 0x3e || *opcode == 0x36 || *opcode == 0x26 || *opcode == 0x06 || *opcode == 0x0e ) {
+    } else if ( *opcode == 0x3e || *opcode == 0x36 || *opcode == 0x26 || *opcode == 0x2e || *opcode == 0x06 || *opcode == 0x0e ) {
         emulate_MVI ( cpu );
     } else if ( ( *opcode >= 0x40 && *opcode <= 0x75 ) || ( *opcode >= 0x77 && *opcode <= 0x7f ) ) {
         emulate_MOV ( cpu );
