@@ -79,7 +79,8 @@ void emulate_XRA ( _cpu_info *cpu ) {
     switch ( *opcode ) {
         case 0xaf: // XRA A
             cpu->a       ^= cpu->a;
-            cpu->flags.cy = cpu->flags.ac = 0;
+            cpu->flags.cy = 0;
+            cpu->flags.ac = 0;
             cpu->flags.z  = (cpu->a == 0);
             cpu->flags.s  = (0x80 == (cpu->a & 0x80));
             cpu->flags.p  = parity_bit(cpu->a);
@@ -98,7 +99,7 @@ void emulate_ADI ( _cpu_info *cpu ) {
 
     switch ( *opcode ) {
         case 0xc6: // ADI
-            t             = cpu->a + opcode[1];
+            t             = cpu->a + (uint8_t) opcode[1];
             cpu->a        = (uint8_t) t;
             cpu->flags.cy = (t > 0xff);
             cpu->flags.z  = (cpu->a == 0);
@@ -117,9 +118,10 @@ void emulate_ANA ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
     switch ( *opcode ) {
-        case 0xa7: // ANI
-            cpu->a       &= opcode[1];
-            cpu->flags.cy = cpu->flags.ac = 0;
+        case 0xa7: // ANA
+            cpu->a       &= cpu->a;
+            cpu->flags.cy = 0;
+            cpu->flags.ac = 0;
             cpu->flags.z  = (cpu->a == 0);
             cpu->flags.s  = (0x80 == (cpu->a & 0x80));
             cpu->flags.p  = parity_bit(cpu->a);
@@ -138,7 +140,8 @@ void emulate_ANI ( _cpu_info *cpu ) {
     switch ( *opcode ) {
         case 0xe6: // ANI
             cpu->a       &= opcode[1];
-            cpu->flags.cy = cpu->flags.ac = 0;
+            cpu->flags.cy = 0;
+            cpu->flags.ac = 0;
             cpu->flags.z  = (cpu->a == 0);
             cpu->flags.s  = (0x80 == (cpu->a & 0x80));
             cpu->flags.p  = parity_bit(cpu->a);
@@ -159,29 +162,29 @@ void emulate_DAD ( _cpu_info *cpu ) {
         case 0x09: // DAD B
             answer  = cpu->h << 8 | cpu->l;
             answer += cpu->b << 8 | cpu->c;
-            cpu->flags.cy = answer & 0xffff0000;
+            cpu->flags.cy = 0 < ( answer & 0xffff0000 );
             break;
         case 0x19: // DAD D
             answer  = cpu->h << 8 | cpu->l;
             answer += cpu->d << 8 | cpu->e;
-            cpu->flags.cy = answer & 0xffff0000;
+            cpu->flags.cy = 0 < ( answer & 0xffff0000 );
             break;
         case 0x29: // DAD H
             answer  = cpu->h << 8 | cpu->l;
             answer += cpu->h << 8 | cpu->l;
-            cpu->flags.cy = answer & 0xffff0000;
+            cpu->flags.cy = 0 < ( answer & 0xffff0000 );
             break;
         case 0x39: // DAD SP
             answer  = cpu->h << 8 | cpu->l;
             answer += cpu->sp;
-            cpu->flags.cy = answer & 0xffff0000;
+            cpu->flags.cy = 0 < ( answer & 0xffff0000 );
             break;
         default:
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->h  = (answer >> 8 ) & 0xffff;
-    cpu->l  = (answer >> 0 ) & 0xffff;
+    cpu->h  = (answer >> 8 ) & 0xff;
+    cpu->l  = (answer >> 0 ) & 0xff;
 
     cpu->cycles += 11; // FIXME This is actually 10
     cpu->pc     += 1 ;
@@ -195,7 +198,7 @@ void emulate_RAL ( _cpu_info *cpu ) {
         case 0x17: // RAL
             t = cpu->a;
             cpu->a = ( t << 1 ) | (( t & 0x80 ) >> 7 );
-            cpu->flags.cy = t & 0x80;
+            cpu->flags.cy = 0 < ( t & 0x80 );
             break;
         default:
             assert( 0 && "Code should not get here\n" );
@@ -326,6 +329,7 @@ void emulate_ADC ( _cpu_info *cpu ) {
     switch ( *opcode ) {
         case 0x8c: // ADC H
             {
+            assert( ( cpu->flags.cy == 0 || cpu->flags.cy == 1 ) && "Invalid CY flag" );
             answer = cpu->a + cpu->h + cpu->flags.cy;
             cpu->a = answer & 0xff;
             }
@@ -351,6 +355,7 @@ void emulate_SBB ( _cpu_info *cpu ) {
     switch ( *opcode ) {
         case 0x9e: // SBB M
             {
+            assert( ( cpu->flags.cy == 0 || cpu->flags.cy == 1 ) && "Invalid CY flag" );
             uint16_t addr = cpu->h << 8 | cpu->l;
             answer = cpu->a - cpu->memory[addr] - cpu->flags.cy;
             }
@@ -573,19 +578,19 @@ void emulate_LXI ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
     switch ( *opcode ) {
-        case 0x01:
+        case 0x01: // LXI B
             cpu->b = opcode[2];
             cpu->c = opcode[1];
             break;
-        case 0x11:
+        case 0x11: // LXI D
             cpu->d = opcode[2];
             cpu->e = opcode[1];
             break;
-        case 0x21:
+        case 0x21: // LXI H
             cpu->h = opcode[2];
             cpu->l = opcode[1];
             break;
-        case 0x31:
+        case 0x31: // LXI SP
             cpu->sp = opcode[2] << 8 | opcode[1];
             break;
         default:
@@ -594,6 +599,8 @@ void emulate_LXI ( _cpu_info *cpu ) {
 
     cpu->cycles += 10;
     cpu->pc     += 3 ;
+
+    /*if ( *opcode != 0x31 )*/
 }
 
 void emulate_MVI ( _cpu_info *cpu ) {
@@ -837,7 +844,7 @@ void emulate_JZ ( _cpu_info *cpu ) {
     uint16_t addr = 0;
 
     switch ( *opcode ) {
-        case 0xca:
+        case 0xca: // JZ
             addr = opcode[2] << 8 | opcode[1];
             if ( cpu->flags.z ) {
                 cpu->pc = addr;
@@ -858,7 +865,7 @@ void emulate_JNZ ( _cpu_info *cpu ) {
     uint16_t addr = 0;
 
     switch ( *opcode ) {
-        case 0xc2:
+        case 0xc2: // JNZ
             addr = opcode[2] << 8 | opcode[1];
             if ( !cpu->flags.z ) {
                 cpu->pc = addr;
@@ -874,12 +881,32 @@ void emulate_JNZ ( _cpu_info *cpu ) {
     cpu->cycles += 10;
 }
 
+void emulate_JNC ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint16_t addr = 0;
+
+    switch ( *opcode ) {
+        case 0xd2: // JNC
+            if ( !cpu->flags.cy ) {
+                addr = opcode[2] << 8 | opcode[1];
+                cpu->pc = addr;
+            } else {
+                cpu->pc += 3;
+            }
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->cycles += 10  ;
+}
+
 void emulate_JC ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
     uint16_t addr = 0;
 
     switch ( *opcode ) {
-        case 0xda:
+        case 0xda: // JC
             if ( cpu->flags.cy ) {
                 addr = opcode[2] << 8 | opcode[1];
                 cpu->pc = addr;
@@ -936,8 +963,10 @@ unsigned short int emulator( _cpu_info *cpu ) {
 
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
-    /*disassembler ( cpu->memory, cpu->pc );*/
-    /*print_registers(cpu);*/
+    /*if ( cpu->instructions_executed > 16243200 ) {*/
+        /*disassembler ( cpu->memory, cpu->pc );*/
+        /*print_registers(cpu);*/
+    /*}*/
 
            if ( *opcode == 0x00 ) {
         emulate_NOP ( cpu );
@@ -979,6 +1008,8 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_JNZ ( cpu );
     } else if ( *opcode == 0xc3 ) {
         emulate_JMP ( cpu );
+    } else if ( *opcode == 0xd2 ) {
+        emulate_JNC ( cpu );
     } else if ( *opcode == 0xda ) {
         emulate_JC ( cpu );
     } else if ( *opcode == 0xc6 ) {
@@ -1020,8 +1051,10 @@ unsigned short int emulator( _cpu_info *cpu ) {
 
     cpu->instructions_executed += 1;
 
-    /*print_registers(cpu);*/
-    /*puts("");*/
+    /*if ( cpu->instructions_executed > 16243200 ) {*/
+        /*print_registers(cpu);*/
+        /*puts("");*/
+    /*}*/
 
     return op_size;
 }
