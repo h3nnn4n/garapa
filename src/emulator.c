@@ -1243,6 +1243,30 @@ void emulate_JMP ( _cpu_info *cpu ) {
     cpu->pc      = addr;
 }
 
+void emulate_CZ ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+
+    switch ( *opcode ) {
+        case 0xcc:
+            {
+                if ( cpu->flags.z ) {
+                    uint16_t ret           = cpu->pc + 3;
+                    cpu->memory[cpu->sp-1] = (ret >> 8) & 0xff;
+                    cpu->memory[cpu->sp-2] = (ret & 0xff);
+                    cpu->sp                = cpu->sp - 2;
+                    cpu->pc                = opcode[2] << 8 | opcode[1];
+                    cpu->cycles += 17;
+                } else {
+                    cpu->pc     += 3;
+                    cpu->cycles += 11;
+                }
+            }
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+}
+
 void emulate_CALL ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
@@ -1330,7 +1354,9 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_RZ ( cpu );
     } else if ( *opcode == 0xc9 ) {
         emulate_RET ( cpu );
-    } else if ( *opcode == 0xcd || *opcode == 0xcd ) {
+    } else if ( *opcode == 0xcc ) {
+        emulate_CZ ( cpu );
+    } else if ( *opcode == 0xcd ) {
         emulate_CALL ( cpu );
     } else if ( *opcode == 0xe1 || *opcode == 0xd1 || *opcode == 0xc1 || *opcode == 0xf1 ) {
         emulate_POP ( cpu );
