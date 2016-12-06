@@ -222,7 +222,7 @@ unsigned short int disassembler( unsigned char *buffer, unsigned int pc ) {
         case 0xc3: printf( " 0x%04x : %02x %02x %02x  \t JMP %02x %02x\n"      , pc , buffer[pc], buffer[pc+1], buffer[pc+2] , buffer[pc+1], buffer[pc+2] ) ; op_size = 3; break;
         case 0xc4: printf( " 0x%04x : %02x %02x %02x  \t CNZ %02x %02x\n"      , pc , buffer[pc], buffer[pc+1], buffer[pc+2] , buffer[pc+1], buffer[pc+2] ) ; op_size = 3; break;
         case 0xc5: printf( " 0x%04x : %02x "  " "  "  \t PUSH B\n"             , pc , buffer[pc]                                                          ) ; op_size = 1; break;
-        case 0xc6: printf( " 0x%04x : %02x "  " "  "  \t ADI D8\n"             , pc , buffer[pc]                                                          ) ; op_size = 2; break;
+        case 0xc6: printf( " 0x%04x : %02x %02x "  "  \t ADI %02x\n"           , pc , buffer[pc], buffer[pc+1], buffer[pc+1]                              ) ; op_size = 2; break;
         case 0xc7: printf( " 0x%04x : %02x "  " "  "  \t RST 0\n"              , pc , buffer[pc]                                                          ) ; op_size = 1; break;
         case 0xc8: printf( " 0x%04x : %02x "  " "  "  \t RZ\n"                 , pc , buffer[pc]                                                          ) ; op_size = 1; break;
         case 0xc9: printf( " 0x%04x : %02x "  " "  "  \t RET\n"                , pc , buffer[pc]                                                          ) ; op_size = 1; break;
@@ -231,7 +231,7 @@ unsigned short int disassembler( unsigned char *buffer, unsigned int pc ) {
         case 0xcb: printf( " 0x%04x : %02x "  " "  "  \t -\n"                  , pc , buffer[pc]                                                          ) ; op_size = 1; break;
         case 0xcc: printf( " 0x%04x : %02x %02x %02x  \t CZ %02x %02x\n"       , pc , buffer[pc], buffer[pc+1], buffer[pc+2] , buffer[pc+1], buffer[pc+2] ) ; op_size = 3; break;
         case 0xcd: printf( " 0x%04x : %02x %02x %02x  \t CALL %02x %02x\n"     , pc , buffer[pc], buffer[pc+1], buffer[pc+2] , buffer[pc+1], buffer[pc+2] ) ; op_size = 3; break;
-        case 0xce: printf( " 0x%04x : %02x "  " "  "  \t ACI D8\n"             , pc , buffer[pc]                                                          ) ; op_size = 2; break;
+        case 0xce: printf( " 0x%04x : %02x %02x "  "  \t ACI %02x\n"           , pc , buffer[pc], buffer[pc+1], buffer[pc+1]                              ) ; op_size = 2; break;
         case 0xcf: printf( " 0x%04x : %02x "  " "  "  \t RST 1\n"              , pc , buffer[pc]                                                          ) ; op_size = 1; break;
 
         case 0xd0: printf( " 0x%04x : %02x "  " "  "  \t RNC\n"                , pc , buffer[pc]                                                          ) ; op_size = 1; break;
@@ -240,7 +240,7 @@ unsigned short int disassembler( unsigned char *buffer, unsigned int pc ) {
         case 0xd3: printf( " 0x%04x : %02x %02x "  "  \t OUT %2X\n"            , pc , buffer[pc], buffer[pc+1] , buffer[pc+1]                             ) ; op_size = 2; break;
         case 0xd4: printf( " 0x%04x : %02x %02x %02x  \t CNC %02x %02x\n"      , pc , buffer[pc], buffer[pc+1], buffer[pc+2] , buffer[pc+1], buffer[pc+2] ) ; op_size = 3; break;
         case 0xd5: printf( " 0x%04x : %02x "  " "  "  \t PUSH D\n"             , pc , buffer[pc]                                                          ) ; op_size = 1; break;
-        case 0xd6: printf( " 0x%04x : %02x "  " "  "  \t SUI D8\n"             , pc , buffer[pc]                                                          ) ; op_size = 2; break;
+        case 0xd6: printf( " 0x%04x : %02x %02x "  "  \t SUI %02x\n"           , pc , buffer[pc], buffer[pc+1], buffer[pc+1]                              ) ; op_size = 2; break;
         case 0xd7: printf( " 0x%04x : %02x "  " "  "  \t RST 2\n"              , pc , buffer[pc]                                                          ) ; op_size = 1; break;
         case 0xd8: printf( " 0x%04x : %02x "  " "  "  \t RC\n"                 , pc , buffer[pc]                                                          ) ; op_size = 1; break;
         case 0xd9: printf( " 0x%04x : %02x "  " "  "  \t -\n"                  , pc , buffer[pc]                                                          ) ; op_size = 1; break;
@@ -249,7 +249,7 @@ unsigned short int disassembler( unsigned char *buffer, unsigned int pc ) {
         case 0xdb: printf( " 0x%04x : %02x %02x "  "  \t IN %2X\n"             , pc , buffer[pc], buffer[pc+1], buffer[pc+1]                              ) ; op_size = 2; break;
         case 0xdc: printf( " 0x%04x : %02x %02x %02x  \t CC %02x %02x\n"       , pc , buffer[pc], buffer[pc+1], buffer[pc+2] , buffer[pc+1], buffer[pc+2] ) ; op_size = 3; break;
         case 0xdd: printf( " 0x%04x : %02x "  " "  "  \t -\n"                  , pc , buffer[pc]                                                          ) ; op_size = 1; break;
-        case 0xde: printf( " 0x%04x : %02x "  " "  "  \t SBI D8\n"             , pc , buffer[pc]                                                          ) ; op_size = 2; break;
+        case 0xde: printf( " 0x%04x : %02x %02x "  "  \t SBI %02x\n"           , pc , buffer[pc], buffer[pc+1], buffer[pc+1]                              ) ; op_size = 2; break;
         case 0xdf: printf( " 0x%04x : %02x "  " "  "  \t RST 3\n"              , pc , buffer[pc]                                                          ) ; op_size = 1; break;
 
         case 0xe0: printf( " 0x%04x : %02x "  " "  "  \t RPO\n"                , pc , buffer[pc]                                                          ) ; op_size = 1; break;
@@ -258,7 +258,7 @@ unsigned short int disassembler( unsigned char *buffer, unsigned int pc ) {
         case 0xe3: printf( " 0x%04x : %02x "  " "  "  \t XTHL\n"               , pc , buffer[pc]                                                          ) ; op_size = 1; break;
         case 0xe4: printf( " 0x%04x : %02x %02x %02x  \t CPO %02x %02x\n"      , pc , buffer[pc], buffer[pc+1], buffer[pc+2] , buffer[pc+1], buffer[pc+2] ) ; op_size = 3; break;
         case 0xe5: printf( " 0x%04x : %02x "  " "  "  \t PUSH H\n"             , pc , buffer[pc]                                                          ) ; op_size = 1; break;
-        case 0xe6: printf( " 0x%04x : %02x "  " "  "  \t ANI D8\n"             , pc , buffer[pc]                                                          ) ; op_size = 2; break;
+        case 0xe6: printf( " 0x%04x : %02x %02x "  "  \t ANI %02x\n"           , pc , buffer[pc], buffer[pc+1], buffer[pc+1]                              ) ; op_size = 2; break;
         case 0xe7: printf( " 0x%04x : %02x "  " "  "  \t RST 4\n"              , pc , buffer[pc]                                                          ) ; op_size = 1; break;
         case 0xe8: printf( " 0x%04x : %02x "  " "  "  \t RPE\n"                , pc , buffer[pc]                                                          ) ; op_size = 1; break;
         case 0xe9: printf( " 0x%04x : %02x "  " "  "  \t PCHL\n"               , pc , buffer[pc]                                                          ) ; op_size = 1; break;
@@ -267,7 +267,7 @@ unsigned short int disassembler( unsigned char *buffer, unsigned int pc ) {
         case 0xeb: printf( " 0x%04x : %02x "  " "  "  \t XCHG\n"               , pc , buffer[pc]                                                          ) ; op_size = 1; break;
         case 0xec: printf( " 0x%04x : %02x %02x %02x  \t CPE %02x %02x\n"      , pc , buffer[pc], buffer[pc+1], buffer[pc+2] , buffer[pc+1], buffer[pc+2] ) ; op_size = 3; break;
         case 0xed: printf( " 0x%04x : %02x "  " "  "  \t -\n"                  , pc , buffer[pc]                                                          ) ; op_size = 1; break;
-        case 0xee: printf( " 0x%04x : %02x "  " "  "  \t XRI D8\n"             , pc , buffer[pc]                                                          ) ; op_size = 2; break;
+        case 0xee: printf( " 0x%04x : %02x %02x "  "  \t XRI %02x\n"           , pc , buffer[pc], buffer[pc+1], buffer[pc+1]                              ) ; op_size = 2; break;
         case 0xef: printf( " 0x%04x : %02x "  " "  "  \t RST 5\n"              , pc , buffer[pc]                                                          ) ; op_size = 1; break;
 
         case 0xf0: printf( " 0x%04x : %02x "  " "  "  \t RP\n"                 , pc , buffer[pc]                                                          ) ; op_size = 1; break;
@@ -276,7 +276,7 @@ unsigned short int disassembler( unsigned char *buffer, unsigned int pc ) {
         case 0xf3: printf( " 0x%04x : %02x "  " "  "  \t DI\n"                 , pc , buffer[pc]                                                          ) ; op_size = 1; break;
         case 0xf4: printf( " 0x%04x : %02x %02x %02x  \t CP %02x %02x\n"       , pc , buffer[pc], buffer[pc+1], buffer[pc+2] , buffer[pc+1], buffer[pc+2] ) ; op_size = 3; break;
         case 0xf5: printf( " 0x%04x : %02x "  " "  "  \t PUSH PSW\n"           , pc , buffer[pc]                                                          ) ; op_size = 1; break;
-        case 0xf6: printf( " 0x%04x : %02x "  " "  "  \t ORI D8\n"             , pc , buffer[pc]                                                          ) ; op_size = 2; break;
+        case 0xf6: printf( " 0x%04x : %02x %02x "  "  \t ORI %02x\n"           , pc , buffer[pc], buffer[pc+1], buffer[pc+1]                              ) ; op_size = 2; break;
         case 0xf7: printf( " 0x%04x : %02x "  " "  "  \t RST 6\n"              , pc , buffer[pc]                                                          ) ; op_size = 1; break;
         case 0xf8: printf( " 0x%04x : %02x "  " "  "  \t RM\n"                 , pc , buffer[pc]                                                          ) ; op_size = 1; break;
         case 0xf9: printf( " 0x%04x : %02x "  " "  "  \t SPHL\n"               , pc , buffer[pc]                                                          ) ; op_size = 1; break;
@@ -285,7 +285,7 @@ unsigned short int disassembler( unsigned char *buffer, unsigned int pc ) {
         case 0xfb: printf( " 0x%04x : %02x "  " "  "  \t EI\n"                 , pc , buffer[pc]                                                          ) ; op_size = 1; break;
         case 0xfc: printf( " 0x%04x : %02x %02x %02x  \t CM %02x %02x\n"       , pc , buffer[pc], buffer[pc+1], buffer[pc+2] , buffer[pc+1], buffer[pc+2] ) ; op_size = 3; break;
         case 0xfd: printf( " 0x%04x : %02x "  " "  "  \t -\n"                  , pc , buffer[pc]                                                          ) ; op_size = 1; break;
-        case 0xfe: printf( " 0x%04x : %02x "  " "  "  \t CPI D8\n"             , pc , buffer[pc]                                                          ) ; op_size = 2; break;
+        case 0xfe: printf( " 0x%04x : %02x %02x "  "  \t CPI %02x\n"           , pc , buffer[pc], buffer[pc+1], buffer[pc+1]                              ) ; op_size = 2; break;
         case 0xff: printf( " 0x%04x : %02x "  " "  "  \t RST 7\n"              , pc , buffer[pc]                                                          ) ; op_size = 1; break;
 
         default:
