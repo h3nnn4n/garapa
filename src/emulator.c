@@ -476,6 +476,28 @@ void emulate_SBB ( _cpu_info *cpu ) {
     cpu->pc     += 1 ;
 }
 
+void emulate_SUI ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint16_t answer = 0;
+
+    switch ( *opcode ) {
+        case 0xd6: // SUI D8
+            answer = cpu->a - opcode[1];
+            cpu->a = answer;
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->flags.z    = ( answer & 0xff ) == 0       ; // Only the last 8 bits matters, hence the mask
+    cpu->flags.s    = ( answer & 0x80 ) != 0       ; // Checks if the MSB is 1
+    cpu->flags.cy   = ( answer > 0xff )            ; // Checks for the carry bit
+    cpu->flags.p    = parity_bit ( answer & 0xff ) ; // Returns 1 if the number os bits set as 1 is even
+
+    cpu->cycles += 7 ;
+    cpu->pc     += 2 ;
+}
+
 void emulate_DCR ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
     uint16_t answer = 0;
@@ -1229,6 +1251,8 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_NOP ( cpu );
     } else if ( *opcode == 0x05 || *opcode == 0x0d || *opcode == 0x35 || *opcode == 0x3d ) {
         emulate_DCR ( cpu );
+    } else if ( *opcode == 0xd6 ) {
+        emulate_SUI ( cpu );
     } else if ( *opcode == 0x17 ) {
         emulate_RAL ( cpu );
     } else if ( *opcode == 0x0f ) {
