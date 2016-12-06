@@ -258,8 +258,8 @@ void emulate_IN ( _cpu_info *cpu ) {
                 switch ( port ) {
                     case 0x03:
                         {
-                        uint16_t v = (cpu->shift1<<8) | cpu->shift0;
-                        cpu->a = ((v >> (8 - cpu->shift_offset)) & 0xff);
+                        /*uint16_t v = (cpu->shift1<<8) | cpu->shift0;*/
+                        /*cpu->a = ((v >> (8 - cpu->shift_offset)) & 0xff);*/
                         }
                         break;
                 }
@@ -282,11 +282,11 @@ void emulate_OUT ( _cpu_info *cpu ) {
                 uint8_t port = opcode[1];
                 switch ( port ) {
                     case 0x02:
-                        cpu->shift_offset = cpu->a & 0x7;
+                        /*cpu->shift_offset = cpu->a & 0x7;*/
                         break;
                     case 0x04:
-                        cpu->shift0 = cpu->shift1;
-                        cpu->shift1 = cpu->a;
+                        /*cpu->shift0 = cpu->shift1;*/
+                        /*cpu->shift1 = cpu->a;*/
                         break;
                     default:
                         break;
@@ -574,6 +574,37 @@ void emulate_NOP ( _cpu_info *cpu ) {
     cpu->pc     += 1 ;
 }
 
+void emulate_SPHL ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+
+    switch ( *opcode ) {
+        case 0xf9: // LHLD B
+            cpu->sp = cpu->h << 8 | cpu->l;
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->cycles += 10;
+    cpu->pc     += 1 ;
+}
+
+void emulate_LHLD ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+
+    switch ( *opcode ) {
+        case 0x2a: // LHLD B
+            cpu->l = cpu->memory[(opcode[2] << 8 | opcode[1]) + 0];
+            cpu->h = cpu->memory[(opcode[2] << 8 | opcode[1]) + 1];
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->cycles += 10;
+    cpu->pc     += 3 ;
+}
+
 void emulate_LXI ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
@@ -599,8 +630,6 @@ void emulate_LXI ( _cpu_info *cpu ) {
 
     cpu->cycles += 10;
     cpu->pc     += 3 ;
-
-    /*if ( *opcode != 0x31 )*/
 }
 
 void emulate_MVI ( _cpu_info *cpu ) {
@@ -734,7 +763,7 @@ void emulate_MOV ( _cpu_info *cpu ) {
             break;
         case 0x7e: // MOV A, M
             addr = cpu->h << 8 | cpu->l;
-            cpu->d = cpu->memory[addr];
+            cpu->a = cpu->memory[addr];
             cpu->cycles += 2;
             break;
         case 0x66: // MOV H, M
@@ -972,10 +1001,8 @@ unsigned short int emulator( _cpu_info *cpu ) {
 
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
-    /*if ( cpu->instructions_executed > 16243200 ) {*/
-        /*disassembler ( cpu->memory, cpu->pc );*/
-        /*print_registers(cpu);*/
-    /*}*/
+    disassembler ( cpu->memory, cpu->pc );
+    print_registers(cpu);
 
            if ( *opcode == 0x00 ) {
         emulate_NOP ( cpu );
@@ -1051,6 +1078,10 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_EI ( cpu );
     } else if ( *opcode == 0xfe ) {
         emulate_CPI ( cpu );
+    } else if ( *opcode == 0xf9 ) {
+        emulate_SPHL ( cpu );
+    } else if ( *opcode == 0x2a ) {
+        emulate_LHLD ( cpu );
     } else {
         disassembler ( cpu->memory, cpu->pc );
         print_registers(cpu);
@@ -1060,10 +1091,8 @@ unsigned short int emulator( _cpu_info *cpu ) {
 
     cpu->instructions_executed += 1;
 
-    /*if ( cpu->instructions_executed > 16243200 ) {*/
-        /*print_registers(cpu);*/
-        /*puts("");*/
-    /*}*/
+    print_registers(cpu);
+    puts("");
 
     return op_size;
 }
