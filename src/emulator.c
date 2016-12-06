@@ -73,26 +73,6 @@ void emulate_EI ( _cpu_info *cpu ) {
     cpu->pc     += 1 ;
 }
 
-void emulate_XRA ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
-
-    switch ( *opcode ) {
-        case 0xaf: // XRA A
-            cpu->a       ^= cpu->a;
-            cpu->flags.cy = 0;
-            cpu->flags.ac = 0;
-            cpu->flags.z  = (cpu->a == 0);
-            cpu->flags.s  = (0x80 == (cpu->a & 0x80));
-            cpu->flags.p  = parity_bit(cpu->a);
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
-
-    cpu->cycles += 4 ;
-    cpu->pc     += 1 ;
-}
-
 void emulate_ADI ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
     uint16_t t;
@@ -129,6 +109,49 @@ void emulate_ANA ( _cpu_info *cpu ) {
         default:
             assert( 0 && "Code should not get here\n" );
     }
+
+    cpu->cycles += 4 ;
+    cpu->pc     += 1 ;
+}
+
+void emulate_XRA ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+
+    switch ( *opcode ) {
+        case 0xa8: // XRA B
+            cpu->a ^= cpu->b;
+            break;
+        case 0xa9: // XRA C
+            cpu->a ^= cpu->c;
+            break;
+        case 0xaa: // XRA D
+            cpu->a ^= cpu->d;
+            break;
+        case 0xab: // XRA E
+            cpu->a ^= cpu->e;
+            break;
+        case 0xac: // XRA H
+            cpu->a ^= cpu->h;
+            break;
+        case 0xad: // XRA L
+            cpu->a ^= cpu->l;
+            break;
+        case 0xae: // XRA M
+            cpu->a ^= cpu->memory[cpu->h << 8 | cpu->l];
+            cpu->cycles += 2;
+            break;
+        case 0xaf: // XRA A
+            cpu->a ^= cpu->a;
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->flags.cy = 0;
+    cpu->flags.ac = 0;
+    cpu->flags.z  = (cpu->a == 0);
+    cpu->flags.s  = (0x80 == (cpu->a & 0x80));
+    cpu->flags.p  = parity_bit(cpu->a);
 
     cpu->cycles += 4 ;
     cpu->pc     += 1 ;
@@ -1184,8 +1207,6 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_ADC ( cpu );
     } else if ( *opcode == 0x9e ) {
         emulate_SBB ( cpu );
-    } else if ( *opcode == 0xaf ) {
-        emulate_XRA ( cpu );
     } else if ( *opcode == 0xca ) {
         emulate_JZ ( cpu );
     } else if ( *opcode == 0xc2 ) {
@@ -1220,6 +1241,8 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_IN ( cpu );
     } else if ( *opcode == 0xd3 ) {
         emulate_OUT ( cpu );
+    } else if ( *opcode >= 0xa8 && *opcode <= 0xaf ) {
+        emulate_XRA ( cpu );
     } else if ( *opcode >= 0xb0 && *opcode <= 0xb7 ) {
         emulate_ORA ( cpu );
     } else if ( *opcode == 0xa7 ) {
