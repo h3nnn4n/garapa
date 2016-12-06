@@ -503,32 +503,47 @@ void emulate_DCR ( _cpu_info *cpu ) {
     uint16_t answer = 0;
 
     switch ( *opcode ) {
-        case 0x3d: // DCR A
-            cpu->a -= 1;
-            answer = cpu->a;
-            break;
         case 0x05: // DCR B
-            cpu->b -= 1;
-            answer = cpu->b;
+            answer = cpu->b - 1;
+            cpu->b = answer & 0xff;
             break;
-        case 0x0D: // DCR C
-            cpu->c -= 1;
-            answer = cpu->c;
+        case 0x0d: // DCR C
+            answer = cpu->c - 1;
+            cpu->c = answer & 0xff;
+            break;
+        case 0x15: // DCR D
+            answer = cpu->d - 1;
+            cpu->d = answer & 0xff;
+            break;
+        case 0x1d: // DCR E
+            answer = cpu->e - 1;
+            cpu->e = answer & 0xff;
+            break;
+        case 0x25: // DCR H
+            answer = cpu->h - 1;
+            cpu->h = answer & 0xff;
+            break;
+        case 0x2d: // DCR L
+            answer = cpu->l - 1;
+            cpu->l = answer & 0xff;
             break;
         case 0x35: // DCR M
-            answer = cpu->memory[cpu->h << 8 | cpu->l];
-            answer -= 1;
-            cpu->memory[cpu->h << 8 | cpu->l] = answer;
+            answer = cpu->memory[cpu->h << 8 | cpu->l] - 1;
+            cpu->memory[cpu->h << 8 | cpu->l] = answer & 0xff;
+            cpu->cycles += 2;
+            break;
+        case 0x3d: // DCR A
+            answer = cpu->a - 1;
+            cpu->a = answer & 0xff;
             break;
         default:
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->flags.z    = ( answer & 0xff ) == 0       ; // Only the last 8 bits matters, hence the mask
-    cpu->flags.s    = ( answer & 0x80 ) != 0       ; // Checks if the MSB is 1
-    cpu->flags.cy   = ( answer > 0xff )            ; // Checks for the carry bit
-    cpu->flags.p    = parity_bit ( answer & 0xff ) ; // Returns 1 if the number os bits set as 1 is even
-    /*cpu->a          = answer & 0xff                ; // Stores the 8 bit result in the A register*/
+    cpu->flags.z    = ( answer & 0xff ) == 0;
+    cpu->flags.s    = ( answer & 0x80 ) != 0;
+    cpu->flags.cy   = ( answer > 0xff );
+    cpu->flags.p    = parity_bit ( answer & 0xff );
 
     cpu->cycles += 5 ;
     cpu->pc     += 1 ;
@@ -1298,7 +1313,7 @@ unsigned short int emulator( _cpu_info *cpu ) {
 
            if ( *opcode == 0x00 ) {
         emulate_NOP ( cpu );
-    } else if ( *opcode == 0x05 || *opcode == 0x0d || *opcode == 0x35 || *opcode == 0x3d ) {
+    } else if ( *opcode == 0x05 || *opcode == 0x0d || *opcode == 0x15 || *opcode == 0x1d || *opcode == 0x25 || *opcode == 0x2d || *opcode == 0x35 || *opcode == 0x3d) {
         emulate_DCR ( cpu );
     } else if ( *opcode == 0xd6 ) {
         emulate_SUI ( cpu );
