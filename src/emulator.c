@@ -197,6 +197,42 @@ void emulate_ANI ( _cpu_info *cpu ) {
     cpu->pc     += 2 ;
 }
 
+void emulate_DCX ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint32_t       answer = 0;
+
+    switch ( *opcode ) {
+        case 0x0a: // DCX B
+            answer  = cpu->b << 8 | cpu->c;
+            answer -= 1;
+            cpu->b  = (answer >> 8 ) & 0xff;
+            cpu->c  = (answer >> 0 ) & 0xff;
+            break;
+        case 0x1a: // DCX D
+            answer  = cpu->d << 8 | cpu->e;
+            answer -= 1;
+            cpu->d  = (answer >> 8 ) & 0xff;
+            cpu->e  = (answer >> 0 ) & 0xff;
+            break;
+        case 0x2a: // DCX H
+            answer  = cpu->h << 8 | cpu->l;
+            answer -= 1;
+            cpu->h  = (answer >> 8 ) & 0xff;
+            cpu->l  = (answer >> 0 ) & 0xff;
+            break;
+        case 0x3a: // DCX SP
+            answer  = cpu->sp;
+            answer -= 1;
+            cpu->sp  = answer & 0xffff;
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->cycles += 5 ;
+    cpu->pc     += 1 ;
+}
+
 void emulate_DAD ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
     uint32_t       answer = 0;
@@ -1177,6 +1213,8 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_CALL ( cpu );
     } else if ( *opcode == 0xe1 || *opcode == 0xd1 || *opcode == 0xc1 || *opcode == 0xf1 ) {
         emulate_POP ( cpu );
+    } else if ( *opcode == 0x0a || *opcode == 0x1a || *opcode == 0x2a || *opcode == 0x3a ) {
+        emulate_DCX ( cpu );
     } else if ( *opcode == 0xc5 || *opcode == 0xd5 || *opcode == 0xe5 || *opcode == 0xf5 ) {
         emulate_PUSH ( cpu );
     } else if ( *opcode == 0xdb ) {
