@@ -1001,8 +1001,8 @@ unsigned short int emulator( _cpu_info *cpu ) {
 
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
-    disassembler ( cpu->memory, cpu->pc );
-    print_registers(cpu);
+    /*disassembler ( cpu->memory, cpu->pc );*/
+    /*print_registers(cpu);*/
 
            if ( *opcode == 0x00 ) {
         emulate_NOP ( cpu );
@@ -1091,8 +1091,8 @@ unsigned short int emulator( _cpu_info *cpu ) {
 
     cpu->instructions_executed += 1;
 
-    print_registers(cpu);
-    puts("");
+    /*print_registers(cpu);*/
+    /*puts("");*/
 
     return op_size;
 }
