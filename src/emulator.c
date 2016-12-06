@@ -138,19 +138,42 @@ void emulate_ORA ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
     switch ( *opcode ) {
+        case 0xb0: // ORA B
+            cpu->a |= cpu->b;
+            break;
+        case 0xb1: // ORA C
+            cpu->a |= cpu->c;
+            break;
+        case 0xb2: // ORA D
+            cpu->a |= cpu->d;
+            break;
+        case 0xb3: // ORA E
+            cpu->a |= cpu->e;
+            break;
+        case 0xb4: // ORA H
+            cpu->a |= cpu->h;
+            break;
+        case 0xb5: // ORA L
+            cpu->a |= cpu->l;
+            break;
         case 0xb6: // ORA M
-            cpu->a       |= cpu->memory[cpu->h << 8 | cpu->l];
-            cpu->flags.cy = 0;
-            cpu->flags.ac = 0;
-            cpu->flags.z  = (cpu->a == 0);
-            cpu->flags.s  = (0x80 == (cpu->a & 0x80));
-            cpu->flags.p  = parity_bit(cpu->a);
+            cpu->a |= cpu->memory[cpu->h << 8 | cpu->l];
+            cpu->cycles += 2;
+            break;
+        case 0xb7: // ORA A
+            cpu->a |= cpu->a;
             break;
         default:
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 7 ;
+    cpu->flags.cy = 0;
+    cpu->flags.ac = 0;
+    cpu->flags.z  = (cpu->a == 0);
+    cpu->flags.s  = (0x80 == (cpu->a & 0x80));
+    cpu->flags.p  = parity_bit(cpu->a);
+
+    cpu->cycles += 4 ;
     cpu->pc     += 1 ;
 }
 
@@ -1093,7 +1116,7 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_IN ( cpu );
     } else if ( *opcode == 0xd3 ) {
         emulate_OUT ( cpu );
-    } else if ( *opcode == 0xb6 ) {
+    } else if ( *opcode >= 0xb0 && *opcode <= 0xb7 ) {
         emulate_ORA ( cpu );
     } else if ( *opcode == 0xa7 ) {
         emulate_ANA ( cpu );
