@@ -157,6 +157,27 @@ void emulate_XRA ( _cpu_info *cpu ) {
     cpu->pc     += 1 ;
 }
 
+void emulate_ORI ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+
+    switch ( *opcode ) {
+        case 0xf6: // ORI D8
+            cpu->a |= opcode[1];
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->flags.cy = 0;
+    cpu->flags.ac = 0;
+    cpu->flags.z  = (cpu->a == 0);
+    cpu->flags.s  = (0x80 == (cpu->a & 0x80));
+    cpu->flags.p  = parity_bit(cpu->a);
+
+    cpu->cycles += 7 ;
+    cpu->pc     += 2 ;
+}
+
 void emulate_ORA ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
@@ -1423,6 +1444,8 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_OUT ( cpu );
     } else if ( *opcode >= 0xa8 && *opcode <= 0xaf ) {
         emulate_XRA ( cpu );
+    } else if ( *opcode == 0xf6 ) {
+        emulate_ORI ( cpu );
     } else if ( *opcode >= 0xb0 && *opcode <= 0xb7 ) {
         emulate_ORA ( cpu );
     } else if ( *opcode == 0xa7 ) {
