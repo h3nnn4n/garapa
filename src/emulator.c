@@ -680,7 +680,6 @@ void emulate_PCHL ( _cpu_info *cpu ) {
     }
 
     cpu->cycles += 5 ;
-    cpu->pc     += 1 ;
 }
 
 void emulate_XTHL ( _cpu_info *cpu ) {
