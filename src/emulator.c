@@ -1036,6 +1036,14 @@ void emulate_MOV ( _cpu_info *cpu ) {
             cpu->b = cpu->memory[addr];
             cpu->cycles += 2;
             break;
+        case 0x47: // MOV B, A
+            cpu->b = cpu->a;
+            break;
+        case 0x4e: // MOV C, M
+            addr = cpu->h << 8 | cpu->l;
+            cpu->c = cpu->memory[addr];
+            cpu->cycles += 2;
+            break;
         case 0x4f: // MOV C, A
             cpu->c = cpu->a;
             break;
@@ -1054,6 +1062,9 @@ void emulate_MOV ( _cpu_info *cpu ) {
             break;
         case 0x5f: // MOV E, A
             cpu->e = cpu->a;
+            break;
+        case 0x61: // MOV H, C
+            cpu->h = cpu->c;
             break;
         case 0x66: // MOV H, M
             addr = cpu->h << 8 | cpu->l;
@@ -1075,6 +1086,9 @@ void emulate_MOV ( _cpu_info *cpu ) {
             addr = cpu->h << 8 | cpu->l;
             cpu->memory[addr] = cpu->a;
             cpu->cycles += 2;
+            break;
+        case 0x78: // MOV A, B
+            cpu->a = cpu->b;
             break;
         case 0x79: // MOV A, C
             cpu->a = cpu->c;
