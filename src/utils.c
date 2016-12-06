@@ -20,7 +20,7 @@ off_t fsize(const char *filename) {
 }
 
 void init_cpu( _cpu_info *cpu ) {
-    cpu->memory = malloc ( 64 * 1024 ) ; // Allocs 64Kb of ram
+    cpu->memory = calloc ( 1, 64 * 1024 ) ; // Allocs 64Kb of ram
     cpu->cycles = 0;
     cpu->pc     = 0;
     cpu->a      = 0;
