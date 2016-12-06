@@ -1097,7 +1097,9 @@ void emulate_MOV ( _cpu_info *cpu ) {
             cpu->cycles += 2;
             break;
         default: // Too lazy to do all the MOVs now
-            printf(" %2X is not implemented\n", cpu->memory[cpu->pc]);
+            printf(" %04x: %2X is not implemented\n", cpu->pc, cpu->memory[cpu->pc]);
+            disassembler ( cpu->memory, cpu->pc );
+            print_registers(cpu);
             assert( 0 && "Code should not get here\n" );
     }
 
