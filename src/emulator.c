@@ -600,6 +600,56 @@ void emulate_PUSH ( _cpu_info *cpu ) {
     cpu->pc     += 1 ;
 }
 
+void emulate_INR ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint16_t answer = 0;
+
+    switch ( *opcode ) {
+        case 0x04: // INR B
+            answer = cpu->b + 1;
+            cpu->b = answer & 0xff;
+            break;
+        case 0x0c: // INR C
+            answer = cpu->c + 1;
+            cpu->c = answer & 0xff;
+            break;
+        case 0x14: // INR D
+            answer = cpu->d + 1;
+            cpu->d = answer & 0xff;
+            break;
+        case 0x1d: // INR E
+            answer = cpu->e + 1;
+            cpu->e = answer & 0xff;
+            break;
+        case 0x24: // INR H
+            answer = cpu->h + 1;
+            cpu->h = answer & 0xff;
+            break;
+        case 0x2c: // INR L
+            answer = cpu->l + 1;
+            cpu->l = answer & 0xff;
+            break;
+        case 0x34: // INR M
+            assert ( 0 && "TODO" );
+            cpu->cycles += 5;
+            break;
+        case 0x3c: // INR A
+            answer = cpu->a + 1;
+            cpu->a = answer & 0xff;
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->flags.z    = answer == 0;
+    cpu->flags.s    = ( answer & 0x80 ) != 0;
+    cpu->flags.cy   = ( cpu->a < opcode[1] );
+    cpu->flags.p    = parity_bit ( answer & 0xff );
+
+    cpu->cycles += 5 ;
+    cpu->pc     += 1 ;
+}
+
 void emulate_INX ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
@@ -1197,6 +1247,8 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_INX ( cpu );
     } else if ( *opcode == 0x09 || *opcode == 0x19 || *opcode == 0x29 || *opcode == 0x39 ) {
         emulate_DAD ( cpu );
+    } else if ( *opcode == 0x04 || *opcode == 0x0c || *opcode == 0x14 || *opcode == 0x0c || *opcode == 0x24 || *opcode == 0x0c || *opcode == 0x34 || *opcode == 0x0c ) {
+        emulate_INR ( cpu );
     } else if ( *opcode == 0x3e || *opcode == 0x36 || *opcode == 0x26 || *opcode == 0x2e || *opcode == 0x06 || *opcode == 0x0e ) {
         emulate_MVI ( cpu );
     } else if ( ( *opcode >= 0x40 && *opcode <= 0x75 ) || ( *opcode >= 0x77 && *opcode <= 0x7f ) ) {
@@ -1277,3 +1329,5 @@ unsigned short int emulator( _cpu_info *cpu ) {
 
     return op_size;
 }
+
+
