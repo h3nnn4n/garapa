@@ -1296,7 +1296,7 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_INX ( cpu );
     } else if ( *opcode == 0x09 || *opcode == 0x19 || *opcode == 0x29 || *opcode == 0x39 ) {
         emulate_DAD ( cpu );
-    } else if ( *opcode == 0x04 || *opcode == 0x0c || *opcode == 0x14 || *opcode == 0x0c || *opcode == 0x24 || *opcode == 0x0c || *opcode == 0x34 || *opcode == 0x0c ) {
+    } else if ( *opcode == 0x04 || *opcode == 0x0c || *opcode == 0x14 || *opcode == 0x1c || *opcode == 0x24 || *opcode == 0x2c || *opcode == 0x34 || *opcode == 0x3c ) {
         emulate_INR ( cpu );
     } else if ( *opcode == 0x3e || *opcode == 0x36 || *opcode == 0x26 || *opcode == 0x2e || *opcode == 0x06 || *opcode == 0x0e || *opcode == 0x16 || *opcode == 0x1e ) {
         emulate_MVI ( cpu );
