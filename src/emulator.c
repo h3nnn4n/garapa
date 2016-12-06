@@ -299,7 +299,7 @@ void emulate_RAL ( _cpu_info *cpu ) {
     switch ( *opcode ) {
         case 0x17: // RAL
             t = cpu->a;
-            cpu->a = ( t << 1 ) | (( t & 0x80 ) >> 7 );
+            cpu->a = ( t << 1 ) | ( cpu->flags.cy ? 0x1 : 0x0 );
             cpu->flags.cy = 0 < ( t & 0x80 );
             break;
         default:
@@ -309,6 +309,26 @@ void emulate_RAL ( _cpu_info *cpu ) {
     cpu->cycles += 4 ;
     cpu->pc     += 1 ;
 }
+
+void emulate_RAR ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint8_t t = 0;
+
+    switch ( *opcode ) {
+        case 0x1f: // RAR
+            t = cpu->a;
+            cpu->a = ( t >> 1 ) | (( t & 0x1 ) << 7 );
+            cpu->flags.cy = t & 0x1;
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->cycles += 4 ;
+    cpu->pc     += 1 ;
+}
+
+/*A = A >> 1; bit 7 = prev bit 7; CY = prev bit 0*/
 
 void emulate_RRC ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
@@ -1333,6 +1353,8 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_DCR ( cpu );
     } else if ( *opcode == 0xd6 ) {
         emulate_SUI ( cpu );
+    } else if ( *opcode == 0x1f ) {
+        emulate_RAR ( cpu );
     } else if ( *opcode == 0x17 ) {
         emulate_RAL ( cpu );
     } else if ( *opcode == 0x0f ) {
