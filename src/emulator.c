@@ -134,6 +134,26 @@ void emulate_ANA ( _cpu_info *cpu ) {
     cpu->pc     += 1 ;
 }
 
+void emulate_ORA ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+
+    switch ( *opcode ) {
+        case 0xb6: // ORA M
+            cpu->a       |= cpu->memory[cpu->h << 8 | cpu->l];
+            cpu->flags.cy = 0;
+            cpu->flags.ac = 0;
+            cpu->flags.z  = (cpu->a == 0);
+            cpu->flags.s  = (0x80 == (cpu->a & 0x80));
+            cpu->flags.p  = parity_bit(cpu->a);
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->cycles += 7 ;
+    cpu->pc     += 1 ;
+}
+
 void emulate_ANI ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
@@ -758,21 +778,13 @@ void emulate_MOV ( _cpu_info *cpu ) {
         case 0x41: // MOV B, C
             cpu->b = cpu->c;
             break;
+        case 0x46: // MOV B, M
+            addr = cpu->h << 8 | cpu->l;
+            cpu->b = cpu->memory[addr];
+            cpu->cycles += 2;
+            break;
         case 0x4f: // MOV C, A
             cpu->c = cpu->a;
-            break;
-        case 0x7e: // MOV A, M
-            addr = cpu->h << 8 | cpu->l;
-            cpu->a = cpu->memory[addr];
-            cpu->cycles += 2;
-            break;
-        case 0x66: // MOV H, M
-            addr = cpu->h << 8 | cpu->l;
-            cpu->h = cpu->memory[addr];
-            cpu->cycles += 2;
-            break;
-        case 0x67: // MOV H, A
-            cpu->h = cpu->a;
             break;
         case 0x56: // MOV D, M
             addr = cpu->h << 8 | cpu->l;
@@ -790,13 +802,21 @@ void emulate_MOV ( _cpu_info *cpu ) {
         case 0x5f: // MOV E, A
             cpu->e = cpu->a;
             break;
+        case 0x66: // MOV H, M
+            addr = cpu->h << 8 | cpu->l;
+            cpu->h = cpu->memory[addr];
+            cpu->cycles += 2;
+            break;
+        case 0x67: // MOV H, A
+            cpu->h = cpu->a;
+            break;
+        case 0x6f: // MOV L, A
+            cpu->l = cpu->a;
+            break;
         case 0x77: // MOV M, A
             addr = cpu->h << 8 | cpu->l;
             cpu->memory[addr] = cpu->a;
             cpu->cycles += 2;
-            break;
-        case 0x7b: // MOV A, E
-            cpu->a = cpu->e;
             break;
         case 0x79: // MOV A, C
             cpu->a = cpu->c;
@@ -804,14 +824,19 @@ void emulate_MOV ( _cpu_info *cpu ) {
         case 0x7a: // MOV A, D
             cpu->a = cpu->d;
             break;
+        case 0x7b: // MOV A, E
+            cpu->a = cpu->e;
+            break;
         case 0x7c: // MOV A, H
             cpu->a = cpu->h;
             break;
         case 0x7d: // MOV A, L
             cpu->a = cpu->l;
             break;
-        case 0x6f: // MOV L, A
-            cpu->l = cpu->a;
+        case 0x7e: // MOV A, M
+            addr = cpu->h << 8 | cpu->l;
+            cpu->a = cpu->memory[addr];
+            cpu->cycles += 2;
             break;
         default: // Too lazy to do all the MOVs now
             printf(" %2X is not implemented\n", cpu->memory[cpu->pc]);
@@ -1068,6 +1093,8 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_IN ( cpu );
     } else if ( *opcode == 0xd3 ) {
         emulate_OUT ( cpu );
+    } else if ( *opcode == 0xb6 ) {
+        emulate_ORA ( cpu );
     } else if ( *opcode == 0xa7 ) {
         emulate_ANA ( cpu );
     } else if ( *opcode == 0xe6 ) {
