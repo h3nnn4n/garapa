@@ -632,6 +632,28 @@ void emulate_SPHL ( _cpu_info *cpu ) {
     cpu->pc     += 1 ;
 }
 
+void emulate_XTHL ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+
+    switch ( *opcode ) {
+        case 0xe3: // XTHL
+            {
+            uint8_t l = cpu->l;
+            uint8_t h = cpu->h;
+            cpu->l = cpu->memory[cpu->sp + 0];
+            cpu->h = cpu->memory[cpu->sp + 1];
+            cpu->memory[cpu->sp + 0] = l;
+            cpu->memory[cpu->sp + 1] = h;
+            }
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->cycles += 18;
+    cpu->pc     += 1 ;
+}
+
 void emulate_LHLD ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
@@ -1130,6 +1152,8 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_CPI ( cpu );
     } else if ( *opcode == 0xf9 ) {
         emulate_SPHL ( cpu );
+    } else if ( *opcode == 0xe3 ) {
+        emulate_XTHL ( cpu );
     } else if ( *opcode == 0x2a ) {
         emulate_LHLD ( cpu );
     } else {
