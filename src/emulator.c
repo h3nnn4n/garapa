@@ -743,6 +743,29 @@ void emulate_MVI ( _cpu_info *cpu ) {
     cpu->pc     += 2 ;
 }
 
+void emulate_RNC ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint16_t addr;
+
+    switch ( *opcode ) {
+        case 0xd0: // RNC
+            if ( !cpu->flags.cy ) {
+                addr = cpu->memory[cpu->sp+1] << 8 | cpu->memory[cpu->sp];
+                cpu->sp += 2;
+                cpu->pc = addr;
+                cpu->cycles += 6;
+            } else {
+                cpu->pc += 1;
+            }
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->cycles += 5;
+    /*cpu->pc     += 1 ;*/
+}
+
 void emulate_RC ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
     uint16_t addr;
@@ -1135,6 +1158,8 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_JC ( cpu );
     } else if ( *opcode == 0xc6 ) {
         emulate_ADI ( cpu );
+    } else if ( *opcode == 0xd0 ) {
+        emulate_RNC ( cpu );
     } else if ( *opcode == 0xd8 ) {
         emulate_RC ( cpu );
     } else if ( *opcode == 0xc0 ) {
