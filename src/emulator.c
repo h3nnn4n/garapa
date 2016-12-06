@@ -763,6 +763,25 @@ void emulate_SPHL ( _cpu_info *cpu ) {
     cpu->pc     += 1 ;
 }
 
+void emulate_SHLD ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+
+    switch ( *opcode ) {
+        case 0x22: // SHLD D16
+            {
+            uint16_t addr = opcode[2] << 8 | opcode[1];
+            cpu->memory[addr+0] = cpu->l;
+            cpu->memory[addr+1] = cpu->h;
+            }
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->cycles += 16;
+    cpu->pc     += 3 ;
+}
+
 void emulate_PCHL ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
@@ -846,23 +865,29 @@ void emulate_MVI ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
     switch ( *opcode ) {
-        case 0x06: // MVI B
+        case 0x06: // MVI B, D8
             cpu->b = opcode[1];
             break;
-        case 0x0e: // MVI C
+        case 0x0e: // MVI C, D8
             cpu->c = opcode[1];
             break;
-        case 0x26: // MVI H
+        case 0x16: // MVI D, D8
+            cpu->d = opcode[1];
+            break;
+        case 0x1e: // MVI E, D8
+            cpu->e = opcode[1];
+            break;
+        case 0x26: // MVI H, D8
             cpu->h = opcode[1];
             break;
-        case 0x2e: // MVI L
+        case 0x2e: // MVI L, D8
             cpu->l = opcode[1];
             break;
-        case 0x36: // MVI M
+        case 0x36: // MVI M, D8
             cpu->memory[cpu->h << 8 | cpu->l] = cpu->memory[opcode[1]];
             cpu->cycles += 3;
             break;
-            case 0x3e: // MVI A, D8
+        case 0x3e: // MVI A, D8
             cpu->a = opcode[1];
             break;
         default:
@@ -1273,7 +1298,7 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_DAD ( cpu );
     } else if ( *opcode == 0x04 || *opcode == 0x0c || *opcode == 0x14 || *opcode == 0x0c || *opcode == 0x24 || *opcode == 0x0c || *opcode == 0x34 || *opcode == 0x0c ) {
         emulate_INR ( cpu );
-    } else if ( *opcode == 0x3e || *opcode == 0x36 || *opcode == 0x26 || *opcode == 0x2e || *opcode == 0x06 || *opcode == 0x0e ) {
+    } else if ( *opcode == 0x3e || *opcode == 0x36 || *opcode == 0x26 || *opcode == 0x2e || *opcode == 0x06 || *opcode == 0x0e || *opcode == 0x16 || *opcode == 0x1e ) {
         emulate_MVI ( cpu );
     } else if ( ( *opcode >= 0x40 && *opcode <= 0x75 ) || ( *opcode >= 0x77 && *opcode <= 0x7f ) ) {
         emulate_MOV ( cpu );
@@ -1337,6 +1362,8 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_PCHL ( cpu );
     } else if ( *opcode == 0xe3 ) {
         emulate_XTHL ( cpu );
+    } else if ( *opcode == 0x22 ) {
+        emulate_SHLD ( cpu );
     } else if ( *opcode == 0x2a ) {
         emulate_LHLD ( cpu );
     } else {
