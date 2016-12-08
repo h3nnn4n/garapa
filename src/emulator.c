@@ -338,7 +338,7 @@ void emulate_RAR ( _cpu_info *cpu ) {
     switch ( *opcode ) {
         case 0x1f: // RAR
             t = cpu->a;
-            cpu->a = ( t >> 1 ) | (( t & 0x1 ) << 7 );
+            cpu->a = ( t >> 1 ) | (( cpu->flags.cy & 0x1 ) << 7 );
             cpu->flags.cy = t & 0x1;
             break;
         default:
@@ -348,8 +348,6 @@ void emulate_RAR ( _cpu_info *cpu ) {
     cpu->cycles += 4 ;
     cpu->pc     += 1 ;
 }
-
-/*A = A >> 1; bit 7 = prev bit 7; CY = prev bit 0*/
 
 void emulate_RRC ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
@@ -662,8 +660,8 @@ void emulate_PUSH ( _cpu_info *cpu ) {
             cpu->sp -= 2;
             break;
         case 0xf5: // PUSH PSW
-            cpu->memory[cpu->sp-1] = cpu->a;
-            cpu->memory[cpu->sp-2] = cpu->flags.z       |
+            cpu->memory[cpu->sp-2] = cpu->a;
+            cpu->memory[cpu->sp-1] = cpu->flags.z       |
                                      cpu->flags.s  << 1 |
                                      cpu->flags.p  << 2 |
                                      cpu->flags.cy << 3 |
@@ -1315,6 +1313,30 @@ void emulate_JMP ( _cpu_info *cpu ) {
     cpu->pc      = addr;
 }
 
+void emulate_CC ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+
+    switch ( *opcode ) {
+        case 0xdc:
+            {
+                if ( cpu->flags.cy ) {
+                    uint16_t ret           = cpu->pc + 3;
+                    cpu->memory[cpu->sp-1] = (ret >> 8) & 0xff;
+                    cpu->memory[cpu->sp-2] = (ret & 0xff);
+                    cpu->sp                = cpu->sp - 2;
+                    cpu->pc                = opcode[2] << 8 | opcode[1];
+                    cpu->cycles += 17;
+                } else {
+                    cpu->pc     += 3;
+                    cpu->cycles += 11;
+                }
+            }
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+}
+
 void emulate_CZ ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
@@ -1365,8 +1387,10 @@ unsigned short int emulator( _cpu_info *cpu ) {
 
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
-    /*disassembler ( cpu->memory, cpu->pc );*/
-    /*print_registers(cpu);*/
+#ifdef __show_step
+    disassembler ( cpu->memory, cpu->pc );
+    print_registers(cpu);
+#endif
 
            if ( *opcode == 0x00 ) {
         emulate_NOP ( cpu );
@@ -1428,6 +1452,8 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_RZ ( cpu );
     } else if ( *opcode == 0xc9 ) {
         emulate_RET ( cpu );
+    } else if ( *opcode == 0xdc ) {
+        emulate_CC ( cpu );
     } else if ( *opcode == 0xcc ) {
         emulate_CZ ( cpu );
     } else if ( *opcode == 0xcd ) {
@@ -1477,8 +1503,10 @@ unsigned short int emulator( _cpu_info *cpu ) {
 
     cpu->instructions_executed += 1;
 
-    /*print_registers(cpu);*/
-    /*puts("");*/
+#ifdef __show_step
+    print_registers(cpu);
+    puts("");
+#endif
 
     return op_size;
 }
