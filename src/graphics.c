@@ -19,6 +19,7 @@ void sdl_init ( ) {
     white = SDL_MapRGB(screen->format, 0xff, 0xff, 0xff);
 }
 
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 void update_input ( _cpu_info *cpu ) {
     SDL_Event ev;
 
