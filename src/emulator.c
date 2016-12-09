@@ -8,28 +8,33 @@
 #include "emulator.h"
 #include "disassembler.h"
 
-/*void print_registers ( _cpu_info *cpu ) {*/
-    /*printf(" A: %02x B: %02x C: %02x D: %02x E: %02x H: %02x L: %02x M: %04x SP: %08x PC: %08x",*/
-            /*cpu->a, cpu->b, cpu->c, cpu->d, cpu->e, cpu->h, cpu->l, cpu->h << 8 | cpu-> l, cpu->sp, cpu->pc);*/
-    /*printf(" F: %c%c%c%c%c CYCLES: %8d IPS: %8d\n",*/
-            /*cpu->flags.z  ? 'z' : '.',*/
-            /*cpu->flags.s  ? 's' : '.',*/
-            /*cpu->flags.p  ? 'p' : '.',*/
-            /*cpu->flags.cy ? 'c' : '.',*/
-            /*cpu->flags.ac ? 'a' : '.',*/
-            /*cpu->cycles  % 16667     ,*/
-            /*cpu->instructions_executed);*/
-/*}*/
+#define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
+#define BYTE_TO_BINARY(byte)  \
+      (byte & 0x80 ? '1' : '0'), \
+  (byte & 0x40 ? '1' : '0'), \
+  (byte & 0x20 ? '1' : '0'), \
+  (byte & 0x10 ? '1' : '0'), \
+  (byte & 0x08 ? '1' : '0'), \
+  (byte & 0x04 ? '1' : '0'), \
+  (byte & 0x02 ? '1' : '0'), \
+  (byte & 0x01 ? '1' : '0')
 
 void print_registers ( _cpu_info *cpu ) {
-    uint8_t f = cpu->flags.cy << 0 |
-                            0 << 1 |
-                cpu->flags.p  << 2 |
-                            0 << 3 |
-                cpu->flags.ac << 4 |
-                            0 << 5 |
-                cpu->flags.z  << 6 |
-                cpu->flags.s  << 7;
+    /*uint8_t f = cpu->flags.cy << 0 |*/
+                            /*1 << 1 |*/
+                /*cpu->flags.p  << 2 |*/
+                            /*0 << 3 |*/
+                /*cpu->flags.ac << 4 |*/
+                            /*0 << 5 |*/
+                /*cpu->flags.z  << 6 |*/
+                /*cpu->flags.s  << 7;*/
+
+    uint8_t f = ( (cpu->flags.z ) ? 0x40 : 0x00 ) |
+                ( (cpu->flags.s ) ? 0x80 : 0x00 ) |
+                ( (cpu->flags.p ) ? 0x04 : 0x00 ) |
+                ( (cpu->flags.cy) ? 0x01 : 0x00 ) |
+                ( (cpu->flags.ac) ? 0x10 : 0x00 ) |
+                0x02;
 
     printf(" AF: %02x%02x BC: %02x%02x DE: %02x%02x HL: %02x%02x PC: %04x SP: %04x",
             cpu->a, f, cpu->b, cpu->c, cpu->d, cpu->e, cpu->h, cpu->l, cpu->pc, cpu->sp);
@@ -41,6 +46,7 @@ void print_registers ( _cpu_info *cpu ) {
             cpu->flags.ac ? 'a' : '.',
             cpu->cycles  % 16667     ,
             cpu->instructions_executed);
+    /*printf(BYTE_TO_BINARY_PATTERN"\n", BYTE_TO_BINARY(f));*/
 }
 
 void emulate_STC ( _cpu_info *cpu ) {
@@ -390,7 +396,7 @@ void emulate_XCHG ( _cpu_info *cpu ) {
     uint8_t t = 0;
 
     switch ( *opcode ) {
-        case 0xeb: // CPI A
+        case 0xeb: // XCHG
             t = cpu->d;
             cpu->d = cpu->h;
             cpu->h = t;
@@ -503,6 +509,10 @@ void emulate_CPI ( _cpu_info *cpu ) {
     cpu->flags.s    = ( answer & 0x80 ) != 0       ; // Checks if the MSB is 1
     cpu->flags.cy   = ( cpu->a < opcode[1] )       ; // Checks for the carry bit
     cpu->flags.p    = parity_bit ( answer & 0xff ) ; // Returns 1 if the number os bits set as 1 is even
+    /*cpu->flags.ac   = (((answer & 0xf) +*/
+                        /*(opcode[1] & 0xf)) & 0x10)*/
+                                            /*> 0x0f; // Half carry magic*/
+    cpu->flags.ac   = (!(answer & 15 && answer & 31));// Half carry magic*/
 
     cpu->cycles += 7 ;
     cpu->pc     += 2 ;
@@ -701,18 +711,18 @@ void emulate_POP ( _cpu_info *cpu ) {
 
     switch ( *opcode ) {
         case 0xc1: // POP B
-            cpu->c = cpu->memory[cpu->sp - 0];
-            cpu->b = cpu->memory[cpu->sp + 1];
+            cpu->c = cpu->memory[ ( cpu->sp + 0 ) & 0xffff ];
+            cpu->b = cpu->memory[ ( cpu->sp + 1 ) & 0xffff ];
             cpu->sp += 2;
             break;
         case 0xd1: // POP D
-            cpu->e = cpu->memory[cpu->sp - 0];
-            cpu->d = cpu->memory[cpu->sp + 1];
+            cpu->e = cpu->memory[ ( cpu->sp + 0 ) & 0xffff ];
+            cpu->d = cpu->memory[ ( cpu->sp + 1 ) & 0xffff ];
             cpu->sp += 2;
             break;
         case 0xe1: // POP H
-            cpu->l = cpu->memory[cpu->sp - 0];
-            cpu->h = cpu->memory[cpu->sp + 1];
+            cpu->l = cpu->memory[ ( cpu->sp + 0 ) & 0xffff ];
+            cpu->h = cpu->memory[ ( cpu->sp + 1 ) & 0xffff ];
             cpu->sp += 2;
             break;
         case 0xf1: // POP PSW
@@ -723,12 +733,13 @@ void emulate_POP ( _cpu_info *cpu ) {
             cpu->flags.cy = (0x01 == (cpu->memory[cpu->sp] & 0x01));
             cpu->flags.ac = (0x10 == (cpu->memory[cpu->sp] & 0x10));
             cpu->sp += 2;
+            cpu->cycles -= 1;
             break;
         default:
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 10;
+    cpu->cycles += 11;
     cpu->pc     += 1 ;
 }
 
@@ -773,7 +784,8 @@ void emulate_PUSH ( _cpu_info *cpu ) {
                                      cpu->flags.s  ? 0x80 : 0x0 |
                                      cpu->flags.p  ? 0x04 : 0x0 |
                                      cpu->flags.cy ? 0x01 : 0x0 |
-                                     cpu->flags.ac ? 0x10 : 0x0 ;
+                                     cpu->flags.ac ? 0x10 : 0x0 |
+                                     0x02;
             cpu->sp = cpu->sp - 2;
             break;
         default:
@@ -857,7 +869,7 @@ void emulate_INX ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 6 ; // FIXME This is 5
+    cpu->cycles += 5 ; // FIXME This is 5
     cpu->pc     += 1 ;
 }
 
@@ -1083,6 +1095,52 @@ void emulate_RNC ( _cpu_info *cpu ) {
     /*cpu->pc     += 1 ;*/
 }
 
+void emulate_RP ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint16_t addr;
+
+    switch ( *opcode ) {
+        case 0xf0:
+            if ( cpu->flags.p ) {
+                addr = cpu->memory[cpu->sp+1] << 8 | cpu->memory[cpu->sp];
+                cpu->sp += 2;
+                cpu->pc = addr;
+                cpu->cycles += 6;
+            } else {
+                cpu->pc += 1;
+            }
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->cycles += 5;
+    /*cpu->pc     += 1 ;*/
+}
+
+void emulate_RM ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint16_t addr;
+
+    switch ( *opcode ) {
+        case 0xf8:
+            if ( cpu->flags.s ) {
+                addr = cpu->memory[cpu->sp+1] << 8 | cpu->memory[cpu->sp];
+                cpu->sp += 2;
+                cpu->pc = addr;
+                cpu->cycles += 6;
+            } else {
+                cpu->pc += 1;
+            }
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->cycles += 5;
+    /*cpu->pc     += 1 ;*/
+}
+
 void emulate_RC ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
     uint16_t addr;
@@ -1104,6 +1162,50 @@ void emulate_RC ( _cpu_info *cpu ) {
 
     cpu->cycles += 5;
     /*cpu->pc     += 1 ;*/
+}
+
+void emulate_RPO ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint16_t addr;
+
+    switch ( *opcode ) {
+        case 0xe0:
+            if ( !cpu->flags.p ) {
+                addr = cpu->memory[cpu->sp+1] << 8 | cpu->memory[cpu->sp];
+                cpu->sp += 2;
+                cpu->pc = addr;
+                cpu->cycles += 6;
+            } else {
+                cpu->pc += 1;
+            }
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->cycles += 5;
+}
+
+void emulate_RPE ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint16_t addr;
+
+    switch ( *opcode ) {
+        case 0xe8:
+            if ( cpu->flags.p ) {
+                addr = cpu->memory[cpu->sp+1] << 8 | cpu->memory[cpu->sp];
+                cpu->sp += 2;
+                cpu->pc = addr;
+                cpu->cycles += 6;
+            } else {
+                cpu->pc += 1;
+            }
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->cycles += 5;
 }
 
 void emulate_RNZ ( _cpu_info *cpu ) {
@@ -1335,7 +1437,7 @@ void emulate_JM ( _cpu_info *cpu ) {
             addr = opcode[2] << 8 | opcode[1];
             if ( cpu->flags.s ) {
                 cpu->pc = addr;
-                cpu->cycles += 5;
+                /*cpu->cycles += 5;*/
             } else {
                 cpu->pc += 3;
             }
@@ -1356,7 +1458,49 @@ void emulate_JZ ( _cpu_info *cpu ) {
             addr = opcode[2] << 8 | opcode[1];
             if ( cpu->flags.z ) {
                 cpu->pc = addr;
-                cpu->cycles += 5; // FIXME this is 3
+                /*cpu->cycles += 5; // FIXME this is 3*/
+            } else {
+                cpu->pc += 3;
+            }
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->cycles += 10;
+}
+
+void emulate_JPO ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint16_t addr = 0;
+
+    switch ( *opcode ) {
+        case 0xe2: // JPO
+            addr = opcode[2] << 8 | opcode[1];
+            if ( !cpu->flags.p ) {
+                cpu->pc = addr;
+                /*cpu->cycles += 5; // FIXME this is 3*/
+            } else {
+                cpu->pc += 3;
+            }
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->cycles += 10;
+}
+
+void emulate_JPE ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint16_t addr = 0;
+
+    switch ( *opcode ) {
+        case 0xea: // JPE
+            addr = opcode[2] << 8 | opcode[1];
+            if ( cpu->flags.p ) {
+                cpu->pc = addr;
+                /*cpu->cycles += 5; // FIXME this is 3*/
             } else {
                 cpu->pc += 3;
             }
@@ -1377,7 +1521,7 @@ void emulate_JNZ ( _cpu_info *cpu ) {
             addr = opcode[2] << 8 | opcode[1];
             if ( !cpu->flags.z ) {
                 cpu->pc = addr;
-                cpu->cycles += 5; // FIXME this is 3
+                /*cpu->cycles += 5; // FIXME this is 3*/
             } else {
                 cpu->pc += 3;
             }
@@ -1396,6 +1540,26 @@ void emulate_JNC ( _cpu_info *cpu ) {
     switch ( *opcode ) {
         case 0xd2: // JNC
             if ( !cpu->flags.cy ) {
+                addr = opcode[2] << 8 | opcode[1];
+                cpu->pc = addr;
+            } else {
+                cpu->pc += 3;
+            }
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->cycles += 10  ;
+}
+
+void emulate_JP ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint16_t addr = 0;
+
+    switch ( *opcode ) {
+        case 0xf2: // JP
+            if ( cpu->flags.p ) {
                 addr = opcode[2] << 8 | opcode[1];
                 cpu->pc = addr;
             } else {
@@ -1443,6 +1607,126 @@ void emulate_JMP ( _cpu_info *cpu ) {
 
     cpu->cycles += 10  ;
     cpu->pc      = addr;
+}
+
+void emulate_CPO ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+
+    switch ( *opcode ) {
+        case 0xe4:
+            {
+                if ( !cpu->flags.p ) {
+                    uint16_t ret           = cpu->pc + 3;
+                    cpu->memory[cpu->sp-1] = (ret >> 8) & 0xff;
+                    cpu->memory[cpu->sp-2] = (ret & 0xff);
+                    cpu->sp                = cpu->sp - 2;
+                    cpu->pc                = opcode[2] << 8 | opcode[1];
+                    cpu->cycles += 17;
+                } else {
+                    cpu->pc     += 3;
+                    cpu->cycles += 11;
+                }
+            }
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+}
+
+void emulate_CPE ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+
+    switch ( *opcode ) {
+        case 0xec:
+            {
+                if ( cpu->flags.p ) {
+                    uint16_t ret           = cpu->pc + 3;
+                    cpu->memory[cpu->sp-1] = (ret >> 8) & 0xff;
+                    cpu->memory[cpu->sp-2] = (ret & 0xff);
+                    cpu->sp                = cpu->sp - 2;
+                    cpu->pc                = opcode[2] << 8 | opcode[1];
+                    cpu->cycles += 17;
+                } else {
+                    cpu->pc     += 3;
+                    cpu->cycles += 11;
+                }
+            }
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+}
+
+void emulate_CNC ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+
+    switch ( *opcode ) {
+        case 0xd4:
+            {
+                if ( !cpu->flags.cy ) {
+                    uint16_t ret           = cpu->pc + 3;
+                    cpu->memory[cpu->sp-1] = (ret >> 8) & 0xff;
+                    cpu->memory[cpu->sp-2] = (ret & 0xff);
+                    cpu->sp                = cpu->sp - 2;
+                    cpu->pc                = opcode[2] << 8 | opcode[1];
+                    cpu->cycles += 17;
+                } else {
+                    cpu->pc     += 3;
+                    cpu->cycles += 11;
+                }
+            }
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+}
+
+void emulate_CP ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+
+    switch ( *opcode ) {
+        case 0xf4:
+            {
+                if ( cpu->flags.p ) {
+                    uint16_t ret           = cpu->pc + 3;
+                    cpu->memory[cpu->sp-1] = (ret >> 8) & 0xff;
+                    cpu->memory[cpu->sp-2] = (ret & 0xff);
+                    cpu->sp                = cpu->sp - 2;
+                    cpu->pc                = opcode[2] << 8 | opcode[1];
+                    cpu->cycles += 17;
+                } else {
+                    cpu->pc     += 3;
+                    cpu->cycles += 11;
+                }
+            }
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+}
+
+void emulate_CM ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+
+    switch ( *opcode ) {
+        case 0xfc:
+            {
+                if ( cpu->flags.s ) {
+                    uint16_t ret           = cpu->pc + 3;
+                    cpu->memory[cpu->sp-1] = (ret >> 8) & 0xff;
+                    cpu->memory[cpu->sp-2] = (ret & 0xff);
+                    cpu->sp                = cpu->sp - 2;
+                    cpu->pc                = opcode[2] << 8 | opcode[1];
+                    cpu->cycles += 17;
+                } else {
+                    cpu->pc     += 3;
+                    cpu->cycles += 11;
+                }
+            }
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
 }
 
 void emulate_CC ( _cpu_info *cpu ) {
@@ -1523,10 +1807,10 @@ void emulate_CALL ( _cpu_info *cpu ) {
     switch ( *opcode ) {
         case 0xcd:
             {
-                assert ( cpu->sp >= 2 && "Got a segfault in the 8080" );
+                /*assert ( cpu->sp >= 2 && "Got a segfault in the 8080" );*/
                 uint16_t ret           = cpu->pc + 3;
-                cpu->memory[cpu->sp-1] = (ret >> 8) & 0xff;
-                cpu->memory[cpu->sp-2] = (ret & 0xff);
+                cpu->memory[(cpu->sp-1) & 0xffff] = (ret >> 8) & 0xff;
+                cpu->memory[(cpu->sp-2) & 0xffff] = (ret & 0xff);
                 cpu->sp                = cpu->sp - 2;
                 cpu->pc                = opcode[2] << 8 | opcode[1];
             }
@@ -1596,26 +1880,50 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_JM ( cpu );
     } else if ( *opcode == 0xca ) {
         emulate_JZ ( cpu );
+    } else if ( *opcode == 0xe2 ) {
+        emulate_JPO ( cpu );
+    } else if ( *opcode == 0xea ) {
+        emulate_JPE ( cpu );
     } else if ( *opcode == 0xc2 ) {
         emulate_JNZ ( cpu );
     } else if ( *opcode == 0xc3 ) {
         emulate_JMP ( cpu );
     } else if ( *opcode == 0xd2 ) {
         emulate_JNC ( cpu );
+    } else if ( *opcode == 0xf2 ) {
+        emulate_JP ( cpu );
     } else if ( *opcode == 0xda ) {
         emulate_JC ( cpu );
     } else if ( *opcode == 0xc6 ) {
         emulate_ADI ( cpu );
     } else if ( *opcode == 0xd0 ) {
         emulate_RNC ( cpu );
+    } else if ( *opcode == 0xf0 ) {
+        emulate_RP ( cpu );
     } else if ( *opcode == 0xd8 ) {
         emulate_RC ( cpu );
+    } else if ( *opcode == 0xf8 ) {
+        emulate_RM ( cpu );
+    } else if ( *opcode == 0xe0 ) {
+        emulate_RPO ( cpu );
+    } else if ( *opcode == 0xe8 ) {
+        emulate_RPE ( cpu );
     } else if ( *opcode == 0xc0 ) {
         emulate_RNZ ( cpu );
     } else if ( *opcode == 0xc8 ) {
         emulate_RZ ( cpu );
     } else if ( *opcode == 0xc9 ) {
         emulate_RET ( cpu );
+    } else if ( *opcode == 0xe4 ) {
+        emulate_CPO ( cpu );
+    } else if ( *opcode == 0xec ) {
+        emulate_CPE ( cpu );
+    } else if ( *opcode == 0xd4 ) {
+        emulate_CNC ( cpu );
+    } else if ( *opcode == 0xf4 ) {
+        emulate_CP ( cpu );
+    } else if ( *opcode == 0xfc ) {
+        emulate_CM ( cpu );
     } else if ( *opcode == 0xdc ) {
         emulate_CC ( cpu );
     } else if ( *opcode == 0xc4 ) {
