@@ -49,6 +49,21 @@ void print_registers ( _cpu_info *cpu ) {
     /*printf(BYTE_TO_BINARY_PATTERN"\n", BYTE_TO_BINARY(f));*/
 }
 
+void emulate_CMA ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+
+    switch ( *opcode ) {
+            case 0x2f: // CMA
+                cpu->a ^= 0xff;
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->cycles += 4 ;
+    cpu->pc     += 1 ;
+}
+
 void emulate_STC ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
@@ -104,17 +119,40 @@ void emulate_ANA ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
     switch ( *opcode ) {
-        case 0xa7: // ANA
+        case 0xa0: // ANA B
+            cpu->a       &= cpu->b;
+            break;
+        case 0xa1: // ANA C
+            cpu->a       &= cpu->c;
+            break;
+        case 0xa2: // ANA D
+            cpu->a       &= cpu->d;
+            break;
+        case 0xa3: // ANA E
+            cpu->a       &= cpu->e;
+            break;
+        case 0xa4: // ANA H
+            cpu->a       &= cpu->h;
+            break;
+        case 0xa5: // ANA L
+            cpu->a       &= cpu->l;
+            break;
+        case 0xa6: // ANA M
+            cpu->a       &= cpu->memory[cpu->h << 8 | cpu->l];
+            cpu->cycles  += 3;
+            break;
+        case 0xa7: // ANA A
             cpu->a       &= cpu->a;
-            cpu->flags.cy = 0;
-            cpu->flags.ac = 0;
-            cpu->flags.z  = (cpu->a == 0);
-            cpu->flags.s  = (0x80 == (cpu->a & 0x80));
-            cpu->flags.p  = parity_bit(cpu->a);
             break;
         default:
             assert( 0 && "Code should not get here\n" );
     }
+
+    cpu->flags.cy = 0;
+    cpu->flags.ac = 0;
+    cpu->flags.z  = (cpu->a == 0);
+    cpu->flags.s  = (0x80 == (cpu->a & 0x80));
+    cpu->flags.p  = parity_bit(cpu->a);
 
     cpu->cycles += 4 ;
     cpu->pc     += 1 ;
@@ -493,6 +531,53 @@ void emulate_OUT ( _cpu_info *cpu ) {
     cpu->pc     += 2 ;
 }
 
+void emulate_CPM ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint8_t        answer = 0;
+
+    switch ( *opcode ) {
+        case 0xb8: // CPM B
+            answer = cpu->a - cpu->b;
+            break;
+        case 0xb9: // CPM C
+            answer = cpu->a - cpu->c;
+            break;
+        case 0xba: // CPM D
+            answer = cpu->a - cpu->d;
+            break;
+        case 0xbb: // CPM E
+            answer = cpu->a - cpu->e;
+            break;
+        case 0xbc: // CPM H
+            answer = cpu->a - cpu->h;
+            break;
+        case 0xbd: // CPM L
+            answer = cpu->a - cpu->l;
+            break;
+        case 0xbe: // CPM M
+            answer = cpu->a -  cpu->memory[cpu->h << 8 | cpu->l];
+            cpu->cycles  += 3;
+            break;
+        case 0xbf: // CPM A
+            answer = cpu->a - cpu->a;
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->flags.z    = answer == 0                  ; // Only the last 8 bits matters, hence the mask
+    cpu->flags.s    = ( answer & 0x80 ) != 0       ; // Checks if the MSB is 1
+    cpu->flags.cy   = ( cpu->a < opcode[1] )       ; // Checks for the carry bit
+    cpu->flags.p    = parity_bit ( answer & 0xff ) ; // Returns 1 if the number os bits set as 1 is even
+    /*cpu->flags.ac   = (((answer & 0xf) +*/
+                        /*(opcode[1] & 0xf)) & 0x10)*/
+                                            /*> 0x0f; // Half carry magic*/
+    cpu->flags.ac   = (!(answer & 15 && answer & 31));// Half carry magic*/
+
+    cpu->cycles += 5 ;
+    cpu->pc     += 1 ;
+}
+
 void emulate_CPI ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
     uint8_t        answer = 0;
@@ -826,7 +911,8 @@ void emulate_INR ( _cpu_info *cpu ) {
             cpu->l = answer & 0xff;
             break;
         case 0x34: // INR M
-            assert ( 0 && "TODO" );
+            /*assert ( 0 && "TODO" );*/
+            cpu->memory[cpu->h << 8 | cpu->l] += 1;
             cpu->cycles += 5;
             break;
         case 0x3c: // INR A
@@ -1325,6 +1411,9 @@ void emulate_MOV ( _cpu_info *cpu ) {
             break;
         case 0x68: // MOV L, B
             cpu->l = cpu->b;
+            break;
+        case 0x69: // MOV L, C
+            cpu->l = cpu->c;
             break;
         case 0x6f: // MOV L, A
             cpu->l = cpu->a;
@@ -1848,6 +1937,8 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_RLC ( cpu );
     } else if ( *opcode == 0x0f ) {
         emulate_RRC ( cpu );
+    } else if ( *opcode == 0x2f ) {
+        emulate_CMA ( cpu );
     } else if ( *opcode == 0x32 ) {
         emulate_STA ( cpu );
     } else if ( *opcode == 0x37 ) {
@@ -1948,7 +2039,9 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_ORI ( cpu );
     } else if ( *opcode >= 0xb0 && *opcode <= 0xb7 ) {
         emulate_ORA ( cpu );
-    } else if ( *opcode == 0xa7 ) {
+    } else if ( *opcode >= 0xb8 && *opcode <= 0xbf ) {
+        emulate_CPM ( cpu );
+    } else if ( *opcode >= 0xa0 && *opcode <= 0xa7 ) {
         emulate_ANA ( cpu );
     } else if ( *opcode == 0xe6 ) {
         emulate_ANI ( cpu );
