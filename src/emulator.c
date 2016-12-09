@@ -31,7 +31,7 @@ void print_registers ( _cpu_info *cpu ) {
                 cpu->flags.z  << 6 |
                 cpu->flags.s  << 7;
 
-    printf(" AF: %02x%02x BC: %02x%02x DE: %02x%02x HL: %02x%02x PC: %08x SP: %08x",
+    printf(" AF: %02x%02x BC: %02x%02x DE: %02x%02x HL: %02x%02x PC: %04x SP: %04x",
             cpu->a, f, cpu->b, cpu->c, cpu->d, cpu->e, cpu->h, cpu->l, cpu->pc, cpu->sp);
     printf(" F: %c%c%c%c%c CYCLES: %8d IPS: %8d\n",
             cpu->flags.z  ? 'z' : '.',
@@ -354,10 +354,28 @@ void emulate_RRC ( _cpu_info *cpu ) {
     uint8_t t = 0;
 
     switch ( *opcode ) {
-        case 0x0f: // RRC A
+        case 0x0f: // RRC
             t = cpu->a;
             cpu->a = ( t >> 1 ) | (( t & 0x1 ) << 7 );
             cpu->flags.cy = t & 0x1;
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->cycles += 4 ;
+    cpu->pc     += 1 ;
+}
+
+void emulate_RLC ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint8_t t = 0;
+
+    switch ( *opcode ) {
+        case 0x07: // RLC
+            t = cpu->a;
+            cpu->flags.cy = 0x80 == (t & 0x80);
+            cpu->a = ( t << 1 ) | cpu->flags.cy;
             break;
         default:
             assert( 0 && "Code should not get here\n" );
@@ -397,12 +415,27 @@ void emulate_IN ( _cpu_info *cpu ) {
             {
                 uint8_t port = opcode[1];
                 switch ( port ) {
-                    case 0x03:
+                    case 0x01: // COIN-IN port. always zero for now
                         {
-                        /*uint16_t v = (cpu->shift1<<8) | cpu->shift0;*/
-                        /*cpu->a = ((v >> (8 - cpu->shift_offset)) & 0xff);*/
+                            cpu->a = 0;
                         }
                         break;
+                    case 0x02: // TILT port. What this does?
+                        {
+                            cpu->a = 0;
+                        }
+                        break;
+                    case 0x03: // Shiftregister port
+                        {
+                        uint16_t v = (cpu->shift1<<8) | cpu->shift0;
+                        cpu->a = ((v >> (8 - cpu->shift_offset)) & 0xff);
+                        }
+                        break;
+                    default:
+                        disassembler ( cpu->memory, cpu->pc );
+                        print_registers(cpu);
+                        printf("PORT N %4x\n", port);
+                        assert( 0 && "NEW PORT\n" );
                 }
             }
             break;
@@ -422,15 +455,27 @@ void emulate_OUT ( _cpu_info *cpu ) {
             {
                 uint8_t port = opcode[1];
                 switch ( port ) {
-                    case 0x02:
-                        /*cpu->shift_offset = cpu->a & 0x7;*/
+                    case 0x02: // Sets the offset size for the shift register
+                        cpu->shift_offset = cpu->a & 0x7;
                         break;
-                    case 0x04:
-                        /*cpu->shift0 = cpu->shift1;*/
-                        /*cpu->shift1 = cpu->a;*/
+                    case 0x03: // sound port
+                        // Do nothing
+                        break;
+                    case 0x04: // Throws data at the shiftregister
+                        cpu->shift0 = cpu->shift1;
+                        cpu->shift1 = cpu->a;
+                        break;
+                    case 0x05: // sound port
+                        // Do nothing
+                        break;
+                    case 0x06: // Watchchdog port
+                        // Do nothing
                         break;
                     default:
-                        break;
+                        disassembler ( cpu->memory, cpu->pc );
+                        print_registers(cpu);
+                        printf("PORT N %4x\n", port);
+                        assert( 0 && "NEW PORT\n" );
                 }
             }
             break;
@@ -487,6 +532,69 @@ void emulate_ADC ( _cpu_info *cpu ) {
 
     cpu->cycles += 7 ;
     cpu->pc     += 1 ;
+}
+
+// TODO: Find out what this does and DO IT
+// I dont trust this code
+void emulate_DAA ( _cpu_info *cpu ) {
+#pragma message ( "STUB DAA" )
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+
+    switch ( *opcode ) {
+        case 0x27: // DAA
+            {
+                uint8_t carry = (uint8_t)cpu->flags.cy;
+                uint8_t add = 0;
+                uint16_t ans = 0;
+
+                if (0 /*it is actually the halfcarry flag*/ || (cpu->a & 0x0f) > 9) {
+                    add = 0x06;
+                }
+
+                if (cpu->flags.cy || (cpu->a >> 4) > 9 || ((cpu->a >> 4) >= 9 && (cpu->a & 0x0f) > 9)) {
+                    add |= 0x60;
+                    carry = 1;
+                }
+
+                ans = add + cpu->a;
+
+                cpu->a = ans & 0xff;
+                cpu->flags.p  = parity_bit(ans);
+                cpu->flags.cy = carry;
+                cpu->flags.z  = ( ans & 0xff ) == 0;
+                cpu->flags.s  = ( ans & 0x80 ) != 0;
+            }
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->cycles += 4 ;
+    cpu->pc     += 1 ;
+}
+
+void emulate_SBI ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint16_t answer = 0;
+
+    switch ( *opcode ) {
+        case 0xde: // SBI D8
+            {
+            assert( ( cpu->flags.cy == 0 || cpu->flags.cy == 1 ) && "Invalid CY flag" );
+            answer = cpu->a - opcode[1] - cpu->flags.cy;
+            }
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->flags.z    = ( answer & 0xff ) == 0;
+    cpu->flags.s    = ( answer & 0x80 ) != 0;
+    cpu->flags.cy   = ( answer > 0xff );
+    cpu->flags.p    = parity_bit ( answer & 0xff );
+
+    cpu->cycles += 7 ;
+    cpu->pc     += 2 ;
 }
 
 void emulate_SBB ( _cpu_info *cpu ) {
@@ -609,10 +717,10 @@ void emulate_POP ( _cpu_info *cpu ) {
             break;
         case 0xf1: // POP PSW
             cpu->a = cpu->memory[cpu->sp+1];
-            cpu->flags.z  = (0x01 == (cpu->memory[cpu->sp] & 0x01));
-            cpu->flags.s  = (0x02 == (cpu->memory[cpu->sp] & 0x02));
+            cpu->flags.z  = (0x40 == (cpu->memory[cpu->sp] & 0x40));
+            cpu->flags.s  = (0x80 == (cpu->memory[cpu->sp] & 0x80));
             cpu->flags.p  = (0x04 == (cpu->memory[cpu->sp] & 0x04));
-            cpu->flags.cy = (0x08 == (cpu->memory[cpu->sp] & 0x08));
+            cpu->flags.cy = (0x01 == (cpu->memory[cpu->sp] & 0x01));
             cpu->flags.ac = (0x10 == (cpu->memory[cpu->sp] & 0x10));
             cpu->sp += 2;
             break;
@@ -660,12 +768,12 @@ void emulate_PUSH ( _cpu_info *cpu ) {
             cpu->sp -= 2;
             break;
         case 0xf5: // PUSH PSW
-            cpu->memory[cpu->sp-2] = cpu->a;
-            cpu->memory[cpu->sp-1] = cpu->flags.z       |
-                                     cpu->flags.s  << 1 |
-                                     cpu->flags.p  << 2 |
-                                     cpu->flags.cy << 3 |
-                                     cpu->flags.ac << 4 ;
+            cpu->memory[cpu->sp-1] = cpu->a;
+            cpu->memory[cpu->sp-2] = cpu->flags.z  ? 0x40 : 0x0 |
+                                     cpu->flags.s  ? 0x80 : 0x0 |
+                                     cpu->flags.p  ? 0x04 : 0x0 |
+                                     cpu->flags.cy ? 0x01 : 0x0 |
+                                     cpu->flags.ac ? 0x10 : 0x0 ;
             cpu->sp = cpu->sp - 2;
             break;
         default:
@@ -938,7 +1046,7 @@ void emulate_MVI ( _cpu_info *cpu ) {
             cpu->l = opcode[1];
             break;
         case 0x36: // MVI M, D8
-            cpu->memory[cpu->h << 8 | cpu->l] = cpu->memory[opcode[1]];
+            cpu->memory[cpu->h << 8 | cpu->l] = opcode[1];
             cpu->cycles += 3;
             break;
         case 0x3e: // MVI A, D8
@@ -1113,6 +1221,9 @@ void emulate_MOV ( _cpu_info *cpu ) {
         case 0x67: // MOV H, A
             cpu->h = cpu->a;
             break;
+        case 0x68: // MOV L, B
+            cpu->l = cpu->b;
+            break;
         case 0x6f: // MOV L, A
             cpu->l = cpu->a;
             break;
@@ -1213,6 +1324,27 @@ void emulate_LDAX ( _cpu_info *cpu ) {
 
     cpu->cycles += 7 ;
     cpu->pc     += 1 ;
+}
+
+void emulate_JM ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint16_t addr = 0;
+
+    switch ( *opcode ) {
+        case 0xfa: // JM
+            addr = opcode[2] << 8 | opcode[1];
+            if ( cpu->flags.s ) {
+                cpu->pc = addr;
+                cpu->cycles += 5;
+            } else {
+                cpu->pc += 3;
+            }
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->cycles += 10;
 }
 
 void emulate_JZ ( _cpu_info *cpu ) {
@@ -1337,11 +1469,35 @@ void emulate_CC ( _cpu_info *cpu ) {
     }
 }
 
+void emulate_CNZ ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+
+    switch ( *opcode ) {
+        case 0xc4: // CNZ
+            {
+                if ( !cpu->flags.z ) {
+                    uint16_t ret           = cpu->pc + 3;
+                    cpu->memory[cpu->sp-1] = (ret >> 8) & 0xff;
+                    cpu->memory[cpu->sp-2] = (ret & 0xff);
+                    cpu->sp                = cpu->sp - 2;
+                    cpu->pc                = opcode[2] << 8 | opcode[1];
+                    cpu->cycles += 17;
+                } else {
+                    cpu->pc     += 3;
+                    cpu->cycles += 11;
+                }
+            }
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+}
+
 void emulate_CZ ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
     switch ( *opcode ) {
-        case 0xcc:
+        case 0xcc: //CZ
             {
                 if ( cpu->flags.z ) {
                     uint16_t ret           = cpu->pc + 3;
@@ -1396,12 +1552,16 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_NOP ( cpu );
     } else if ( *opcode == 0x05 || *opcode == 0x0d || *opcode == 0x15 || *opcode == 0x1d || *opcode == 0x25 || *opcode == 0x2d || *opcode == 0x35 || *opcode == 0x3d) {
         emulate_DCR ( cpu );
+    } else if ( *opcode == 0x27 ) {
+        emulate_DAA ( cpu );
     } else if ( *opcode == 0xd6 ) {
         emulate_SUI ( cpu );
     } else if ( *opcode == 0x1f ) {
         emulate_RAR ( cpu );
     } else if ( *opcode == 0x17 ) {
         emulate_RAL ( cpu );
+    } else if ( *opcode == 0x07 ) {
+        emulate_RLC ( cpu );
     } else if ( *opcode == 0x0f ) {
         emulate_RRC ( cpu );
     } else if ( *opcode == 0x32 ) {
@@ -1428,8 +1588,12 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_ADD ( cpu );
     } else if ( *opcode == 0x8c ) {
         emulate_ADC ( cpu );
+    } else if ( *opcode == 0xde ) {
+        emulate_SBI ( cpu );
     } else if ( *opcode == 0x9e ) {
         emulate_SBB ( cpu );
+    } else if ( *opcode == 0xfa ) {
+        emulate_JM ( cpu );
     } else if ( *opcode == 0xca ) {
         emulate_JZ ( cpu );
     } else if ( *opcode == 0xc2 ) {
@@ -1454,6 +1618,8 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_RET ( cpu );
     } else if ( *opcode == 0xdc ) {
         emulate_CC ( cpu );
+    } else if ( *opcode == 0xc4 ) {
+        emulate_CNZ ( cpu );
     } else if ( *opcode == 0xcc ) {
         emulate_CZ ( cpu );
     } else if ( *opcode == 0xcd ) {
