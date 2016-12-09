@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "types.h"
 #include "disassembler.h"
 
 unsigned short int disassembler( unsigned char *buffer, unsigned int pc ) {
