@@ -159,6 +159,7 @@ void emulate_ADI ( _cpu_info *cpu ) {
 
     switch ( *opcode ) {
             case 0xc6: // ADI
+            cpu->flags.ac = halfcary( cpu->a, opcode[1] );
             t             = cpu->a + (uint8_t) opcode[1];
             cpu->a        = (uint8_t) t;
             break;
@@ -672,7 +673,6 @@ void emulate_CMP ( _cpu_info *cpu ) {
 
     cpu->flags.z    = answer == 0                  ; // Only the last 8 bits matters, hence the mask
     cpu->flags.s    = ( answer & 0x80 ) != 0       ; // Checks if the MSB is 1
-    /*cpu->flags.cy   = ( cpu->a < opcode[1] )       ; // Checks for the carry bit*/
     cpu->flags.p    = parity_bit ( answer & 0xff ) ; // Returns 1 if the number os bits set as 1 is even
 
     cpu->cycles += 4 ;
