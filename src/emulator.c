@@ -214,7 +214,7 @@ void emulate_XRA ( _cpu_info *cpu ) {
             break;
         case 0xae: // XRA M
             cpu->a ^= cpu->memory[cpu->h << 8 | cpu->l];
-            cpu->cycles += 2;
+            cpu->cycles += 3;
             break;
         case 0xaf: // XRA A
             cpu->a ^= cpu->a;
@@ -837,7 +837,7 @@ void emulate_DCR ( _cpu_info *cpu ) {
     cpu->flags.z    = ( answer & 0xff ) == 0;
     cpu->flags.s    = ( answer & 0x80 ) != 0;
     cpu->flags.p    = parity_bit ( answer & 0xff );
-    cpu->flags.cy   = 0;
+    /*cpu->flags.cy   = 0;*/
 
     cpu->cycles += 5 ;
     cpu->pc     += 1 ;
@@ -882,11 +882,11 @@ void emulate_POP ( _cpu_info *cpu ) {
             break;
         case 0xf1: // POP PSW
             cpu->a = cpu->memory[cpu->sp+1];
-            cpu->flags.z  = (0x40 == (cpu->memory[cpu->sp] & 0x40));
-            cpu->flags.s  = (0x80 == (cpu->memory[cpu->sp] & 0x80));
-            cpu->flags.p  = (0x04 == (cpu->memory[cpu->sp] & 0x04));
-            cpu->flags.cy = (0x01 == (cpu->memory[cpu->sp] & 0x01));
-            cpu->flags.ac = (0x10 == (cpu->memory[cpu->sp] & 0x10));
+            cpu->flags.z  = ((cpu->memory[cpu->sp] & 0x40));
+            cpu->flags.s  = ((cpu->memory[cpu->sp] & 0x80));
+            cpu->flags.p  = ((cpu->memory[cpu->sp] & 0x04));
+            cpu->flags.cy = ((cpu->memory[cpu->sp] & 0x01));
+            cpu->flags.ac = ((cpu->memory[cpu->sp] & 0x10));
             cpu->sp += 2;
             cpu->cycles -= 1;
             break;
@@ -935,11 +935,11 @@ void emulate_PUSH ( _cpu_info *cpu ) {
             break;
         case 0xf5: // PUSH PSW
             cpu->memory[cpu->sp-1] = cpu->a;
-            cpu->memory[cpu->sp-2] = cpu->flags.z  ? 0x40 : 0x0 |
-                                     cpu->flags.s  ? 0x80 : 0x0 |
-                                     cpu->flags.p  ? 0x04 : 0x0 |
-                                     cpu->flags.cy ? 0x01 : 0x0 |
-                                     cpu->flags.ac ? 0x10 : 0x0 |
+            cpu->memory[cpu->sp-2] = ( cpu->flags.z  ? 0x40 : 0x0 ) |
+                                     ( cpu->flags.s  ? 0x80 : 0x0 ) |
+                                     ( cpu->flags.p  ? 0x04 : 0x0 ) |
+                                     ( cpu->flags.cy ? 0x01 : 0x0 ) |
+                                     ( cpu->flags.ac ? 0x10 : 0x0 ) |
                                      0x02;
             cpu->sp = cpu->sp - 2;
             break;
