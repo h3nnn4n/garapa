@@ -19,7 +19,7 @@
   (byte & 0x02 ? '1' : '0'), \
   (byte & 0x01 ? '1' : '0')
 
-static int halfcarry_sub( uint8_t a, uint8_t b ) {
+static int halfcary_sub( uint8_t a, uint8_t b ) {
     uint8_t c = a - b;
     uint8_t b1 = ( a & 0x08 ) >> 1;
     uint8_t b2 = ( b & 0x08 ) >> 2;
@@ -28,6 +28,17 @@ static int halfcarry_sub( uint8_t a, uint8_t b ) {
 
     return table[ b1 | b2 | b3 ];
 }
+
+static int halfcary( uint8_t a, uint8_t b ) {
+    uint8_t c = a - b;
+    uint8_t b1 = ( a & 0x08 ) >> 1;
+    uint8_t b2 = ( b & 0x08 ) >> 2;
+    uint8_t b3 = ( c & 0x08 ) >> 3;
+    static int table[] = { 0, 0, 1, 0, 1, 0, 1, 1 };
+
+    return table[ b1 | b2 | b3 ];
+}
+
 
 void print_registers ( _cpu_info *cpu ) {
     /*uint8_t f = cpu->flags.cy << 0 |*/
@@ -119,22 +130,46 @@ void emulate_EI ( _cpu_info *cpu ) {
     cpu->pc     += 1 ;
 }
 
+void emulate_ACI ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint16_t t;
+
+    switch ( *opcode ) {
+        case 0xce: // ACI
+            t             = cpu->a + (uint8_t) opcode[1] + cpu->flags.cy;
+            cpu->a        = t & 0xff;
+            cpu->flags.ac = halfcary( cpu->a, opcode[1] );
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->flags.cy = (t > 0xff);
+    cpu->flags.z  = (cpu->a == 0);
+    cpu->flags.s  = (0x80 == (cpu->a & 0x80));
+    cpu->flags.p  = parity_bit(cpu->a);
+
+    cpu->cycles += 7 ;
+    cpu->pc     += 2 ;
+}
+
 void emulate_ADI ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
     uint16_t t;
 
     switch ( *opcode ) {
-        case 0xc6: // ADI
+            case 0xc6: // ADI
             t             = cpu->a + (uint8_t) opcode[1];
             cpu->a        = (uint8_t) t;
-            cpu->flags.cy = (t > 0xff);
-            cpu->flags.z  = (cpu->a == 0);
-            cpu->flags.s  = (0x80 == (cpu->a & 0x80));
-            cpu->flags.p  = parity_bit(cpu->a);
             break;
         default:
             assert( 0 && "Code should not get here\n" );
     }
+
+    cpu->flags.cy = (t > 0xff);
+    cpu->flags.z  = (cpu->a == 0);
+    cpu->flags.s  = (0x80 == (cpu->a & 0x80));
+    cpu->flags.p  = parity_bit(cpu->a);
 
     cpu->cycles += 7 ;
     cpu->pc     += 2 ;
@@ -188,6 +223,27 @@ void emulate_ANA ( _cpu_info *cpu ) {
 
     cpu->cycles += 4 ;
     cpu->pc     += 1 ;
+}
+
+void emulate_XRI ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+
+    switch ( *opcode ) {
+        case 0xee: // XRI D8
+            cpu->a ^= opcode[1];
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->flags.cy = 0;
+    cpu->flags.ac = 0;
+    cpu->flags.z  = (cpu->a == 0);
+    cpu->flags.s  = (0x80 == (cpu->a & 0x80));
+    cpu->flags.p  = parity_bit(cpu->a);
+
+    cpu->cycles += 7 ;
+    cpu->pc     += 2 ;
 }
 
 void emulate_XRA ( _cpu_info *cpu ) {
@@ -571,36 +627,36 @@ void emulate_CPM ( _cpu_info *cpu ) {
     switch ( *opcode ) {
         case 0xb8: // CPM B
             answer        = cpu->a - cpu->b;
-            cpu->flags.ac = !halfcarry_sub( cpu->a, cpu->b );
+            cpu->flags.ac = !halfcary_sub( cpu->a, cpu->b );
             break;
         case 0xb9: // CPM C
             answer        = cpu->a - cpu->c;
-            cpu->flags.ac = !halfcarry_sub( cpu->a, cpu->c );
+            cpu->flags.ac = !halfcary_sub( cpu->a, cpu->c );
             break;
         case 0xba: // CPM D
             answer        = cpu->a - cpu->d;
-            cpu->flags.ac = !halfcarry_sub( cpu->a, cpu->d );
+            cpu->flags.ac = !halfcary_sub( cpu->a, cpu->d );
             break;
         case 0xbb: // CPM E
             answer        = cpu->a - cpu->e;
-            cpu->flags.ac = !halfcarry_sub( cpu->a, cpu->e );
+            cpu->flags.ac = !halfcary_sub( cpu->a, cpu->e );
             break;
         case 0xbc: // CPM H
             answer        = cpu->a - cpu->h;
-            cpu->flags.ac = !halfcarry_sub( cpu->a, cpu->h );
+            cpu->flags.ac = !halfcary_sub( cpu->a, cpu->h );
             break;
         case 0xbd: // CPM L
             answer        = cpu->a - cpu->l;
-            cpu->flags.ac = !halfcarry_sub( cpu->a, cpu->l );
+            cpu->flags.ac = !halfcary_sub( cpu->a, cpu->l );
             break;
         case 0xbe: // CPM M
             answer        = cpu->a - cpu->memory[cpu->h << 8 | cpu->l];
-            cpu->flags.ac = !halfcarry_sub( cpu->a, cpu->memory[cpu->h << 8 | cpu->l] );
+            cpu->flags.ac = !halfcary_sub( cpu->a, cpu->memory[cpu->h << 8 | cpu->l] );
             cpu->cycles  += 3;
             break;
         case 0xbf: // CPM A
             answer        = cpu->a - cpu->a;
-            cpu->flags.ac = halfcarry_sub( cpu->a, cpu->a );
+            cpu->flags.ac = halfcary_sub( cpu->a, cpu->a );
             break;
         default:
             assert( 0 && "Code should not get here\n" );
@@ -626,7 +682,7 @@ void emulate_CPI ( _cpu_info *cpu ) {
     switch ( *opcode ) {
         case 0xfe: // CPI A
             answer        = cpu->a - opcode[1];
-            cpu->flags.ac = !halfcarry_sub( cpu->a, opcode[1] );
+            cpu->flags.ac = !halfcary_sub( cpu->a, opcode[1] );
             break;
         default:
             assert( 0 && "Code should not get here\n" );
@@ -648,14 +704,49 @@ void emulate_CPI ( _cpu_info *cpu ) {
 void emulate_ADC ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
     uint16_t answer = 0;
+    uint8_t a, b;
+    a = cpu->a;
 
     switch ( *opcode ) {
+        case 0x88: // ADC B
+            answer = cpu->a + cpu->b + cpu->flags.cy;
+            cpu->a = answer & 0xff;
+            b = cpu->b;
+            break;
+        case 0x89: // ADC C
+            answer = cpu->a + cpu->c + cpu->flags.cy;
+            cpu->a = answer & 0xff;
+            b = cpu->c;
+            break;
+        case 0x8a: // ADC D
+            answer = cpu->a + cpu->d + cpu->flags.cy;
+            cpu->a = answer & 0xff;
+            b = cpu->d;
+            break;
+        case 0x8b: // ADC E
+            answer = cpu->a + cpu->e + cpu->flags.cy;
+            cpu->a = answer & 0xff;
+            b = cpu->e;
+            break;
         case 0x8c: // ADC H
-            {
-            assert( ( cpu->flags.cy == 0 || cpu->flags.cy == 1 ) && "Invalid CY flag" );
             answer = cpu->a + cpu->h + cpu->flags.cy;
             cpu->a = answer & 0xff;
-            }
+            b = cpu->h;
+            break;
+        case 0x8d: // ADC L
+            answer = cpu->a + cpu->l + cpu->flags.cy;
+            cpu->a = answer & 0xff;
+            b = cpu->l;
+            break;
+        case 0x8e: // ADC M
+            answer = cpu->a + cpu->memory[cpu->h << 8 | cpu->l] + cpu->flags.cy;
+            cpu->a = answer & 0xff;
+            b = cpu->memory[cpu->h << 8 | cpu->l];
+            break;
+        case 0x8f: // ADC A
+            answer = cpu->a + cpu->a + cpu->flags.cy;
+            cpu->a = answer & 0xff;
+            b = cpu->a;
             break;
         default:
             assert( 0 && "Code should not get here\n" );
@@ -665,6 +756,7 @@ void emulate_ADC ( _cpu_info *cpu ) {
     cpu->flags.s    = ( answer & 0x80 ) != 0       ; // Checks if the MSB is 1
     cpu->flags.cy   = ( answer > 0xff )            ; // Checks for the carry bit
     cpu->flags.p    = parity_bit ( answer & 0xff ) ; // Returns 1 if the number os bits set as 1 is even
+    cpu->flags.ac   = halfcary( a, b )             ; // Checks for the carry bit
     /*cpu->a          = answer & 0xff                ; // Stores the 8 bit result in the A register*/
 
     cpu->cycles += 7 ;
@@ -684,7 +776,7 @@ void emulate_DAA ( _cpu_info *cpu ) {
                 uint8_t add = 0;
                 uint16_t ans = 0;
 
-                if (0 /*it is actually the halfcarry flag*/ || (cpu->a & 0x0f) > 9) {
+                if (0 /*it is actually the halfcary flag*/ || (cpu->a & 0x0f) > 9) {
                     add = 0x06;
                 }
 
@@ -2071,6 +2163,8 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_JP ( cpu );
     } else if ( *opcode == 0xda ) {
         emulate_JC ( cpu );
+    } else if ( *opcode == 0xce ) {
+        emulate_ACI ( cpu );
     } else if ( *opcode == 0xc6 ) {
         emulate_ADI ( cpu );
     } else if ( *opcode == 0xd0 ) {
@@ -2119,6 +2213,8 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_IN ( cpu );
     } else if ( *opcode == 0xd3 ) {
         emulate_OUT ( cpu );
+    } else if ( *opcode == 0xee ) {
+        emulate_XRI ( cpu );
     } else if ( *opcode >= 0xa8 && *opcode <= 0xaf ) {
         emulate_XRA ( cpu );
     } else if ( *opcode == 0xf6 ) {
