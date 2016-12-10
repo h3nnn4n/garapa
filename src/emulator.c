@@ -620,43 +620,51 @@ void emulate_OUT ( _cpu_info *cpu ) {
     cpu->pc     += 2 ;
 }
 
-void emulate_CPM ( _cpu_info *cpu ) {
+void emulate_CMP ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
     uint8_t        answer = 0;
 
     switch ( *opcode ) {
-        case 0xb8: // CPM B
+        case 0xb8: // CMP B
             answer        = cpu->a - cpu->b;
             cpu->flags.ac = !halfcary_sub( cpu->a, cpu->b );
+            cpu->flags.cy = cpu->a < cpu->b;
             break;
-        case 0xb9: // CPM C
+        case 0xb9: // CMP C
             answer        = cpu->a - cpu->c;
             cpu->flags.ac = !halfcary_sub( cpu->a, cpu->c );
+            cpu->flags.cy = cpu->a < cpu->c;
             break;
-        case 0xba: // CPM D
+        case 0xba: // CMP D
             answer        = cpu->a - cpu->d;
             cpu->flags.ac = !halfcary_sub( cpu->a, cpu->d );
+            cpu->flags.cy = cpu->a < cpu->d;
             break;
-        case 0xbb: // CPM E
+        case 0xbb: // CMP E
             answer        = cpu->a - cpu->e;
             cpu->flags.ac = !halfcary_sub( cpu->a, cpu->e );
+            cpu->flags.cy = cpu->a < cpu->e;
             break;
-        case 0xbc: // CPM H
+        case 0xbc: // CMP H
             answer        = cpu->a - cpu->h;
             cpu->flags.ac = !halfcary_sub( cpu->a, cpu->h );
+            cpu->flags.cy = cpu->a < cpu->h;
             break;
-        case 0xbd: // CPM L
+        case 0xbd: // CMP L
             answer        = cpu->a - cpu->l;
             cpu->flags.ac = !halfcary_sub( cpu->a, cpu->l );
+            cpu->flags.cy = cpu->a < cpu->l;
             break;
-        case 0xbe: // CPM M
+        case 0xbe: // CMP M
             answer        = cpu->a - cpu->memory[cpu->h << 8 | cpu->l];
             cpu->flags.ac = !halfcary_sub( cpu->a, cpu->memory[cpu->h << 8 | cpu->l] );
+            cpu->flags.cy = cpu->a < cpu->memory[cpu->h << 8 | cpu->l];
             cpu->cycles  += 3;
             break;
-        case 0xbf: // CPM A
+        case 0xbf: // CMP A
             answer        = cpu->a - cpu->a;
             cpu->flags.ac = halfcary_sub( cpu->a, cpu->a );
+            cpu->flags.cy = cpu->a < cpu->c;
             break;
         default:
             assert( 0 && "Code should not get here\n" );
@@ -664,14 +672,10 @@ void emulate_CPM ( _cpu_info *cpu ) {
 
     cpu->flags.z    = answer == 0                  ; // Only the last 8 bits matters, hence the mask
     cpu->flags.s    = ( answer & 0x80 ) != 0       ; // Checks if the MSB is 1
-    cpu->flags.cy   = ( cpu->a < opcode[1] )       ; // Checks for the carry bit
+    /*cpu->flags.cy   = ( cpu->a < opcode[1] )       ; // Checks for the carry bit*/
     cpu->flags.p    = parity_bit ( answer & 0xff ) ; // Returns 1 if the number os bits set as 1 is even
-    /*cpu->flags.ac   = (((answer & 0xf) +*/
-                        /*(opcode[1] & 0xf)) & 0x10)*/
-                                            /*> 0x0f; // Half carry magic*/
-    /*cpu->flags.ac   = (!(answer & 15 && answer & 31));// Half carry magic*/
 
-    cpu->cycles += 5 ;
+    cpu->cycles += 4 ;
     cpu->pc     += 1 ;
 }
 
@@ -2222,7 +2226,7 @@ unsigned short int emulator( _cpu_info *cpu ) {
     } else if ( *opcode >= 0xb0 && *opcode <= 0xb7 ) {
         emulate_ORA ( cpu );
     } else if ( *opcode >= 0xb8 && *opcode <= 0xbf ) {
-        emulate_CPM ( cpu );
+        emulate_CMP ( cpu );
     } else if ( *opcode >= 0xa0 && *opcode <= 0xa7 ) {
         emulate_ANA ( cpu );
     } else if ( *opcode == 0xe6 ) {
