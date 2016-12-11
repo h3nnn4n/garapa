@@ -40,7 +40,7 @@ unsigned short int disassembler( unsigned char *buffer, unsigned int pc ) {
         case 0x1b: printf( " 0x%04x : %02x "  "       \t DCX D\n"              , pc , buffer[pc]                                                          ) ; op_size = 1; break;
         case 0x1c: printf( " 0x%04x : %02x "  "       \t INR D\n"              , pc , buffer[pc]                                                          ) ; op_size = 1; break;
         case 0x1d: printf( " 0x%04x : %02x "  "       \t DCR D\n"              , pc , buffer[pc]                                                          ) ; op_size = 1; break;
-        case 0x1e: printf( " 0x%04x : %02x %02x       \t MVI D, %02x\n"        , pc , buffer[pc], buffer[pc+1] , buffer[pc+1]                             ) ; op_size = 1; break;
+        case 0x1e: printf( " 0x%04x : %02x %02x       \t MVI E, %02x\n"        , pc , buffer[pc], buffer[pc+1] , buffer[pc+1]                             ) ; op_size = 1; break;
         case 0x1f: printf( " 0x%04x : %02x "  "       \t RAR\n"                , pc , buffer[pc]                                                          ) ; op_size = 1; break;
 
         case 0x20: printf( " 0x%04x : %02x "  "       \t RIM\n"                , pc , buffer[pc]                                                          ) ; op_size = 1; break;
