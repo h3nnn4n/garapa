@@ -1,18 +1,31 @@
 CC=gcc
 override CFLAGS+=-lm -Wall -Wextra -pedantic --std=gnu11 -O3 `sdl-config --libs` -lSDL -fopenmp
-SOURCES=main.c utils.c disassembler.c emulator.c graphics.c
+SOURCES=utils.c disassembler.c emulator.c graphics.c
+
+SOURCE_BIN=main.c
 EXECUTABLE=main
 
+SOURCE_TEST=main_test.c
+EXECUTABLE_TEST=main_test
+
+
 OBJECTS=$(SOURCES:.c=.o)
+OBJECTS_BIN=$(SOURCE_BIN:.c=.o)
+OBJECTS_TEST=$(SOURCE_TEST:.c=.o)
 
-all: $(SOURCES) $(EXECUTABLE)
+all: $(SOURCES) $(SOURCE_BIN) $(EXECUTABLE)
+test: $(SOURCES) $(SOURCE_TEST) $(EXECUTABLE_TEST)
 
-$(EXECUTABLE): $(OBJECTS)
-	$(CC) $(CFLAGS) $(OBJECTS) -o $@
+$(EXECUTABLE_TEST): $(OBJECTS) $(OBJECTS_TEST)
+	$(CC) $(CFLAGS) $(OBJECTS) $(OBJECTS_TEST) -o $@
+	./$(EXECUTABLE_TEST)
+
+$(EXECUTABLE): $(OBJECTS) $(OBJECTS_BIN)
+	$(CC) $(CFLAGS) $(OBJECTS) $(OBJECTS_BIN) -o $@
 
 .c.o:
 	$(CC) $(CFLAGS) $< -c -o $@
 
 .PHONY: clean
 clean:
-	$(RM) $(OBJECTS) $(EXECUTABLE)
+	$(RM) $(OBJECTS_BIN) $(OBJECTS_TEST) $(OBJECTS) $(EXECUTABLE_TEST) $(EXECUTABLE)
