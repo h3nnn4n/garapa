@@ -794,10 +794,7 @@ void emulate_ADC ( _cpu_info *cpu ) {
     cpu->pc     += 1 ;
 }
 
-// TODO: Find out what this does and DO IT
-// I dont trust this code
 void emulate_DAA ( _cpu_info *cpu ) {
-#pragma message ( "STUB DAA" )
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
     switch ( *opcode ) {
