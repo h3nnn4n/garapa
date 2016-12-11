@@ -37,7 +37,6 @@ static int halfcary( uint8_t a, uint8_t b, uint8_t c ) {
     return table[ b1 | b2 | b3 ];
 }
 
-
 void print_registers ( _cpu_info *cpu ) {
     uint8_t f = ( (cpu->flags.z ) ? 0x40 : 0x00 ) |
                 ( (cpu->flags.s ) ? 0x80 : 0x00 ) |
@@ -57,6 +56,30 @@ void print_registers ( _cpu_info *cpu ) {
             cpu->cycles              ,
             cpu->instructions_executed);
     /*printf(BYTE_TO_BINARY_PATTERN"\n", BYTE_TO_BINARY(f));*/
+}
+
+void emulate_RST ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+
+    switch ( *opcode ) {
+            case 0xc7:
+            case 0xd7:
+            case 0xe7:
+            case 0xf7:
+            case 0xcf:
+            case 0xdf:
+            case 0xef:
+            case 0xff:
+            cpu->memory[(cpu->sp-1) & 0xffff] = (cpu->h) & 0xff;
+            cpu->memory[(cpu->sp-2) & 0xffff] = (cpu->l) & 0xff;
+            cpu->sp                           = cpu->sp - 2;
+            cpu->pc                           = (*opcode) & 0x38;
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->cycles += 11;
 }
 
 void emulate_CMC ( _cpu_info *cpu ) {
@@ -1464,7 +1487,7 @@ void emulate_RP ( _cpu_info *cpu ) {
 
     switch ( *opcode ) {
         case 0xf0:
-            if ( cpu->flags.p ) {
+            if ( !cpu->flags.s ) {
                 addr = cpu->memory[cpu->sp+1] << 8 | cpu->memory[cpu->sp];
                 cpu->sp += 2;
                 cpu->pc = addr;
@@ -1948,7 +1971,7 @@ void emulate_JP ( _cpu_info *cpu ) {
 
     switch ( *opcode ) {
         case 0xf2: // JP
-            if ( cpu->flags.p ) {
+            if ( !cpu->flags.s ) {
                 addr = opcode[2] << 8 | opcode[1];
                 cpu->pc = addr;
             } else {
@@ -2076,7 +2099,7 @@ void emulate_CP ( _cpu_info *cpu ) {
     switch ( *opcode ) {
         case 0xf4:
             {
-                if ( cpu->flags.p ) {
+                if ( !cpu->flags.s ) {
                     uint16_t ret           = cpu->pc + 3;
                     cpu->memory[cpu->sp-1] = (ret >> 8) & 0xff;
                     cpu->memory[cpu->sp-2] = (ret & 0xff);
@@ -2373,6 +2396,8 @@ unsigned short int emulator( _cpu_info *cpu ) {
         emulate_LHLD ( cpu );
     } else if ( *opcode == 0x02 || *opcode == 0x12 ) {
         emulate_STAX ( cpu );
+    } else if ( *opcode == 0xc7 || *opcode == 0xd7 || *opcode == 0xe7 || *opcode == 0xf7 || *opcode == 0xcf || *opcode == 0xdf || *opcode == 0xef || *opcode == 0xff ) {
+        emulate_RST ( cpu );
     } else {
         disassembler ( cpu->memory, cpu->pc );
         print_registers(cpu);
