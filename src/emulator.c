@@ -576,15 +576,14 @@ void emulate_IN ( _cpu_info *cpu ) {
             {
                 uint8_t port = opcode[1];
                 switch ( port ) {
-                    case 0x01: // COIN-IN port. always zero for now
-                        {
-                            cpu->a = 0;
-                        }
+                    case 0x00:
+                        cpu->a = cpu->portin0;
                         break;
-                    case 0x02: // TILT port. What this does?
-                        {
-                            cpu->a = 0;
-                        }
+                    case 0x01:
+                        cpu->a = cpu->portin1;
+                        break;
+                    case 0x02:
+                        cpu->a = cpu->portin2;
                         break;
                     case 0x03: // Shiftregister port
                         {

@@ -3,7 +3,7 @@
 #include "types.h"
 #include "graphics.h"
 
-/*#define __use_sdl*/
+#define __use_sdl
 
 #ifdef __use_sdl
 
@@ -13,15 +13,29 @@ void sdl_init ( ) {
 
     SDL_WM_SetCaption("8080 Emulator", NULL);
 
-    SDL_EnableKeyRepeat(0, 0);
+    SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 }
 
-#pragma GCC diagnostic ignored "-Wunused-parameter"
 void update_input ( _cpu_info *cpu ) {
     SDL_Event ev;
-
+    // Input documentation got from: http://computerarcheology.com/Arcade/SpaceInvaders/Hardware.html
     while (SDL_PollEvent(&ev)) {
         switch (ev.type) {
+            case SDL_KEYDOWN:
+                switch(ev.key.keysym.sym) {
+                    case SDLK_LEFT:
+                        cpu->portin1 |= (1 << 5); break;
+                    case SDLK_RIGHT:
+                        cpu->portin1 |= (1 << 6); break;
+                    case SDLK_c: // Coint
+                        cpu->portin1 |= (1 << 0); break;
+                    case SDLK_x: // 1P start
+                        cpu->portin1 |= (1 << 2); break;
+                    case SDLK_z: // 1P shot
+                        cpu->portin1 |= (1 << 4); break;
+                    default:
+                        break;
+                } break;
             case SDL_QUIT:
                 exit(0);
                 break;

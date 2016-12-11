@@ -50,8 +50,11 @@ int main(int argc, char *argv[]) {
             cpu.cycles -= 16667;
             cpu.interrupt_addr = 0x10;
             emulate_INTERRUPT( &cpu );
+            cpu.portin0 = 0x0e;
+            cpu.portin1 = 0x08;
+            cpu.portin2 = 0x00;
             update_input ( &cpu );
-            /*SDL_Delay(16);*/
+            SDL_Delay(13);
         }
     }
 

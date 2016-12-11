@@ -23,6 +23,10 @@ typedef struct {
     uint16_t pc;
     uint16_t sp;
 
+    uint8_t portin0;
+    uint8_t portin1;
+    uint8_t portin2;
+
     uint16_t interrupt_addr;
     uint16_t shift_offset;
     uint16_t shift0;
