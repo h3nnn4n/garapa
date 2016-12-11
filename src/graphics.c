@@ -14,9 +14,6 @@ void sdl_init ( ) {
     SDL_WM_SetCaption("8080 Emulator", NULL);
 
     SDL_EnableKeyRepeat(0, 0);
-
-    black = SDL_MapRGB(screen->format, 0x00, 0x00, 0x00);
-    white = SDL_MapRGB(screen->format, 0xff, 0xff, 0xff);
 }
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"
