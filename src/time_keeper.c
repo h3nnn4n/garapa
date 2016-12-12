@@ -22,7 +22,8 @@ void timekeeper_tic  (struct timespec *t1) {
 void timekeeper_wait (struct timespec *t1, struct timespec *t2) {
     clock_gettime(CLOCK_MONOTONIC, t2);
     struct timespec t3;
-    t3.tv_nsec = 16667 - (time_diff(*t1, *t2).tv_nsec);
+    t3.tv_nsec = 16667000 - (time_diff(*t1, *t2).tv_nsec);
     t3.tv_sec  = 0;
     nanosleep( &t3, NULL );
+    timekeeper_tic(t1);
 }
