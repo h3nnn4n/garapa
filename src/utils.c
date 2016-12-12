@@ -46,9 +46,9 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->shift0         = 0;
     cpu->shift1         = 0;
 
-    cpu->portin0        = 0;
-    cpu->portin1        = 0;
-    cpu->portin2        = 0;
+    cpu->portin0 = 0x0e;
+    cpu->portin1 = 0x08;
+    cpu->portin2 = 0x00;
 }
 
 void unimplemented_opcode( _cpu_info *cpu ) {
