@@ -1,4 +1,6 @@
 #include <SDL/SDL.h>
+#include <stdint.h>
+#include <stdlib.h>
 
 #include "types.h"
 #include "graphics.h"
@@ -9,7 +11,8 @@
 
 void sdl_init ( ) {
     SDL_Init(SDL_INIT_VIDEO);
-    screen = SDL_SetVideoMode(256, 224, 8, SDL_DOUBLEBUF);
+    /*screen = SDL_SetVideoMode(256, 224, 8, SDL_DOUBLEBUF);*/
+    screen = SDL_SetVideoMode(224, 256, 8, SDL_DOUBLEBUF);
 
     SDL_WM_SetCaption("8080 Emulator", NULL);
 
@@ -48,17 +51,23 @@ void update_input ( _cpu_info *cpu ) {
 void update_screen ( _cpu_info *cpu ) {
     unsigned char* raster = screen->pixels;
     uint16_t base = 0x2400;
+    int x = 0;
+    int y = 255;
 
     SDL_LockSurface( screen );
+
     for (int offset = 0; offset < 256 * 224/8; ++offset) {
         for (int shift = 0; shift < 8; ++shift) {
-            *raster = (cpu->memory[base + offset] >> shift) & 1 ? 0xff : 0x00;
-            raster++;
+            raster[y*224 + x] = (cpu->memory[base + offset] >> shift) & 1 ? 0xff : 0x00;
+            if ( --y < 0 ) {
+                y = 255;
+                ++x;
+            }
         }
     }
 
     SDL_UnlockSurface( screen );
-    SDL_UpdateRect(screen, 0, 0, 256, 224);
+    SDL_Flip( screen );
 }
 
 void sdl_quit ( ) {
