@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <time.h>
 
 #include <sys/types.h>
 
@@ -9,10 +10,13 @@
 #include "emulator.h"
 #include "graphics.h"
 #include "disassembler.h"
+#include "time_keeper.h"
 
 int main(int argc, char *argv[]) {
     FILE *f = NULL;
     _cpu_info cpu;
+
+    struct timespec t1, t2;
 
     if ( argc == 1 ) {
         printf("Usage: %s file\n", argv[0]);
@@ -37,8 +41,8 @@ int main(int argc, char *argv[]) {
     sdl_init();
     atexit(SDL_Quit);
 
+    timekeeper_tic(&t1);
     while ( 1 ) {
-        /*cpu.pc += disassembler(cpu.memory, cpu.pc);*/
         emulator ( &cpu );
 
         if ( cpu.interrupt_addr == 0x10 && cpu.cycles > 16667 ) {
@@ -51,8 +55,9 @@ int main(int argc, char *argv[]) {
             cpu.interrupt_addr = 0x10;
             emulate_INTERRUPT( &cpu );
             update_input ( &cpu );
-            SDL_Delay(13);
+            timekeeper_wait(&t1, &t2);
         }
+
     }
 
     return 0;
