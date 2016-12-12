@@ -21,6 +21,11 @@ void sdl_init ( ) {
 
 void update_input ( _cpu_info *cpu ) {
     SDL_Event ev;
+
+    cpu->portin0 = 0x0e;
+    cpu->portin1 = 0x08;
+    cpu->portin2 = 0x00;
+
     // Input documentation got from: http://computerarcheology.com/Arcade/SpaceInvaders/Hardware.html
     while (SDL_PollEvent(&ev)) {
         switch (ev.type) {
