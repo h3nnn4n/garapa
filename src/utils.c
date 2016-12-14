@@ -66,3 +66,24 @@ int parity_bit ( int b ) {
 
     return bits & 1 ? 0 : 1;
 }
+
+void print_registers ( _cpu_info *cpu ) {
+    uint8_t f = ( (cpu->flags.z ) ? 0x40 : 0x00 ) |
+                ( (cpu->flags.s ) ? 0x80 : 0x00 ) |
+                ( (cpu->flags.p ) ? 0x04 : 0x00 ) |
+                ( (cpu->flags.cy) ? 0x01 : 0x00 ) |
+                ( (cpu->flags.ac) ? 0x10 : 0x00 ) |
+                0x02;
+
+    printf(" AF: %02x%02x BC: %02x%02x DE: %02x%02x HL: %02x%02x PC: %04x SP: %04x",
+            cpu->a, f, cpu->b, cpu->c, cpu->d, cpu->e, cpu->h, cpu->l, cpu->pc, cpu->sp);
+    printf(" F: %c%c%c%c%c CYCLES: %16llu IPS: %16llu\n",
+            cpu->flags.z  ? 'z' : '.',
+            cpu->flags.s  ? 's' : '.',
+            cpu->flags.p  ? 'p' : '.',
+            cpu->flags.cy ? 'c' : '.',
+            cpu->flags.ac ? 'a' : '.',
+            cpu->cycles              ,
+            cpu->instructions_executed);
+    /*printf(BYTE_TO_BINARY_PATTERN"\n", BYTE_TO_BINARY(f));*/
+}

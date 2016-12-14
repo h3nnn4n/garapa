@@ -1,6 +1,16 @@
 CC=gcc
 override CFLAGS+=-lm -Wall -Wextra -pedantic --std=gnu11 -O3 `sdl-config --libs` -lSDL -fopenmp
-SOURCES=utils.c disassembler.c emulator.c graphics.c time_keeper.c
+SOURCES=utils.c                      \
+		disassembler.c               \
+		emulator.c                   \
+		graphics.c                   \
+		time_keeper.c                \
+		halfcary.c                   \
+		instructions_data_transfer.c \
+		instructions_arithmetic.c    \
+		instructions_logical.c       \
+		instructions_branch.c        \
+		instructions_stack_io_control.c
 
 SOURCE_BIN=main.c
 EXECUTABLE=main

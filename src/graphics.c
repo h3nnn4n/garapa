@@ -9,24 +9,31 @@
 
 #ifdef __use_sdl
 
+#define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
+#define BYTE_TO_BINARY(byte)  \
+      (byte & 0x80 ? '1' : '0'), \
+  (byte & 0x40 ? '1' : '0'), \
+  (byte & 0x20 ? '1' : '0'), \
+  (byte & 0x10 ? '1' : '0'), \
+  (byte & 0x08 ? '1' : '0'), \
+  (byte & 0x04 ? '1' : '0'), \
+  (byte & 0x02 ? '1' : '0'), \
+  (byte & 0x01 ? '1' : '0')
+
 void sdl_init ( ) {
     SDL_Init(SDL_INIT_VIDEO);
-    /*screen = SDL_SetVideoMode(256, 224, 8, SDL_DOUBLEBUF);*/
     screen = SDL_SetVideoMode(224, 256, 8, SDL_DOUBLEBUF);
 
     SDL_WM_SetCaption("8080 Emulator", NULL);
 
-    SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+    /*SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);*/
+    SDL_EnableKeyRepeat(0, 0);
 }
 
 void update_input ( _cpu_info *cpu ) {
     SDL_Event ev;
 
-    cpu->portin0 = 0x0e;
-    cpu->portin1 = 0x08;
-    cpu->portin2 = 0x00;
-
-    // Input documentation got from: http://computerarcheology.com/Arcade/SpaceInvaders/Hardware.html
+    // Input documentation from: http://computerarcheology.com/Arcade/SpaceInvaders/Hardware.html
     while (SDL_PollEvent(&ev)) {
         switch (ev.type) {
             case SDL_KEYDOWN:
@@ -48,9 +55,13 @@ void update_input ( _cpu_info *cpu ) {
                 exit(0);
                 break;
             default:
+                cpu->portin0 = 0x0e;
+                cpu->portin1 = 0x08;
+                cpu->portin2 = 0x00;
                 break;
         }
     }
+    /*printf(BYTE_TO_BINARY_PATTERN"\n", BYTE_TO_BINARY(cpu->portin1));*/
 }
 
 void update_screen ( _cpu_info *cpu ) {
