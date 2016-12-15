@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
+#include <assert.h>
 
 #include <sys/types.h>
 
@@ -29,6 +30,7 @@ int main(int argc, char *argv[]) {
 
         uint16_t offset = 0x000;
 
+        assert( offset + buffer_size <= 64 * 1024 && "ROM too big for the 64k bytes RAM");
         if ( fread(cpu.memory + offset, buffer_size, 1, f) != 1 ) {
             printf("Something went weird while reding into buffer\n");
         }
