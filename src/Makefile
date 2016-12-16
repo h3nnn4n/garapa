@@ -5,12 +5,12 @@ SOURCES=utils.c                      \
 		emulator.c                   \
 		graphics.c                   \
 		time_keeper.c                \
-		halfcary.c                   \
-		instructions_data_transfer.c \
-		instructions_arithmetic.c    \
-		instructions_logical.c       \
-		instructions_branch.c        \
-		instructions_stack_io_control.c
+		halfcary.c
+		#instructions_data_transfer.c \
+		#instructions_arithmetic.c    \
+		#instructions_logical.c       \
+		#instructions_branch.c        \
+		#instructions_stack_io_control.c
 
 SOURCE_BIN=main.c
 EXECUTABLE=main
