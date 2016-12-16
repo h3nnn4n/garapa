@@ -554,6 +554,7 @@ unsigned short int disassembler( unsigned char *buffer, unsigned int pc ) {
                 case 0xFE: printf ( " %04x : %2x %2x          SET 7, (HL)               \n", pc, buffer[pc], buffer[pc+1]                                                          ); op_size = 1; break;
                 case 0xFF: printf ( " %04x : %2x %2x          SET 7, A                  \n", pc, buffer[pc], buffer[pc+1]                                                          ); op_size = 1; break;
             }
+            break;
 
         default:
             printf ( " %04x is not implemented\n " , buffer[pc] );

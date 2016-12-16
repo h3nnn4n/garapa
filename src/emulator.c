@@ -274,10 +274,27 @@ void emulator( _cpu_info *cpu ) {
             cpu->cycles += 8;
             cpu->pc     += 1 ;
             break;
+        case 0xcb:
+            switch ( opcode[1] ) {
+                case 0x11:
+                {
+                    uint8_t t;
+                    t = cpu->c;
+                    cpu->flags.cy = 0x80 == (t & 0x80);
+                    cpu->c = ( t << 1 ) | cpu->flags.cy;
+                    cpu->cycles += 8;
+                    cpu->pc     += 2;
+                }
+                    break;
+                default:
+                    printf(" %2x %2x is not implemented\n", opcode[0], opcode[1]);
+                    exit(-1);
+            }
+            break;
         default:
             /*disassembler ( cpu->memory, cpu->pc );*/
             /*print_registers(cpu);*/
-            printf(" %2X is not implemented\n", cpu->memory[cpu->pc]);
+            printf(" %2x is not implemented\n", *opcode);
             exit(-1);
     }
 
