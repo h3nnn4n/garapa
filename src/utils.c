@@ -15,8 +15,7 @@ off_t fsize(const char *filename) {
         return st.st_size;
 
     fprintf(stderr, "Cannot determine size of %s: %s\n", filename, strerror(errno));
-
-    return -1;
+return -1;
 }
 
 void init_cpu( _cpu_info *cpu ) {
@@ -32,10 +31,9 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->l      = 0;
 
     cpu->flags.z   = 0;
-    cpu->flags.s   = 0;
-    cpu->flags.p   = 0;
-    cpu->flags.cy  = 0;
-    cpu->flags.ac  = 0;
+    cpu->flags.n   = 0;
+    cpu->flags.h   = 0;
+    cpu->flags.c   = 0;
 
     cpu->enable_interrupts     = 0;
     cpu->instructions_executed = 0;
@@ -68,21 +66,18 @@ int parity_bit ( int b ) {
 }
 
 void print_registers ( _cpu_info *cpu ) {
-    uint8_t f = ( (cpu->flags.z ) ? 0x40 : 0x00 ) |
-                ( (cpu->flags.s ) ? 0x80 : 0x00 ) |
-                ( (cpu->flags.p ) ? 0x04 : 0x00 ) |
-                ( (cpu->flags.cy) ? 0x01 : 0x00 ) |
-                ( (cpu->flags.ac) ? 0x10 : 0x00 ) |
-                0x02;
+    uint8_t f = ( (cpu->flags.z ) ? 0x80 : 0x00 ) |
+                ( (cpu->flags.n ) ? 0x40 : 0x00 ) |
+                ( (cpu->flags.h ) ? 0x20 : 0x00 ) |
+                ( (cpu->flags.c ) ? 0x10 : 0x00 ) ;
 
     printf(" AF: %02x%02x BC: %02x%02x DE: %02x%02x HL: %02x%02x PC: %04x SP: %04x",
             cpu->a, f, cpu->b, cpu->c, cpu->d, cpu->e, cpu->h, cpu->l, cpu->pc, cpu->sp);
-    printf(" F: %c%c%c%c%c CYCLES: %16llu IPS: %16llu\n",
+    printf(" F: %c%c%c%c CYCLES: %16llu IPS: %16llu\n",
             cpu->flags.z  ? 'z' : '.',
-            cpu->flags.s  ? 's' : '.',
-            cpu->flags.p  ? 'p' : '.',
-            cpu->flags.cy ? 'c' : '.',
-            cpu->flags.ac ? 'a' : '.',
+            cpu->flags.n  ? 'n' : '.',
+            cpu->flags.h  ? 'h' : '.',
+            cpu->flags.c  ? 'c' : '.',
             cpu->cycles              ,
             cpu->instructions_executed);
     /*printf(BYTE_TO_BINARY_PATTERN"\n", BYTE_TO_BINARY(f));*/

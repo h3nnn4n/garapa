@@ -5,10 +5,9 @@
 
 typedef struct {
     uint8_t z  ; // Zero flag
-    uint8_t s  ; // Signal bit
-    uint8_t p  ; // Parity bit
-    uint8_t cy ; // Cary bit
-    uint8_t ac ; // Auxiliary carry
+    uint8_t n  ; // Subtraction bit ?
+    uint8_t h  ; // Half carry bit
+    uint8_t c  ; // Carry bit
 } _cpu_flags;
 
 typedef struct {

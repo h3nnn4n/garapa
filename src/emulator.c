@@ -7,6 +7,212 @@
 #include "utils.h"
 #include "emulator.h"
 #include "disassembler.h"
+#include "halfcary.h"
+
+uint8_t *get_reg_ref ( _cpu_info *cpu, uint8_t opcode ) {
+    switch ( opcode ) {
+        case 0x00: // B
+            return &(cpu->b);
+        case 0x01: // C
+            return &(cpu->c);
+        case 0x02: // D
+            return &(cpu->d);
+        case 0x03: // E
+            return &(cpu->e);
+        case 0x04: // H
+            return &(cpu->h);
+        case 0x05: // L
+            return &(cpu->l);
+        case 0x07: // A
+            return &(cpu->a);
+        default:
+            assert( 0 && "Invalid OPCODE for MOV");
+    }
+    return NULL;
+}
+
+void emulate_MOV ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint16_t addr;
+
+    switch ( *opcode ) {
+        case 0x46: // MOV B, M
+            addr = cpu->h << 8 | cpu->l;
+            cpu->b = cpu->memory[addr];
+            cpu->cycles += 2;
+            break;
+        case 0x56: // MOV D, M
+            addr = cpu->h << 8 | cpu->l;
+            cpu->d = cpu->memory[addr];
+            cpu->cycles += 2;
+            break;
+        case 0x66: // MOV H, M
+            addr = cpu->h << 8 | cpu->l;
+            cpu->h = cpu->memory[addr];
+            cpu->cycles += 2;
+            break;
+
+        case 0x70: // MOV M, B
+            addr = cpu->h << 8 | cpu->l;
+            cpu->memory[addr] = cpu->b;
+            cpu->cycles += 2;
+            break;
+        case 0x71: // MOV M, C
+            addr = cpu->h << 8 | cpu->l;
+            cpu->memory[addr] = cpu->c;
+            cpu->cycles += 2;
+            break;
+        case 0x72: // MOV M, D
+            addr = cpu->h << 8 | cpu->l;
+            cpu->memory[addr] = cpu->d;
+            cpu->cycles += 2;
+            break;
+        case 0x73: // MOV M, E
+            addr = cpu->h << 8 | cpu->l;
+            cpu->memory[addr] = cpu->e;
+            cpu->cycles += 2;
+            break;
+        case 0x74: // MOV M, H
+            addr = cpu->h << 8 | cpu->l;
+            cpu->memory[addr] = cpu->h;
+            cpu->cycles += 2;
+            break;
+        case 0x75: // MOV M, L
+            addr = cpu->h << 8 | cpu->l;
+            cpu->memory[addr] = cpu->l;
+            cpu->cycles += 2;
+            break;
+      /*case 0x76: // HLT*/
+        case 0x77: // MOV M, A
+            addr = cpu->h << 8 | cpu->l;
+            cpu->memory[addr] = cpu->a;
+            cpu->cycles += 2;
+            break;
+
+        case 0x4e: // MOV C, M
+            addr = cpu->h << 8 | cpu->l;
+            cpu->c = cpu->memory[addr];
+            cpu->cycles += 2;
+            break;
+        case 0x5e: // MOV E, M
+            addr = cpu->h << 8 | cpu->l;
+            cpu->e = cpu->memory[addr];
+            cpu->cycles += 2;
+            break;
+        case 0x6e: // MOV L, M
+            addr = cpu->h << 8 | cpu->l;
+            cpu->l = cpu->memory[addr];
+            cpu->cycles += 2;
+            break;
+        case 0x7e: // MOV A, M
+            addr = cpu->h << 8 | cpu->l;
+            cpu->a = cpu->memory[addr];
+            cpu->cycles += 2;
+            break;
+        default:
+            {
+                /*printf("dst = ");*/
+                uint8_t *dst = get_reg_ref( cpu, ( *opcode & 0x38 ) >> 3 );
+                /*printf("src = ");*/
+                uint8_t *src = get_reg_ref( cpu, ( *opcode & 0x07 ) >> 0 );
+                *dst = *src;
+            }
+            break;
+    }
+
+    cpu->cycles += 5 ;
+    cpu->pc     += 1 ;
+}
+
+void emulate_JMP ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint16_t addr = 0;
+
+    switch ( *opcode ) {
+        case 0xc3:
+            addr = opcode[2] << 8 | opcode[1];
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->cycles += 10  ;
+    cpu->pc      = addr;
+}
+
+void emulate_RET ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint16_t addr;
+
+    switch ( *opcode ) {
+        case 0xc9:
+            addr = cpu->memory[cpu->sp+1] << 8 | cpu->memory[cpu->sp];
+            cpu->sp += 2;
+            cpu->pc = addr;
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->cycles += 10;
+}
+
+void emulate_INR ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint16_t answer = 0;
+
+    switch ( *opcode ) {
+        case 0x04: // INR B
+            answer = cpu->b + 1;
+            cpu->b = answer & 0xff;
+            cpu->flags.h  = (answer & 0x0f) == 0x00;
+            break;
+        case 0x0c: // INR C
+            answer = cpu->c + 1;
+            cpu->c = answer & 0xff;
+            cpu->flags.h  = (answer & 0x0f) == 0x00;
+            break;
+        case 0x14: // INR D
+            answer = cpu->d + 1;
+            cpu->d = answer & 0xff;
+            cpu->flags.h  = (answer & 0x0f) == 0x00;
+            break;
+        case 0x1c: // INR E
+            answer = cpu->e + 1;
+            cpu->e = answer & 0xff;
+            cpu->flags.h  = (answer & 0x0f) == 0x00;
+            break;
+        case 0x24: // INR H
+            answer = cpu->h + 1;
+            cpu->h = answer & 0xff;
+            cpu->flags.h  = (answer & 0x0f) == 0x00;
+            break;
+        case 0x2c: // INR L
+            answer = cpu->l + 1;
+            cpu->l = answer & 0xff;
+            cpu->flags.h  = (answer & 0x0f) == 0x00;
+            break;
+        case 0x34: // INR M
+            cpu->memory[cpu->h << 8 | cpu->l] += 1;
+            answer = cpu->memory[cpu->h << 8 | cpu->l];
+            cpu->flags.h  = (answer & 0x0f) == 0x00;
+            cpu->cycles += 5;
+            break;
+        case 0x3c: // INR A
+            answer = cpu->a + 1;
+            cpu->flags.h  = (answer & 0x0f) == 0x00;
+            cpu->a = answer & 0xff;
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->flags.z    = ( answer & 0xff ) == 0;
+    cpu->flags.n    = ( answer & 0x80 ) != 0;
+
+    cpu->cycles += 5 ;
+    cpu->pc     += 1 ;
+}
 
 void emulate_POP ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
@@ -30,16 +236,14 @@ void emulate_POP ( _cpu_info *cpu ) {
         case 0xf1: // POP PSW
             cpu->a = cpu->memory[cpu->sp+1];
             cpu->flags.z  = ((cpu->memory[cpu->sp] & 0x40));
-            cpu->flags.s  = ((cpu->memory[cpu->sp] & 0x80));
-            cpu->flags.p  = ((cpu->memory[cpu->sp] & 0x04));
-            cpu->flags.cy = ((cpu->memory[cpu->sp] & 0x01));
-            cpu->flags.ac = ((cpu->memory[cpu->sp] & 0x10));
+            cpu->flags.n  = ((cpu->memory[cpu->sp] & 0x80));
+            cpu->flags.c  = ((cpu->memory[cpu->sp] & 0x01));
+            cpu->flags.h  = ((cpu->memory[cpu->sp] & 0x10));
             cpu->sp += 2;
             cpu->cycles -= 1;
             break;
         default:
-            assert( 0 && "Code should not get here\n" );
-    }
+            assert( 0 && "Code should not get here\n" ); }
 
     cpu->cycles += 11;
     cpu->pc     += 1 ;
@@ -67,10 +271,9 @@ void emulate_PUSH ( _cpu_info *cpu ) {
         case 0xf5: // PUSH PSW
             cpu->memory[cpu->sp-1] = cpu->a;
             cpu->memory[cpu->sp-2] = ( cpu->flags.z  ? 0x40 : 0x0 ) |
-                                     ( cpu->flags.s  ? 0x80 : 0x0 ) |
-                                     ( cpu->flags.p  ? 0x04 : 0x0 ) |
-                                     ( cpu->flags.cy ? 0x01 : 0x0 ) |
-                                     ( cpu->flags.ac ? 0x10 : 0x0 ) |
+                                     ( cpu->flags.n  ? 0x80 : 0x0 ) |
+                                     ( cpu->flags.c  ? 0x01 : 0x0 ) |
+                                     ( cpu->flags.h  ? 0x10 : 0x0 ) |
                                      0x02;
             cpu->sp = cpu->sp - 2;
             break;
@@ -115,11 +318,10 @@ void emulate_XOR ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->flags.cy = 0;
-    cpu->flags.ac = 0;
+    cpu->flags.c  = 0;
+    cpu->flags.h  = 0;
     cpu->flags.z  = (cpu->a == 0);
-    cpu->flags.s  = 0; //(0x80 == (cpu->a & 0x80));
-    cpu->flags.p  = 0; //parity_bit(cpu->a);
+    cpu->flags.n  = 0; //(0x80 == (cpu->a & 0x80));
 
     cpu->cycles += 4 ;
     cpu->pc     += 1 ;
@@ -162,7 +364,7 @@ void emulate_LD ( _cpu_info *cpu ) {
 }
 
 void emulate_NOP ( _cpu_info *cpu ) {
-    cpu->cycles += 4 ;
+    cpu->cycles += 1 ; // FIXME ?
     cpu->pc     += 1 ;
 }
 
@@ -236,51 +438,50 @@ void emulate_DCR ( _cpu_info *cpu ) {
         case 0x05: // DCR B
             answer        = cpu->b - 1;
             cpu->b        = answer & 0xff;
-            cpu->flags.ac = !((cpu->b & 0x0f) == 0x0f);
+            cpu->flags.h  = !((cpu->b & 0x0f) == 0x0f);
             break;
         case 0x0d: // DCR C
             answer        = cpu->c - 1;
             cpu->c        = answer & 0xff;
-            cpu->flags.ac = !((cpu->c & 0x0f) == 0x0f);
+            cpu->flags.h  = !((cpu->c & 0x0f) == 0x0f);
             break;
         case 0x15: // DCR D
             answer        = cpu->d - 1;
             cpu->d        = answer & 0xff;
-            cpu->flags.ac = !((cpu->d & 0x0f) == 0x0f);
+            cpu->flags.h  = !((cpu->d & 0x0f) == 0x0f);
             break;
         case 0x1d: // DCR E
             answer        = cpu->e - 1;
             cpu->e        = answer & 0xff;
-            cpu->flags.ac = !((cpu->e & 0x0f) == 0x0f);
+            cpu->flags.h  = !((cpu->e & 0x0f) == 0x0f);
             break;
         case 0x25: // DCR H
             answer        = cpu->h - 1;
             cpu->h        = answer & 0xff;
-            cpu->flags.ac = !((cpu->h & 0x0f) == 0x0f);
+            cpu->flags.h  = !((cpu->h & 0x0f) == 0x0f);
             break;
         case 0x2d: // DCR L
             answer        = cpu->l - 1;
             cpu->l        = answer & 0xff;
-            cpu->flags.ac = !((cpu->l & 0x0f) == 0x0f);
+            cpu->flags.h  = !((cpu->l & 0x0f) == 0x0f);
             break;
         case 0x35: // DCR M
             answer                            = cpu->memory[cpu->h << 8 | cpu->l] - 1;
             cpu->memory[cpu->h << 8 | cpu->l] = answer & 0xff;
-            cpu->flags.ac                     = !((cpu->memory[cpu->h << 8 | cpu->l] & 0x0f) == 0x0f);
+            cpu->flags.h                      = !((cpu->memory[cpu->h << 8 | cpu->l] & 0x0f) == 0x0f);
             cpu->cycles += 5;
             break;
         case 0x3d: // DCR A
             answer        = cpu->a - 1;
             cpu->a        = answer & 0xff;
-            cpu->flags.ac = !((cpu->a & 0x0f) == 0x0f);
+            cpu->flags.h  = !((cpu->a & 0x0f) == 0x0f);
             break;
         default:
             assert( 0 && "Code should not get here\n" );
     }
 
     cpu->flags.z    = ( answer & 0xff ) == 0;
-    cpu->flags.s    = ( answer & 0x80 ) != 0;
-    cpu->flags.p    = parity_bit ( answer & 0xff );
+    cpu->flags.n    = ( answer & 0x80 ) != 0;
 
     cpu->cycles += 5 ;
     cpu->pc     += 1 ;
@@ -323,16 +524,15 @@ void emulate_CP ( _cpu_info *cpu ) {
     switch ( *opcode ) {
         case 0xfe: // CP A
             answer        = cpu->a - opcode[1];
-            cpu->flags.ac = !halfcary_sub( cpu->a, opcode[1], answer );
+            cpu->flags.h  = !halfcary_sub( cpu->a, opcode[1], answer );
             break;
         default:
             assert( 0 && "Code should not get here\n" );
     }
 
     cpu->flags.z    = ( answer & 0xff ) == 0                  ; // Only the last 8 bits matters, hence the mask
-    cpu->flags.s    = ( answer & 0x80 ) != 0       ; // Checks if the MSB is 1
-    cpu->flags.cy   = ( cpu->a < opcode[1] )       ; // Checks for the carry bit
-    cpu->flags.p    = parity_bit ( answer & 0xff ) ; // Returns 1 if the number os bits set as 1 is even
+    cpu->flags.n    = ( answer & 0x80 ) != 0       ; // Checks if the MSB is 1
+    cpu->flags.c    = ( cpu->a < opcode[1] )       ; // Checks for the carry bit
 
     cpu->cycles += 7 ;
     cpu->pc     += 2 ;
@@ -347,6 +547,9 @@ void emulator( _cpu_info *cpu ) {
 #endif
     uint16_t addr;
 
+    if ( ( *opcode >= 0x40 && *opcode <= 0x75 ) || ( *opcode >= 0x77 && *opcode <= 0x7f ) ) {
+                emulate_MOV ( cpu );
+    } else
     switch ( *opcode ) {
         case 0x00: emulate_NOP  ( cpu );
             break;
@@ -359,8 +562,8 @@ void emulator( _cpu_info *cpu ) {
             {
                 uint8_t t;
                 t = cpu->a;
-                cpu->flags.cy = 0x80 == (t & 0x80);
-                cpu->a = ( t << 1 ) | cpu->flags.cy;
+                cpu->flags.c  = 0x80 == (t & 0x80);
+                cpu->a = ( t << 1 ) | cpu->flags.c ;
                 cpu->cycles += 4;
                 cpu->pc     += 1;
             }
@@ -461,14 +664,30 @@ void emulator( _cpu_info *cpu ) {
         case 0xfe:
             emulate_CP ( cpu );
             break;
+        case 0x0c:
+        case 0x1c:
+        case 0x2c:
+        case 0x3c:
+        case 0x04:
+        case 0x14:
+        case 0x24:
+        case 0x34:
+            emulate_INR ( cpu );
+            break;
+        case 0xc3:
+            emulate_JMP ( cpu );
+            break;
+        case 0xc9:
+            emulate_RET ( cpu );
+            break;
         case 0xcb:
             switch ( opcode[1] ) {
                 case 0x11:
                 {
                     uint8_t t;
                     t = cpu->c;
-                    cpu->flags.cy = 0x80 == (t & 0x80);
-                    cpu->c = ( t << 1 ) | cpu->flags.cy;
+                    cpu->flags.c  = 0x80 == (t & 0x80);
+                    cpu->c = ( t << 1 ) | cpu->flags.c ;
                     cpu->cycles += 8;
                     cpu->pc     += 2;
                 }
