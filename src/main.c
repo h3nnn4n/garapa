@@ -17,8 +17,6 @@ int main(int argc, char *argv[]) {
     FILE *f = NULL;
     _cpu_info cpu;
 
-    struct timespec t1, t2;
-
     if ( argc == 1 ) {
         printf("Usage: %s file\n", argv[0]);
         return EXIT_FAILURE;
@@ -43,23 +41,8 @@ int main(int argc, char *argv[]) {
     sdl_init();
     atexit(SDL_Quit);
 
-    timekeeper_tic(&t1);
     while ( 1 ) {
         emulator ( &cpu );
-
-        if ( cpu.interrupt_addr == 0x10 && cpu.cycles > 16667 ) {
-            cpu.cycles -= 16667;
-            cpu.interrupt_addr = 0x08;
-            emulate_INTERRUPT( &cpu );
-            update_screen ( &cpu );
-        } else if ( cpu.interrupt_addr == 0x08 && cpu.cycles > 16667 ) {
-            cpu.cycles -= 16667;
-            cpu.interrupt_addr = 0x10;
-            emulate_INTERRUPT( &cpu );
-            update_input ( &cpu );
-            timekeeper_wait(&t1, &t2);
-        }
-
     }
 
     return 0;
