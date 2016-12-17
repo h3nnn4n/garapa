@@ -31,8 +31,8 @@ uint8_t read_byte ( _cpu_info *cpu, uint16_t addr ) {
 }
 
 uint16_t read_word ( _cpu_info *cpu, uint16_t addr ) {
-    return read_byte ( cpu, addr + 0 ) << 8 |
-           read_byte ( cpu, addr + 1 ) ;
+    return read_byte ( cpu, addr + 1 ) << 8 |
+           read_byte ( cpu, addr + 0 ) ;
 }
 
 uint16_t read_next_word ( _cpu_info *cpu ) {
