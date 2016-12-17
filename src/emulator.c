@@ -3,11 +3,32 @@
 #include <stdint.h>
 #include <assert.h>
 
+#include "memory.h"
 #include "types.h"
 #include "utils.h"
 #include "emulator.h"
 #include "disassembler.h"
 #include "halfcary.h"
+
+void emulate_ANI ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+
+    switch ( *opcode ) {
+        case 0xe6: // ANI
+            cpu->flags.h = !((cpu->a | opcode[1]) & 0x08) != 0;
+            cpu->a       &= opcode[1];
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->flags.c = 0;
+    cpu->flags.z  = (cpu->a == 0);
+    cpu->flags.n  = (0x80 == (cpu->a & 0x80));
+
+    cpu->cycles += 7 ;
+    cpu->pc     += 2 ;
+}
 
 uint8_t *get_reg_ref ( _cpu_info *cpu, uint8_t opcode ) {
     switch ( opcode ) {
@@ -208,7 +229,7 @@ void emulate_INR ( _cpu_info *cpu ) {
     }
 
     cpu->flags.z    = ( answer & 0xff ) == 0;
-    cpu->flags.n    = ( answer & 0x80 ) != 0;
+    cpu->flags.n    = 0;//( answer & 0x80 ) != 0;
 
     cpu->cycles += 5 ;
     cpu->pc     += 1 ;
@@ -329,7 +350,6 @@ void emulate_XOR ( _cpu_info *cpu ) {
 
 void emulate_LD ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
-    uint16_t addr   = 0;
 
     switch ( *opcode ) {
         /*case 0x01: // LXI B*/
@@ -347,14 +367,6 @@ void emulate_LD ( _cpu_info *cpu ) {
         case 0x31: // LD SP, d16
             cpu->sp = opcode[2] << 8 | opcode[1];
             break;
-        case 0x32: // LD (HL-),A
-            addr              = cpu->h << 8 | cpu->l;
-            cpu->memory[addr] = cpu->a;
-            addr              = cpu->h << 8 | cpu->l;
-            addr             -= 1;
-            cpu->h            = (addr >> 8 ) & 0xff;
-            cpu->l            = (addr >> 0 ) & 0xff;
-            break;
         default:
             assert( 0 && "Code should not get here\n" );
     }
@@ -366,27 +378,6 @@ void emulate_LD ( _cpu_info *cpu ) {
 void emulate_NOP ( _cpu_info *cpu ) {
     cpu->cycles += 1 ; // FIXME ?
     cpu->pc     += 1 ;
-}
-
-void emulate_JNZ ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
-    uint16_t addr = 0;
-
-    switch ( *opcode ) {
-        case 0x20: // JZ
-            addr = opcode[1];
-            if ( !cpu->flags.z ) {
-                cpu->pc = addr;
-            } else {
-                cpu->pc += 2;
-                /*printf("\n00000000000000000000000000000000000000000000000\n");*/
-            }
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
-
-    cpu->cycles += 10;
 }
 
 void emulate_LDAX ( _cpu_info *cpu ) {
@@ -430,6 +421,21 @@ void emulate_CALL ( _cpu_info *cpu ) {
     cpu->cycles += 17;
 }
 
+void emulate_DI ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+
+    switch ( *opcode ) {
+            case 0xf3: // EI
+            cpu->enable_interrupts = 0;
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->cycles += 4 ;
+    cpu->pc     += 1 ;
+}
+
 void emulate_DCR ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
     uint16_t answer = 0;
@@ -438,50 +444,50 @@ void emulate_DCR ( _cpu_info *cpu ) {
         case 0x05: // DCR B
             answer        = cpu->b - 1;
             cpu->b        = answer & 0xff;
-            cpu->flags.h  = !((cpu->b & 0x0f) == 0x0f);
+            cpu->flags.h  = ((cpu->b & 0x0f) == 0x0f);
             break;
         case 0x0d: // DCR C
             answer        = cpu->c - 1;
             cpu->c        = answer & 0xff;
-            cpu->flags.h  = !((cpu->c & 0x0f) == 0x0f);
+            cpu->flags.h  = ((cpu->c & 0x0f) == 0x0f);
             break;
         case 0x15: // DCR D
             answer        = cpu->d - 1;
             cpu->d        = answer & 0xff;
-            cpu->flags.h  = !((cpu->d & 0x0f) == 0x0f);
+            cpu->flags.h  = ((cpu->d & 0x0f) == 0x0f);
             break;
         case 0x1d: // DCR E
             answer        = cpu->e - 1;
             cpu->e        = answer & 0xff;
-            cpu->flags.h  = !((cpu->e & 0x0f) == 0x0f);
+            cpu->flags.h  = ((cpu->e & 0x0f) == 0x0f);
             break;
         case 0x25: // DCR H
             answer        = cpu->h - 1;
             cpu->h        = answer & 0xff;
-            cpu->flags.h  = !((cpu->h & 0x0f) == 0x0f);
+            cpu->flags.h  = ((cpu->h & 0x0f) == 0x0f);
             break;
         case 0x2d: // DCR L
             answer        = cpu->l - 1;
             cpu->l        = answer & 0xff;
-            cpu->flags.h  = !((cpu->l & 0x0f) == 0x0f);
+            cpu->flags.h  = ((cpu->l & 0x0f) == 0x0f);
             break;
         case 0x35: // DCR M
             answer                            = cpu->memory[cpu->h << 8 | cpu->l] - 1;
             cpu->memory[cpu->h << 8 | cpu->l] = answer & 0xff;
-            cpu->flags.h                      = !((cpu->memory[cpu->h << 8 | cpu->l] & 0x0f) == 0x0f);
+            cpu->flags.h                      = ((cpu->memory[cpu->h << 8 | cpu->l] & 0x0f) == 0x0f);
             cpu->cycles += 5;
             break;
         case 0x3d: // DCR A
             answer        = cpu->a - 1;
             cpu->a        = answer & 0xff;
-            cpu->flags.h  = !((cpu->a & 0x0f) == 0x0f);
+            cpu->flags.h  = ((cpu->a & 0x0f) == 0x0f);
             break;
         default:
             assert( 0 && "Code should not get here\n" );
     }
 
     cpu->flags.z    = ( answer & 0xff ) == 0;
-    cpu->flags.n    = ( answer & 0x80 ) != 0;
+    cpu->flags.n    = 1;//( answer & 0x80 ) != 0;
 
     cpu->cycles += 5 ;
     cpu->pc     += 1 ;
@@ -524,119 +530,307 @@ void emulate_CP ( _cpu_info *cpu ) {
     switch ( *opcode ) {
         case 0xfe: // CP A
             answer        = cpu->a - opcode[1];
-            cpu->flags.h  = !halfcary_sub( cpu->a, opcode[1], answer );
             break;
         default:
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->flags.z    = ( answer & 0xff ) == 0                  ; // Only the last 8 bits matters, hence the mask
-    cpu->flags.n    = ( answer & 0x80 ) != 0       ; // Checks if the MSB is 1
-    cpu->flags.c    = ( cpu->a < opcode[1] )       ; // Checks for the carry bit
+    cpu->flags.h    = halfcary_sub( cpu->a, opcode[1], answer );
+    cpu->flags.z    = ( answer & 0xff ) == 0;
+    cpu->flags.n    = 1;
+    cpu->flags.c    = ( cpu->a < opcode[1] );
 
     cpu->cycles += 7 ;
     cpu->pc     += 2 ;
 }
 
-void emulator( _cpu_info *cpu ) {
+void emulate_SUI ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint16_t answer = 0;
+
+    switch ( *opcode ) {
+        case 0xd6: // SUI D8
+            answer = cpu->a - opcode[1];
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->flags.z    = ( answer & 0xff ) == 0;
+    cpu->flags.n    = 1;
+    cpu->flags.h    = halfcary_sub( cpu->a, opcode[1], answer );
+    cpu->flags.c    = ( answer > 0xff );
+
+    cpu->a = answer & 0xff;
+
+    cpu->cycles += 7 ;
+    cpu->pc     += 2 ;
+}
+
+void emulate_ADI ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint16_t t;
+
+    switch ( *opcode ) {
+            case 0xc6: // ADI
+            cpu->flags.h  = halfcary( cpu->a, opcode[1], cpu->a + opcode[1] );
+            t             = cpu->a + (uint8_t) opcode[1];
+            cpu->a        = (uint8_t) t;
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->flags.c  = (t > 0xff);
+    cpu->flags.z  = (cpu->a == 0);
+    cpu->flags.n  = (0x80 == (cpu->a & 0x80));
+
+    cpu->cycles += 7 ;
+    cpu->pc     += 2 ;
+}
+
+void emulate_STAX ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
-#ifdef __show_step
-    disassembler ( cpu->memory, cpu->pc );
-    print_registers(cpu);
-#endif
-    uint16_t addr;
-
-    if ( ( *opcode >= 0x40 && *opcode <= 0x75 ) || ( *opcode >= 0x77 && *opcode <= 0x7f ) ) {
-                emulate_MOV ( cpu );
-    } else
     switch ( *opcode ) {
-        case 0x00: emulate_NOP  ( cpu );
-            break;
-        case 0x0e:
-            cpu->c = opcode[1];
-            cpu->cycles += 8 ;
-            cpu->pc     += 2 ;
-            break;
-        case 0x17:
-            {
-                uint8_t t;
-                t = cpu->a;
-                cpu->flags.c  = 0x80 == (t & 0x80);
-                cpu->a = ( t << 1 ) | cpu->flags.c ;
-                cpu->cycles += 4;
-                cpu->pc     += 1;
-            }
-            break;
-        case 0x0a:
-        case 0x1a:
-            emulate_LDAX ( cpu );
-            break;
-        case 0x20:
-            emulate_JNZ  ( cpu );
-            break;
-        case 0x26:
-            cpu->h = opcode[1];
-            cpu->cycles += 8 ;
-            cpu->pc     += 2 ;
-            break;
-        case 0x11:
-            cpu->d = opcode[1];
-            cpu->e = opcode[2];
-            cpu->pc += 3;
-            cpu->cycles += 12;
-            break;
-        case 0x0d:
-        case 0x1d:
-        case 0x2d:
-        case 0x3d:
-        case 0x05:
-        case 0x15:
-        case 0x25:
-        case 0x35:
-            emulate_DCR  ( cpu );
-            break;
-        case 0x03:
-        case 0x13:
-        case 0x23:
-        case 0x33:
-            emulate_INC  ( cpu );
-            break;
-        case 0xc1:
-        case 0xd1:
-        case 0xe1:
-        case 0xf1:
-            emulate_POP  ( cpu );
-            break;
-        case 0xc5:
-        case 0xd5:
-        case 0xe5:
-        case 0xf5:
-            emulate_PUSH ( cpu );
-            break;
-        case 0x21:
-        case 0x31:
-        case 0x32:
-            emulate_LD  ( cpu );
-            break;
-        case 0x4f:
-            cpu->c = cpu->a;
-            cpu->cycles += 4 ;
-            cpu->pc     += 1 ;
-            break;
-        case 0x06:
-            cpu->b = opcode[1];
-            cpu->cycles += 8 ;
-            cpu->pc     += 2 ;
-            break;
-        case 0x3e:
-            cpu->a = opcode[1];
-            cpu->cycles += 8 ;
-            cpu->pc     += 2 ;
-            break;
-        case 0xcd:
-            emulate_CALL ( cpu );
-            break;
+        case 0x02: // STAX B
+                cpu->memory[ ( cpu->b << 8 ) | cpu->c ] = cpu->a;
+                break;
+            case 0x12: // STAX D
+                cpu->memory[ ( cpu->d << 8 ) | cpu->e ] = cpu->a;
+                break;
+            default:
+                assert( 0 && "Code should not get here\n" );
+        }
+
+        cpu->cycles += 7 ;
+        cpu->pc     += 1 ;
+    }
+
+    void emulate_ORA ( _cpu_info *cpu ) {
+        unsigned char *opcode = &cpu->memory[cpu->pc];
+
+        switch ( *opcode ) {
+            case 0xb0: // ORA B
+                cpu->a |= cpu->b;
+                break;
+            case 0xb1: // ORA C
+                cpu->a |= cpu->c;
+                break;
+            case 0xb2: // ORA D
+                cpu->a |= cpu->d;
+                break;
+            case 0xb3: // ORA E
+                cpu->a |= cpu->e;
+                break;
+            case 0xb4: // ORA H
+                cpu->a |= cpu->h;
+                break;
+            case 0xb5: // ORA L
+                cpu->a |= cpu->l;
+                break;
+            case 0xb6: // ORA M
+                cpu->a |= cpu->memory[cpu->h << 8 | cpu->l];
+                cpu->cycles += 3;
+                break;
+            case 0xb7: // ORA A
+                cpu->a |= cpu->a;
+                break;
+            default:
+                assert( 0 && "Code should not get here\n" );
+        }
+
+        cpu->flags.c = 0;
+        cpu->flags.h = 0;
+        cpu->flags.z = (cpu->a == 0);
+        cpu->flags.n = 0;
+
+        cpu->cycles += 4 ;
+        cpu->pc     += 1 ;
+    }
+
+    void emulate_CNZ ( _cpu_info *cpu ) {
+        unsigned char *opcode = &cpu->memory[cpu->pc];
+
+        switch ( *opcode ) {
+            case 0xc4: // CNZ
+                {
+                    if ( !cpu->flags.z ) {
+                        uint16_t ret           = cpu->pc + 3;
+                        cpu->memory[cpu->sp-1] = (ret >> 8) & 0xff;
+                        cpu->memory[cpu->sp-2] = (ret & 0xff);
+                        cpu->sp                = cpu->sp - 2;
+                        cpu->pc                = opcode[2] << 8 | opcode[1];
+                        cpu->cycles += 17;
+                    } else {
+                        cpu->pc     += 3;
+                        cpu->cycles += 11;
+                    }
+                }
+                break;
+            default:
+                assert( 0 && "Code should not get here\n" );
+        }
+    }
+
+    void emulator( _cpu_info *cpu ) {
+        unsigned char *opcode = &cpu->memory[cpu->pc];
+
+#ifdef __show_step
+        disassembler ( cpu->memory, cpu->pc );
+        print_registers(cpu);
+#endif
+        uint16_t addr;
+
+        if ( ( *opcode >= 0x40 && *opcode <= 0x75 ) || ( *opcode >= 0x77 && *opcode <= 0x7f ) ) {
+                    emulate_MOV ( cpu );
+        } else
+        switch ( *opcode ) {
+            case 0x2a:
+                addr = cpu->h << 8 | cpu->l;
+                cpu->a = read_byte(cpu, addr);
+                addr += 1;
+                cpu->l = (addr & 0x00ff) >> 0;
+                cpu->h = (addr & 0xff00) >> 8;
+                cpu->cycles += 8;
+                cpu->pc     += 1 ;
+                break;
+            case 0x00: emulate_NOP  ( cpu );
+                break;
+            case 0x01:
+                cpu->b = opcode[2];
+                cpu->c = opcode[1];
+                cpu->cycles += 12;
+                cpu->pc     += 3;
+                break;
+            case 0x02:
+            case 0x12:
+                emulate_STAX( cpu );
+                break;
+            case 0x0e:
+                cpu->c = opcode[1];
+                cpu->cycles += 8 ;
+                cpu->pc     += 2 ;
+                break;
+            case 0x17:
+                {
+                    uint8_t t;
+                    t = cpu->a;
+                    cpu->flags.c  = 0x80 == (t & 0x80);
+                    cpu->a = ( t << 1 ) | cpu->flags.c ;
+                    cpu->cycles += 4;
+                    cpu->pc     += 1;
+                }
+                break;
+            case 0x0a:
+            case 0x1a:
+                emulate_LDAX ( cpu );
+                break;
+            case 0x18:
+                cpu->pc += (int8_t) opcode[1] + 2; // Looks like there is a sign bit somewhere
+                break;
+            case 0x20:
+                cpu->pc = cpu->flags.z ?
+                          cpu->pc + 2   :
+                          cpu->pc + (int8_t) opcode[1] + 2;
+                break;
+            case 0x22:
+                addr = ( cpu->h << 8 ) | cpu->l;
+                write_byte( cpu, addr, cpu->a );
+                addr += 1;
+                cpu->h = ( addr & 0xff00 ) >> 8;
+                cpu->l = ( addr & 0x00ff ) >> 0;
+                cpu->cycles += 8;
+                cpu->pc += 1;
+                break;
+            case 0x26:
+                cpu->h = opcode[1];
+                cpu->cycles += 8 ;
+                cpu->pc     += 2 ;
+                break;
+            case 0x28:
+                if ( cpu->flags.z ) {
+                    cpu->pc += (int8_t) opcode[1] + 2;
+                } else {
+                    cpu->pc += 2;
+                }
+                break;
+            case 0x11:
+                cpu->d = opcode[2];
+                cpu->e = opcode[1];
+                cpu->pc += 3;
+                cpu->cycles += 12;
+                break;
+            case 0x0d:
+            case 0x1d:
+            case 0x2d:
+            case 0x3d:
+            case 0x05:
+            case 0x15:
+            case 0x25:
+            case 0x35:
+                emulate_DCR  ( cpu );
+                break;
+            case 0xc4:
+                emulate_CNZ  ( cpu );
+                break;
+            case 0x03:
+            case 0x13:
+            case 0x23:
+            case 0x33:
+                emulate_INC  ( cpu );
+                break;
+            case 0xc1:
+            case 0xd1:
+            case 0xe1:
+            case 0xf1:
+                emulate_POP  ( cpu );
+                break;
+            case 0xc5:
+            case 0xd5:
+            case 0xe5:
+            case 0xf5:
+                emulate_PUSH ( cpu );
+                break;
+            case 0x21:
+            case 0x31:
+                emulate_LD  ( cpu );
+                break;
+            case 0x32: // LD (HL-),A
+                addr              = cpu->h << 8 | cpu->l;
+                cpu->memory[addr] = cpu->a;
+                addr              = cpu->h << 8 | cpu->l;
+                addr             -= 1;
+                cpu->h            = (addr >> 8 ) & 0xff;
+                cpu->l            = (addr >> 0 ) & 0xff;
+                cpu->pc += 1;
+                cpu->cycles += 12;
+                break;
+            case 0x4f:
+                cpu->c = cpu->a;
+                cpu->cycles += 4 ;
+                cpu->pc     += 1 ;
+                break;
+            case 0x06:
+                cpu->b = opcode[1];
+                cpu->cycles += 8 ;
+                cpu->pc     += 2 ;
+                break;
+            case 0x3e:
+                cpu->a = opcode[1];
+                cpu->cycles += 8 ;
+                cpu->pc     += 2 ;
+                break;
+            case 0xcd:
+                emulate_CALL ( cpu );
+                break;
+            case 0xa8:
+            case 0xa9:
+        case 0xaa:
+        case 0xab:
+        case 0xac:
+        case 0xad:
+        case 0xae:
         case 0xaf:
             emulate_XOR  ( cpu );
             break;
@@ -645,24 +839,46 @@ void emulator( _cpu_info *cpu ) {
             cpu->cycles += 12;
             cpu->pc     += 2 ;
             break;
+        case 0xf0:
+            cpu->a = read_byte(cpu, 0xff00 + opcode[1]);
+            cpu->cycles += 12;
+            cpu->pc     += 2 ;
+            break;
         case 0xe2:
             cpu->memory[0xff00 + cpu->c] = cpu->a;
             cpu->cycles += 8 ;
             cpu->pc     += 1 ;
             break;
-        /*case 0xfe:*/
-            /*cpu->memory[0xff00 + cpu->c] = cpu->a;*/
-            /*cpu->cycles += 8 ;*/
-            /*cpu->pc     += 1 ;*/
-            /*break;*/
+        case 0xea:
+            addr = opcode[1] << 8 | opcode[2];
+            cpu->memory[addr] = cpu->a;
+            cpu->cycles += 8;
+            cpu->pc     += 3;
+            break;
         case 0x77: // MOV M, A
             addr = cpu->h << 8 | cpu->l;
             cpu->memory[addr] = cpu->a;
             cpu->cycles += 8;
-            cpu->pc     += 1 ;
+            cpu->pc     += 1;
             break;
         case 0xfe:
             emulate_CP ( cpu );
+            break;
+        case 0xb0:
+        case 0xb1:
+        case 0xb2:
+        case 0xb3:
+        case 0xb4:
+        case 0xb5:
+        case 0xb6:
+        case 0xb7:
+            emulate_ORA ( cpu );
+            break;
+        case 0xd6:
+            emulate_SUI ( cpu );
+            break;
+        case 0xc6:
+            emulate_ADI ( cpu );
             break;
         case 0x0c:
         case 0x1c:
@@ -677,8 +893,20 @@ void emulator( _cpu_info *cpu ) {
         case 0xc3:
             emulate_JMP ( cpu );
             break;
+        case 0xf3:
+            emulate_DI ( cpu );
+            break;
+        case 0xe6:
+            emulate_ANI ( cpu );
+            break;
         case 0xc9:
             emulate_RET ( cpu );
+            break;
+        case 0xfa:
+            addr         = read_next_word ( cpu );
+            cpu->a       = read_byte ( cpu, addr );
+            cpu->cycles += 16;
+            cpu->pc     += 3;
             break;
         case 0xcb:
             switch ( opcode[1] ) {
