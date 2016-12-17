@@ -11,6 +11,7 @@
 #include "halfcary.h"
 
 #include "instructions_branch.h"
+#include "instructions_arithmetic.h"
 
 void emulate_ANI ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
@@ -161,63 +162,6 @@ void emulate_MOV ( _cpu_info *cpu ) {
             }
             break;
     }
-
-    cpu->cycles += 5 ;
-    cpu->pc     += 1 ;
-}
-
-void emulate_INR ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
-    uint16_t answer = 0;
-
-    switch ( *opcode ) {
-        case 0x04: // INR B
-            answer = cpu->b + 1;
-            cpu->b = answer & 0xff;
-            cpu->flags.h  = (answer & 0x0f) == 0x00;
-            break;
-        case 0x0c: // INR C
-            answer = cpu->c + 1;
-            cpu->c = answer & 0xff;
-            cpu->flags.h  = (answer & 0x0f) == 0x00;
-            break;
-        case 0x14: // INR D
-            answer = cpu->d + 1;
-            cpu->d = answer & 0xff;
-            cpu->flags.h  = (answer & 0x0f) == 0x00;
-            break;
-        case 0x1c: // INR E
-            answer = cpu->e + 1;
-            cpu->e = answer & 0xff;
-            cpu->flags.h  = (answer & 0x0f) == 0x00;
-            break;
-        case 0x24: // INR H
-            answer = cpu->h + 1;
-            cpu->h = answer & 0xff;
-            cpu->flags.h  = (answer & 0x0f) == 0x00;
-            break;
-        case 0x2c: // INR L
-            answer = cpu->l + 1;
-            cpu->l = answer & 0xff;
-            cpu->flags.h  = (answer & 0x0f) == 0x00;
-            break;
-        case 0x34: // INR M
-            cpu->memory[cpu->h << 8 | cpu->l] += 1;
-            answer = cpu->memory[cpu->h << 8 | cpu->l];
-            cpu->flags.h  = (answer & 0x0f) == 0x00;
-            cpu->cycles += 5;
-            break;
-        case 0x3c: // INR A
-            answer = cpu->a + 1;
-            cpu->flags.h  = (answer & 0x0f) == 0x00;
-            cpu->a = answer & 0xff;
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
-
-    cpu->flags.z    = ( answer & 0xff ) == 0;
-    cpu->flags.n    = 0;//( answer & 0x80 ) != 0;
 
     cpu->cycles += 5 ;
     cpu->pc     += 1 ;
@@ -402,63 +346,6 @@ void emulate_DI ( _cpu_info *cpu ) {
     cpu->pc     += 1 ;
 }
 
-void emulate_DCR ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
-    uint16_t answer = 0;
-
-    switch ( *opcode ) {
-        case 0x05: // DCR B
-            answer        = cpu->b - 1;
-            cpu->b        = answer & 0xff;
-            cpu->flags.h  = ((cpu->b & 0x0f) == 0x0f);
-            break;
-        case 0x0d: // DCR C
-            answer        = cpu->c - 1;
-            cpu->c        = answer & 0xff;
-            cpu->flags.h  = ((cpu->c & 0x0f) == 0x0f);
-            break;
-        case 0x15: // DCR D
-            answer        = cpu->d - 1;
-            cpu->d        = answer & 0xff;
-            cpu->flags.h  = ((cpu->d & 0x0f) == 0x0f);
-            break;
-        case 0x1d: // DCR E
-            answer        = cpu->e - 1;
-            cpu->e        = answer & 0xff;
-            cpu->flags.h  = ((cpu->e & 0x0f) == 0x0f);
-            break;
-        case 0x25: // DCR H
-            answer        = cpu->h - 1;
-            cpu->h        = answer & 0xff;
-            cpu->flags.h  = ((cpu->h & 0x0f) == 0x0f);
-            break;
-        case 0x2d: // DCR L
-            answer        = cpu->l - 1;
-            cpu->l        = answer & 0xff;
-            cpu->flags.h  = ((cpu->l & 0x0f) == 0x0f);
-            break;
-        case 0x35: // DCR M
-            answer                            = cpu->memory[cpu->h << 8 | cpu->l] - 1;
-            cpu->memory[cpu->h << 8 | cpu->l] = answer & 0xff;
-            cpu->flags.h                      = ((cpu->memory[cpu->h << 8 | cpu->l] & 0x0f) == 0x0f);
-            cpu->cycles += 5;
-            break;
-        case 0x3d: // DCR A
-            answer        = cpu->a - 1;
-            cpu->a        = answer & 0xff;
-            cpu->flags.h  = ((cpu->a & 0x0f) == 0x0f);
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
-
-    cpu->flags.z    = ( answer & 0xff ) == 0;
-    cpu->flags.n    = 1;//( answer & 0x80 ) != 0;
-
-    cpu->cycles += 5 ;
-    cpu->pc     += 1 ;
-}
-
 void emulate_INC ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
@@ -487,51 +374,6 @@ void emulate_INC ( _cpu_info *cpu ) {
 
     cpu->cycles += 5 ;
     cpu->pc     += 1 ;
-}
-
-void emulate_SUI ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
-    uint16_t answer = 0;
-
-    switch ( *opcode ) {
-        case 0xd6: // SUI D8
-            answer = cpu->a - opcode[1];
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
-
-    cpu->flags.z    = ( answer & 0xff ) == 0;
-    cpu->flags.n    = 1;
-    cpu->flags.h    = halfcary_sub( cpu->a, opcode[1], answer );
-    cpu->flags.c    = ( answer > 0xff );
-
-    cpu->a = answer & 0xff;
-
-    cpu->cycles += 7 ;
-    cpu->pc     += 2 ;
-}
-
-void emulate_ADI ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
-    uint16_t t;
-
-    switch ( *opcode ) {
-            case 0xc6: // ADI
-            cpu->flags.h  = halfcary( cpu->a, opcode[1], cpu->a + opcode[1] );
-            t             = cpu->a + (uint8_t) opcode[1];
-            cpu->a        = (uint8_t) t;
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
-
-    cpu->flags.c  = (t > 0xff);
-    cpu->flags.z  = (cpu->a == 0);
-    cpu->flags.n  = (0x80 == (cpu->a & 0x80));
-
-    cpu->cycles += 7 ;
-    cpu->pc     += 2 ;
 }
 
 void emulate_XRI ( _cpu_info *cpu ) {
@@ -612,28 +454,6 @@ void emulate_ORA ( _cpu_info *cpu ) {
 
     cpu->cycles += 4 ;
     cpu->pc     += 1 ;
-}
-
-void emulate_ACI ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
-    uint16_t t;
-
-    switch ( *opcode ) {
-        case 0xce: // ACI
-            t             = cpu->a + (uint8_t) opcode[1] + cpu->flags.c;
-            cpu->flags.h  = halfcary( cpu->a, opcode[1], t);
-            cpu->a        = t & 0xff;
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
-
-    cpu->flags.c  = (t > 0xff);
-    cpu->flags.z  = (cpu->a == 0);
-    cpu->flags.n  = 0;
-
-    cpu->cycles += 7 ;
-    cpu->pc     += 2 ;
 }
 
 void emulator( _cpu_info *cpu ) {
@@ -847,6 +667,12 @@ void emulator( _cpu_info *cpu ) {
         case 0xfe:
             emulate_CPI ( cpu );
             break;
+        case 0x09:
+        case 0x19:
+        case 0x29:
+        case 0x39:
+            emulate_DAD ( cpu );
+            break;
         case 0xb0:
         case 0xb1:
         case 0xb2:
@@ -856,6 +682,9 @@ void emulator( _cpu_info *cpu ) {
         case 0xb6:
         case 0xb7:
             emulate_ORA ( cpu );
+            break;
+        case 0xe9:
+            emulate_PCHL ( cpu );
             break;
         case 0xce:
             emulate_ACI ( cpu );
