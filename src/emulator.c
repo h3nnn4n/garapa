@@ -744,6 +744,7 @@ void emulator( _cpu_info *cpu ) {
             }
             break;
         default:
+            disassembler( cpu->memory, cpu->pc );
             printf(" %2x is not implemented\n", *opcode);
             exit(-1);
         }
