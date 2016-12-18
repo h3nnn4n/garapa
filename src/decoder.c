@@ -6,7 +6,7 @@
 #include "memory.h"
 #include "types.h"
 #include "utils.h"
-#include "emulator.h"
+#include "decoder.h"
 #include "disassembler.h"
 #include "halfcary.h"
 
@@ -17,7 +17,7 @@
 #include "instructions_data_transfer.h"
 #include "instructions_stack_io_control.h"
 
-void emulator( _cpu_info *cpu ) {
+void decoder( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
 #ifdef __show_step
