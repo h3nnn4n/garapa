@@ -6,43 +6,6 @@
 
 #include "instructions_stack_io_control.h"
 
-void emulate_PUSH ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
-
-    switch ( *opcode ) {
-        case 0xc5: // PUSH B
-            cpu->memory[cpu->sp-2] = cpu->c;
-            cpu->memory[cpu->sp-1] = cpu->b;
-            cpu->sp -= 2;
-            break;
-        case 0xd5: // PUSH D
-            cpu->memory[cpu->sp-2] = cpu->e;
-            cpu->memory[cpu->sp-1] = cpu->d;
-            cpu->sp -= 2;
-            break;
-        case 0xe5: // PUSH H
-            cpu->memory[cpu->sp-2] = cpu->l;
-            cpu->memory[cpu->sp-1] = cpu->h;
-            cpu->sp -= 2;
-            break;
-        case 0xf5: // PUSH PSW
-            cpu->memory[cpu->sp-1] = cpu->a;
-            cpu->memory[cpu->sp-2] = ( cpu->flags.z  ? 0x40 : 0x0 ) |
-                                     ( cpu->flags.s  ? 0x80 : 0x0 ) |
-                                     ( cpu->flags.p  ? 0x04 : 0x0 ) |
-                                     ( cpu->flags.cy ? 0x01 : 0x0 ) |
-                                     ( cpu->flags.ac ? 0x10 : 0x0 ) |
-                                     0x02;
-            cpu->sp = cpu->sp - 2;
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
-
-    cpu->cycles += 11;
-    cpu->pc     += 1 ;
-}
-
 void emulate_POP ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
@@ -64,13 +27,46 @@ void emulate_POP ( _cpu_info *cpu ) {
             break;
         case 0xf1: // POP PSW
             cpu->a = cpu->memory[cpu->sp+1];
-            cpu->flags.z  = ((cpu->memory[cpu->sp] & 0x40));
-            cpu->flags.s  = ((cpu->memory[cpu->sp] & 0x80));
-            cpu->flags.p  = ((cpu->memory[cpu->sp] & 0x04));
-            cpu->flags.cy = ((cpu->memory[cpu->sp] & 0x01));
-            cpu->flags.ac = ((cpu->memory[cpu->sp] & 0x10));
+            cpu->flags.z  = ((cpu->memory[cpu->sp] & 0x80));
+            cpu->flags.n  = ((cpu->memory[cpu->sp] & 0x40));
+            cpu->flags.h  = ((cpu->memory[cpu->sp] & 0x20));
+            cpu->flags.c  = ((cpu->memory[cpu->sp] & 0x10));
             cpu->sp += 2;
             cpu->cycles -= 1;
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" ); }
+
+    cpu->cycles += 11;
+    cpu->pc     += 1 ;
+}
+
+void emulate_PUSH ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+
+    switch ( *opcode ) {
+        case 0xc5: // PUSH B
+            cpu->memory[cpu->sp-2] = cpu->c;
+            cpu->memory[cpu->sp-1] = cpu->b;
+            cpu->sp -= 2;
+            break;
+        case 0xd5: // PUSH D
+            cpu->memory[cpu->sp-2] = cpu->e;
+            cpu->memory[cpu->sp-1] = cpu->d;
+            cpu->sp -= 2;
+            break;
+        case 0xe5: // PUSH H
+            cpu->memory[cpu->sp-2] = cpu->l;
+            cpu->memory[cpu->sp-1] = cpu->h;
+            cpu->sp -= 2;
+            break;
+        case 0xf5: // PUSH PSW
+            cpu->memory[cpu->sp-1] = cpu->a;
+            cpu->memory[cpu->sp-2] = ( cpu->flags.z  ? 0x80 : 0x0 ) |
+                                     ( cpu->flags.n  ? 0x40 : 0x0 ) |
+                                     ( cpu->flags.h  ? 0x20 : 0x0 ) |
+                                     ( cpu->flags.c  ? 0x10 : 0x0 ) ;
+            cpu->sp = cpu->sp - 2;
             break;
         default:
             assert( 0 && "Code should not get here\n" );
@@ -79,6 +75,7 @@ void emulate_POP ( _cpu_info *cpu ) {
     cpu->cycles += 11;
     cpu->pc     += 1 ;
 }
+
 
 void emulate_XTHL ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];

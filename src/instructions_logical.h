@@ -5,7 +5,7 @@
 
 void emulate_ANA ( _cpu_info *cpu );
 void emulate_ANI ( _cpu_info *cpu );
-void emulate_XRA ( _cpu_info *cpu );
+void emulate_XOR ( _cpu_info *cpu );
 void emulate_XRI ( _cpu_info *cpu );
 void emulate_ORA ( _cpu_info *cpu );
 void emulate_ORI ( _cpu_info *cpu );

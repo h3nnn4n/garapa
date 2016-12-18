@@ -78,33 +78,33 @@ void emulate_ANI ( _cpu_info *cpu ) {
     cpu->pc     += 2 ;
 }
 
-void emulate_XRA ( _cpu_info *cpu ) {
+void emulate_XOR ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
     switch ( *opcode ) {
-        case 0xa8: // XRA B
+        case 0xa8: // XOR B
             cpu->a ^= cpu->b;
             break;
-        case 0xa9: // XRA C
+        case 0xa9: // XOR C
             cpu->a ^= cpu->c;
             break;
-        case 0xaa: // XRA D
+        case 0xaa: // XOR D
             cpu->a ^= cpu->d;
             break;
-        case 0xab: // XRA E
+        case 0xab: // XOR E
             cpu->a ^= cpu->e;
             break;
-        case 0xac: // XRA H
+        case 0xac: // XOR H
             cpu->a ^= cpu->h;
             break;
-        case 0xad: // XRA L
+        case 0xad: // XOR L
             cpu->a ^= cpu->l;
             break;
-        case 0xae: // XRA M
+        case 0xae: // XOR M
             cpu->a ^= cpu->memory[cpu->h << 8 | cpu->l];
             cpu->cycles += 3;
             break;
-        case 0xaf: // XRA A
+        case 0xaf: // XOR A
             cpu->a ^= cpu->a;
             break;
         default:
@@ -114,7 +114,7 @@ void emulate_XRA ( _cpu_info *cpu ) {
     cpu->flags.c  = 0;
     cpu->flags.h  = 0;
     cpu->flags.z  = (cpu->a == 0);
-    cpu->flags.n  = (0x80 == (cpu->a & 0x80));
+    cpu->flags.n  = 0; //(0x80 == (cpu->a & 0x80));
 
     cpu->cycles += 4 ;
     cpu->pc     += 1 ;

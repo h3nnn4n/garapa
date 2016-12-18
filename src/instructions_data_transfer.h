@@ -13,6 +13,7 @@ void     emulate_STAX ( _cpu_info *cpu );
 void     emulate_SHLD ( _cpu_info *cpu );
 void     emulate_LHLD ( _cpu_info *cpu );
 void     emulate_LDA  ( _cpu_info *cpu );
+void     emulate_LD   ( _cpu_info *cpu );
 void     emulate_STA  ( _cpu_info *cpu );
 void     emulate_LXI  ( _cpu_info *cpu );
 void     emulate_MVI  ( _cpu_info *cpu );

@@ -13,7 +13,7 @@ void emulate_SBB ( _cpu_info *cpu );
 void emulate_SBI ( _cpu_info *cpu );
 void emulate_INR ( _cpu_info *cpu );
 void emulate_DCR ( _cpu_info *cpu );
-void emulate_INX ( _cpu_info *cpu );
+void emulate_INC ( _cpu_info *cpu );
 void emulate_DCX ( _cpu_info *cpu );
 void emulate_DAD ( _cpu_info *cpu );
 void emulate_DAA ( _cpu_info *cpu );

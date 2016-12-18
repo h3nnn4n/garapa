@@ -15,195 +15,7 @@
 #include "instructions_logical.h"
 #include "instructions_arithmetic.h"
 #include "instructions_data_transfer.h"
-
-void emulate_POP ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
-
-    switch ( *opcode ) {
-        case 0xc1: // POP B
-            cpu->c = cpu->memory[ ( cpu->sp + 0 ) & 0xffff ];
-            cpu->b = cpu->memory[ ( cpu->sp + 1 ) & 0xffff ];
-            cpu->sp += 2;
-            break;
-        case 0xd1: // POP D
-            cpu->e = cpu->memory[ ( cpu->sp + 0 ) & 0xffff ];
-            cpu->d = cpu->memory[ ( cpu->sp + 1 ) & 0xffff ];
-            cpu->sp += 2;
-            break;
-        case 0xe1: // POP H
-            cpu->l = cpu->memory[ ( cpu->sp + 0 ) & 0xffff ];
-            cpu->h = cpu->memory[ ( cpu->sp + 1 ) & 0xffff ];
-            cpu->sp += 2;
-            break;
-        case 0xf1: // POP PSW
-            cpu->a = cpu->memory[cpu->sp+1];
-            cpu->flags.z  = ((cpu->memory[cpu->sp] & 0x80));
-            cpu->flags.n  = ((cpu->memory[cpu->sp] & 0x40));
-            cpu->flags.h  = ((cpu->memory[cpu->sp] & 0x20));
-            cpu->flags.c  = ((cpu->memory[cpu->sp] & 0x10));
-            cpu->sp += 2;
-            cpu->cycles -= 1;
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" ); }
-
-    cpu->cycles += 11;
-    cpu->pc     += 1 ;
-}
-
-void emulate_PUSH ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
-
-    switch ( *opcode ) {
-        case 0xc5: // PUSH B
-            cpu->memory[cpu->sp-2] = cpu->c;
-            cpu->memory[cpu->sp-1] = cpu->b;
-            cpu->sp -= 2;
-            break;
-        case 0xd5: // PUSH D
-            cpu->memory[cpu->sp-2] = cpu->e;
-            cpu->memory[cpu->sp-1] = cpu->d;
-            cpu->sp -= 2;
-            break;
-        case 0xe5: // PUSH H
-            cpu->memory[cpu->sp-2] = cpu->l;
-            cpu->memory[cpu->sp-1] = cpu->h;
-            cpu->sp -= 2;
-            break;
-        case 0xf5: // PUSH PSW
-            cpu->memory[cpu->sp-1] = cpu->a;
-            cpu->memory[cpu->sp-2] = ( cpu->flags.z  ? 0x80 : 0x0 ) |
-                                     ( cpu->flags.n  ? 0x40 : 0x0 ) |
-                                     ( cpu->flags.h  ? 0x20 : 0x0 ) |
-                                     ( cpu->flags.c  ? 0x10 : 0x0 ) ;
-            cpu->sp = cpu->sp - 2;
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
-
-    cpu->cycles += 11;
-    cpu->pc     += 1 ;
-}
-
-void emulate_XOR ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
-
-    switch ( *opcode ) {
-        case 0xa8: // XOR B
-            cpu->a ^= cpu->b;
-            break;
-        case 0xa9: // XOR C
-            cpu->a ^= cpu->c;
-            break;
-        case 0xaa: // XOR D
-            cpu->a ^= cpu->d;
-            break;
-        case 0xab: // XOR E
-            cpu->a ^= cpu->e;
-            break;
-        case 0xac: // XOR H
-            cpu->a ^= cpu->h;
-            break;
-        case 0xad: // XOR L
-            cpu->a ^= cpu->l;
-            break;
-        case 0xae: // XOR M
-            cpu->a ^= cpu->memory[cpu->h << 8 | cpu->l];
-            cpu->cycles += 3;
-            break;
-        case 0xaf: // XOR A
-            cpu->a ^= cpu->a;
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
-
-    cpu->flags.c  = 0;
-    cpu->flags.h  = 0;
-    cpu->flags.z  = (cpu->a == 0);
-    cpu->flags.n  = 0; //(0x80 == (cpu->a & 0x80));
-
-    cpu->cycles += 4 ;
-    cpu->pc     += 1 ;
-}
-
-void emulate_LD ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
-
-    switch ( *opcode ) {
-        /*case 0x01: // LXI B*/
-            /*cpu->b = opcode[2];*/
-            /*cpu->c = opcode[1];*/
-            /*break;*/
-        /*case 0x11: // LXI D*/
-            /*cpu->d = opcode[2];*/
-            /*cpu->e = opcode[1];*/
-            /*break;*/
-        case 0x21: // LD HL, d16
-            cpu->h = opcode[2];
-            cpu->l = opcode[1];
-            break;
-        case 0x31: // LD SP, d16
-            cpu->sp = opcode[2] << 8 | opcode[1];
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
-
-    cpu->cycles += 12;
-    cpu->pc     += 3 ;
-}
-
-void emulate_NOP ( _cpu_info *cpu ) {
-    cpu->cycles += 1 ; // FIXME ?
-    cpu->pc     += 1 ;
-}
-
-void emulate_DI ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
-
-    switch ( *opcode ) {
-            case 0xf3: // EI
-            cpu->enable_interrupts = 0;
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
-
-    cpu->cycles += 4 ;
-    cpu->pc     += 1 ;
-}
-
-void emulate_INC ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
-
-    switch ( *opcode ) {
-        case 0x03: // INC B
-            cpu->c += 1;
-            if ( cpu->c == 0 )
-                cpu->b += 1;
-            break;
-        case 0x13: // INC D
-            cpu->e += 1;
-            if ( cpu->e == 0 )
-                cpu->d += 1;
-            break;
-        case 0x23: // INC H
-            cpu->l += 1;
-            if ( cpu->l == 0 )
-                cpu->h += 1;
-            break;
-        case 0x33: // INC SP
-            cpu->sp += 1;
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
-
-    cpu->cycles += 5 ;
-    cpu->pc     += 1 ;
-}
+#include "instructions_stack_io_control.h"
 
 void emulator( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
@@ -219,12 +31,6 @@ void emulator( _cpu_info *cpu ) {
     } else
     switch ( *opcode ) {
         case 0x00: emulate_NOP  ( cpu );
-            break;
-        case 0x01:
-            cpu->b = opcode[2];
-            cpu->c = opcode[1];
-            cpu->cycles += 12;
-            cpu->pc     += 3;
             break;
         case 0xde:
             emulate_SBI( cpu );
@@ -335,12 +141,6 @@ void emulator( _cpu_info *cpu ) {
                         cpu->pc + 2   :
                         cpu->pc + (int8_t) opcode[1] + 2;
             break;
-        case 0x11:
-            cpu->d = opcode[2];
-            cpu->e = opcode[1];
-            cpu->pc += 3;
-            cpu->cycles += 12;
-            break;
         case 0x0d:
         case 0x1d:
         case 0x2d:
@@ -384,6 +184,8 @@ void emulator( _cpu_info *cpu ) {
         case 0xf5:
             emulate_PUSH ( cpu );
             break;
+        case 0x01:
+        case 0x11:
         case 0x21:
         case 0x31:
             emulate_LD  ( cpu );
@@ -590,6 +392,9 @@ void emulator( _cpu_info *cpu ) {
         case 0xc3:
             emulate_JMP ( cpu );
             break;
+        case 0xfb:
+            emulate_EI ( cpu );
+            break;
         case 0xf3:
             emulate_DI ( cpu );
             break;
@@ -618,7 +423,7 @@ void emulator( _cpu_info *cpu ) {
             disassembler( cpu->memory, cpu->pc );
             printf(" %2x is not implemented\n", *opcode);
             exit(-1);
-        }
+    }
 
     cpu->instructions_executed += 1;
 

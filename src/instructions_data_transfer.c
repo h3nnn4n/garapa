@@ -171,7 +171,7 @@ void emulate_STA ( _cpu_info *cpu ) {
     cpu->pc     += 3 ;
 }
 
-void emulate_LXI ( _cpu_info *cpu ) {
+void emulate_LD ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
     switch ( *opcode ) {
@@ -183,18 +183,18 @@ void emulate_LXI ( _cpu_info *cpu ) {
             cpu->d = opcode[2];
             cpu->e = opcode[1];
             break;
-        case 0x21: // LXI H
+        case 0x21: // LD HL, d16
             cpu->h = opcode[2];
             cpu->l = opcode[1];
             break;
-        case 0x31: // LXI SP
+        case 0x31: // LD SP, d16
             cpu->sp = opcode[2] << 8 | opcode[1];
             break;
         default:
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 10;
+    cpu->cycles += 12;
     cpu->pc     += 3 ;
 }
 

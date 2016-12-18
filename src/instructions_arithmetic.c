@@ -438,26 +438,26 @@ void emulate_DCR ( _cpu_info *cpu ) {
     cpu->pc     += 1 ;
 }
 
-void emulate_INX ( _cpu_info *cpu ) {
+void emulate_INC ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
     switch ( *opcode ) {
-        case 0x03: // INX B
+        case 0x03: // INC B
             cpu->c += 1;
             if ( cpu->c == 0 )
                 cpu->b += 1;
             break;
-        case 0x13: // INX D
+        case 0x13: // INC D
             cpu->e += 1;
             if ( cpu->e == 0 )
                 cpu->d += 1;
             break;
-        case 0x23: // INX H
+        case 0x23: // INC H
             cpu->l += 1;
             if ( cpu->l == 0 )
                 cpu->h += 1;
             break;
-        case 0x33: // INX SP
+        case 0x33: // INC SP
             cpu->sp += 1;
             break;
         default:
