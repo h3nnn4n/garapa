@@ -51,7 +51,7 @@ void emulate_ADD ( _cpu_info *cpu ) {
     }
 
     cpu->flags.z    = ( answer & 0xff ) == 0;
-    cpu->flags.n    = ( answer & 0x80 ) != 0;
+    cpu->flags.n    = 0;
     cpu->flags.c    = ( answer > 0xff );
 
     cpu->a          = answer & 0xff;
@@ -76,7 +76,7 @@ void emulate_ADI ( _cpu_info *cpu ) {
 
     cpu->flags.c  = (t > 0xff);
     cpu->flags.z  = (cpu->a == 0);
-    cpu->flags.n  = (0x80 == (cpu->a & 0x80));
+    cpu->flags.n  = 0;
 
     cpu->cycles += 7 ;
     cpu->pc     += 2 ;

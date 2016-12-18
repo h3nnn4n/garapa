@@ -143,6 +143,24 @@ void emulate_JNZ ( _cpu_info *cpu ) {
     cpu->cycles += 10;
 }
 
+void emulate_RETI ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint16_t addr;
+
+    switch ( *opcode ) {
+        case 0xd9:
+            addr = cpu->memory[cpu->sp+1] << 8 | cpu->memory[cpu->sp];
+            cpu->sp += 2;
+            cpu->pc = addr;
+            cpu->enable_interrupts = 1;
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
+
+    cpu->cycles += 10;
+}
+
 void emulate_RET ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
     uint16_t addr;
@@ -294,24 +312,42 @@ void emulate_RC ( _cpu_info *cpu ) {
 
 void emulate_RST ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
+    uint16_t ret = 0;
+
+    ret = cpu->pc + 1;
 
     switch ( *opcode ) {
-            case 0xc7:
-            case 0xd7:
-            case 0xe7:
-            case 0xf7:
-            case 0xcf:
-            case 0xdf:
-            case 0xef:
-            case 0xff:
-            cpu->memory[(cpu->sp-1) & 0xffff] = (cpu->h) & 0xff;
-            cpu->memory[(cpu->sp-2) & 0xffff] = (cpu->l) & 0xff;
-            cpu->sp                           = cpu->sp - 2;
-            cpu->pc                           = (*opcode) & 0x38;
+        case 0xc7:
+            cpu->pc = 0x00;
+            break;
+        case 0xcf:
+            cpu->pc = 0x08;
+            break;
+        case 0xd7:
+            cpu->pc = 0x10;
+            break;
+        case 0xdf:
+            cpu->pc = 0x18;
+            break;
+        case 0xe7:
+            cpu->pc = 0x20;
+            break;
+        case 0xef:
+            cpu->pc = 0x28;
+            break;
+        case 0xf7:
+            cpu->pc = 0x30;
+            break;
+        case 0xff:
+            cpu->pc = 0x38;
             break;
         default:
             assert( 0 && "Code should not get here\n" );
     }
+
+    cpu->memory[(cpu->sp-1) & 0xffff] = (ret >> 8) & 0xff;
+    cpu->memory[(cpu->sp-2) & 0xffff] = (ret & 0xff);
+    cpu->sp                           = cpu->sp - 2;
 
     cpu->cycles += 11;
 }

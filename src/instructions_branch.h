@@ -12,6 +12,7 @@ void emulate_JZ   ( _cpu_info *cpu );
 void emulate_JNZ  ( _cpu_info *cpu );
 void emulate_JPO  ( _cpu_info *cpu );
 void emulate_JPE  ( _cpu_info *cpu );
+void emulate_RETI ( _cpu_info *cpu );
 void emulate_RET  ( _cpu_info *cpu );
 void emulate_RZ   ( _cpu_info *cpu );
 void emulate_RNZ  ( _cpu_info *cpu );
