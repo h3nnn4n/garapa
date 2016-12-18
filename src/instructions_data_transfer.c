@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "types.h"
+#include "memory.h"
 
 #include "instructions_data_transfer.h"
 
@@ -20,6 +21,8 @@ uint8_t *get_reg_ref ( _cpu_info *cpu, uint8_t opcode ) {
             return &(cpu->h);
         case 0x05: // L
             return &(cpu->l);
+        case 0x06: // (HL)
+            return &cpu->memory[( cpu->h << 8 ) | cpu->l];
         case 0x07: // A
             return &(cpu->a);
         default:

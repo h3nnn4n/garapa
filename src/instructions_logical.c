@@ -4,6 +4,7 @@
 #include "types.h"
 #include "utils.h"
 #include "halfcary.h"
+#include "memory.h"
 
 #include "instructions_logical.h"
 
@@ -274,62 +275,6 @@ void emulate_CPI ( _cpu_info *cpu ) {
     cpu->pc     += 2 ;
 }
 
-void emulate_RLC ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc+1];
-    uint8_t answer = 0;
-    uint8_t      t = 0;
-    uint16_t  addr = 0;
-
-    switch ( *opcode ) {
-        case 0x06: // RLC
-            addr = ( cpu->h << 8 ) | cpu->l;
-            t = read_byte( cpu, addr );
-            cpu->flags.c  = 0x80 == (t & 0x80);
-            answer = ( t << 1 ) | cpu->flags.c;
-            write_byte(cpu, addr, answer) ;
-            break;
-        /*case 0x07: // RLC*/
-            /*t = cpu->a;*/
-            /*cpu->flags.c  = 0x80 == (t & 0x80);*/
-            /*cpu->a = ( t << 1 ) | cpu->flags.c ;*/
-            /*break;*/
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
-
-    cpu->flags.z = answer == 0;
-    cpu->flags.n = 0;
-    cpu->flags.h = 0;
-
-    cpu->cycles += 4 ;
-    cpu->pc     += 2 ;
-}
-
-void emulate_RRC ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc+1];
-    uint8_t answer = 0;
-    uint8_t      t = 0;
-    uint16_t  addr = 0;
-
-    switch ( *opcode ) {
-        case 0x0e: // RRC
-            addr = ( cpu->h << 8 ) | cpu->l;
-            t = read_byte( cpu, addr );
-            answer = ( t >> 1 ) | (( t & 0x1 ) << 7 );
-            write_byte(cpu, addr, answer);
-            cpu->flags.c  = t & 0x1;
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
-
-    cpu->flags.z = answer == 0;
-    cpu->flags.n = 0;
-    cpu->flags.h = 0;
-
-    cpu->cycles += 4 ;
-    cpu->pc     += 2 ;
-}
 
 void emulate_RAL ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc+1];

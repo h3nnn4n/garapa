@@ -11,8 +11,6 @@ void emulate_ORA ( _cpu_info *cpu );
 void emulate_ORI ( _cpu_info *cpu );
 void emulate_CMP ( _cpu_info *cpu );
 void emulate_CPI ( _cpu_info *cpu );
-void emulate_RLC ( _cpu_info *cpu );
-void emulate_RRC ( _cpu_info *cpu );
 void emulate_RAL ( _cpu_info *cpu );
 void emulate_RAR ( _cpu_info *cpu );
 void emulate_CMA ( _cpu_info *cpu );

@@ -10,92 +10,11 @@
 #include "disassembler.h"
 #include "halfcary.h"
 
+#include "instructions_0xcb.h"
 #include "instructions_branch.h"
 #include "instructions_logical.h"
 #include "instructions_arithmetic.h"
 #include "instructions_data_transfer.h"
-
-void emulate_RR ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc+1];
-
-    switch ( *opcode ) {
-        case 0x18:
-        {
-            uint8_t t    = cpu->flags.c;
-            cpu->flags.c = cpu->b & 0x01;
-            cpu->b       = (cpu->b >> 1) | ( t << 7 );
-            cpu->flags.z = cpu->b == 0;
-        }
-            break;
-        case 0x19:
-        {
-            uint8_t t    = cpu->flags.c;
-            cpu->flags.c = cpu->c & 0x01;
-            cpu->c       = (cpu->c >> 1) | ( t << 7 );
-            cpu->flags.z = cpu->c == 0;
-        }
-            break;
-        case 0x1a:
-        {
-            uint8_t t    = cpu->flags.c;
-            cpu->flags.c = cpu->d & 0x01;
-            cpu->d       = (cpu->d >> 1) | ( t << 7 );
-            cpu->flags.z = cpu->d == 0;
-        }
-            break;
-        case 0x1b:
-        {
-            uint8_t t    = cpu->flags.c;
-            cpu->flags.c = cpu->e & 0x01;
-            cpu->e       = (cpu->e >> 1) | ( t << 7 );
-            cpu->flags.z = cpu->e == 0;
-        }
-            break;
-        case 0x1c:
-        {
-            uint8_t t    = cpu->flags.c;
-            cpu->flags.c = cpu->h & 0x01;
-            cpu->h       = (cpu->h >> 1) | ( t << 7 );
-            cpu->flags.z = cpu->h == 0;
-        }
-            break;
-        case 0x1d:
-        {
-            uint8_t t    = cpu->flags.c;
-            cpu->flags.c = cpu->l & 0x01;
-            cpu->l       = (cpu->l >> 1) | ( t << 7 );
-            cpu->flags.z = cpu->l == 0;
-        }
-            break;
-        case 0x1e:
-        {
-            uint8_t     t = cpu->flags.c != 0;
-            uint16_t addr = (cpu->h << 8) | cpu->l;
-            uint8_t  answ = ((read_byte ( cpu, addr ) >> 1) | ( t << 7 ));
-            cpu->flags.c  = read_byte ( cpu, addr ) & 0x01;
-            write_byte( cpu, addr + 0, answ >> 0);
-            write_byte( cpu, addr + 1, answ >> 8);
-            cpu->flags.z = answ == 0;
-        }
-            break;
-        case 0x1f:
-        {
-            uint8_t t    = cpu->flags.c;
-            cpu->flags.c = cpu->a & 0x01;
-            cpu->a       = (cpu->a >> 1) | ( t << 7 );
-            cpu->flags.z = cpu->a == 0;
-        }
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
-
-    cpu->flags.h = 0;
-    cpu->flags.n = 0;
-
-    cpu->pc     += 2;
-    cpu->cycles += 8;
-}
 
 void emulate_POP ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
@@ -683,49 +602,7 @@ void emulator( _cpu_info *cpu ) {
             emulate_XRI( cpu );
             break;
         case 0xcb:
-            switch ( opcode[1] ) {
-                case 0x11:
-                {
-                    uint8_t t;
-                    t = cpu->c;
-                    cpu->flags.c  = 0x80 == (t & 0x80);
-                    cpu->c = ( t << 1 ) | cpu->flags.c ;
-                    cpu->cycles += 8;
-                    cpu->pc     += 2;
-                }
-                    break;
-                case 0x18:
-                case 0x19:
-                case 0x1a:
-                case 0x1b:
-                case 0x1c:
-                case 0x1d:
-                case 0x1e:
-                case 0x1f:
-                    emulate_RR ( cpu );
-                    break;
-                case 0x06:
-                    emulate_RLC ( cpu );
-                    break;
-                case 0x16:
-                    emulate_RAL ( cpu );
-                    break;
-                case 0x0e:
-                    emulate_RRC ( cpu );
-                    break;
-                case 0x38:
-                    cpu->flags.c = ( cpu->b & 0x01 );
-                    cpu->b       = cpu->b >> 1;
-                    cpu->flags.z = cpu->b == 0;
-                    cpu->flags.h = 0;
-                    cpu->flags.n = 0;
-                    cpu->pc     += 2;
-                    cpu->cycles += 8;
-                    break;
-                default:
-                    printf(" %2x %2x is not implemented\n", opcode[0], opcode[1]);
-                    exit(-1);
-            }
+            decode_0xcb ( cpu );
             break;
         default:
             disassembler( cpu->memory, cpu->pc );
