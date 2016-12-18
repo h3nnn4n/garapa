@@ -623,6 +623,11 @@ void emulator( _cpu_info *cpu ) {
             cpu->cycles += 5;
             cpu->pc     += 1 ;
             break;
+        case 0x3b:
+            cpu->sp--;
+            cpu->cycles += 5;
+            cpu->pc     += 1;
+            break;
         case 0xfe:
             emulate_CPI ( cpu );
             break;
@@ -670,6 +675,8 @@ void emulator( _cpu_info *cpu ) {
         case 0xd6:
             emulate_SUI ( cpu );
             break;
+        case 0xe8:
+        case 0xf8:
         case 0xc6:
             emulate_ADI ( cpu );
             break;

@@ -65,16 +65,29 @@ void emulate_ADI ( _cpu_info *cpu ) {
     uint16_t t;
 
     switch ( *opcode ) {
-            case 0xc6: // ADI
+        case 0xc6: // ADI
             cpu->flags.h  = halfcary( cpu->a, opcode[1], cpu->a + opcode[1] );
             t             = cpu->a + (uint8_t) opcode[1];
             cpu->a        = (uint8_t) t;
+            cpu->flags.c  = (t > 0xff);
+            break;
+        case 0xe8:
+            cpu->flags.h  = halfcary( cpu->sp, opcode[1], cpu->sp + (int8_t) opcode[1] );
+            t             = cpu->sp + (int8_t) opcode[1];
+            cpu->flags.c  = (t & 0xff) < (cpu->sp & 0xff);
+            cpu->sp       = t;
+            break;
+        case 0xf8:
+            cpu->flags.h  = halfcary( cpu->sp, opcode[1], cpu->sp + (int8_t) opcode[1] );
+            t             = cpu->sp + (int8_t) opcode[1];
+            cpu->flags.c  = (t & 0xff) < (cpu->sp & 0xff);
+            cpu->h        = (t & 0xff00) >> 8;
+            cpu->l        = (t & 0x00ff) >> 0;
             break;
         default:
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->flags.c  = (t > 0xff);
     cpu->flags.z  = (cpu->a == 0);
     cpu->flags.n  = 0;
 
