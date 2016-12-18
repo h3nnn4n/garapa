@@ -568,7 +568,7 @@ void emulate_DAA ( _cpu_info *cpu ) {
 
                 cpu->a       = ans;
                 cpu->flags.h = 0;
-                cpu->flags.z = ans == 0;
+                cpu->flags.z = cpu->a == 0;
 
                 if(ans >= 0x100) {
                     cpu->flags.c = 1;
