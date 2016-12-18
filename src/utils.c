@@ -40,13 +40,46 @@ void init_cpu( _cpu_info *cpu ) {
 
     cpu->interrupt_addr = 0x10;
     cpu->interrupt_addr = 0x08;
-    cpu->shift_offset   = 0;
-    cpu->shift0         = 0;
-    cpu->shift1         = 0;
 
     cpu->portin0 = 0x0e;
     cpu->portin1 = 0x08;
     cpu->portin2 = 0x00;
+
+    cpu->pc = 0x100;
+    cpu->sp = 0xfffe;
+
+    cpu->a  = 0x01;
+    cpu->b  = 0x00;
+    cpu->c  = 0x13;
+    cpu->d  = 0x00;
+    cpu->e  = 0xd8;
+    cpu->h  = 0x01;
+    cpu->l  = 0x4d;
+
+    cpu->flags.z = 1;
+    cpu->flags.n = 0;
+    cpu->flags.h = 1;
+    cpu->flags.c = 1;
+
+    cpu->memory[0xff10] = 0x80;
+    cpu->memory[0xff11] = 0xbf;
+    cpu->memory[0xff12] = 0xf3;
+    cpu->memory[0xff14] = 0xbf;
+    cpu->memory[0xff16] = 0x3f;
+    cpu->memory[0xff19] = 0xbf;
+    cpu->memory[0xff1a] = 0x7f;
+    cpu->memory[0xff1b] = 0xff;
+    cpu->memory[0xff1c] = 0x9f;
+    cpu->memory[0xff1e] = 0xbf;
+    cpu->memory[0xff20] = 0xff;
+    cpu->memory[0xff23] = 0xbf;
+    cpu->memory[0xff24] = 0x77;
+    cpu->memory[0xff25] = 0xf3;
+    cpu->memory[0xff26] = 0xf1;
+    cpu->memory[0xff40] = 0x91;
+    cpu->memory[0xff47] = 0xfc;
+    cpu->memory[0xff48] = 0xff;
+    cpu->memory[0xff49] = 0xff;
 }
 
 void unimplemented_opcode( _cpu_info *cpu ) {
