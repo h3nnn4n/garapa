@@ -546,8 +546,6 @@ void emulate_DAA ( _cpu_info *cpu ) {
     switch ( *opcode ) {
         case 0x27: // DAA
             {
-                uint8_t  carry = cpu->flags.c != 0 ;
-                uint8_t  add   = 0;
                 uint16_t ans   = 0;
 
                 ans = cpu->a;
