@@ -162,7 +162,7 @@ void emulate_ACI ( _cpu_info *cpu ) {
 
     switch ( *opcode ) {
         case 0xce: // ACI
-            t             = cpu->a + (uint8_t) opcode[1] + cpu->flags.c;
+            t             = cpu->a + (uint8_t) opcode[1] + (cpu->flags.c != 0);
             cpu->flags.h  = halfcary( cpu->a, opcode[1], t);
             cpu->a        = t & 0xff;
             break;
@@ -313,17 +313,16 @@ void emulate_SBI ( _cpu_info *cpu ) {
 
     switch ( *opcode ) {
         case 0xde: // SBI D8
-            answer = cpu->a - opcode[1] - cpu->flags.c ;
+            answer = cpu->a - opcode[1] - (cpu->flags.c != 0) ;
+            cpu->flags.h  = ((opcode[1] & 0x0f) + (cpu->flags.c != 0)) > (cpu->a & 0x0f);
             break;
         default:
             assert( 0 && "Code should not get here\n" );
     }
 
     cpu->flags.z    = ( answer & 0xff ) == 0;
-    cpu->flags.n    = ( answer & 0x80 ) != 0;
+    cpu->flags.n    = 1;
     cpu->flags.c    = ( answer > 0xff );
-    cpu->flags.h    = !halfcary_sub( cpu->a, opcode[1], answer );
-
     cpu->a          = answer & 0xff;
 
     cpu->cycles += 7 ;

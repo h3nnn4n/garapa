@@ -11,6 +11,7 @@
 #include "halfcary.h"
 
 #include "instructions_branch.h"
+#include "instructions_logical.h"
 #include "instructions_arithmetic.h"
 #include "instructions_data_transfer.h"
 
@@ -91,47 +92,6 @@ void emulate_RR ( _cpu_info *cpu ) {
 
     cpu->pc     += 2;
     cpu->cycles += 8;
-}
-
-void emulate_ANI ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
-
-    switch ( *opcode ) {
-        case 0xe6: // ANI
-            cpu->flags.h = !((cpu->a | opcode[1]) & 0x08) != 0;
-            cpu->a       &= opcode[1];
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
-
-    cpu->flags.c = 0;
-    cpu->flags.z  = (cpu->a == 0);
-    cpu->flags.n  = (0x80 == (cpu->a & 0x80));
-
-    cpu->cycles += 7 ;
-    cpu->pc     += 2 ;
-}
-
-void emulate_CPI ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
-    uint8_t        answer = 0;
-
-    switch ( *opcode ) {
-        case 0xfe: // CPI A
-            answer        = cpu->a - opcode[1];
-            cpu->flags.h  = ((cpu->a - opcode[1]) & 0x0f) > (cpu->a & 0x0f);
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
-
-    cpu->flags.z    = ( answer & 0xff ) == 0;
-    cpu->flags.n    = 1;
-    cpu->flags.c    = ( cpu->a < opcode[1] );
-
-    cpu->cycles += 7 ;
-    cpu->pc     += 2 ;
 }
 
 void emulate_POP ( _cpu_info *cpu ) {
@@ -323,68 +283,6 @@ void emulate_INC ( _cpu_info *cpu ) {
     cpu->pc     += 1 ;
 }
 
-void emulate_XRI ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
-
-    switch ( *opcode ) {
-        case 0xee: // XRI D8
-            cpu->a ^= opcode[1];
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
-
-    cpu->flags.c = 0;
-    cpu->flags.h = 0;
-    cpu->flags.z = (cpu->a == 0);
-    cpu->flags.n = 0;
-
-    cpu->cycles += 7 ;
-    cpu->pc     += 2 ;
-}
-
-void emulate_ORA ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
-
-    switch ( *opcode ) {
-        case 0xb0: // ORA B
-            cpu->a |= cpu->b;
-            break;
-        case 0xb1: // ORA C
-            cpu->a |= cpu->c;
-            break;
-        case 0xb2: // ORA D
-            cpu->a |= cpu->d;
-            break;
-        case 0xb3: // ORA E
-            cpu->a |= cpu->e;
-            break;
-        case 0xb4: // ORA H
-            cpu->a |= cpu->h;
-            break;
-        case 0xb5: // ORA L
-            cpu->a |= cpu->l;
-            break;
-        case 0xb6: // ORA M
-            cpu->a |= cpu->memory[cpu->h << 8 | cpu->l];
-            cpu->cycles += 3;
-            break;
-        case 0xb7: // ORA A
-            cpu->a |= cpu->a;
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
-
-    cpu->flags.c = 0;
-    cpu->flags.h = 0;
-    cpu->flags.z = (cpu->a == 0);
-    cpu->flags.n = 0;
-
-    cpu->cycles += 4 ;
-    cpu->pc     += 1 ;
-}
-
 void emulator( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
@@ -414,6 +312,9 @@ void emulator( _cpu_info *cpu ) {
             cpu->c = opcode[1];
             cpu->cycles += 12;
             cpu->pc     += 3;
+            break;
+        case 0xde:
+            emulate_SBI( cpu );
             break;
         case 0x02:
         case 0x12:
@@ -661,6 +562,9 @@ void emulator( _cpu_info *cpu ) {
         case 0xb6:
         case 0xb7:
             emulate_ORA ( cpu );
+            break;
+        case 0xf6:
+            emulate_ORI ( cpu );
             break;
         case 0x0e:
         case 0x1e:
