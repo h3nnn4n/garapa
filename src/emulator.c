@@ -628,11 +628,6 @@ void emulator( _cpu_info *cpu ) {
             cpu->cycles += 5;
             cpu->pc     += 1 ;
             break;
-        case 0x3b:
-            cpu->sp--;
-            cpu->cycles += 5;
-            cpu->pc     += 1;
-            break;
         case 0xfe:
             emulate_CPI ( cpu );
             break;
@@ -644,6 +639,12 @@ void emulator( _cpu_info *cpu ) {
                 cpu->pc     += 3;
                 cpu->cycles += 20;
             }
+            break;
+        case 0x0b:
+        case 0x1b:
+        case 0x2b:
+        case 0x3b:
+            emulate_DCX ( cpu );
             break;
         case 0x09:
         case 0x19:
