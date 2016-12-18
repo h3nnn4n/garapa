@@ -356,6 +356,9 @@ void emulator( _cpu_info *cpu ) {
         case 0xc4:
             emulate_CNZ  ( cpu );
             break;
+        case 0x27:
+            emulate_DAA  ( cpu );
+            break;
         case 0x03:
         case 0x13:
         case 0x23:

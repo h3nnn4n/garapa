@@ -546,26 +546,35 @@ void emulate_DAA ( _cpu_info *cpu ) {
     switch ( *opcode ) {
         case 0x27: // DAA
             {
-                uint8_t carry = (uint8_t)cpu->flags.c ;
-                uint8_t add = 0;
-                uint16_t ans = 0;
+                uint8_t  carry = cpu->flags.c != 0 ;
+                uint8_t  add   = 0;
+                uint16_t ans   = 0;
 
-                if (cpu->flags.h  || (cpu->a & 0x0f) > 9) {
-                    add = 0x06;
+                ans = cpu->a;
+
+                if(cpu->flags.n) {
+                    if(cpu->flags.h) {
+                        ans = (ans - 0x06) & 0xff;
+                    }
+                    if(cpu->flags.c) {
+                        ans -= 0x60;
+                    }
+                } else {
+                    if(cpu->flags.h || (ans & 0xf) > 9) {
+                        ans += 0x06;
+                    }
+                    if(cpu->flags.c || ans > 0x9f) {
+                        ans += 0x60;
+                    }
                 }
 
-                if (cpu->flags.c  || (cpu->a >> 4) > 9 || ((cpu->a >> 4) >= 9 && (cpu->a & 0x0f) > 9)) {
-                    add |= 0x60;
-                    carry = 1;
+                cpu->a       = ans;
+                cpu->flags.h = 0;
+                cpu->flags.z = ans == 0;
+
+                if(ans >= 0x100) {
+                    cpu->flags.c = 1;
                 }
-
-                ans = add + cpu->a;
-
-                cpu->flags.h  = halfcary( cpu->a, add, ans );
-                cpu->a        = ans & 0xff;
-                cpu->flags.c  = carry;
-                cpu->flags.z  = ( ans & 0xff ) == 0;
-                cpu->flags.n  = ( ans & 0x80 ) != 0;
             }
             break;
         default:
