@@ -49,8 +49,9 @@ void emulate_ANA ( _cpu_info *cpu ) {
     }
 
     cpu->flags.c  = 0;
+    cpu->flags.h  = 1;
     cpu->flags.z  = (cpu->a == 0);
-    cpu->flags.n  = (0x80 == (cpu->a & 0x80));
+    cpu->flags.n  = 0;
 
     cpu->cycles += 4 ;
     cpu->pc     += 1 ;
@@ -203,54 +204,50 @@ void emulate_ORI ( _cpu_info *cpu ) {
 void emulate_CMP ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
     uint8_t        answer = 0;
+    uint8_t        old    = 0;
 
     switch ( *opcode ) {
         case 0xb8: // CMP B
             answer        = cpu->a - cpu->b;
-            cpu->flags.h  = !halfcary_sub( cpu->a, cpu->b, answer );
-            cpu->flags.c  = cpu->a < cpu->b;
+            old           = cpu->b;
             break;
         case 0xb9: // CMP C
             answer        = cpu->a - cpu->c;
-            cpu->flags.h  = !halfcary_sub( cpu->a, cpu->c, answer );
-            cpu->flags.c  = cpu->a < cpu->c; break;
+            old           = cpu->c;
+            break;
         case 0xba: // CMP D
             answer        = cpu->a - cpu->d;
-            cpu->flags.h  = !halfcary_sub( cpu->a, cpu->d, answer );
-            cpu->flags.c  = cpu->a < cpu->d;
+            old           = cpu->c;
             break;
         case 0xbb: // CMP E
             answer        = cpu->a - cpu->e;
-            cpu->flags.h  = !halfcary_sub( cpu->a, cpu->e, answer );
-            cpu->flags.c  = cpu->a < cpu->e;
+            old           = cpu->d;
             break;
         case 0xbc: // CMP H
             answer        = cpu->a - cpu->h;
-            cpu->flags.h  = !halfcary_sub( cpu->a, cpu->h, answer );
-            cpu->flags.c  = cpu->a < cpu->h;
+            old           = cpu->e;
             break;
         case 0xbd: // CMP L
             answer        = cpu->a - cpu->l;
-            cpu->flags.h  = !halfcary_sub( cpu->a, cpu->l, answer );
-            cpu->flags.c  = cpu->a < cpu->l;
+            old           = cpu->l;
             break;
         case 0xbe: // CMP M
-            answer        = cpu->a - cpu->memory[cpu->h << 8 | cpu->l];
-            cpu->flags.h  = !halfcary_sub( cpu->a, cpu->memory[cpu->h << 8 | cpu->l], answer );
-            cpu->flags.c  = cpu->a < cpu->memory[cpu->h << 8 | cpu->l];
+            answer        = cpu->a - cpu->memory[(cpu->h << 8) | cpu->l];
+            old           = cpu->memory[(cpu->h << 8) | cpu->l];
             cpu->cycles  += 3;
             break;
         case 0xbf: // CMP A
             answer        = cpu->a - cpu->a;
-            cpu->flags.h  = !halfcary_sub( cpu->a, cpu->a, answer );
-            cpu->flags.c  = cpu->a < cpu->a;
+            old           = cpu->a;
             break;
         default:
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->flags.z    = ( answer & 0xff ) == 0                  ; // Only the last 8 bits matters, hence the mask
-    cpu->flags.n    = ( answer & 0x80 ) != 0       ; // Checks if the MSB is 1
+    cpu->flags.z    = ( answer & 0xff ) == 0;
+    cpu->flags.n    = 1;
+    cpu->flags.h    = ( answer & 0x0f ) > (cpu->a & 0x0f);
+    cpu->flags.c    = ( cpu->a < old  );
 
     cpu->cycles += 4 ;
     cpu->pc     += 1 ;
@@ -278,75 +275,112 @@ void emulate_CPI ( _cpu_info *cpu ) {
 }
 
 void emulate_RLC ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
-    uint8_t t = 0;
+    unsigned char *opcode = &cpu->memory[cpu->pc+1];
+    uint8_t answer = 0;
+    uint8_t      t = 0;
+    uint16_t  addr = 0;
 
     switch ( *opcode ) {
-        case 0x07: // RLC
-            t = cpu->a;
+        case 0x06: // RLC
+            addr = ( cpu->h << 8 ) | cpu->l;
+            t = read_byte( cpu, addr );
             cpu->flags.c  = 0x80 == (t & 0x80);
-            cpu->a = ( t << 1 ) | cpu->flags.c ;
+            answer = ( t << 1 ) | cpu->flags.c;
+            write_byte(cpu, addr, answer) ;
             break;
+        /*case 0x07: // RLC*/
+            /*t = cpu->a;*/
+            /*cpu->flags.c  = 0x80 == (t & 0x80);*/
+            /*cpu->a = ( t << 1 ) | cpu->flags.c ;*/
+            /*break;*/
         default:
             assert( 0 && "Code should not get here\n" );
     }
 
+    cpu->flags.z = answer == 0;
+    cpu->flags.n = 0;
+    cpu->flags.h = 0;
+
     cpu->cycles += 4 ;
-    cpu->pc     += 1 ;
+    cpu->pc     += 2 ;
 }
 
 void emulate_RRC ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
-    uint8_t t = 0;
+    unsigned char *opcode = &cpu->memory[cpu->pc+1];
+    uint8_t answer = 0;
+    uint8_t      t = 0;
+    uint16_t  addr = 0;
 
     switch ( *opcode ) {
-        case 0x0f: // RRC
-            t = cpu->a;
-            cpu->a = ( t >> 1 ) | (( t & 0x1 ) << 7 );
+        case 0x0e: // RRC
+            addr = ( cpu->h << 8 ) | cpu->l;
+            t = read_byte( cpu, addr );
+            answer = ( t >> 1 ) | (( t & 0x1 ) << 7 );
+            write_byte(cpu, addr, answer);
             cpu->flags.c  = t & 0x1;
             break;
         default:
             assert( 0 && "Code should not get here\n" );
     }
 
+    cpu->flags.z = answer == 0;
+    cpu->flags.n = 0;
+    cpu->flags.h = 0;
+
     cpu->cycles += 4 ;
-    cpu->pc     += 1 ;
+    cpu->pc     += 2 ;
 }
 
 void emulate_RAL ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
-    uint8_t t = 0;
+    unsigned char *opcode = &cpu->memory[cpu->pc+1];
+    uint8_t answer = 0;
+    uint8_t      t = 0;
+    uint16_t  addr = 0;
 
     switch ( *opcode ) {
-        case 0x17: // RAL
-            t = cpu->a;
-            cpu->a = ( t << 1 ) | ( cpu->flags.c  ? 0x1 : 0x0 );
-            cpu->flags.c  = 0 < ( t & 0x80 );
+        case 0x16: // RAL
+            addr = ( cpu->h << 8 ) | cpu->l;
+            t = read_byte( cpu, addr );
+            answer = ( t << 1 ) | ( cpu->flags.c  ? 0x1 : 0x0 );
+            write_byte(cpu, addr, answer);
+            cpu->flags.c  = (t & 0x80) != 0;
             break;
         default:
             assert( 0 && "Code should not get here\n" );
     }
 
+    cpu->flags.z = answer == 0;
+    cpu->flags.n = 0;
+    cpu->flags.h = 0;
+
     cpu->cycles += 4 ;
-    cpu->pc     += 1 ;
+    cpu->pc     += 2 ;
 }
 
 void emulate_RAR ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
-    uint8_t t = 0;
+    unsigned char *opcode = &cpu->memory[cpu->pc+1];
+    uint8_t answer = 0;
+    uint8_t      t = 0;
+    uint16_t  addr = 0;
 
     switch ( *opcode ) {
         case 0x1f: // RAR
-            t = cpu->a;
-            cpu->a = ( t >> 1 ) | (( cpu->flags.c  & 0x1 ) << 7 );
+            addr = ( cpu->h << 8 ) | cpu->l;
+            t = read_byte( cpu, addr );
+            answer = ( t >> 1 ) | (( cpu->flags.c  & 0x1 ) << 7 );
+            write_byte(cpu, addr, answer);
             cpu->flags.c  = t & 0x1;
             break;
         default:
             assert( 0 && "Code should not get here\n" );
     }
 
+    cpu->flags.z = answer == 0;
+    cpu->flags.n = 0;
+    cpu->flags.h = 0;
+
     cpu->cycles += 4 ;
-    cpu->pc     += 1 ;
+    cpu->pc     += 2 ;
 }
 
 void emulate_CMA ( _cpu_info *cpu ) {

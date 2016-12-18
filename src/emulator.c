@@ -69,10 +69,13 @@ void emulate_RR ( _cpu_info *cpu ) {
             break;
         case 0x1e:
         {
-            uint8_t t    = read_byte ( cpu, (cpu->h >> 8) | cpu->l );
-            cpu->flags.c = cpu->d & 0x01;
-            write_byte( cpu, (cpu->h >> 8) | cpu->l, (cpu->d >> 1) | ( t << 7 ));
-            cpu->flags.z = read_byte ( cpu, (cpu->h >> 8) | cpu->l ) == 0;
+            uint8_t     t = cpu->flags.c != 0;
+            uint16_t addr = (cpu->h << 8) | cpu->l;
+            uint8_t  answ = ((read_byte ( cpu, addr ) >> 1) | ( t << 7 ));
+            cpu->flags.c  = read_byte ( cpu, addr ) & 0x01;
+            write_byte( cpu, addr + 0, answ >> 0);
+            write_byte( cpu, addr + 1, answ >> 8);
+            cpu->flags.z = answ == 0;
         }
             break;
         case 0x1f:
@@ -296,15 +299,6 @@ void emulator( _cpu_info *cpu ) {
                 emulate_MOV ( cpu );
     } else
     switch ( *opcode ) {
-        case 0x2a:
-            addr = cpu->h << 8 | cpu->l;
-            cpu->a = read_byte(cpu, addr);
-            addr += 1;
-            cpu->l = (addr & 0x00ff) >> 0;
-            cpu->h = (addr & 0xff00) >> 8;
-            cpu->cycles += 8;
-            cpu->pc     += 1 ;
-            break;
         case 0x00: emulate_NOP  ( cpu );
             break;
         case 0x01:
@@ -315,6 +309,10 @@ void emulator( _cpu_info *cpu ) {
             break;
         case 0xde:
             emulate_SBI( cpu );
+            break;
+        case 0x2a:
+        case 0x3a:
+            emulate_LDA( cpu );
             break;
         case 0x02:
         case 0x12:
@@ -553,6 +551,66 @@ void emulator( _cpu_info *cpu ) {
         case 0x39:
             emulate_DAD ( cpu );
             break;
+        case 0xa0:
+        case 0xa1:
+        case 0xa2:
+        case 0xa3:
+        case 0xa4:
+        case 0xa5:
+        case 0xa6:
+        case 0xa7:
+            emulate_ANA ( cpu );
+            break;
+        case 0xb8:
+        case 0xb9:
+        case 0xba:
+        case 0xbb:
+        case 0xbc:
+        case 0xbd:
+        case 0xbe:
+        case 0xbf:
+            emulate_CMP ( cpu );
+            break;
+        case 0x90:
+        case 0x91:
+        case 0x92:
+        case 0x93:
+        case 0x94:
+        case 0x95:
+        case 0x96:
+        case 0x97:
+            emulate_SUB ( cpu );
+            break;
+        case 0x98:
+        case 0x99:
+        case 0x9a:
+        case 0x9b:
+        case 0x9c:
+        case 0x9d:
+        case 0x9e:
+        case 0x9f:
+            emulate_SBB ( cpu );
+            break;
+        case 0x80:
+        case 0x81:
+        case 0x82:
+        case 0x83:
+        case 0x84:
+        case 0x85:
+        case 0x86:
+        case 0x87:
+            emulate_ADD ( cpu );
+            break;
+        case 0x88:
+        case 0x89:
+        case 0x8a:
+        case 0x8b:
+        case 0x8c:
+        case 0x8d:
+        case 0x8e:
+        case 0x8f:
+            emulate_ADC ( cpu );
+            break;
         case 0xb0:
         case 0xb1:
         case 0xb2:
@@ -645,6 +703,15 @@ void emulator( _cpu_info *cpu ) {
                 case 0x1e:
                 case 0x1f:
                     emulate_RR ( cpu );
+                    break;
+                case 0x06:
+                    emulate_RLC ( cpu );
+                    break;
+                case 0x16:
+                    emulate_RAL ( cpu );
+                    break;
+                case 0x0e:
+                    emulate_RRC ( cpu );
                     break;
                 case 0x38:
                     cpu->flags.c = ( cpu->b & 0x01 );

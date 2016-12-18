@@ -103,43 +103,43 @@ void emulate_ADC ( _cpu_info *cpu ) {
 
     switch ( *opcode ) {
         case 0x88: // ADC B
-            answer = cpu->a + cpu->b + cpu->flags.c ;
+            answer = cpu->a + cpu->b + (cpu->flags.c != 0) ;
             cpu->a = answer & 0xff;
             b = cpu->b;
             break;
         case 0x89: // ADC C
-            answer = cpu->a + cpu->c + cpu->flags.c ;
+            answer = cpu->a + cpu->c + (cpu->flags.c != 0) ;
             cpu->a = answer & 0xff;
             b = cpu->c;
             break;
         case 0x8a: // ADC D
-            answer = cpu->a + cpu->d + cpu->flags.c ;
+            answer = cpu->a + cpu->d + (cpu->flags.c != 0) ;
             cpu->a = answer & 0xff;
             b = cpu->d;
             break;
         case 0x8b: // ADC E
-            answer = cpu->a + cpu->e + cpu->flags.c ;
+            answer = cpu->a + cpu->e + (cpu->flags.c != 0) ;
             cpu->a = answer & 0xff;
             b = cpu->e;
             break;
         case 0x8c: // ADC H
-            answer = cpu->a + cpu->h + cpu->flags.c ;
+            answer = cpu->a + cpu->h + (cpu->flags.c != 0) ;
             cpu->a = answer & 0xff;
             b = cpu->h;
             break;
         case 0x8d: // ADC L
-            answer = cpu->a + cpu->l + cpu->flags.c ;
+            answer = cpu->a + cpu->l + (cpu->flags.c != 0) ;
             cpu->a = answer & 0xff;
             b = cpu->l;
             break;
         case 0x8e: // ADC M
-            answer = cpu->a + cpu->memory[cpu->h << 8 | cpu->l] + cpu->flags.c ;
+            answer = cpu->a + cpu->memory[cpu->h << 8 | cpu->l] + (cpu->flags.c != 0) ;
             cpu->a = answer & 0xff;
             b = cpu->memory[cpu->h << 8 | cpu->l];
             cpu->cycles += 3;
             break;
         case 0x8f: // ADC A
-            answer = cpu->a + cpu->a + cpu->flags.c ;
+            answer = cpu->a + cpu->a + (cpu->flags.c != 0) ;
             cpu->a = answer & 0xff;
             b = cpu->a;
             break;
@@ -148,7 +148,7 @@ void emulate_ADC ( _cpu_info *cpu ) {
     }
 
     cpu->flags.z    = ( answer & 0xff ) == 0;
-    cpu->flags.n    = ( answer & 0x80 ) != 0;
+    cpu->flags.n    = 0;
     cpu->flags.c    = ( answer > 0xff );
     cpu->flags.h    = halfcary( a, b, answer );
 
@@ -185,44 +185,37 @@ void emulate_SUB ( _cpu_info *cpu ) {
     switch ( *opcode ) {
         case 0x90:
             answer -= (uint16_t) cpu->b;
-            cpu->flags.h    = !halfcary_sub( cpu->a, cpu->b, answer );
             break;
         case 0x91:
             answer -= (uint16_t) cpu->c;
-            cpu->flags.h    = !halfcary_sub( cpu->a, cpu->c, answer );
             break;
         case 0x92:
             answer -= (uint16_t) cpu->d;
-            cpu->flags.h    = !halfcary_sub( cpu->a, cpu->d, answer );
             break;
         case 0x93:
             answer -= (uint16_t) cpu->e;
-            cpu->flags.h    = !halfcary_sub( cpu->a, cpu->e, answer );
             break;
         case 0x94:
             answer -= (uint16_t) cpu->h;
-            cpu->flags.h    = !halfcary_sub( cpu->a, cpu->h, answer );
             break;
         case 0x95:
             answer -= (uint16_t) cpu->l;
-            cpu->flags.h    = !halfcary_sub( cpu->a, cpu->l, answer );
             break;
         case 0x96:
             answer -= (uint16_t) cpu->memory[(cpu->h<<8) | (cpu->l)];
-            cpu->flags.h    = !halfcary_sub( cpu->a, cpu->memory[(cpu->h<<8) | (cpu->l)], answer );
             cpu->cycles += 3;
             break;
         case 0x97:
             answer -= (uint16_t) cpu->a;
-            cpu->flags.h    = !halfcary_sub( cpu->a, cpu->a, answer );
             break;
         default:
             assert( 0 && "Code should not get here\n" );
     }
 
     cpu->flags.z    = ( answer & 0xff ) == 0;
-    cpu->flags.n    = ( answer & 0x80 ) != 0;
+    cpu->flags.n    = 1;
     cpu->flags.c    = ( answer > 0xff );
+    cpu->flags.h    = (answer & 0x0f) > (cpu->a & 0x0f);
 
     cpu->a          = answer & 0xff;
 
@@ -256,50 +249,52 @@ void emulate_SUI ( _cpu_info *cpu ) {
 void emulate_SBB ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
     uint16_t answer = 0;
+    uint16_t    old = 0;
 
     switch ( *opcode ) {
         case 0x98:
-            answer        = cpu->a - cpu->b - cpu->flags.c ;
-            cpu->flags.h  = !halfcary_sub(cpu->a, cpu->b , answer);
+            answer = cpu->a - cpu->b - (cpu->flags.c != 0) ;
+            old    = cpu->b;
             break;
         case 0x99:
-            answer        = cpu->a - cpu->c - cpu->flags.c ;
-            cpu->flags.h  = !halfcary_sub(cpu->a, cpu->c , answer);
+            answer = cpu->a - cpu->c - (cpu->flags.c != 0) ;
+            old    = cpu->c;
             break;
         case 0x9a:
-            answer        = cpu->a - cpu->d - cpu->flags.c ;
-            cpu->flags.h  = !halfcary_sub(cpu->a, cpu->d , answer);
+            answer = cpu->a - cpu->d - (cpu->flags.c != 0) ;
+            old    = cpu->d;
             break;
         case 0x9b:
-            answer        = cpu->a - cpu->e - cpu->flags.c ;
-            cpu->flags.h  = !halfcary_sub(cpu->a, cpu->e , answer);
+            answer = cpu->a - cpu->e - (cpu->flags.c != 0) ;
+            old    = cpu->e;
             break;
         case 0x9c:
-            answer        = cpu->a - cpu->h - cpu->flags.c ;
-            cpu->flags.h  = !halfcary_sub(cpu->a, cpu->h , answer);
+            answer = cpu->a - cpu->h - (cpu->flags.c != 0) ;
+            old    = cpu->h;
             break;
         case 0x9d:
-            answer        = cpu->a - cpu->l - cpu->flags.c ;
-            cpu->flags.h  = !halfcary_sub(cpu->a, cpu->l , answer);
+            answer = cpu->a - cpu->l - (cpu->flags.c != 0) ;
+            old    = cpu->l;
             break;
         case 0x9e:
             {
-            uint16_t addr = cpu->h << 8 | cpu->l;
-            answer        = cpu->a - cpu->memory[addr] - cpu->flags.c ;
-            cpu->flags.h  = !halfcary_sub(cpu->a, cpu->memory[addr], answer);
+            uint16_t addr = (cpu->h << 8) | cpu->l;
+            answer = cpu->a - cpu->memory[addr] - (cpu->flags.c != 0) ;
+            old    = cpu->memory[addr];
             cpu->cycles   += 3;
             }
             break;
         case 0x9f:
-            answer        = cpu->a - cpu->a - cpu->flags.c ;
-            cpu->flags.h  = !halfcary_sub(cpu->a, cpu->a , answer);
+            answer = cpu->a - cpu->a - (cpu->flags.c != 0) ;
+            old    = cpu->a;
             break;
         default:
             assert( 0 && "Code should not get here\n" );
     }
 
     cpu->flags.z    = ( answer & 0xff ) == 0;
-    cpu->flags.n    = ( answer & 0x80 ) != 0;
+    cpu->flags.n    = 1;
+    cpu->flags.h    = ((cpu->a & 0x0f) - (cpu->flags.c != 0) - (old & 0x0f)) < 0;
     cpu->flags.c    = ( answer > 0xff );
     cpu->a          = answer & 0xff;
 

@@ -108,30 +108,27 @@ void emulate_SHLD ( _cpu_info *cpu ) {
     cpu->pc     += 3 ;
 }
 
-void emulate_LHLD ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
-
-    switch ( *opcode ) {
-        case 0x2a: // LHLD B
-            cpu->l = cpu->memory[(opcode[2] << 8 | opcode[1]) + 0];
-            cpu->h = cpu->memory[(opcode[2] << 8 | opcode[1]) + 1];
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
-
-    cpu->cycles += 16;
-    cpu->pc     += 3 ;
-}
-
 void emulate_LDA ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
     uint16_t addr = 0;
 
     switch ( *opcode ) {
+        case 0x2a:
+            addr = (cpu->h << 8) | cpu->l;
+            cpu->a = read_byte(cpu, addr);
+            addr += 1;
+            cpu->l = (addr & 0x00ff) >> 0;
+            cpu->h = (addr & 0xff00) >> 8;
+            cpu->pc -= 2;
+            break;
         case 0x3a:
-            addr = opcode[2] << 8 | opcode[1];
-            cpu->a = cpu->memory[addr];
+            addr = (cpu->h << 8) | cpu->l;
+            /*addr = (opcode[2] << 8) | opcode[1];*/
+            cpu->a = read_byte(cpu, addr);
+            addr -= 1;
+            cpu->l = (addr & 0x00ff) >> 0;
+            cpu->h = (addr & 0xff00) >> 8;
+            cpu->pc -= 2;
             break;
         default:
             assert( 0 && "Code should not get here\n" );
