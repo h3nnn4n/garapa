@@ -598,6 +598,11 @@ void emulator( _cpu_info *cpu ) {
             cpu->cycles += 12;
             cpu->pc     += 2 ;
             break;
+        case 0xf2:
+            cpu->a = read_byte(cpu, 0xff00 + cpu->c);
+            cpu->cycles += 12;
+            cpu->pc     += 1 ;
+            break;
         case 0xe2:
             cpu->memory[0xff00 + cpu->c] = cpu->a;
             cpu->cycles += 8 ;
