@@ -237,16 +237,6 @@ void emulator( _cpu_info *cpu ) {
         case 0x12:
             emulate_STAX( cpu );
             break;
-        case 0x17:
-            {
-                uint8_t t;
-                t = cpu->a;
-                cpu->flags.c  = 0x80 == (t & 0x80);
-                cpu->a = ( t << 1 ) | cpu->flags.c ;
-                cpu->cycles += 4;
-                cpu->pc     += 1;
-            }
-            break;
         case 0x0a:
         case 0x1a:
             emulate_LDAX ( cpu );
@@ -259,6 +249,26 @@ void emulator( _cpu_info *cpu ) {
             break;
         case 0xdc:
             emulate_CC ( cpu );
+            break;
+        case 0x07:
+            emulate_RLC ( cpu, 0x07 );
+            cpu->flags.z = 0;
+            cpu->pc -= 1; // RLC eats 2 bytes thanks to the 0xcb stuff
+            break;
+        case 0x17:
+            emulate_RL ( cpu, 0x07 );
+            cpu->flags.z = 0;
+            cpu->pc -= 1;
+            break;
+        case 0x0F:
+            emulate_RRC ( cpu, 0x07 );
+            cpu->flags.z = 0;
+            cpu->pc -= 1;
+            break;
+        case 0x1f:
+            emulate_RR ( cpu, 0x07 );
+            cpu->flags.z = 0;
+            cpu->pc -= 1;
             break;
         case 0xd4:
             emulate_CNC ( cpu );
@@ -331,18 +341,6 @@ void emulator( _cpu_info *cpu ) {
             cpu->pc += 3;
             cpu->cycles += 12;
             break;
-        case 0x1f:
-            {
-                uint8_t t     = cpu->flags.c;
-                cpu->flags.c  = cpu->a & 0x01;
-                cpu->a        = (cpu->a >> 1) | ( t << 7 );
-                cpu->flags.z  = 0;
-                cpu->flags.h  = 0;
-                cpu->flags.n  = 0;
-                cpu->pc      += 1;
-                cpu->cycles  += 8;
-            }
-            break;
         case 0x0d:
         case 0x1d:
         case 0x2d:
@@ -358,6 +356,15 @@ void emulator( _cpu_info *cpu ) {
             break;
         case 0x27:
             emulate_DAA  ( cpu );
+            break;
+        case 0x3f:
+            emulate_CMC  ( cpu );
+            break;
+        case 0x37:
+            emulate_STC  ( cpu );
+            break;
+        case 0x2f:
+            emulate_CMA  ( cpu );
             break;
         case 0x03:
         case 0x13:

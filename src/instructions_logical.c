@@ -218,15 +218,15 @@ void emulate_CMP ( _cpu_info *cpu ) {
             break;
         case 0xba: // CMP D
             answer        = cpu->a - cpu->d;
-            old           = cpu->c;
+            old           = cpu->d;
             break;
         case 0xbb: // CMP E
             answer        = cpu->a - cpu->e;
-            old           = cpu->d;
+            old           = cpu->e;
             break;
         case 0xbc: // CMP H
             answer        = cpu->a - cpu->h;
-            old           = cpu->e;
+            old           = cpu->h;
             break;
         case 0xbd: // CMP L
             answer        = cpu->a - cpu->l;
@@ -339,6 +339,9 @@ void emulate_CMA ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
+    cpu->flags.h = 1 ;
+    cpu->flags.n = 1 ;
+
     cpu->cycles += 4 ;
     cpu->pc     += 1 ;
 }
@@ -349,6 +352,8 @@ void emulate_CMC ( _cpu_info *cpu ) {
     switch ( *opcode ) {
             case 0x3f: // CMC
                 cpu->flags.c  = !cpu->flags.c ;
+                cpu->flags.n  = 0;
+                cpu->flags.h  = 0;
             break;
         default:
             assert( 0 && "Code should not get here\n" );
@@ -363,7 +368,9 @@ void emulate_STC ( _cpu_info *cpu ) {
 
     switch ( *opcode ) {
             case 0x37: // STC
-            cpu->flags.c  = 1;
+                cpu->flags.c  = 1;
+                cpu->flags.n  = 0;
+                cpu->flags.h  = 0;
             break;
         default:
             assert( 0 && "Code should not get here\n" );
