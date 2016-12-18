@@ -192,7 +192,7 @@ void emulator( _cpu_info *cpu ) {
             break;
         case 0x32: // LD (HL-),A
             addr              = cpu->h << 8 | cpu->l;
-            cpu->memory[addr] = cpu->a;
+            write_byte(cpu, addr, cpu->a);
             addr              = cpu->h << 8 | cpu->l;
             addr             -= 1;
             cpu->h            = (addr >> 8 ) & 0xff;
@@ -219,7 +219,7 @@ void emulator( _cpu_info *cpu ) {
             emulate_XOR  ( cpu );
             break;
         case 0xe0:
-            cpu->memory[0xff00 + opcode[1]] = cpu->a;
+            write_byte(cpu, 0xff00 + opcode[1],  cpu->a);
             cpu->cycles += 12;
             cpu->pc     += 2 ;
             break;
@@ -234,7 +234,7 @@ void emulator( _cpu_info *cpu ) {
             cpu->pc     += 1 ;
             break;
         case 0xe2:
-            cpu->memory[0xff00 + cpu->c] = cpu->a;
+            write_byte(cpu, 0xff00 + cpu->c,  cpu->a);
             cpu->cycles += 8 ;
             cpu->pc     += 1 ;
             break;
@@ -246,7 +246,7 @@ void emulator( _cpu_info *cpu ) {
             break;
         case 0x77: // MOV M, A
             addr = ( cpu->h << 8 ) | cpu->l;
-            cpu->memory[addr] = cpu->a;
+            write_byte(cpu, addr, cpu->a);
             cpu->cycles += 8;
             cpu->pc     += 1;
             break;
