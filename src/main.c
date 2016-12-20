@@ -31,6 +31,8 @@ int main(int argc, char *argv[]) {
 
     while ( 1 ) {
         decoder ( &cpu );
+        timer_update ( &cpu );
+        timer_tick   ( &cpu );
     }
 
     return 0;

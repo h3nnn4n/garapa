@@ -17,6 +17,14 @@
 #include "instructions_stack_io_control.h"
 
 void decoder( _cpu_info *cpu ) {
+    /*if ( cpu->cycles_machine > 0 ) return; // CPU is busy*/
+
+    /*disassembler ( cpu->memory, cpu->pc );*/
+    /*print_registers( &cpu );*/
+    /*printf("\n");*/
+
+    /*cpu_cycle();*/
+
     emulate_INTERRUPT( cpu );
 
     unsigned char *opcode = &cpu->memory[cpu->pc];
@@ -122,7 +130,7 @@ void decoder( _cpu_info *cpu ) {
             addr += 1;
             cpu->h = ( addr & 0xff00 ) >> 8;
             cpu->l = ( addr & 0x00ff ) >> 0;
-            cpu->cycles += 8;
+            cpu->cycles_machine += 8;
             cpu->pc += 1;
             break;
         case 0x28:
@@ -199,11 +207,11 @@ void decoder( _cpu_info *cpu ) {
             cpu->h            = (addr >> 8 ) & 0xff;
             cpu->l            = (addr >> 0 ) & 0xff;
             cpu->pc += 1;
-            cpu->cycles += 12;
+            cpu->cycles_machine += 12;
             break;
         case 0x4f:
             cpu->c = cpu->a;
-            cpu->cycles += 4 ;
+            cpu->cycles_machine += 4 ;
             cpu->pc     += 1 ;
             break;
         case 0xcd:
@@ -221,34 +229,34 @@ void decoder( _cpu_info *cpu ) {
             break;
         case 0xe0:
             write_byte(cpu, 0xff00 + opcode[1],  cpu->a);
-            cpu->cycles += 12;
+            cpu->cycles_machine += 12;
             cpu->pc     += 2 ;
             break;
         case 0xf0:
             cpu->a = read_byte(cpu, 0xff00 + opcode[1]);
-            cpu->cycles += 12;
+            cpu->cycles_machine += 12;
             cpu->pc     += 2 ;
             break;
         case 0xf2:
             cpu->a = read_byte(cpu, 0xff00 + cpu->c);
-            cpu->cycles += 12;
+            cpu->cycles_machine += 12;
             cpu->pc     += 1 ;
             break;
         case 0xe2:
             write_byte(cpu, 0xff00 + cpu->c,  cpu->a);
-            cpu->cycles += 8 ;
+            cpu->cycles_machine += 8 ;
             cpu->pc     += 1 ;
             break;
         case 0xea:
             addr = ( opcode[2] << 8 ) | opcode[1];
             write_byte ( cpu, addr, cpu->a );
-            cpu->cycles += 8;
+            cpu->cycles_machine += 8;
             cpu->pc     += 3;
             break;
         case 0x77: // MOV M, A
             addr = ( cpu->h << 8 ) | cpu->l;
             write_byte(cpu, addr, cpu->a);
-            cpu->cycles += 8;
+            cpu->cycles_machine += 8;
             cpu->pc     += 1;
             break;
         case 0xc8:
@@ -256,7 +264,7 @@ void decoder( _cpu_info *cpu ) {
             break;
         case 0xf9:
             cpu->sp = cpu->h << 8 | cpu->l;
-            cpu->cycles += 5;
+            cpu->cycles_machine += 5;
             cpu->pc     += 1 ;
             break;
         case 0xfe:
@@ -268,7 +276,7 @@ void decoder( _cpu_info *cpu ) {
                 write_byte(cpu, addr + 0, ( cpu->sp & 0x00ff ) >> 0 );
                 write_byte(cpu, addr + 1, ( cpu->sp & 0xff00 ) >> 8 );
                 cpu->pc     += 3;
-                cpu->cycles += 20;
+                cpu->cycles_machine += 20;
             }
             break;
         case 0x0b:
@@ -411,7 +419,7 @@ void decoder( _cpu_info *cpu ) {
         case 0xfa:
             addr         = read_next_word ( cpu );
             cpu->a       = read_byte ( cpu, addr );
-            cpu->cycles += 16;
+            cpu->cycles_machine += 16;
             cpu->pc     += 3;
             break;
         case 0xee:

@@ -34,12 +34,12 @@ void emulate_POP ( _cpu_info *cpu ) {
             cpu->flags.h  = ((cpu->memory[cpu->sp] & 0x20));
             cpu->flags.c  = ((cpu->memory[cpu->sp] & 0x10));
             cpu->sp += 2;
-            cpu->cycles -= 1;
+            cpu->cycles_machine -= 1;
             break;
         default:
             assert( 0 && "Code should not get here\n" ); }
 
-    cpu->cycles += 11;
+    cpu->cycles_machine += 11;
     cpu->pc     += 1 ;
 }
 
@@ -74,7 +74,7 @@ void emulate_PUSH ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 11;
+    cpu->cycles_machine += 11;
     cpu->pc     += 1 ;
 }
 
@@ -97,7 +97,7 @@ void emulate_XTHL ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 18;
+    cpu->cycles_machine += 18;
     cpu->pc     += 1 ;
 }
 
@@ -112,7 +112,7 @@ void emulate_SPHL ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 5;
+    cpu->cycles_machine += 5;
     cpu->pc     += 1 ;
 }
 
@@ -128,7 +128,7 @@ void emulate_EI ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 4 ;
+    cpu->cycles_machine += 4 ;
     cpu->pc     += 1 ;
 }
 
@@ -143,11 +143,11 @@ void emulate_DI ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 4 ;
+    cpu->cycles_machine += 4 ;
     cpu->pc     += 1 ;
 }
 
 void emulate_NOP ( _cpu_info *cpu ) {
-    cpu->cycles += 4 ;
+    cpu->cycles_machine += 4 ;
     cpu->pc     += 1 ;
 }

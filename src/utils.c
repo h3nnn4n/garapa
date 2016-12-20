@@ -21,7 +21,10 @@ return -1;
 void init_cpu( _cpu_info *cpu ) {
     cpu->memory = calloc ( 1, 64 * 1024 ) ; // Allocs 64Kb of ram
 
-    cpu->cycles = 0;
+    cpu->cycles_clock   = 0;
+    cpu->cycles_machine = 0;
+    cpu->cycles_left    = 0;
+
     cpu->pc     = 0;
     cpu->a      = 0;
     cpu->b      = 0;
@@ -42,6 +45,11 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->instructions_executed = 0;
     cpu->interrupt_mask        = 0;
     cpu->interrupt_flag        = 0;
+
+    cpu->timer.TAC  = 0;
+    cpu->timer.TIMA = 0;
+    cpu->timer.DIV  = 0;
+    cpu->timer.TMA  = 0;
 
     cpu->interrupts.masked_vblank  = 1;
     cpu->interrupts.masked_lcdstat = 1;
@@ -122,7 +130,7 @@ void print_registers ( _cpu_info *cpu ) {
             cpu->flags.n  ? 'n' : '.',
             cpu->flags.h  ? 'h' : '.',
             cpu->flags.c  ? 'c' : '.',
-            cpu->cycles              ,
+            cpu->cycles_machine      ,
             cpu->instructions_executed);
     /*printf(BYTE_TO_BINARY_PATTERN"\n", BYTE_TO_BINARY(f));*/
 }

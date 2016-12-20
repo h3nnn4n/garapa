@@ -18,7 +18,7 @@ void emulate_JMP ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 10  ;
+    cpu->cycles_machine += 10  ;
     cpu->pc      = addr;
 }
 
@@ -39,7 +39,7 @@ void emulate_JC ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 10  ;
+    cpu->cycles_machine += 10  ;
 }
 
 void emulate_JNC ( _cpu_info *cpu ) {
@@ -59,7 +59,7 @@ void emulate_JNC ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 10  ;
+    cpu->cycles_machine += 10  ;
 }
 
 void emulate_JM ( _cpu_info *cpu ) {
@@ -71,7 +71,7 @@ void emulate_JM ( _cpu_info *cpu ) {
             addr = opcode[2] << 8 | opcode[1];
             if ( cpu->flags.n ) {
                 cpu->pc = addr;
-                /*cpu->cycles += 5;*/
+                /*cpu->cycles_machine += 5;*/
             } else {
                 cpu->pc += 3;
             }
@@ -80,7 +80,7 @@ void emulate_JM ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 10;
+    cpu->cycles_machine += 10;
 }
 
 void emulate_JP ( _cpu_info *cpu ) {
@@ -100,7 +100,7 @@ void emulate_JP ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 10  ;
+    cpu->cycles_machine += 10  ;
 }
 
 void emulate_JZ ( _cpu_info *cpu ) {
@@ -120,7 +120,7 @@ void emulate_JZ ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 10;
+    cpu->cycles_machine += 10;
 }
 
 void emulate_JNZ ( _cpu_info *cpu ) {
@@ -140,7 +140,7 @@ void emulate_JNZ ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 10;
+    cpu->cycles_machine += 10;
 }
 
 void emulate_RETI ( _cpu_info *cpu ) {
@@ -158,7 +158,7 @@ void emulate_RETI ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 10;
+    cpu->cycles_machine += 10;
 }
 
 void emulate_RET ( _cpu_info *cpu ) {
@@ -175,7 +175,7 @@ void emulate_RET ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 10;
+    cpu->cycles_machine += 10;
 }
 
 void emulate_RZ ( _cpu_info *cpu ) {
@@ -188,7 +188,7 @@ void emulate_RZ ( _cpu_info *cpu ) {
                 addr = cpu->memory[cpu->sp+1] << 8 | cpu->memory[cpu->sp];
                 cpu->sp += 2;
                 cpu->pc = addr;
-                cpu->cycles += 6;
+                cpu->cycles_machine += 6;
             } else {
                 cpu->pc += 1;
             }
@@ -197,7 +197,7 @@ void emulate_RZ ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 5;
+    cpu->cycles_machine += 5;
 }
 
 void emulate_RNZ ( _cpu_info *cpu ) {
@@ -210,7 +210,7 @@ void emulate_RNZ ( _cpu_info *cpu ) {
                 addr = cpu->memory[cpu->sp+1] << 8 | cpu->memory[cpu->sp];
                 cpu->sp += 2;
                 cpu->pc = addr;
-                cpu->cycles += 6;
+                cpu->cycles_machine += 6;
             } else {
                 cpu->pc += 1;
             }
@@ -219,7 +219,7 @@ void emulate_RNZ ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 5;
+    cpu->cycles_machine += 5;
 }
 
 void emulate_RP ( _cpu_info *cpu ) {
@@ -232,7 +232,7 @@ void emulate_RP ( _cpu_info *cpu ) {
                 addr = cpu->memory[cpu->sp+1] << 8 | cpu->memory[cpu->sp];
                 cpu->sp += 2;
                 cpu->pc = addr;
-                cpu->cycles += 6;
+                cpu->cycles_machine += 6;
             } else {
                 cpu->pc += 1;
             }
@@ -241,7 +241,7 @@ void emulate_RP ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 5;
+    cpu->cycles_machine += 5;
 }
 
 void emulate_RM ( _cpu_info *cpu ) {
@@ -254,7 +254,7 @@ void emulate_RM ( _cpu_info *cpu ) {
                 addr = cpu->memory[cpu->sp+1] << 8 | cpu->memory[cpu->sp];
                 cpu->sp += 2;
                 cpu->pc = addr;
-                cpu->cycles += 6;
+                cpu->cycles_machine += 6;
             } else {
                 cpu->pc += 1;
             }
@@ -263,7 +263,7 @@ void emulate_RM ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 5;
+    cpu->cycles_machine += 5;
 }
 
 void emulate_RNC ( _cpu_info *cpu ) {
@@ -276,7 +276,7 @@ void emulate_RNC ( _cpu_info *cpu ) {
                 addr = cpu->memory[cpu->sp+1] << 8 | cpu->memory[cpu->sp];
                 cpu->sp += 2;
                 cpu->pc = addr;
-                cpu->cycles += 6;
+                cpu->cycles_machine += 6;
             } else {
                 cpu->pc += 1;
             }
@@ -285,7 +285,7 @@ void emulate_RNC ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 5;
+    cpu->cycles_machine += 5;
 }
 
 void emulate_RC ( _cpu_info *cpu ) {
@@ -298,7 +298,7 @@ void emulate_RC ( _cpu_info *cpu ) {
                 addr = cpu->memory[cpu->sp+1] << 8 | cpu->memory[cpu->sp];
                 cpu->sp += 2;
                 cpu->pc = addr;
-                cpu->cycles += 6;
+                cpu->cycles_machine += 6;
             } else {
                 cpu->pc += 1;
             }
@@ -307,7 +307,7 @@ void emulate_RC ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 5;
+    cpu->cycles_machine += 5;
 }
 
 void emulate_RST ( _cpu_info *cpu ) {
@@ -349,7 +349,7 @@ void emulate_RST ( _cpu_info *cpu ) {
     cpu->memory[(cpu->sp-2) & 0xffff] = (ret & 0xff);
     cpu->sp                           = cpu->sp - 2;
 
-    cpu->cycles += 11;
+    cpu->cycles_machine += 11;
 }
 
 void emulate_PCHL ( _cpu_info *cpu ) {
@@ -363,7 +363,7 @@ void emulate_PCHL ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 5 ;
+    cpu->cycles_machine += 5 ;
 }
 
 void emulate_CNC ( _cpu_info *cpu ) {
@@ -378,10 +378,10 @@ void emulate_CNC ( _cpu_info *cpu ) {
                     cpu->memory[cpu->sp-2] = (ret & 0xff);
                     cpu->sp                = cpu->sp - 2;
                     cpu->pc                = opcode[2] << 8 | opcode[1];
-                    cpu->cycles += 17;
+                    cpu->cycles_machine += 17;
                 } else {
                     cpu->pc     += 3;
-                    cpu->cycles += 11;
+                    cpu->cycles_machine += 11;
                 }
             }
             break;
@@ -402,10 +402,10 @@ void emulate_CM ( _cpu_info *cpu ) {
                     cpu->memory[cpu->sp-2] = (ret & 0xff);
                     cpu->sp                = cpu->sp - 2;
                     cpu->pc                = opcode[2] << 8 | opcode[1];
-                    cpu->cycles += 17;
+                    cpu->cycles_machine += 17;
                 } else {
                     cpu->pc     += 3;
-                    cpu->cycles += 11;
+                    cpu->cycles_machine += 11;
                 }
             }
             break;
@@ -426,10 +426,10 @@ void emulate_CC ( _cpu_info *cpu ) {
                     cpu->memory[cpu->sp-2] = (ret & 0xff);
                     cpu->sp                = cpu->sp - 2;
                     cpu->pc                = opcode[2] << 8 | opcode[1];
-                    cpu->cycles += 17;
+                    cpu->cycles_machine += 17;
                 } else {
                     cpu->pc     += 3;
-                    cpu->cycles += 11;
+                    cpu->cycles_machine += 11;
                 }
             }
             break;
@@ -450,10 +450,10 @@ void emulate_CNZ ( _cpu_info *cpu ) {
                     cpu->memory[cpu->sp-2] = (ret & 0xff);
                     cpu->sp                = cpu->sp - 2;
                     cpu->pc                = opcode[2] << 8 | opcode[1];
-                    cpu->cycles += 17;
+                    cpu->cycles_machine += 17;
                 } else {
                     cpu->pc     += 3;
-                    cpu->cycles += 11;
+                    cpu->cycles_machine += 11;
                 }
             }
             break;
@@ -474,10 +474,10 @@ void emulate_CZ ( _cpu_info *cpu ) {
                     cpu->memory[cpu->sp-2] = (ret & 0xff);
                     cpu->sp                = cpu->sp - 2;
                     cpu->pc                = opcode[2] << 8 | opcode[1];
-                    cpu->cycles += 17;
+                    cpu->cycles_machine += 17;
                 } else {
                     cpu->pc     += 3;
-                    cpu->cycles += 11;
+                    cpu->cycles_machine += 11;
                 }
             }
             break;
@@ -504,5 +504,5 @@ void emulate_CALL ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 17;
+    cpu->cycles_machine += 17;
 }

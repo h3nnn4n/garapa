@@ -40,7 +40,7 @@ void emulate_ADD ( _cpu_info *cpu ) {
         case 0x86:
             answer += (uint16_t) cpu->memory[(cpu->h<<8) | (cpu->l)];
             cpu->flags.h    = halfcary( cpu->a, cpu->memory[(cpu->h<<8) | (cpu->l)], answer );
-            cpu->cycles += 3;
+            cpu->cycles_machine += 3;
             break;
         case 0x87:
             answer += (uint16_t) cpu->a;
@@ -57,7 +57,7 @@ void emulate_ADD ( _cpu_info *cpu ) {
     cpu->a          = answer & 0xff;
 
     cpu->pc        += 1 ;
-    cpu->cycles    += 4 ;
+    cpu->cycles_machine    += 4 ;
 }
 
 void emulate_ADI ( _cpu_info *cpu ) {
@@ -91,7 +91,7 @@ void emulate_ADI ( _cpu_info *cpu ) {
     cpu->flags.z  = (cpu->a == 0);
     cpu->flags.n  = 0;
 
-    cpu->cycles += 7 ;
+    cpu->cycles_machine += 7 ;
     cpu->pc     += 2 ;
 }
 
@@ -136,7 +136,7 @@ void emulate_ADC ( _cpu_info *cpu ) {
             answer = cpu->a + cpu->memory[cpu->h << 8 | cpu->l] + (cpu->flags.c != 0) ;
             cpu->a = answer & 0xff;
             b = cpu->memory[cpu->h << 8 | cpu->l];
-            cpu->cycles += 3;
+            cpu->cycles_machine += 3;
             break;
         case 0x8f: // ADC A
             answer = cpu->a + cpu->a + (cpu->flags.c != 0) ;
@@ -152,7 +152,7 @@ void emulate_ADC ( _cpu_info *cpu ) {
     cpu->flags.c    = ( answer > 0xff );
     cpu->flags.h    = halfcary( a, b, answer );
 
-    cpu->cycles += 4 ;
+    cpu->cycles_machine += 4 ;
     cpu->pc     += 1 ;
 }
 
@@ -174,7 +174,7 @@ void emulate_ACI ( _cpu_info *cpu ) {
     cpu->flags.z  = (cpu->a == 0);
     cpu->flags.n  = 0;
 
-    cpu->cycles += 7 ;
+    cpu->cycles_machine += 7 ;
     cpu->pc     += 2 ;
 }
 
@@ -203,7 +203,7 @@ void emulate_SUB ( _cpu_info *cpu ) {
             break;
         case 0x96:
             answer -= (uint16_t) cpu->memory[(cpu->h<<8) | (cpu->l)];
-            cpu->cycles += 3;
+            cpu->cycles_machine += 3;
             break;
         case 0x97:
             answer -= (uint16_t) cpu->a;
@@ -220,7 +220,7 @@ void emulate_SUB ( _cpu_info *cpu ) {
     cpu->a          = answer & 0xff;
 
     cpu->pc        += 1 ;
-    cpu->cycles    += 4 ;
+    cpu->cycles_machine    += 4 ;
 }
 
 void emulate_SUI ( _cpu_info *cpu ) {
@@ -242,7 +242,7 @@ void emulate_SUI ( _cpu_info *cpu ) {
 
     cpu->a = answer & 0xff;
 
-    cpu->cycles += 7 ;
+    cpu->cycles_machine += 7 ;
     cpu->pc     += 2 ;
 }
 
@@ -281,7 +281,7 @@ void emulate_SBB ( _cpu_info *cpu ) {
             uint16_t addr = (cpu->h << 8) | cpu->l;
             answer = cpu->a - cpu->memory[addr] - (cpu->flags.c != 0) ;
             old    = cpu->memory[addr];
-            cpu->cycles   += 3;
+            cpu->cycles_machine   += 3;
             }
             break;
         case 0x9f:
@@ -298,7 +298,7 @@ void emulate_SBB ( _cpu_info *cpu ) {
     cpu->flags.c    = ( answer > 0xff );
     cpu->a          = answer & 0xff;
 
-    cpu->cycles += 4 ;
+    cpu->cycles_machine += 4 ;
     cpu->pc     += 1 ;
 }
 
@@ -320,7 +320,7 @@ void emulate_SBI ( _cpu_info *cpu ) {
     cpu->flags.c    = ( answer > 0xff );
     cpu->a          = answer & 0xff;
 
-    cpu->cycles += 7 ;
+    cpu->cycles_machine += 7 ;
     cpu->pc     += 2 ;
 }
 
@@ -363,7 +363,7 @@ void emulate_INR ( _cpu_info *cpu ) {
             cpu->memory[cpu->h << 8 | cpu->l] += 1;
             answer = cpu->memory[cpu->h << 8 | cpu->l];
             cpu->flags.h  = (answer & 0x0f) == 0x00;
-            cpu->cycles += 5;
+            cpu->cycles_machine += 5;
             break;
         case 0x3c: // INR A
             answer = cpu->a + 1;
@@ -377,7 +377,7 @@ void emulate_INR ( _cpu_info *cpu ) {
     cpu->flags.z    = ( answer & 0xff ) == 0;
     cpu->flags.n    = 0;//( answer & 0x80 ) != 0;
 
-    cpu->cycles += 5 ;
+    cpu->cycles_machine += 5 ;
     cpu->pc     += 1 ;
 }
 
@@ -420,7 +420,7 @@ void emulate_DCR ( _cpu_info *cpu ) {
             answer                            = cpu->memory[cpu->h << 8 | cpu->l] - 1;
             cpu->memory[cpu->h << 8 | cpu->l] = answer & 0xff;
             cpu->flags.h                      = ((cpu->memory[cpu->h << 8 | cpu->l] & 0x0f) == 0x0f);
-            cpu->cycles += 5;
+            cpu->cycles_machine += 5;
             break;
         case 0x3d: // DCR A
             answer        = cpu->a - 1;
@@ -434,7 +434,7 @@ void emulate_DCR ( _cpu_info *cpu ) {
     cpu->flags.z    = ( answer & 0xff ) == 0;
     cpu->flags.n    = 1;//( answer & 0x80 ) != 0;
 
-    cpu->cycles += 5 ;
+    cpu->cycles_machine += 5 ;
     cpu->pc     += 1 ;
 }
 
@@ -464,7 +464,7 @@ void emulate_INC ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 5 ;
+    cpu->cycles_machine += 5 ;
     cpu->pc     += 1 ;
 }
 
@@ -500,7 +500,7 @@ void emulate_DCX ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 5 ;
+    cpu->cycles_machine += 5 ;
     cpu->pc     += 1 ;
 }
 
@@ -536,7 +536,7 @@ void emulate_DAD ( _cpu_info *cpu ) {
     cpu->h  = (answer >> 8 ) & 0xff;
     cpu->l  = (answer >> 0 ) & 0xff;
 
-    cpu->cycles += 10;
+    cpu->cycles_machine += 10;
     cpu->pc     += 1 ;
 }
 
@@ -579,6 +579,6 @@ void emulate_DAA ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 4 ;
+    cpu->cycles_machine += 4 ;
     cpu->pc     += 1 ;
 }

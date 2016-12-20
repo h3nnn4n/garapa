@@ -4,6 +4,16 @@
 #include <stdint.h>
 
 typedef struct {
+    uint16_t running;
+    uint16_t speed;
+
+    uint16_t TIMA;
+    uint16_t DIV;
+    uint16_t TMA;
+    uint8_t  TAC;
+} _timer;
+
+typedef struct {
     uint8_t pending_vblank;
     uint8_t pending_lcdstat;
     uint8_t pending_timer;
@@ -16,6 +26,8 @@ typedef struct {
     uint8_t masked_serial;
     uint8_t masked_joypad;
 } _interrupts;
+
+//typedef struct {
 
 typedef struct {
     uint8_t z  ; // Zero flag
@@ -38,10 +50,13 @@ typedef struct {
     uint8_t halted;
     uint8_t stoped;
 
-    unsigned long long cycles;
+    uint8_t            cycles_left;    // Checks when the CPU is free to fetch/dedoce/execute the next instruction
+    unsigned long long cycles_machine; // M-Cycles - machine cycles
+    unsigned long long cycles_clock;   // T-Cycles - timer   cycles
     unsigned long long instructions_executed;
 
     _cpu_flags flags;
+    _timer     timer;
 
     uint16_t pc;
     uint16_t sp;

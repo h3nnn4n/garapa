@@ -39,7 +39,7 @@ void emulate_ANA ( _cpu_info *cpu ) {
         case 0xa6: // ANA M
             cpu->flags.h  = ((cpu->a | cpu->memory[cpu->h << 8 | cpu->l]) & 0x08) != 0;
             cpu->a       &= cpu->memory[cpu->h << 8 | cpu->l];
-            cpu->cycles  += 3;
+            cpu->cycles_machine  += 3;
             break;
         case 0xa7: // ANA A
             cpu->flags.h  = ((cpu->a | cpu->a) & 0x08) != 0;
@@ -54,7 +54,7 @@ void emulate_ANA ( _cpu_info *cpu ) {
     cpu->flags.z  = (cpu->a == 0);
     cpu->flags.n  = 0;
 
-    cpu->cycles += 4 ;
+    cpu->cycles_machine += 4 ;
     cpu->pc     += 1 ;
 }
 
@@ -74,7 +74,7 @@ void emulate_ANI ( _cpu_info *cpu ) {
     cpu->flags.n  = 0;
     cpu->flags.h  = 1;
 
-    cpu->cycles += 7 ;
+    cpu->cycles_machine += 7 ;
     cpu->pc     += 2 ;
 }
 
@@ -102,7 +102,7 @@ void emulate_XOR ( _cpu_info *cpu ) {
             break;
         case 0xae: // XOR M
             cpu->a ^= cpu->memory[cpu->h << 8 | cpu->l];
-            cpu->cycles += 3;
+            cpu->cycles_machine += 3;
             break;
         case 0xaf: // XOR A
             cpu->a ^= cpu->a;
@@ -116,7 +116,7 @@ void emulate_XOR ( _cpu_info *cpu ) {
     cpu->flags.z  = (cpu->a == 0);
     cpu->flags.n  = 0; //(0x80 == (cpu->a & 0x80));
 
-    cpu->cycles += 4 ;
+    cpu->cycles_machine += 4 ;
     cpu->pc     += 1 ;
 }
 
@@ -136,7 +136,7 @@ void emulate_XRI ( _cpu_info *cpu ) {
     cpu->flags.z  = (cpu->a == 0);
     cpu->flags.n  = 0;
 
-    cpu->cycles += 7 ;
+    cpu->cycles_machine += 7 ;
     cpu->pc     += 2 ;
 }
 
@@ -164,7 +164,7 @@ void emulate_ORA ( _cpu_info *cpu ) {
             break;
         case 0xb6: // ORA M
             cpu->a |= cpu->memory[cpu->h << 8 | cpu->l];
-            cpu->cycles += 3;
+            cpu->cycles_machine += 3;
             break;
         case 0xb7: // ORA A
             cpu->a |= cpu->a;
@@ -178,7 +178,7 @@ void emulate_ORA ( _cpu_info *cpu ) {
     cpu->flags.z = (cpu->a == 0);
     cpu->flags.n = 0;
 
-    cpu->cycles += 4 ;
+    cpu->cycles_machine += 4 ;
     cpu->pc     += 1 ;
 }
 
@@ -198,7 +198,7 @@ void emulate_ORI ( _cpu_info *cpu ) {
     cpu->flags.z  = (cpu->a == 0);
     cpu->flags.n  = 0;
 
-    cpu->cycles += 7 ;
+    cpu->cycles_machine += 7 ;
     cpu->pc     += 2 ;
 }
 
@@ -235,7 +235,7 @@ void emulate_CMP ( _cpu_info *cpu ) {
         case 0xbe: // CMP M
             answer        = cpu->a - cpu->memory[(cpu->h << 8) | cpu->l];
             old           = cpu->memory[(cpu->h << 8) | cpu->l];
-            cpu->cycles  += 3;
+            cpu->cycles_machine  += 3;
             break;
         case 0xbf: // CMP A
             answer        = cpu->a - cpu->a;
@@ -250,7 +250,7 @@ void emulate_CMP ( _cpu_info *cpu ) {
     cpu->flags.h    = ( answer & 0x0f ) > (cpu->a & 0x0f);
     cpu->flags.c    = ( cpu->a < old  );
 
-    cpu->cycles += 4 ;
+    cpu->cycles_machine += 4 ;
     cpu->pc     += 1 ;
 }
 
@@ -271,7 +271,7 @@ void emulate_CPI ( _cpu_info *cpu ) {
     cpu->flags.n    = 1;
     cpu->flags.c    = ( cpu->a < opcode[1] );
 
-    cpu->cycles += 7 ;
+    cpu->cycles_machine += 7 ;
     cpu->pc     += 2 ;
 }
 
@@ -298,7 +298,7 @@ void emulate_RAL ( _cpu_info *cpu ) {
     cpu->flags.n = 0;
     cpu->flags.h = 0;
 
-    cpu->cycles += 4 ;
+    cpu->cycles_machine += 4 ;
     cpu->pc     += 2 ;
 }
 
@@ -324,7 +324,7 @@ void emulate_RAR ( _cpu_info *cpu ) {
     cpu->flags.n = 0;
     cpu->flags.h = 0;
 
-    cpu->cycles += 4 ;
+    cpu->cycles_machine += 4 ;
     cpu->pc     += 2 ;
 }
 
@@ -342,7 +342,7 @@ void emulate_CMA ( _cpu_info *cpu ) {
     cpu->flags.h = 1 ;
     cpu->flags.n = 1 ;
 
-    cpu->cycles += 4 ;
+    cpu->cycles_machine += 4 ;
     cpu->pc     += 1 ;
 }
 
@@ -359,7 +359,7 @@ void emulate_CMC ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 4 ;
+    cpu->cycles_machine += 4 ;
     cpu->pc     += 1 ;
 }
 
@@ -376,6 +376,6 @@ void emulate_STC ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 4 ;
+    cpu->cycles_machine += 4 ;
     cpu->pc     += 1 ;
 }

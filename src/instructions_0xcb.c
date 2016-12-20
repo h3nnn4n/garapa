@@ -29,7 +29,7 @@ void emulate_RLC ( _cpu_info *cpu, uint8_t target ) {
     cpu->flags.n = 0;
 
     cpu->pc     += 2;
-    cpu->cycles += 8;
+    cpu->cycles_machine += 8;
 }
 
 void emulate_RRC ( _cpu_info *cpu, uint8_t target ) {
@@ -44,7 +44,7 @@ void emulate_RRC ( _cpu_info *cpu, uint8_t target ) {
     cpu->flags.n = 0;
 
     cpu->pc     += 2;
-    cpu->cycles += 8;
+    cpu->cycles_machine += 8;
 }
 
 void emulate_RL    ( _cpu_info *cpu, uint8_t target ) {
@@ -59,7 +59,7 @@ void emulate_RL    ( _cpu_info *cpu, uint8_t target ) {
     cpu->flags.n = 0;
 
     cpu->pc     += 2;
-    cpu->cycles += 8;
+    cpu->cycles_machine += 8;
 }
 
 void emulate_RR ( _cpu_info *cpu, uint8_t target ) {
@@ -74,7 +74,7 @@ void emulate_RR ( _cpu_info *cpu, uint8_t target ) {
     cpu->flags.n = 0;
 
     cpu->pc     += 2;
-    cpu->cycles += 8;
+    cpu->cycles_machine += 8;
 }
 
 void emulate_SLA   ( _cpu_info *cpu, uint8_t target ) {
@@ -88,7 +88,7 @@ void emulate_SLA   ( _cpu_info *cpu, uint8_t target ) {
     cpu->flags.n = 0;
 
     cpu->pc     += 2;
-    cpu->cycles += 8;
+    cpu->cycles_machine += 8;
 }
 
 void emulate_SRA   ( _cpu_info *cpu, uint8_t target ) {
@@ -103,7 +103,7 @@ void emulate_SRA   ( _cpu_info *cpu, uint8_t target ) {
     cpu->flags.n = 0;
 
     cpu->pc     += 2;
-    cpu->cycles += 8;
+    cpu->cycles_machine += 8;
 }
 
 void emulate_SWAP  ( _cpu_info *cpu, uint8_t target ) {
@@ -120,7 +120,7 @@ void emulate_SWAP  ( _cpu_info *cpu, uint8_t target ) {
     cpu->flags.n = 0;
 
     cpu->pc     += 2;
-    cpu->cycles += 8;
+    cpu->cycles_machine += 8;
 }
 
 void emulate_SRL   ( _cpu_info *cpu, uint8_t target ) {
@@ -134,7 +134,7 @@ void emulate_SRL   ( _cpu_info *cpu, uint8_t target ) {
     cpu->flags.n = 0;
 
     cpu->pc     += 2;
-    cpu->cycles += 8;
+    cpu->cycles_machine += 8;
 }
 
 void emulate_BIT   ( _cpu_info *cpu, uint8_t target, uint8_t data ) {
@@ -145,7 +145,7 @@ void emulate_BIT   ( _cpu_info *cpu, uint8_t target, uint8_t data ) {
     cpu->flags.n = 0;
 
     cpu->pc     += 2;
-    cpu->cycles += 8;
+    cpu->cycles_machine += 8;
 }
 
 void emulate_RES   ( _cpu_info *cpu, uint8_t target, uint8_t data ) {
@@ -154,7 +154,7 @@ void emulate_RES   ( _cpu_info *cpu, uint8_t target, uint8_t data ) {
     *a          &= ~data;
 
     cpu->pc     += 2;
-    cpu->cycles += 8;
+    cpu->cycles_machine += 8;
 }
 
 void emulate_SET   ( _cpu_info *cpu, uint8_t target, uint8_t data ) { uint8_t *a   = get_reg_ref(cpu, target);
@@ -162,7 +162,7 @@ void emulate_SET   ( _cpu_info *cpu, uint8_t target, uint8_t data ) { uint8_t *a
     *a          |= data;
 
     cpu->pc     += 2;
-    cpu->cycles += 8;
+    cpu->cycles_machine += 8;
 }
 
 /*

@@ -62,7 +62,7 @@ void emulate_XCHG ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 4 ; // FIXME THis is 5
+    cpu->cycles_machine += 4 ; // FIXME THis is 5
     cpu->pc     += 1 ;
 }
 
@@ -83,7 +83,7 @@ void emulate_LDAX ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 7 ;
+    cpu->cycles_machine += 7 ;
     cpu->pc     += 1 ;
 }
 
@@ -101,7 +101,7 @@ void emulate_STAX ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 7 ;
+    cpu->cycles_machine += 7 ;
     cpu->pc     += 1 ;
 }
 
@@ -120,7 +120,7 @@ void emulate_SHLD ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 16;
+    cpu->cycles_machine += 16;
     cpu->pc     += 3 ;
 }
 
@@ -150,7 +150,7 @@ void emulate_LDA ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 13;
+    cpu->cycles_machine += 13;
     cpu->pc     += 3;
 }
 
@@ -167,7 +167,7 @@ void emulate_STA ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 13;
+    cpu->cycles_machine += 13;
     cpu->pc     += 3 ;
 }
 
@@ -194,7 +194,7 @@ void emulate_LD ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 12;
+    cpu->cycles_machine += 12;
     cpu->pc     += 3 ;
 }
 
@@ -222,7 +222,7 @@ void emulate_MVI ( _cpu_info *cpu ) {
             break;
         case 0x36: // MVI M, D8
             cpu->memory[cpu->h << 8 | cpu->l] = opcode[1];
-            cpu->cycles += 3;
+            cpu->cycles_machine += 3;
             break;
         case 0x3e: // MVI A, D8
             cpu->a = opcode[1];
@@ -231,7 +231,7 @@ void emulate_MVI ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles += 7 ;
+    cpu->cycles_machine += 7 ;
     cpu->pc     += 2 ;
 }
 
@@ -243,75 +243,75 @@ void emulate_MOV ( _cpu_info *cpu ) {
         case 0x46: // MOV B, M
             addr = cpu->h << 8 | cpu->l;
             cpu->b = cpu->memory[addr];
-            cpu->cycles += 2;
+            cpu->cycles_machine += 2;
             break;
         case 0x56: // MOV D, M
             addr = cpu->h << 8 | cpu->l;
             cpu->d = cpu->memory[addr];
-            cpu->cycles += 2;
+            cpu->cycles_machine += 2;
             break;
         case 0x66: // MOV H, M
             addr = cpu->h << 8 | cpu->l;
             cpu->h = cpu->memory[addr];
-            cpu->cycles += 2;
+            cpu->cycles_machine += 2;
             break;
 
         case 0x70: // MOV M, B
             addr = cpu->h << 8 | cpu->l;
             cpu->memory[addr] = cpu->b;
-            cpu->cycles += 2;
+            cpu->cycles_machine += 2;
             break;
         case 0x71: // MOV M, C
             addr = cpu->h << 8 | cpu->l;
             cpu->memory[addr] = cpu->c;
-            cpu->cycles += 2;
+            cpu->cycles_machine += 2;
             break;
         case 0x72: // MOV M, D
             addr = cpu->h << 8 | cpu->l;
             cpu->memory[addr] = cpu->d;
-            cpu->cycles += 2;
+            cpu->cycles_machine += 2;
             break;
         case 0x73: // MOV M, E
             addr = cpu->h << 8 | cpu->l;
             cpu->memory[addr] = cpu->e;
-            cpu->cycles += 2;
+            cpu->cycles_machine += 2;
             break;
         case 0x74: // MOV M, H
             addr = cpu->h << 8 | cpu->l;
             cpu->memory[addr] = cpu->h;
-            cpu->cycles += 2;
+            cpu->cycles_machine += 2;
             break;
         case 0x75: // MOV M, L
             addr = cpu->h << 8 | cpu->l;
             cpu->memory[addr] = cpu->l;
-            cpu->cycles += 2;
+            cpu->cycles_machine += 2;
             break;
       /*case 0x76: // HLT*/
         case 0x77: // MOV M, A
             addr = cpu->h << 8 | cpu->l;
             cpu->memory[addr] = cpu->a;
-            cpu->cycles += 2;
+            cpu->cycles_machine += 2;
             break;
 
         case 0x4e: // MOV C, M
             addr = cpu->h << 8 | cpu->l;
             cpu->c = cpu->memory[addr];
-            cpu->cycles += 2;
+            cpu->cycles_machine += 2;
             break;
         case 0x5e: // MOV E, M
             addr = cpu->h << 8 | cpu->l;
             cpu->e = cpu->memory[addr];
-            cpu->cycles += 2;
+            cpu->cycles_machine += 2;
             break;
         case 0x6e: // MOV L, M
             addr = cpu->h << 8 | cpu->l;
             cpu->l = cpu->memory[addr];
-            cpu->cycles += 2;
+            cpu->cycles_machine += 2;
             break;
         case 0x7e: // MOV A, M
             addr = cpu->h << 8 | cpu->l;
             cpu->a = cpu->memory[addr];
-            cpu->cycles += 2;
+            cpu->cycles_machine += 2;
             break;
         default:
             {
@@ -324,6 +324,6 @@ void emulate_MOV ( _cpu_info *cpu ) {
             break;
     }
 
-    cpu->cycles += 5 ;
+    cpu->cycles_machine += 5 ;
     cpu->pc     += 1 ;
 }

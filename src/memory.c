@@ -3,6 +3,7 @@
 
 #include "interrupts.h"
 #include "memory.h"
+#include "time_keeper.h"
 #include "utils.h"
 #include "types.h"
 
@@ -25,11 +26,19 @@ void load_rom ( _cpu_info *cpu, const char* fname, uint16_t offset ) {
 }
 
 uint8_t read_byte ( _cpu_info *cpu, uint16_t addr ) {
-    if ( addr == 0xffff ) {
-        return interrupt_read_mask( cpu );
-    }
-    if ( addr == 0xff0f ) {
-        return interrupt_read_IF( cpu );
+    switch ( addr ) {
+        case 0xffff:
+            return interrupt_read_mask( cpu );
+        case 0xff0f:
+            return interrupt_read_IF( cpu );
+        case 0xff04: // DIV
+            return read_DIV  ( cpu );
+        case 0xff05: // TIMA
+            return read_TIMA ( cpu );
+        case 0xff06: // TMA
+            return read_TMA  ( cpu );
+        case 0xff07: // TAC
+            return read_TAC  ( cpu );
     }
     // No need to check if the address is valid.
     // uint16_t can only hold enough to access the
@@ -50,6 +59,18 @@ void write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ) {
     switch ( addr ) {
         case 0xff01: // Serial OUT
             fprintf(stderr, "%c", data);
+            break;
+        case 0xff04: // DIV
+            write_DIV  ( cpu, data );
+            break;
+        case 0xff05: // TIMA
+            write_TIMA ( cpu, data );
+            break;
+        case 0xff06: // TMA
+            write_TMA  ( cpu, data );
+            break;
+        case 0xff07: // TAC
+            write_TAC  ( cpu, data );
             break;
         case 0xff0f: // Interrupt FLAG
             cpu->interrupt_flag = data;
