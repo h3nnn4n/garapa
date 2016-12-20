@@ -20,6 +20,7 @@ return -1;
 
 void init_cpu( _cpu_info *cpu ) {
     cpu->memory = calloc ( 1, 64 * 1024 ) ; // Allocs 64Kb of ram
+
     cpu->cycles = 0;
     cpu->pc     = 0;
     cpu->a      = 0;
@@ -35,16 +36,26 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->flags.h   = 0;
     cpu->flags.c   = 0;
 
+    cpu->halted                = 0;
+    cpu->stoped                = 0;
     cpu->enable_interrupts     = 0;
     cpu->instructions_executed = 0;
+    cpu->interrupt_mask        = 0;
+    cpu->interrupt_flag        = 0;
 
-    cpu->interrupt_addr = 0x10;
-    cpu->interrupt_addr = 0x08;
+    cpu->interrupts.masked_vblank  = 1;
+    cpu->interrupts.masked_lcdstat = 1;
+    cpu->interrupts.masked_timer   = 1;
+    cpu->interrupts.masked_serial  = 1;
+    cpu->interrupts.masked_joypad  = 1;
 
-    cpu->portin0 = 0x0e;
-    cpu->portin1 = 0x08;
-    cpu->portin2 = 0x00;
+    cpu->interrupts.pending_vblank  = 0;
+    cpu->interrupts.pending_lcdstat = 0;
+    cpu->interrupts.pending_timer   = 0;
+    cpu->interrupts.pending_serial  = 0;
+    cpu->interrupts.pending_joypad  = 0;
 
+    // BIOS SKIP
     cpu->pc = 0x100;
     cpu->sp = 0xfffe;
 

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <assert.h>
 
+#include "interrupts.h"
 #include "memory.h"
 #include "utils.h"
 #include "types.h"
@@ -24,6 +25,12 @@ void load_rom ( _cpu_info *cpu, const char* fname, uint16_t offset ) {
 }
 
 uint8_t read_byte ( _cpu_info *cpu, uint16_t addr ) {
+    if ( addr == 0xffff ) {
+        return interrupt_read_mask( cpu );
+    }
+    if ( addr == 0xff0f ) {
+        return interrupt_read_IF( cpu );
+    }
     // No need to check if the address is valid.
     // uint16_t can only hold enough to access the
     // 64kb memory space;
@@ -40,8 +47,20 @@ uint16_t read_next_word ( _cpu_info *cpu ) {
 }
 
 void write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ) {
-    if ( addr == 0xff01 ) {
-        fprintf(stderr, "%c", data);
-    } else
-        cpu->memory [ addr ] = data;
+    switch ( addr ) {
+        case 0xff01: // Serial OUT
+            fprintf(stderr, "%c", data);
+            break;
+        case 0xff0f: // Interrupt FLAG
+            cpu->interrupt_flag = data;
+            interrupt_write_IF(cpu, data);
+            break;
+        case 0xffff: // Interrupt ENABLE
+            cpu->interrupt_mask = data;
+            interrupt_write_mask(cpu, data);
+            return;
+            break;
+    }
+
+    cpu->memory [ addr ] = data;
 }

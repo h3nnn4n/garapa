@@ -4,6 +4,20 @@
 #include <stdint.h>
 
 typedef struct {
+    uint8_t pending_vblank;
+    uint8_t pending_lcdstat;
+    uint8_t pending_timer;
+    uint8_t pending_serial;
+    uint8_t pending_joypad;
+
+    uint8_t masked_vblank;
+    uint8_t masked_lcdstat;
+    uint8_t masked_timer;
+    uint8_t masked_serial;
+    uint8_t masked_joypad;
+} _interrupts;
+
+typedef struct {
     uint8_t z  ; // Zero flag
     uint8_t n  ; // Subtraction bit ?
     uint8_t h  ; // Half carry bit
@@ -11,8 +25,18 @@ typedef struct {
 } _cpu_flags;
 
 typedef struct {
+    _interrupts interrupts;
+
     unsigned char *memory;
-    unsigned char enable_interrupts;
+
+    uint8_t enable_interrupts;
+    uint8_t pending_interrupts;
+
+    uint8_t interrupt_mask;
+    uint8_t interrupt_flag;
+
+    uint8_t halted;
+    uint8_t stoped;
 
     unsigned long long cycles;
     unsigned long long instructions_executed;
@@ -21,15 +45,6 @@ typedef struct {
 
     uint16_t pc;
     uint16_t sp;
-
-    uint8_t portin0;
-    uint8_t portin1;
-    uint8_t portin2;
-
-    uint16_t interrupt_addr;
-    uint16_t shift_offset;
-    uint16_t shift0;
-    uint16_t shift1;
 
     uint8_t a;
     uint8_t b;

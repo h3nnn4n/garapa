@@ -9,7 +9,7 @@
 #include "utils.h"
 #include "types.h"
 #include "memory.h"
-#include "emulator.h"
+#include "decoder.h"
 #include "graphics.h"
 #include "disassembler.h"
 #include "time_keeper.h"
@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
     load_rom ( &cpu, argv[1], 0x0000 );
 
     while ( 1 ) {
-        emulator ( &cpu );
+        decoder ( &cpu );
     }
 
     return 0;

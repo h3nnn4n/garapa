@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include <assert.h>
 
 #include "memory.h"
 #include "types.h"
@@ -18,6 +17,8 @@
 #include "instructions_stack_io_control.h"
 
 void decoder( _cpu_info *cpu ) {
+    emulate_INTERRUPT( cpu );
+
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
 #ifdef __show_step
