@@ -25,6 +25,7 @@ void decoder( _cpu_info *cpu ) {
 
     /*cpu_cycle();*/
     if ( cpu->halted ) {
+        cpu->cycles_machine += 1;
         cpu->instructions_executed += 1;
         return;
     }
@@ -81,28 +82,29 @@ void decoder( _cpu_info *cpu ) {
             cpu->flags.z = 0;
             cpu->pc -= 1;
             break;
-        case 0x0F:
-            emulate_RRC ( cpu, 0x07 );
-            cpu->flags.z = 0;
-            cpu->pc -= 1;
-            break;
-        case 0x1f:
-            emulate_RR ( cpu, 0x07 );
-            cpu->flags.z = 0;
-            cpu->pc -= 1;
-            break;
-        case 0xd4:
-            emulate_CNC ( cpu );
-            break;
-        case 0xc7:
-        case 0xd7:
-        case 0xe7:
-        case 0xf7:
-        case 0xcf:
-        case 0xdf:
-        case 0xef:
-        case 0xff:
-            emulate_RST ( cpu );
+            case 0x0F:
+                emulate_RRC ( cpu, 0x07 );
+                cpu->flags.z = 0;
+                cpu->pc -= 1;
+                break;
+            case 0x1f:
+                emulate_RR ( cpu, 0x07 );
+                cpu->flags.z = 0;
+                cpu->pc -= 1;
+                cpu->cycles_machine -= 1;
+                break;
+            case 0xd4:
+                emulate_CNC ( cpu );
+                break;
+            case 0xc7:
+            case 0xd7:
+            case 0xe7:
+            case 0xf7:
+            case 0xcf:
+            case 0xdf:
+            case 0xef:
+            case 0xff:
+                emulate_RST ( cpu );
             break;
         case 0xd9:
             emulate_RETI ( cpu );
@@ -124,11 +126,13 @@ void decoder( _cpu_info *cpu ) {
             break;
         case 0x18:
             cpu->pc += (int8_t) opcode[1] + 2; // Looks like there is a sign bit somewhere
+            cpu->cycles_machine += 3;
             break;
         case 0x20:
             cpu->pc = cpu->flags.z ?
                         cpu->pc + 2   :
                         cpu->pc + (int8_t) opcode[1] + 2;
+            cpu->cycles_machine += cpu->flags.z ? 2: 3;
             break;
         case 0x22:
             addr = ( cpu->h << 8 ) | cpu->l;
@@ -136,25 +140,43 @@ void decoder( _cpu_info *cpu ) {
             addr += 1;
             cpu->h = ( addr & 0xff00 ) >> 8;
             cpu->l = ( addr & 0x00ff ) >> 0;
-            cpu->cycles_machine += 8;
+            cpu->cycles_machine += 2;
             cpu->pc += 1;
             break;
         case 0x28:
             if ( cpu->flags.z ) {
                 cpu->pc += (int8_t) opcode[1] + 2;
+                cpu->cycles_machine += 3;
             } else {
                 cpu->pc += 2;
+                cpu->cycles_machine += 2;
             }
             break;
         case 0x30:
-            cpu->pc = cpu->flags.c ?
+           cpu->pc = cpu->flags.c ?
                         cpu->pc + 2   :
                         cpu->pc + (int8_t) opcode[1] + 2;
+
+            if ( cpu->flags.c ) {
+                cpu->cycles_machine += 2;
+                /*cpu->pc += 2;*/
+            } else {
+                /*cpu->pc =+ (int8_t) opcode[1] + 2;*/
+                cpu->cycles_machine += 3;
+            }
             break;
         case 0x38:
             cpu->pc = !cpu->flags.c ?
                         cpu->pc + 2   :
                         cpu->pc + (int8_t) opcode[1] + 2;
+
+            if ( cpu->flags.c ) {
+                /*cpu->pc =+ (int8_t) opcode[1] + 2;*/
+                cpu->cycles_machine += 3;
+            } else {
+                cpu->cycles_machine += 2;
+                /*cpu->pc += 2;*/
+            }
             break;
         case 0x0d:
         case 0x1d:
@@ -213,11 +235,11 @@ void decoder( _cpu_info *cpu ) {
             cpu->h            = (addr >> 8 ) & 0xff;
             cpu->l            = (addr >> 0 ) & 0xff;
             cpu->pc += 1;
-            cpu->cycles_machine += 12;
+            cpu->cycles_machine += 2;
             break;
         case 0x4f:
             cpu->c = cpu->a;
-            cpu->cycles_machine += 4 ;
+            cpu->cycles_machine += 1 ;
             cpu->pc     += 1 ;
             break;
         case 0xcd:
@@ -235,28 +257,28 @@ void decoder( _cpu_info *cpu ) {
             break;
         case 0xe0:
             write_byte(cpu, 0xff00 + opcode[1],  cpu->a);
-            cpu->cycles_machine += 12;
+            cpu->cycles_machine += 3;
             cpu->pc     += 2 ;
             break;
         case 0xf0:
             cpu->a = read_byte(cpu, 0xff00 + opcode[1]);
-            cpu->cycles_machine += 12;
+            cpu->cycles_machine += 3;
             cpu->pc     += 2 ;
             break;
         case 0xf2:
             cpu->a = read_byte(cpu, 0xff00 + cpu->c);
-            cpu->cycles_machine += 12;
+            cpu->cycles_machine += 3;
             cpu->pc     += 1 ;
             break;
         case 0xe2:
             write_byte(cpu, 0xff00 + cpu->c,  cpu->a);
-            cpu->cycles_machine += 8 ;
+            cpu->cycles_machine += 2 ;
             cpu->pc     += 1 ;
             break;
         case 0xea:
             addr = ( opcode[2] << 8 ) | opcode[1];
             write_byte ( cpu, addr, cpu->a );
-            cpu->cycles_machine += 8;
+            cpu->cycles_machine += 4;
             cpu->pc     += 3;
             break;
         case 0x77: // MOV M, A
@@ -270,7 +292,7 @@ void decoder( _cpu_info *cpu ) {
             break;
         case 0xf9:
             cpu->sp = cpu->h << 8 | cpu->l;
-            cpu->cycles_machine += 5;
+            cpu->cycles_machine += 2;
             cpu->pc     += 1 ;
             break;
         case 0xfe:
@@ -282,7 +304,7 @@ void decoder( _cpu_info *cpu ) {
                 write_byte(cpu, addr + 0, ( cpu->sp & 0x00ff ) >> 0 );
                 write_byte(cpu, addr + 1, ( cpu->sp & 0xff00 ) >> 8 );
                 cpu->pc     += 3;
-                cpu->cycles_machine += 20;
+                cpu->cycles_machine += 5;
             }
             break;
         case 0x0b:
@@ -425,7 +447,7 @@ void decoder( _cpu_info *cpu ) {
         case 0xfa:
             addr         = read_next_word ( cpu );
             cpu->a       = read_byte ( cpu, addr );
-            cpu->cycles_machine += 16;
+            cpu->cycles_machine += 4;
             cpu->pc     += 3;
             break;
         case 0xee:

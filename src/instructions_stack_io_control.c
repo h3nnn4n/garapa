@@ -18,7 +18,7 @@ void emulate_HALT ( _cpu_info *cpu ) {
         default:
             assert( 0 && "Code should not get here\n" ); }
 
-    cpu->cycles_machine += 4;
+    cpu->cycles_machine += 1;
     cpu->pc     += 1 ;
 }
 
@@ -48,12 +48,11 @@ void emulate_POP ( _cpu_info *cpu ) {
             cpu->flags.h  = ((cpu->memory[cpu->sp] & 0x20));
             cpu->flags.c  = ((cpu->memory[cpu->sp] & 0x10));
             cpu->sp += 2;
-            cpu->cycles_machine -= 1;
             break;
         default:
             assert( 0 && "Code should not get here\n" ); }
 
-    cpu->cycles_machine += 11;
+    cpu->cycles_machine += 3;
     cpu->pc     += 1 ;
 }
 
@@ -88,30 +87,7 @@ void emulate_PUSH ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles_machine += 11;
-    cpu->pc     += 1 ;
-}
-
-
-void emulate_XTHL ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
-
-    switch ( *opcode ) {
-        case 0xe3: // XTHL
-            {
-            uint8_t l = cpu->l;
-            uint8_t h = cpu->h;
-            cpu->l = cpu->memory[cpu->sp + 0];
-            cpu->h = cpu->memory[cpu->sp + 1];
-            cpu->memory[cpu->sp + 0] = l;
-            cpu->memory[cpu->sp + 1] = h;
-            }
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
-
-    cpu->cycles_machine += 18;
+    cpu->cycles_machine += 3;
     cpu->pc     += 1 ;
 }
 
@@ -126,7 +102,7 @@ void emulate_SPHL ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles_machine += 5;
+    cpu->cycles_machine += 2;
     cpu->pc     += 1 ;
 }
 
@@ -142,7 +118,7 @@ void emulate_EI ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles_machine += 4 ;
+    cpu->cycles_machine += 1 ;
     cpu->pc     += 1 ;
 }
 
@@ -157,11 +133,11 @@ void emulate_DI ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles_machine += 4 ;
+    cpu->cycles_machine += 1 ;
     cpu->pc     += 1 ;
 }
 
 void emulate_NOP ( _cpu_info *cpu ) {
-    cpu->cycles_machine += 4 ;
+    cpu->cycles_machine += 1 ;
     cpu->pc     += 1 ;
 }
