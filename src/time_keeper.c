@@ -1,5 +1,6 @@
 #include <time.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
 #include <unistd.h>
 
@@ -61,33 +62,37 @@ uint8_t read_TAC ( _cpu_info *cpu ) {
     return cpu->timer.TAC;
 }
 
-void write_TMA ( _cpu_info *cpu, uint8_t data ) {
+void write_TMA ( _cpu_info *cpu, uint16_t data ) {
     cpu->timer.TMA = data;
 }
 
-uint8_t read_TMA ( _cpu_info *cpu ) {
+uint16_t read_TMA ( _cpu_info *cpu ) {
     return cpu->timer.TMA;
 }
 
-void write_TIMA ( _cpu_info *cpu, uint8_t data ) {
+void write_TIMA ( _cpu_info *cpu, uint16_t data ) {
     cpu->timer.TIMA = data;
 }
 
-uint8_t read_TIMA ( _cpu_info *cpu ) {
+uint16_t read_TIMA ( _cpu_info *cpu ) {
     return cpu->timer.TIMA;
 }
 
-void write_DIV( _cpu_info *cpu, uint8_t data ) {
+void reset_TIMA ( _cpu_info *cpu ) {
+    write_TIMA(cpu, read_TMA(cpu));
+}
+
+void write_DIV( _cpu_info *cpu, uint16_t data ) {
     cpu->timer.DIV = data ^ data;   // Every write sets DIV to zero;
 }
 
-uint8_t read_DIV ( _cpu_info *cpu ) {
+uint16_t read_DIV ( _cpu_info *cpu ) {
     return cpu->timer.DIV;
 }
 
 void timer_tick ( _cpu_info *cpu ) {
-    cpu->cycles_machine++;
-    cpu->cycles_left--;
+    /*cpu->cycles_machine++;*/
+    /*cpu->cycles_left--;*/
 }
 
 void timer_update( _cpu_info *cpu ) {
@@ -100,6 +105,17 @@ void timer_update( _cpu_info *cpu ) {
 
     elapsed += delta * 4;
 
+    /*if ( read_TAC(cpu) %0x4)*/
+    /*printf("running: %c speed: %2d elapsed: %3d delta: %3d ticks: %2d TIMA: %4d %4x\n",*/
+            /*(read_TAC(cpu) & 0x04) ? 'y':'n',*/
+            /*read_TAC(cpu) & 0x03,*/
+            /*elapsed,*/
+            /*delta,*/
+            /*ticks,*/
+            /*read_TIMA(cpu),*/
+            /*read_TIMA(cpu)*/
+          /*);*/
+
     if ( elapsed >= 16 ) {
         ticks     += 1;
 
@@ -108,15 +124,15 @@ void timer_update( _cpu_info *cpu ) {
             cpu->timer.DIV += 1;
         }
 
-        if ( cpu->timer.running ) {
+        if ( read_TAC(cpu) & 0x4 ) {
             if ( ticks == cpu->timer.speed ) {
                 ticks = 0;
-                cpu->timer.TIMA += 1;
+                write_TIMA(cpu, read_TIMA(cpu) + 1);
             }
 
-            if ( cpu->timer.TIMA == 0x100 ) {
+            if ( read_TIMA(cpu) == 0x100 ) {
                 cpu->interrupts.pending_timer = 1;
-                cpu->timer.TIMA = cpu->timer.TMA;
+                reset_TIMA(cpu);
                 cpu->halted     = 0;
             }
         }
