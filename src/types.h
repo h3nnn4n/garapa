@@ -27,8 +27,6 @@ typedef struct {
     uint8_t masked_joypad;
 } _interrupts;
 
-//typedef struct {
-
 typedef struct {
     uint8_t z  ; // Zero flag
     uint8_t n  ; // Subtraction bit ?
