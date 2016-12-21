@@ -41,19 +41,15 @@ void write_TAC ( _cpu_info *cpu, uint8_t data ) {
 
     switch ( data & 0x03 ) {
         case 0x00:
-            printf(" Timer speed changed to 64\n");
             cpu->timer.speed = 64;
             break;
         case 0x01:
-            printf(" Timer speed changed to 1\n");
             cpu->timer.speed = 1 ;
             break;
         case 0x02:
-            printf(" Timer speed changed to 2\n");
             cpu->timer.speed = 2 ;
             break;
         case 0x03:
-            printf(" Timer speed changed to 4\n");
             cpu->timer.speed = 4 ;
             break;
         default:
