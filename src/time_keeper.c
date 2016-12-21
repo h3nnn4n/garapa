@@ -90,11 +90,6 @@ uint8_t read_DIV ( _cpu_info *cpu ) {
 }
 
 void timer_tick ( _cpu_info *cpu ) {
-    /*cpu->cycles_clock++;*/
-    /*if ( cpu->cycles_clock % 4 == 0 ) {*/
-        /*cpu->cycles_machine++;*/
-        /*cpu->cycles_left--;*/
-    /*}*/
     cpu->cycles_machine++;
     cpu->cycles_left--;
 }
@@ -107,23 +102,9 @@ void timer_update( _cpu_info *cpu ) {
     uint16_t delta = cpu->cycles_machine - old_clock;
     old_clock = cpu->cycles_machine;
 
-    /*uint16_t delta = cpu->cycles_clock - old_clock;*/
-    /*old_clock = cpu->cycles_clock;*/
-
     elapsed += delta * 4;
 
-    /*if (cpu->timer.running)*/
-        /*printf("elapsed = %8d active = %c t-cycles = %8llu m-cycles = %8llu cycles_left = %8d\n",*/
-                /*elapsed,*/
-                /*cpu->timer.running ? 'y':'n',*/
-                /*cpu->cycles_clock,*/
-                /*cpu->cycles_machine,*/
-                /*cpu->cycles_left*/
-              /*);*/
-
     if ( elapsed >= 16 ) {
-        /*if (cpu->timer.running)*/
-            /*printf("%8d %8d   %8d %8d\n", ticks, cpu->timer.speed, cpu->timer.TIMA, cpu->timer.DIV);*/
         ticks     += 1;
 
         if ( ticks == 16 ) {
@@ -138,7 +119,6 @@ void timer_update( _cpu_info *cpu ) {
             }
 
             if ( cpu->timer.TIMA == 0x100 ) {
-                /*printf("TIMA fired\n");*/
                 cpu->interrupts.pending_timer = 1;
                 cpu->timer.TIMA = cpu->timer.TMA;
                 cpu->halted     = 0;

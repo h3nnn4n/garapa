@@ -5,17 +5,6 @@
 #include "utils.h"
 #include "types.h"
 
-#define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
-#define BYTE_TO_BINARY(byte)  \
-  (byte & 0x80 ? '1' : '0'), \
-  (byte & 0x40 ? '1' : '0'), \
-  (byte & 0x20 ? '1' : '0'), \
-  (byte & 0x10 ? '1' : '0'), \
-  (byte & 0x08 ? '1' : '0'), \
-  (byte & 0x04 ? '1' : '0'), \
-  (byte & 0x02 ? '1' : '0'), \
-  (byte & 0x01 ? '1' : '0')
-
 // Bit 0: V-Blank  Interrupt Request (INT 40h)  (1=Request)
 // Bit 1: LCD STAT Interrupt Request (INT 48h)  (1=Request)
 // Bit 2: Timer    Interrupt Request (INT 50h)  (1=Request)
@@ -31,14 +20,11 @@ void emulate_INTERRUPT ( _cpu_info *cpu ) {
 
     uint8_t intn = read_byte(cpu, 0xff0f) & (read_byte(cpu, 0xffff));
 
-    /*printf(BYTE_TO_BINARY_PATTERN"\n", BYTE_TO_BINARY(intn));*/
-
     if ( cpu->enable_interrupts == 0 && (
             read_byte(cpu, 0xff0f) &
             read_byte(cpu, 0xffff)
             )
        ) {
-        /*if ( cpu->halted ) printf("Unhalted cpu her\n");*/
         cpu->halted = 0;
         return;
     }
@@ -85,8 +71,6 @@ uint8_t interrupt_read_IF( _cpu_info* cpu ) {
     mask |= (cpu->interrupts.pending_serial  << 3);
     mask |= (cpu->interrupts.pending_joypad  << 4);
 
-    /*printf("MEU: IF reads %d %02x\n", mask, mask);*/
-
     return mask;
 }
 
@@ -96,14 +80,6 @@ void interrupt_write_IF( _cpu_info *cpu, uint8_t mask) {
     cpu->interrupts.pending_timer   = !!(mask & 0x04);
     cpu->interrupts.pending_serial  = !!(mask & 0x08);
     cpu->interrupts.pending_joypad  = !!(mask & 0x10);
-
-    /*printf("MEU: IF set to %02x: %d %d %d %d %d\n", mask,*/
-            /*cpu->interrupts.pending_vblank ,*/
-            /*cpu->interrupts.pending_lcdstat,*/
-            /*cpu->interrupts.pending_timer  ,*/
-            /*cpu->interrupts.pending_serial ,*/
-            /*cpu->interrupts.pending_joypad*/
-          /*);*/
 
     if ( mask && cpu->enable_interrupts ) {
         cpu->pending_interrupts = 1;
