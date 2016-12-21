@@ -29,7 +29,9 @@ void decoder( _cpu_info *cpu ) {
         return;
     }
 
-    emulate_INTERRUPT( cpu ); unsigned char *opcode = &cpu->memory[cpu->pc];
+    emulate_INTERRUPT( cpu );
+
+    unsigned char *opcode = &cpu->memory[cpu->pc];
 
 #ifdef __show_step
     disassembler ( cpu->memory, cpu->pc );
