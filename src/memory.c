@@ -23,7 +23,7 @@ void load_rom ( _cpu_info *cpu, const char* fname, uint16_t offset ) {
 
     fclose(f);
 
-    fprintf(stderr, "Loaded %s into %04x to %04x\n", fname, offset, offset +(uint16_t) buffer_size);
+    /*fprintf(stderr, "Loaded %s into %04x to %04x\n", fname, offset, offset +(uint16_t) buffer_size);*/
 }
 
 uint8_t read_byte ( _cpu_info *cpu, uint16_t addr ) {
