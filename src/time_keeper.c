@@ -113,7 +113,13 @@ void timer_update( _cpu_info *cpu ) {
     elapsed += delta * 4;
 
     /*if (cpu->timer.running)*/
-        /*printf("active = %c      t-cycles = %8llu  m-cycles = %8llu cycles_left = %8d\n", cpu->timer.running ? 'y':'n', cpu->cycles_clock, cpu->cycles_machine, cpu->cycles_left);*/
+        /*printf("elapsed = %8d active = %c t-cycles = %8llu m-cycles = %8llu cycles_left = %8d\n",*/
+                /*elapsed,*/
+                /*cpu->timer.running ? 'y':'n',*/
+                /*cpu->cycles_clock,*/
+                /*cpu->cycles_machine,*/
+                /*cpu->cycles_left*/
+              /*);*/
 
     if ( elapsed >= 16 ) {
         /*if (cpu->timer.running)*/
@@ -135,6 +141,7 @@ void timer_update( _cpu_info *cpu ) {
                 /*printf("TIMA fired\n");*/
                 cpu->interrupts.pending_timer = 1;
                 cpu->timer.TIMA = cpu->timer.TMA;
+                cpu->halted     = 0;
             }
         }
 

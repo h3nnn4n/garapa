@@ -24,10 +24,12 @@ void decoder( _cpu_info *cpu ) {
     /*printf("\n");*/
 
     /*cpu_cycle();*/
+    if ( cpu->halted ) {
+        cpu->instructions_executed += 1;
+        return;
+    }
 
-    emulate_INTERRUPT( cpu );
-
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    emulate_INTERRUPT( cpu ); unsigned char *opcode = &cpu->memory[cpu->pc];
 
 #ifdef __show_step
     disassembler ( cpu->memory, cpu->pc );
@@ -39,6 +41,8 @@ void decoder( _cpu_info *cpu ) {
                 emulate_MOV ( cpu );
     } else
     switch ( *opcode ) {
+        case 0x76: emulate_HALT ( cpu );
+            break;
         case 0x00: emulate_NOP  ( cpu );
             break;
         case 0xde:

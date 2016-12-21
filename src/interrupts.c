@@ -38,6 +38,7 @@ void emulate_INTERRUPT ( _cpu_info *cpu ) {
             read_byte(cpu, 0xffff)
             )
        ) {
+        /*if ( cpu->halted ) printf("Unhalted cpu her\n");*/
         cpu->halted = 0;
         return;
     }
@@ -71,6 +72,7 @@ void emulate_INTERRUPT ( _cpu_info *cpu ) {
         cpu->memory[cpu->sp-2] = (ret & 0xff);
         cpu->sp                = cpu->sp - 2;
         cpu->enable_interrupts = 0;
+        cpu->halted            = 0;
     }
 }
 

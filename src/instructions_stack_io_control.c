@@ -8,6 +8,20 @@
 
 #include "instructions_stack_io_control.h"
 
+void emulate_HALT ( _cpu_info *cpu ) {
+    unsigned char *opcode = &cpu->memory[cpu->pc];
+
+    switch ( *opcode ) {
+        case 0x76:
+            cpu->halted = 1;
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" ); }
+
+    cpu->cycles_machine += 4;
+    cpu->pc     += 1 ;
+}
+
 void emulate_POP ( _cpu_info *cpu ) {
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
