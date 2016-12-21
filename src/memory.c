@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
 
 #include "interrupts.h"
@@ -55,10 +56,44 @@ uint16_t read_next_word ( _cpu_info *cpu ) {
     return read_word ( cpu, cpu->pc + 1 );
 }
 
+void check_passed ( char c ) {
+    static int return_count = 0;
+    static int state = 0;
+
+    if ( c == 10 )
+        return_count++;
+
+    if ( return_count == 3 ) {
+        switch ( c ) {
+            case 80:  // P
+                state++;
+                break;
+            case 97:  // a
+                state++;
+                break;
+            case 115: // s
+                state++;
+                break;
+            case 101: // e
+                state++;
+                break;
+            case 100: // d
+                state++;
+                break;
+        }
+    }
+
+    if ( state == 6 && c == 10) {
+        exit(0);
+    }
+}
+
 void write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ) {
     switch ( addr ) {
         case 0xff01: // Serial OUT
             fprintf(stderr, "%c", data);
+            check_passed(data);
+            /*fprintf(stderr, "%c %d\n", data, data);*/
             break;
         case 0xff04: // DIV
             write_DIV  ( cpu, data );
