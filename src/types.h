@@ -4,6 +4,21 @@
 #include <stdint.h>
 
 typedef struct {
+    uint8_t button_right;
+    uint8_t button_left;
+    uint8_t button_up;
+    uint8_t button_down;
+
+    uint8_t button_a;
+    uint8_t button_b;
+    uint8_t button_select;
+    uint8_t button_start;
+
+    uint8_t select_button;
+    uint8_t select_direction;
+} _joystick;
+
+typedef struct {
     uint8_t active_line;
     uint8_t mode;
 
@@ -61,6 +76,7 @@ typedef struct {
 
 typedef struct {
     _interrupts interrupts;
+    _joystick   joystick;
 
     unsigned char *memory;
 

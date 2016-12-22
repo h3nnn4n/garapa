@@ -41,7 +41,34 @@ uint8_t read_byte ( _cpu_info *cpu, uint16_t addr ) {
 
     switch ( addr ) {
         case 0xff00:
-            return 0xcf;
+            {
+                /*printf (" %d %d %d %d - %d %d %d %d\n",*/
+                          /*cpu->joystick.button_start  ,*/
+                          /*cpu->joystick.button_select ,*/
+                          /*cpu->joystick.button_b      ,*/
+                          /*cpu->joystick.button_a      ,*/
+                          /*cpu->joystick.button_down   ,*/
+                          /*cpu->joystick.button_up     ,*/
+                          /*cpu->joystick.button_left   ,*/
+                          /*cpu->joystick.button_right  );*/
+                uint8_t input = 0;
+                if ( cpu->joystick.select_button == 0 ) {
+                    input =
+                        ( cpu->joystick.button_start  << 3 ) |
+                        ( cpu->joystick.button_select << 2 ) |
+                        ( cpu->joystick.button_b      << 1 ) |
+                        ( cpu->joystick.button_a      << 0 ) ;
+                }
+
+                if ( cpu->joystick.select_direction == 0 ) {
+                    input =
+                        ( cpu->joystick.button_down   << 3 ) |
+                        ( cpu->joystick.button_up     << 2 ) |
+                        ( cpu->joystick.button_left   << 1 ) |
+                        ( cpu->joystick.button_right  << 0 ) ;
+                }
+                return 0xc0 | ( input );
+            }
         case 0xffff:
             return interrupt_read_mask( cpu );
         case 0xff0f:
@@ -120,6 +147,8 @@ void check_passed ( char c ) {
 void write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ) {
     switch ( addr ) {
         case 0xff00:
+            cpu->joystick.select_button    = data & 0x20;
+            cpu->joystick.select_direction = data & 0x10;
             break;
         case 0xff01: // Serial OUT
             /*fprintf(stderr, "%c", data);*/

@@ -26,6 +26,19 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->cycles_machine  = 0;
     cpu->cycles_left     = 0;
 
+    cpu->joystick.select_button    = 1;
+    cpu->joystick.select_direction = 1;
+
+    cpu->joystick.button_a      = 1;
+    cpu->joystick.button_b      = 1;
+    cpu->joystick.button_select = 1;
+    cpu->joystick.button_start  = 1;
+
+    cpu->joystick.button_left   = 1;
+    cpu->joystick.button_right  = 1;
+    cpu->joystick.button_down   = 1;
+    cpu->joystick.button_up     = 1;
+
     cpu->pc     = 0;
     cpu->a      = 0;
     cpu->b      = 0;
