@@ -213,22 +213,21 @@ void draw_sprites ( _cpu_info *cpu ) {
     // bit3 = atributes
     // TODO: HFLIP and VFLIP
     for (int i = 0; i < 40; ++i) { // Loops over the 40 sprites
-        uint8_t posy = read_byte(cpu, 0xfe00 + (i*4    )) - 16; // Reads the y coordinate
-        uint8_t posx = read_byte(cpu, 0xfe00 + (i*4 + 1)) - 8 ; // Reads the x coordinate
+        uint8_t posy      = read_byte(cpu, 0xfe00 + (i*4    )) - 16; // Reads the y coordinate
+        uint8_t posx      = read_byte(cpu, 0xfe00 + (i*4 + 1)) - 8 ; // Reads the x coordinate
         uint16_t tileaddr = read_byte(cpu, 0xfe00 + (i*4 + 2)); // Tile index
-
-        /*uint8_t posy = cpu->memory[0xfe00 + (i*4    )];*/
-        /*uint8_t posx = cpu->memory[0xfe00 + (i*4 + 1)];*/
 
         /*if ( cpu->cycles_machine > 46022942 ) printf("Sprite %2d: x: %3d y: %3d\n", i, posx, posy);*/
 
         if ( ( cpu->lcd.active_line >= posy ) && // Checks if the sprite overlaps the current line
              ( cpu->lcd.active_line < posy + ( cpu->lcd.sprite_size ? 16 : 8 ) ) ) {
 
+            /*if ( cpu->cycles_machine > 46022942 )*/
+                /*printf("Sprite %2d: x: %3d y: %3d\n", i, posx, posy);*/
+
             uint8_t line_offset = (cpu->lcd.active_line - posy) * 2; // 2 bytes per line
 
-            uint16_t addr = 0x8000 + tileaddr + (line_offset * 16);
-            if ( cpu->cycles_machine > 46022942 ) printf(" %04x \n", addr);
+            uint16_t addr = 0x8000 + (tileaddr * 16) + line_offset;
             uint8_t bit1 = read_byte(cpu, addr    );
             uint8_t bit2 = read_byte(cpu, addr + 1);
 
@@ -238,18 +237,15 @@ void draw_sprites ( _cpu_info *cpu ) {
                 if ( posx + j >= 160 ) // Out of screen
                     continue;
 
-                color = (((bit2 & (0x80 >> posx)) != 0) << 1) |
-                         ((bit1 & (0x80 >> posx)) != 0)       ;
+                color = (((bit2 & (0x80 >> j)) != 0) << 1) |
+                         ((bit1 & (0x80 >> j)) != 0)       ;
 
                 if ( !color ) continue; // Transparent
 
-                if ( color > 3 ) color = 2;
-
-                buffer[cpu->lcd.active_line*140 + posx + j] = colours[sprpalette1[color]];
+                buffer[cpu->lcd.active_line*160 + posx + j] = colours[sprpalette1[color]];
             }
         }
     }
-    puts("");
 }
 
 void display_update( _cpu_info *cpu ) {
