@@ -70,12 +70,14 @@ void emulate_ADI ( _cpu_info *cpu ) {
             t             = cpu->a + (uint8_t) opcode[1];
             cpu->a        = (uint8_t) t;
             cpu->flags.c  = (t > 0xff);
+            cpu->cycles_machine += 2 ;
             break;
         case 0xe8:
             cpu->flags.h  = halfcary( cpu->sp, opcode[1], cpu->sp + (int8_t) opcode[1] );
             t             = cpu->sp + (int8_t) opcode[1];
             cpu->flags.c  = (t & 0xff) < (cpu->sp & 0xff);
             cpu->sp       = t;
+            cpu->cycles_machine += 4 ;
             break;
         case 0xf8:
             cpu->flags.h  = halfcary( cpu->sp, opcode[1], cpu->sp + (int8_t) opcode[1] );
@@ -83,6 +85,7 @@ void emulate_ADI ( _cpu_info *cpu ) {
             cpu->flags.c  = (t & 0xff) < (cpu->sp & 0xff);
             cpu->h        = (t & 0xff00) >> 8;
             cpu->l        = (t & 0x00ff) >> 0;
+            cpu->cycles_machine += 3 ;
             break;
         default:
             assert( 0 && "Code should not get here\n" );
@@ -91,7 +94,6 @@ void emulate_ADI ( _cpu_info *cpu ) {
     cpu->flags.z  = (cpu->a == 0);
     cpu->flags.n  = 0;
 
-    cpu->cycles_machine += 2 ;
     cpu->pc     += 2 ;
 }
 

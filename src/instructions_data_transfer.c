@@ -200,7 +200,7 @@ void emulate_MVI ( _cpu_info *cpu ) {
             break;
         case 0x36: // MVI M, D8
             cpu->memory[cpu->h << 8 | cpu->l] = opcode[1];
-            cpu->cycles_machine += 3;
+            cpu->cycles_machine += 1;
             break;
         case 0x3e: // MVI A, D8
             cpu->a = opcode[1];
