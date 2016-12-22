@@ -21,9 +21,10 @@ return -1;
 void init_cpu( _cpu_info *cpu ) {
     cpu->memory = calloc ( 1, 64 * 1024 ) ; // Allocs 64Kb of ram
 
-    cpu->cycles_clock   = 0;
-    cpu->cycles_machine = 0;
-    cpu->cycles_left    = 0;
+    cpu->DMA_in_progress = 0;
+    cpu->cycles_clock    = 0;
+    cpu->cycles_machine  = 0;
+    cpu->cycles_left     = 0;
 
     cpu->pc     = 0;
     cpu->a      = 0;

@@ -29,6 +29,16 @@ void load_rom ( _cpu_info *cpu, const char* fname, uint16_t offset ) {
 }
 
 uint8_t read_byte ( _cpu_info *cpu, uint16_t addr ) {
+
+    if ( cpu->DMA_in_progress && addr < 0xff80 ) {
+        uint8_t dx = cpu->cycles_machine - cpu->DMA_in_progress;
+        if ( dx >= 160 ) {
+            cpu->DMA_in_progress = 0;
+        } else {
+            return cpu->memory[0xff80 + dx];
+        }
+    }
+
     switch ( addr ) {
         case 0xff00:
             return 0xcf;
@@ -113,7 +123,7 @@ void write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ) {
             break;
         case 0xff01: // Serial OUT
             /*fprintf(stderr, "%c", data);*/
-            check_passed(data);
+            /*check_passed(data);*/
             /*fprintf(stderr, "%c %d\n", data, data);*/
             break;
         case 0xff04: // DIV
@@ -142,8 +152,16 @@ void write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ) {
         case 0xff43:
             write_scroll_x ( cpu, data );
             break;
-        case 0xff44: // LYC
+        case 0xff44:
             // do nothing
+            break;
+        case 0xff45:
+            // do nothing
+            break;
+        case 0xff46:
+            printf("Requested OAM DMA\n");
+            memcpy(&cpu->memory[0xfe00], &cpu->memory[data*0x100], 0xa0);
+            cpu->DMA_in_progress = cpu->cycles_machine;
             break;
         case 0xff4a:
             write_window_y ( cpu, data );

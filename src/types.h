@@ -82,6 +82,8 @@ typedef struct {
     _timer     timer;
     _lcd       lcd;
 
+    uint8_t DMA_in_progress;
+
     uint16_t pc;
     uint16_t sp;
 
