@@ -7,7 +7,7 @@
 #include "graphics.h"
 
 static int bgpalette[]          = {3, 2, 1, 0};
-/*static int sprpalette1[]        = {0, 1, 2, 3};*/
+static int sprpalette1[]        = {0, 1, 2, 3};
 /*static int sprpalette2[]        = {0, 1, 2, 3};*/
 static unsigned long colours[4] = {0xFFFFFF, 0xC0C0C0, 0x808080, 0x000000};
 
@@ -177,9 +177,7 @@ void draw_background_and_window( _cpu_info *cpu ) {
             read_active_line(cpu) - read_window_y(cpu) < 144) {
             xm = x;
             ym = read_active_line(cpu) - read_window_y(cpu);
-            map_select = display_test_windowtilemap(cpu);
-        } else {
-            if(!display_test_bg_enabled(cpu) ) {
+            map_select = display_test_windowtilemap(cpu); } else { if(!display_test_bg_enabled(cpu) ) {
                 buffer[read_active_line(cpu)*160 + x] = 0;
                 return;
             }
@@ -203,6 +201,55 @@ void draw_background_and_window( _cpu_info *cpu ) {
         colour = (!!(b2&mask)<<1) | !!(b1&mask);
         buffer[read_active_line(cpu)*160 + x] = colours[bgpalette[colour]];
     }
+}
+
+void draw_sprites ( _cpu_info *cpu ) {
+    uint8_t *buffer = screen->pixels;
+
+    // OAM = 0xfe00
+    // bit0 = y
+    // bit1 = x
+    // bit2 = tile number
+    // bit3 = atributes
+    // TODO: HFLIP and VFLIP
+    for (int i = 0; i < 40; ++i) { // Loops over the 40 sprites
+        uint8_t posy = read_byte(cpu, 0xfe00 + (i*4    )) - 16; // Reads the y coordinate
+        uint8_t posx = read_byte(cpu, 0xfe00 + (i*4 + 1)) - 8 ; // Reads the x coordinate
+        uint16_t tileaddr = read_byte(cpu, 0xfe00 + (i*4 + 2)); // Tile index
+
+        /*uint8_t posy = cpu->memory[0xfe00 + (i*4    )];*/
+        /*uint8_t posx = cpu->memory[0xfe00 + (i*4 + 1)];*/
+
+        /*if ( cpu->cycles_machine > 46022942 ) printf("Sprite %2d: x: %3d y: %3d\n", i, posx, posy);*/
+
+        if ( ( cpu->lcd.active_line >= posy ) && // Checks if the sprite overlaps the current line
+             ( cpu->lcd.active_line < posy + ( cpu->lcd.sprite_size ? 16 : 8 ) ) ) {
+
+            uint8_t line_offset = (cpu->lcd.active_line - posy) * 2; // 2 bytes per line
+
+            uint16_t addr = 0x8000 + tileaddr + (line_offset * 16);
+            if ( cpu->cycles_machine > 46022942 ) printf(" %04x \n", addr);
+            uint8_t bit1 = read_byte(cpu, addr    );
+            uint8_t bit2 = read_byte(cpu, addr + 1);
+
+            for (int j = 0; j < 8; ++j) { // Loops over the pixels
+                uint8_t color;
+
+                if ( posx + j >= 160 ) // Out of screen
+                    continue;
+
+                color = (((bit2 & (0x80 >> posx)) != 0) << 1) |
+                         ((bit1 & (0x80 >> posx)) != 0)       ;
+
+                if ( !color ) continue; // Transparent
+
+                if ( color > 3 ) color = 2;
+
+                buffer[cpu->lcd.active_line*140 + posx + j] = colours[sprpalette1[color]];
+            }
+        }
+    }
+    puts("");
 }
 
 void display_update( _cpu_info *cpu ) {
@@ -229,28 +276,26 @@ void display_update( _cpu_info *cpu ) {
 
     if ( cpu->lcd.active_line != last_line &&
          cpu->lcd.active_line < 144 ) {
-        // Draw line
         draw_background_and_window(cpu); // Draw one line of the background
+        draw_sprites(cpu);
     }
 
     if ( display_read_LY(cpu) == read_byte(cpu, 0xff45) &&
          display_test_LYC_enable(cpu) ){
-        /*printf("MEU: LCD requested lyc int\n");*/
-        cpu->interrupts.pending_lcdstat = 1;
-        abort();
+        cpu->interrupts.pending_lcdstat = 1; abort();
     }
 
-    /*if ( cpu->lcd.mode == 2 && cpu->lcd.mode2_oam ) {*/
-        /*cpu->interrupts.pending_lcdstat = 1;*/
-    /*}*/
+    if ( cpu->lcd.mode == 2 && cpu->lcd.mode2_oam ) {
+        cpu->interrupts.pending_lcdstat = 1;
+    }
 
-    /*if ( cpu->lcd.mode == 1 && cpu->lcd.mode1_vblank ) {*/
-        /*cpu->interrupts.pending_lcdstat = 1;*/
-    /*}*/
+    if ( cpu->lcd.mode == 1 && cpu->lcd.mode1_vblank ) {
+        cpu->interrupts.pending_lcdstat = 1;
+    }
 
-    /*if ( cpu->lcd.mode == 0 && cpu->lcd.mode0_hblank ) {*/
-        /*cpu->interrupts.pending_lcdstat = 1;*/
-    /*}*/
+    if ( cpu->lcd.mode == 0 && cpu->lcd.mode0_hblank ) {
+        cpu->interrupts.pending_lcdstat = 1;
+    }
 
     /*printf("MEU: mode: %x line: %3d frame: %6d\n", cpu->lcd.mode, cpu->lcd.active_line, frame);*/
 
