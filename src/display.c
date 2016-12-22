@@ -6,10 +6,27 @@
 #include "display.h"
 #include "graphics.h"
 
-static int bgpalette[]          = {3, 2, 1, 0};
-static int sprpalette1[]        = {0, 1, 2, 3};
-/*static int sprpalette2[]        = {0, 1, 2, 3};*/
-static unsigned long colours[4] = {0xFFFFFF, 0xC0C0C0, 0x808080, 0x000000};
+void write_spr1_palette ( _cpu_info *cpu, uint8_t data ) {
+    cpu->lcd.bg_palette[0] = ( data >> 0 ) & 0x03;
+    cpu->lcd.bg_palette[1] = ( data >> 2 ) & 0x03;
+    cpu->lcd.bg_palette[2] = ( data >> 4 ) & 0x03;
+    cpu->lcd.bg_palette[3] = ( data >> 6 ) & 0x03;
+}
+
+void write_spr2_palette ( _cpu_info *cpu, uint8_t data ) {
+    cpu->lcd.spr1_palette[0] = ( data >> 0 ) & 0x03;
+    cpu->lcd.spr1_palette[1] = ( data >> 2 ) & 0x03;
+    cpu->lcd.spr1_palette[2] = ( data >> 4 ) & 0x03;
+    cpu->lcd.spr1_palette[3] = ( data >> 6 ) & 0x03;
+}
+
+void write_bg_palette ( _cpu_info *cpu, uint8_t data ) {
+    cpu->lcd.spr1_palette[0] = ( data >> 0 ) & 0x03;
+    cpu->lcd.spr1_palette[1] = ( data >> 2 ) & 0x03;
+    cpu->lcd.spr1_palette[2] = ( data >> 4 ) & 0x03;
+    cpu->lcd.spr1_palette[3] = ( data >> 6 ) & 0x03;
+
+}
 
 void write_scroll_y ( _cpu_info *cpu, uint8_t data ) {
     cpu->lcd.scy = data;
@@ -170,7 +187,7 @@ void draw_background_and_window( _cpu_info *cpu ) {
 
     for (int x = 0; x < 160; ++x) {
         unsigned int map_select, map_offset, tile_num, tile_addr, xm, ym;
-        unsigned char b1, b2, mask, colour;
+        unsigned char b1, b2, mask, color;
 
         if( read_active_line(cpu) >= read_window_y(cpu) &&
             display_test_windowenable(cpu) &&
@@ -198,8 +215,8 @@ void draw_background_and_window( _cpu_info *cpu ) {
         b1 = cpu->memory[(tile_addr+(ym%8)*2)];
         b2 = cpu->memory[(tile_addr+(ym%8)*2+1)];
         mask = 128>>(xm%8);
-        colour = (!!(b2&mask)<<1) | !!(b1&mask);
-        buffer[read_active_line(cpu)*160 + x] = colours[bgpalette[colour]];
+        color = (!!(b2&mask)<<1) | !!(b1&mask);
+        buffer[read_active_line(cpu)*160 + x] = cpu->lcd.colors[cpu->lcd.bg_palette[color]];
     }
 }
 
@@ -242,7 +259,7 @@ void draw_sprites ( _cpu_info *cpu ) {
 
                 if ( !color ) continue; // Transparent
 
-                buffer[cpu->lcd.active_line*160 + posx + j] = colours[sprpalette1[color]];
+                buffer[cpu->lcd.active_line*160 + posx + j] = cpu->lcd.colors[cpu->lcd.bg_palette[color]];
             }
         }
     }

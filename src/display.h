@@ -24,6 +24,10 @@ uint8_t display_read_stat              ( _cpu_info *cpu ) ;
 
 void    display_write_stat             ( _cpu_info *cpu, uint8_t data ) ;
 
+void write_spr1_palette ( _cpu_info *cpu, uint8_t data ) ;
+void write_spr2_palette ( _cpu_info *cpu, uint8_t data ) ;
+void write_bg_palette   ( _cpu_info *cpu, uint8_t data ) ;
+
 void  write_lcd_control  ( _cpu_info *cpu, uint8_t data ) ;
 void    write_scroll_x   ( _cpu_info *cpu, uint8_t data ) ;
 void    write_window_y   ( _cpu_info *cpu, uint8_t data ) ;

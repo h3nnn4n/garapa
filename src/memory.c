@@ -192,6 +192,15 @@ void write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ) {
             memcpy(&cpu->memory[0xfe00], &cpu->memory[data*0x100], 0xa0);
             cpu->DMA_in_progress = cpu->cycles_machine;
             break;
+        case 0xff47: // BG Palette
+            write_bg_palette   ( cpu, data ) ;
+            break;
+        case 0xff48: // sprite Palette 1
+            write_spr1_palette ( cpu, data ) ;
+            break;
+        case 0xff49: // sprite Palette 2
+            write_spr2_palette ( cpu, data ) ;
+            break;
         case 0xff4a:
             write_window_y ( cpu, data );
             break;

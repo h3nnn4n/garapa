@@ -49,7 +49,6 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->l      = 0;
 
     cpu->lcd.active_line      = 0;
-    cpu->lcd.active_line      = 0;
     cpu->lcd.mode             = 0;
 
     cpu->lcd.power            = 0;
@@ -71,6 +70,26 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->lcd.scx            = 0;
     cpu->lcd.bgx            = 0;
     cpu->lcd.bgy            = 0;
+
+    cpu->lcd.bg_palette[0] = 3;
+    cpu->lcd.bg_palette[1] = 2;
+    cpu->lcd.bg_palette[2] = 1;
+    cpu->lcd.bg_palette[3] = 0;
+
+    cpu->lcd.spr1_palette[0] = 0;
+    cpu->lcd.spr1_palette[1] = 1;
+    cpu->lcd.spr1_palette[2] = 2;
+    cpu->lcd.spr1_palette[3] = 3;
+
+    cpu->lcd.spr2_palette[0] = 0;
+    cpu->lcd.spr2_palette[1] = 1;
+    cpu->lcd.spr2_palette[2] = 2;
+    cpu->lcd.spr2_palette[3] = 3;
+
+    cpu->lcd.colors[0] = 0xffffff;
+    cpu->lcd.colors[1] = 0xc0c0c0;
+    cpu->lcd.colors[2] = 0x808080;
+    cpu->lcd.colors[3] = 0x000000;
 
     cpu->flags.z   = 0;
     cpu->flags.n   = 0;

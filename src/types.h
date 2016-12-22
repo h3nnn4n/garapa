@@ -37,6 +37,11 @@ typedef struct {
     uint8_t mode0_hblank;
     uint8_t lyc_ly_triggered;
 
+    uint8_t  bg_palette[4];
+    uint8_t  spr1_palette[4];
+    uint8_t  spr2_palette[4];
+    uint32_t colors[4];
+
     uint8_t scy;
     uint8_t scx;
     uint8_t bgx;
