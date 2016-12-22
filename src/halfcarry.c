@@ -1,8 +1,8 @@
 #include <stdint.h>
 
-#include "halfcary.h"
+#include "halfcarry.h"
 
-int halfcary_sub( uint8_t a, uint8_t b, uint8_t c ) {
+int halfcarry_sub( uint8_t a, uint8_t b, uint8_t c ) {
     uint8_t b1 = ( a & 0x08 ) >> 1;
     uint8_t b2 = ( b & 0x08 ) >> 2;
     uint8_t b3 = ( c & 0x08 ) >> 3;
@@ -11,7 +11,7 @@ int halfcary_sub( uint8_t a, uint8_t b, uint8_t c ) {
     return table[ b1 | b2 | b3 ];
 }
 
-int halfcary( uint8_t a, uint8_t b, uint8_t c ) {
+int halfcarry( uint8_t a, uint8_t b, uint8_t c ) {
     uint8_t b1 = ( a & 0x08 ) >> 1;
     uint8_t b2 = ( b & 0x08 ) >> 2;
     uint8_t b3 = ( c & 0x08 ) >> 3;

@@ -4,7 +4,7 @@
 
 #include "types.h"
 #include "utils.h"
-#include "halfcary.h"
+#include "halfcarry.h"
 
 #include "instructions_arithmetic.h"
 
@@ -15,36 +15,36 @@ void emulate_ADD ( _cpu_info *cpu ) {
     switch ( *opcode ) {
         case 0x80:
             answer += (uint16_t) cpu->b;
-            cpu->flags.h    = halfcary( cpu->a, cpu->b, answer );
+            cpu->flags.h    = halfcarry( cpu->a, cpu->b, answer );
             break;
         case 0x81:
             answer += (uint16_t) cpu->c;
-            cpu->flags.h    = halfcary( cpu->a, cpu->c, answer );
+            cpu->flags.h    = halfcarry( cpu->a, cpu->c, answer );
             break;
         case 0x82:
             answer += (uint16_t) cpu->d;
-            cpu->flags.h    = halfcary( cpu->a, cpu->d, answer );
+            cpu->flags.h    = halfcarry( cpu->a, cpu->d, answer );
             break;
         case 0x83:
             answer += (uint16_t) cpu->e;
-            cpu->flags.h    = halfcary( cpu->a, cpu->e, answer );
+            cpu->flags.h    = halfcarry( cpu->a, cpu->e, answer );
             break;
         case 0x84:
             answer += (uint16_t) cpu->h;
-            cpu->flags.h    = halfcary( cpu->a, cpu->h, answer );
+            cpu->flags.h    = halfcarry( cpu->a, cpu->h, answer );
             break;
         case 0x85:
             answer += (uint16_t) cpu->l;
-            cpu->flags.h    = halfcary( cpu->a, cpu->l, answer );
+            cpu->flags.h    = halfcarry( cpu->a, cpu->l, answer );
             break;
         case 0x86:
             answer += (uint16_t) cpu->memory[(cpu->h<<8) | (cpu->l)];
-            cpu->flags.h    = halfcary( cpu->a, cpu->memory[(cpu->h<<8) | (cpu->l)], answer );
+            cpu->flags.h    = halfcarry( cpu->a, cpu->memory[(cpu->h<<8) | (cpu->l)], answer );
             cpu->cycles_machine += 1;
             break;
         case 0x87:
             answer += (uint16_t) cpu->a;
-            cpu->flags.h    = halfcary( cpu->a, cpu->a, answer );
+            cpu->flags.h    = halfcarry( cpu->a, cpu->a, answer );
             break;
         default:
             assert( 0 && "Code should not get here\n" );
@@ -66,21 +66,21 @@ void emulate_ADI ( _cpu_info *cpu ) {
 
     switch ( *opcode ) {
         case 0xc6: // ADI
-            cpu->flags.h  = halfcary( cpu->a, opcode[1], cpu->a + opcode[1] );
+            cpu->flags.h  = halfcarry( cpu->a, opcode[1], cpu->a + opcode[1] );
             t             = cpu->a + (uint8_t) opcode[1];
             cpu->a        = (uint8_t) t;
             cpu->flags.c  = (t > 0xff);
             cpu->cycles_machine += 2 ;
             break;
         case 0xe8:
-            cpu->flags.h  = halfcary( cpu->sp, opcode[1], cpu->sp + (int8_t) opcode[1] );
+            cpu->flags.h  = halfcarry( cpu->sp, opcode[1], cpu->sp + (int8_t) opcode[1] );
             t             = cpu->sp + (int8_t) opcode[1];
             cpu->flags.c  = (t & 0xff) < (cpu->sp & 0xff);
             cpu->sp       = t;
             cpu->cycles_machine += 4 ;
             break;
         case 0xf8:
-            cpu->flags.h  = halfcary( cpu->sp, opcode[1], cpu->sp + (int8_t) opcode[1] );
+            cpu->flags.h  = halfcarry( cpu->sp, opcode[1], cpu->sp + (int8_t) opcode[1] );
             t             = cpu->sp + (int8_t) opcode[1];
             cpu->flags.c  = (t & 0xff) < (cpu->sp & 0xff);
             cpu->h        = (t & 0xff00) >> 8;
@@ -152,7 +152,7 @@ void emulate_ADC ( _cpu_info *cpu ) {
     cpu->flags.z    = ( answer & 0xff ) == 0;
     cpu->flags.n    = 0;
     cpu->flags.c    = ( answer > 0xff );
-    cpu->flags.h    = halfcary( a, b, answer );
+    cpu->flags.h    = halfcarry( a, b, answer );
 
     cpu->cycles_machine += 1 ;
     cpu->pc     += 1 ;
@@ -165,7 +165,7 @@ void emulate_ACI ( _cpu_info *cpu ) {
     switch ( *opcode ) {
         case 0xce: // ACI
             t             = cpu->a + (uint8_t) opcode[1] + (cpu->flags.c != 0);
-            cpu->flags.h  = halfcary( cpu->a, opcode[1], t);
+            cpu->flags.h  = halfcarry( cpu->a, opcode[1], t);
             cpu->a        = t & 0xff;
             break;
         default:
@@ -239,7 +239,7 @@ void emulate_SUI ( _cpu_info *cpu ) {
 
     cpu->flags.z    = ( answer & 0xff ) == 0;
     cpu->flags.n    = 1;
-    cpu->flags.h    = halfcary_sub( cpu->a, opcode[1], answer );
+    cpu->flags.h    = halfcarry_sub( cpu->a, opcode[1], answer );
     cpu->flags.c    = ( answer > 0xff );
 
     cpu->a = answer & 0xff;

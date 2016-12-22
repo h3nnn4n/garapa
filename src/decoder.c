@@ -7,7 +7,7 @@
 #include "utils.h"
 #include "decoder.h"
 #include "disassembler.h"
-#include "halfcary.h"
+#include "halfcarry.h"
 
 #include "instructions_0xcb.h"
 #include "instructions_branch.h"

@@ -3,7 +3,7 @@
 
 #include "types.h"
 #include "utils.h"
-#include "halfcary.h"
+#include "halfcarry.h"
 #include "memory.h"
 
 #include "instructions_logical.h"
