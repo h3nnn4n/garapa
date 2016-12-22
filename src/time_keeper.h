@@ -19,7 +19,7 @@ void timer_tick   ( _cpu_info *cpu ) ;
 uint8_t   read_TAC  ( _cpu_info *cpu ) ;
 uint16_t  read_TMA  ( _cpu_info *cpu ) ;
 uint16_t  read_TIMA ( _cpu_info *cpu ) ;
-uint16_t  read_DIV  ( _cpu_info *cpu ) ;
+uint8_t   read_DIV  ( _cpu_info *cpu ) ;
 void     reset_TIMA ( _cpu_info *cpu ) ;
 
 #endif /* TIME_KEEPER_H */

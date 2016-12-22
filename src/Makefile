@@ -6,6 +6,7 @@ SOURCES=utils.c                      \
 		graphics.c                   \
 		time_keeper.c                \
 		memory.c                     \
+		display.c                    \
 		instructions_branch.c        \
 		instructions_data_transfer.c \
 		instructions_logical.c       \

@@ -5,7 +5,7 @@
 #include "types.h"
 #include "graphics.h"
 
-/*#define __use_sdl*/
+#define __use_sdl
 
 #ifdef __use_sdl
 
@@ -22,7 +22,9 @@
 
 void sdl_init ( ) {
     SDL_Init(SDL_INIT_VIDEO);
-    screen = SDL_SetVideoMode(224, 256, 8, SDL_DOUBLEBUF);
+    /*screen = SDL_SetVideoMode(224, 256, 8, SDL_DOUBLEBUF);*/
+    /*screen = SDL_SetVideoMode(640, 480, 8, SDL_DOUBLEBUF);*/
+    screen = SDL_SetVideoMode(160, 144, 8, SDL_DOUBLEBUF);
 
     SDL_WM_SetCaption("8080 Emulator", NULL);
 
@@ -30,34 +32,35 @@ void sdl_init ( ) {
     SDL_EnableKeyRepeat(0, 0);
 }
 
-void update_input ( _cpu_info *cpu ) {
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+void input_update ( _cpu_info *cpu ) {
     SDL_Event ev;
 
     // Input documentation from: http://computerarcheology.com/Arcade/SpaceInvaders/Hardware.html
     while (SDL_PollEvent(&ev)) {
         switch (ev.type) {
-            case SDL_KEYDOWN:
-                switch(ev.key.keysym.sym) {
-                    case SDLK_LEFT:
-                        cpu->portin1 |= (1 << 5); break;
-                    case SDLK_RIGHT:
-                        cpu->portin1 |= (1 << 6); break;
-                    case SDLK_c: // Coint
-                        cpu->portin1 |= (1 << 0); break;
-                    case SDLK_x: // 1P start
-                        cpu->portin1 |= (1 << 2); break;
-                    case SDLK_z: // 1P shot
-                        cpu->portin1 |= (1 << 4); break;
-                    default:
-                        break;
-                } break;
+            /*case SDL_KEYDOWN:*/
+                /*switch(ev.key.keysym.sym) {*/
+                    /*case SDLK_LEFT:*/
+                        /*cpu->portin1 |= (1 << 5); break;*/
+                    /*case SDLK_RIGHT:*/
+                        /*cpu->portin1 |= (1 << 6); break;*/
+                    /*case SDLK_c: // Coint*/
+                        /*cpu->portin1 |= (1 << 0); break;*/
+                    /*case SDLK_x: // 1P start*/
+                        /*cpu->portin1 |= (1 << 2); break;*/
+                    /*case SDLK_z: // 1P shot*/
+                        /*cpu->portin1 |= (1 << 4); break;*/
+                    /*default:*/
+                        /*break;*/
+                /*} break;*/
             case SDL_QUIT:
                 exit(0);
                 break;
             default:
-                cpu->portin0 = 0x0e;
-                cpu->portin1 = 0x08;
-                cpu->portin2 = 0x00;
+                /*cpu->portin0 = 0x0e;*/
+                /*cpu->portin1 = 0x08;*/
+                /*cpu->portin2 = 0x00;*/
                 break;
         }
     }
@@ -73,9 +76,7 @@ void update_screen ( _cpu_info *cpu ) {
     SDL_LockSurface( screen );
 
     for (int offset = 0; offset < 256 * 224/8; ++offset) {
-        for (int shift = 0; shift < 8; ++shift) {
-            raster[y*224 + x] = (cpu->memory[base + offset] >> shift) & 1 ? 0xff : 0x00;
-            if ( --y < 0 ) {
+        for (int shift = 0; shift < 8; ++shift) { raster[y*224 + x] = (cpu->memory[base + offset] >> shift) & 1 ? 0xff : 0x00; if ( --y < 0 ) {
                 y = 255;
                 ++x;
             }
@@ -86,6 +87,10 @@ void update_screen ( _cpu_info *cpu ) {
     SDL_Flip( screen );
 }
 
+void flip_screen ( ) {
+    SDL_Flip ( screen );
+}
+
 void sdl_quit ( ) {
     SDL_Quit();
 }
@@ -94,9 +99,10 @@ void sdl_quit ( ) {
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
+void flip_screen ( ) {}
 void sdl_init ( ) {}
 void update_screen ( _cpu_info *cpu ) {}
-void update_input ( _cpu_info *cpu ) {}
+void input_update ( _cpu_info *cpu ) {}
 void sdl_quit ( ) {}
 void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel) {}
 

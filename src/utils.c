@@ -34,6 +34,30 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->h      = 0;
     cpu->l      = 0;
 
+    cpu->lcd.active_line      = 0;
+    cpu->lcd.active_line      = 0;
+    cpu->lcd.mode             = 0;
+
+    cpu->lcd.power            = 0;
+    cpu->lcd.window_tilemap   = 0;
+    cpu->lcd.window_enabled   = 0;
+    cpu->lcd.bg_and_tilemap   = 0;
+    cpu->lcd.bg_tileset       = 0;
+    cpu->lcd.sprite_size      = 0;
+    cpu->lcd.sprite_enable    = 0;
+    cpu->lcd.bg_enable        = 0;
+
+    cpu->lcd.lyc_enable       = 0;
+    cpu->lcd.mode2_oam        = 0;
+    cpu->lcd.mode1_vblank     = 0;
+    cpu->lcd.mode0_hblank     = 0;
+    cpu->lcd.lyc_ly_triggered = 0;
+
+    cpu->lcd.scy            = 0;
+    cpu->lcd.scx            = 0;
+    cpu->lcd.bgx            = 0;
+    cpu->lcd.bgy            = 0;
+
     cpu->flags.z   = 0;
     cpu->flags.n   = 0;
     cpu->flags.h   = 0;
@@ -51,11 +75,11 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->timer.DIV  = 0;
     cpu->timer.TMA  = 0;
 
-    cpu->interrupts.masked_vblank  = 1;
-    cpu->interrupts.masked_lcdstat = 1;
-    cpu->interrupts.masked_timer   = 1;
-    cpu->interrupts.masked_serial  = 1;
-    cpu->interrupts.masked_joypad  = 1;
+    cpu->interrupts.masked_vblank   = 1;
+    cpu->interrupts.masked_lcdstat  = 1;
+    cpu->interrupts.masked_timer    = 1;
+    cpu->interrupts.masked_serial   = 1;
+    cpu->interrupts.masked_joypad   = 1;
 
     cpu->interrupts.pending_vblank  = 0;
     cpu->interrupts.pending_lcdstat = 0;

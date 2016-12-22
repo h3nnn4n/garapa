@@ -86,10 +86,11 @@ void write_DIV( _cpu_info *cpu, uint16_t data ) {
     cpu->timer.DIV = data ^ data;   // Every write sets DIV to zero;
 }
 
-uint16_t read_DIV ( _cpu_info *cpu ) {
+uint8_t read_DIV ( _cpu_info *cpu ) {
     return cpu->timer.DIV;
 }
 
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 void timer_tick ( _cpu_info *cpu ) {
     /*cpu->cycles_machine++;*/
     /*cpu->cycles_left--;*/
@@ -122,6 +123,7 @@ void timer_update( _cpu_info *cpu ) {
         if ( ticks == 16 ) {
             ticks = 0;
             cpu->timer.DIV += 1;
+            /*printf("MEU Divider tick %4x\n", cpu->timer.DIV);*/
         }
 
         if ( read_TAC(cpu) & 0x4 ) {
@@ -131,9 +133,11 @@ void timer_update( _cpu_info *cpu ) {
             }
 
             if ( read_TIMA(cpu) == 0x100 ) {
+                /*printf("MEU: Threw timer int\n");*/
                 cpu->interrupts.pending_timer = 1;
+                /*emulate_INTERRUPT( cpu );*/
                 reset_TIMA(cpu);
-                cpu->halted     = 0;
+                /*cpu->halted     = 0;*/
             }
         }
 

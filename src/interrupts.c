@@ -33,21 +33,26 @@ void emulate_INTERRUPT ( _cpu_info *cpu ) {
     uint16_t  ret = cpu->pc;
 
            if ( intn & 0x01 ) { // vblank
+        /*printf("MEU: Vblank Int\n");*/
         cpu->pc = 0x0040;
         cpu->interrupts.pending_vblank = 0;
         doit = 1;
     } else if ( intn & 0x02 ) { // lcdstat
+        /*printf("MEU: LcsStat Int\n");*/
         cpu->pc = 0x0048;
         cpu->interrupts.pending_lcdstat = 0;
         doit = 1;
     } else if ( intn & 0x04 ) { // timer
+        /*printf("MEU: Timer Int\n");*/
         cpu->pc = 0x0050;
         cpu->interrupts.pending_timer = 0;
         doit = 1;
     } else if ( intn & 0x08 ) { // serial
+        /*printf("MEU: Serial Int\n");*/
         cpu->pc = 0x0058;
         doit = 1;
     } else if ( intn & 0x10 ) { // joypad
+        /*printf("MEU: Joypad Blank Int\n");*/
         cpu->pc = 0x0060;
         cpu->interrupts.pending_joypad = 0;
         doit = 1;

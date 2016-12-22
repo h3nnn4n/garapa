@@ -4,6 +4,31 @@
 #include <stdint.h>
 
 typedef struct {
+    uint8_t active_line;
+    uint8_t mode;
+
+    uint8_t power;            // Bit 7
+    uint8_t window_tilemap;   // Bit 6
+    uint8_t window_enabled;   // Bit 5
+    uint8_t bg_and_tilemap;   // Bit 4
+    uint8_t bg_tileset;       // Bit 3
+    uint8_t sprite_size;      // Bit 2
+    uint8_t sprite_enable;    // Bit 1
+    uint8_t bg_enable;        // Bit 0
+
+    uint8_t lyc_enable;
+    uint8_t mode2_oam;
+    uint8_t mode1_vblank;
+    uint8_t mode0_hblank;
+    uint8_t lyc_ly_triggered;
+
+    uint8_t scy;
+    uint8_t scx;
+    uint8_t bgx;
+    uint8_t bgy;
+} _lcd;
+
+typedef struct {
     uint16_t running;
     uint16_t speed;
 
@@ -55,6 +80,7 @@ typedef struct {
 
     _cpu_flags flags;
     _timer     timer;
+    _lcd       lcd;
 
     uint16_t pc;
     uint16_t sp;

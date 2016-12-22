@@ -7,6 +7,8 @@
 #include "time_keeper.h"
 #include "utils.h"
 #include "types.h"
+#include "graphics.h"
+#include "display.h"
 
 void load_rom ( _cpu_info *cpu, const char* fname, uint16_t offset ) {
     FILE *f = NULL;
@@ -28,6 +30,8 @@ void load_rom ( _cpu_info *cpu, const char* fname, uint16_t offset ) {
 
 uint8_t read_byte ( _cpu_info *cpu, uint16_t addr ) {
     switch ( addr ) {
+        case 0xff00:
+            return 0xcf;
         case 0xffff:
             return interrupt_read_mask( cpu );
         case 0xff0f:
@@ -40,7 +44,22 @@ uint8_t read_byte ( _cpu_info *cpu, uint16_t addr ) {
             return read_TMA  ( cpu );
         case 0xff07: // TAC
             return read_TAC  ( cpu );
+        case 0xff41:
+            return display_read_stat ( cpu );
+        case 0xff42:
+            return read_scroll_y ( cpu );
+        case 0xff43:
+            return read_scroll_x ( cpu );
+        case 0xff44:
+            return display_read_LY ( cpu );
+        case 0xff45: // LCY
+            break;
+        case 0xff4a:
+            return read_window_y ( cpu );
+        case 0xff4b:
+            return read_window_x ( cpu );
     }
+
     // No need to check if the address is valid.
     // uint16_t can only hold enough to access the
     // 64kb memory space;
@@ -90,8 +109,10 @@ void check_passed ( char c ) {
 
 void write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ) {
     switch ( addr ) {
+        case 0xff00:
+            break;
         case 0xff01: // Serial OUT
-            fprintf(stderr, "%c", data);
+            /*fprintf(stderr, "%c", data);*/
             check_passed(data);
             /*fprintf(stderr, "%c %d\n", data, data);*/
             break;
@@ -106,6 +127,29 @@ void write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ) {
             break;
         case 0xff07: // TAC
             write_TAC  ( cpu, data );
+            break;
+        case 0xff40: // lcd control
+            /*printf("MEU: Write lcd control %2x\n", data);*/
+            write_lcd_control ( cpu, data );
+            break;
+        case 0xff41: // lcd stat
+            /*printf("MEU: Write stat %2x\n", data);*/
+            display_write_stat ( cpu, data );
+            break;
+        case 0xff42:
+            write_scroll_y ( cpu, data );
+            break;
+        case 0xff43:
+            write_scroll_x ( cpu, data );
+            break;
+        case 0xff44: // LYC
+            // do nothing
+            break;
+        case 0xff4a:
+            write_window_y ( cpu, data );
+            break;
+        case 0xff4b:
+            write_window_x ( cpu, data );
             break;
         case 0xff0f: // Interrupt FLAG
             cpu->interrupt_flag = data;
