@@ -24,13 +24,14 @@ void decoder( _cpu_info *cpu ) {
     /*printf("\n");*/
 
     /*cpu_cycle();*/
+
+    emulate_INTERRUPT( cpu );
+
     if ( cpu->halted ) {
         cpu->cycles_machine += 1;
         cpu->instructions_executed += 1;
         return;
     }
-
-    emulate_INTERRUPT( cpu );
 
     unsigned char *opcode = &cpu->memory[cpu->pc];
 
@@ -76,35 +77,38 @@ void decoder( _cpu_info *cpu ) {
             emulate_RLC ( cpu, 0x07 );
             cpu->flags.z = 0;
             cpu->pc -= 1; // RLC eats 2 bytes thanks to the 0xcb stuff
+            cpu->cycles_machine -= 1;
             break;
         case 0x17:
             emulate_RL ( cpu, 0x07 );
             cpu->flags.z = 0;
             cpu->pc -= 1;
+            cpu->cycles_machine -= 1;
             break;
-            case 0x0F:
-                emulate_RRC ( cpu, 0x07 );
-                cpu->flags.z = 0;
-                cpu->pc -= 1;
-                break;
-            case 0x1f:
-                emulate_RR ( cpu, 0x07 );
-                cpu->flags.z = 0;
-                cpu->pc -= 1;
-                cpu->cycles_machine -= 1;
-                break;
-            case 0xd4:
-                emulate_CNC ( cpu );
-                break;
-            case 0xc7:
-            case 0xd7:
-            case 0xe7:
-            case 0xf7:
-            case 0xcf:
-            case 0xdf:
-            case 0xef:
-            case 0xff:
-                emulate_RST ( cpu );
+        case 0x0F:
+            emulate_RRC ( cpu, 0x07 );
+            cpu->flags.z = 0;
+            cpu->pc -= 1;
+            cpu->cycles_machine -= 1;
+            break;
+        case 0x1f:
+            emulate_RR ( cpu, 0x07 );
+            cpu->flags.z = 0;
+            cpu->pc -= 1;
+            cpu->cycles_machine -= 1;
+            break;
+        case 0xd4:
+            emulate_CNC ( cpu );
+            break;
+        case 0xc7:
+        case 0xd7:
+        case 0xe7:
+        case 0xf7:
+        case 0xcf:
+        case 0xdf:
+        case 0xef:
+        case 0xff:
+            emulate_RST ( cpu );
             break;
         case 0xd9:
             emulate_RETI ( cpu );
@@ -267,7 +271,7 @@ void decoder( _cpu_info *cpu ) {
             break;
         case 0xf2:
             cpu->a = read_byte(cpu, 0xff00 + cpu->c);
-            cpu->cycles_machine += 3;
+            cpu->cycles_machine += 2;
             cpu->pc     += 1 ;
             break;
         case 0xe2:
