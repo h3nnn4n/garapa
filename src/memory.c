@@ -159,7 +159,7 @@ void write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ) {
             // do nothing
             break;
         case 0xff46:
-            printf("Requested OAM DMA\n");
+            /*printf("Requested OAM DMA\n");*/
             memcpy(&cpu->memory[0xfe00], &cpu->memory[data*0x100], 0xa0);
             cpu->DMA_in_progress = cpu->cycles_machine;
             break;
