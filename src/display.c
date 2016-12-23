@@ -295,7 +295,7 @@ void display_update( _cpu_info *cpu ) {
 
     if ( display_read_LY(cpu) == read_byte(cpu, 0xff45) &&
          display_test_LYC_enable(cpu) ){
-        cpu->interrupts.pending_lcdstat = 1; abort();
+        cpu->interrupts.pending_lcdstat = 1;
     }
 
     if ( cpu->lcd.mode == 2 && cpu->lcd.mode2_oam ) {
