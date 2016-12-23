@@ -156,13 +156,13 @@ void write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ) {
     switch (mapper) {
         case 0x00:
             if ( addr < 0x8000 ) {
-                printf("Tried to write to 0x%04x\n", addr);
+                /*printf("Tried to write to 0x%04x\n", addr);*/
                 return;
             }
             break;
         case 0x01:
             if ( addr < 0x2000 ) {
-                printf("Tried to write to 0x%04x\n", addr);
+                /*printf("Tried to write to 0x%04x\n", addr);*/
                 return;
             } else if ( addr >= 0x2000 && addr < 0x4000 ) {
                 cpu->active_bank = data & 0x1f;
@@ -176,16 +176,16 @@ void write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ) {
                     cpu->active_bank++;
                 }
 
-                printf("Tried to write to 0x%04x\n", addr);
+                /*printf("Tried to write to 0x%04x\n", addr);*/
 
                 memcpy(&cpu->memory[0x4000], &cpu->rom[cpu->active_bank * 0x4000], 0x4000);
                 return;
             } else if ( addr >= 0x4000 && addr < 0x6000 ) {
-                printf("Tried to write to 0x%04x\n", addr);
+                /*printf("Tried to write to 0x%04x\n", addr);*/
                 upper = (data & 0x03 ) << 5;
                 return;
             } else if ( addr >= 0x6000 && addr < 0x8000 ) {
-                printf("Tried to write to 0x%04x\n", addr);
+                /*printf("Tried to write to 0x%04x\n", addr);*/
                 ram_select = data & 0x01;
                 return;
             }
