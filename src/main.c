@@ -9,6 +9,7 @@
 #include "utils.h"
 #include "types.h"
 #include "memory.h"
+#include "cartridge.h"
 #include "decoder.h"
 #include "graphics.h"
 #include "display.h"
@@ -29,6 +30,8 @@ int main(int argc, char *argv[]) {
     init_cpu(&cpu);
 
     load_rom ( &cpu, argv[1], 0x0000 );
+
+    print_rom_info(&cpu);
 
     while ( 1 ) {
         decoder        ( &cpu );
