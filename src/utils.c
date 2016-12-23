@@ -19,7 +19,9 @@ return -1;
 }
 
 void init_cpu( _cpu_info *cpu ) {
-    cpu->memory = calloc ( 1, 64 * 1024 ) ; // Allocs 64Kb of ram
+    cpu->memory = calloc ( 1, 0xffff ) ; // Allocs 64Kb of ram
+    cpu->rom    = calloc ( 1, 512 * 1024 ) ;
+    cpu->active_bank = 1;
 
     cpu->DMA_in_progress = 0;
     cpu->cycles_clock    = 0;
@@ -51,7 +53,7 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->lcd.active_line      = 0;
     cpu->lcd.mode             = 0;
 
-    cpu->lcd.power            = 0;
+    cpu->lcd.power            = 1;
     cpu->lcd.window_tilemap   = 0;
     cpu->lcd.window_enabled   = 0;
     cpu->lcd.bg_and_tilemap   = 0;

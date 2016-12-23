@@ -83,7 +83,9 @@ typedef struct {
     _interrupts interrupts;
     _joystick   joystick;
 
-    unsigned char *memory;
+    uint8_t *memory;
+    uint8_t *rom;
+    uint8_t active_bank;
 
     uint8_t enable_interrupts;
     uint8_t pending_interrupts;

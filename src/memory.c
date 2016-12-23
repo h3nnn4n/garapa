@@ -18,10 +18,13 @@ void load_rom ( _cpu_info *cpu, const char* fname, uint16_t offset ) {
 
     buffer_size = fsize( fname );
 
-    assert( offset + buffer_size <= 64 * 1024 && "ROM too big for the 64k bytes RAM");
-    if ( fread(cpu->memory + offset, buffer_size, 1, f) != 1 ) {
-        printf("Something went weird while reding into buffer\n");
+    assert( offset + buffer_size <= 512 * 1024 && "ROM too big for the 64k bytes RAM");
+    if ( fread(cpu->rom + offset, buffer_size, 1, f) != 1 ) {
+        printf("Something went weird while reading into buffer\n");
     }
+
+    memcpy(&cpu->memory[0x0000], &cpu->rom[0x0000], 0x4000);
+    memcpy(&cpu->memory[0x4000], &cpu->rom[0x4000], 0x4000);
 
     fclose(f);
 
@@ -88,6 +91,7 @@ uint8_t read_byte ( _cpu_info *cpu, uint16_t addr ) {
         case 0xff43:
             return read_scroll_x ( cpu );
         case 0xff44:
+            printf(" LY = %3d\n", display_read_LY ( cpu ));
             return display_read_LY ( cpu );
         case 0xff45: // LCY
             break;
@@ -145,6 +149,52 @@ void check_passed ( char c ) {
 }
 
 void write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ) {
+    /*uint8_t */
+    uint8_t mapper = cpu->memory[0x0147];
+    static uint8_t upper = 0;
+    static uint8_t ram_select = 0;
+
+    switch (mapper) {
+        case 0x00:
+            if ( addr < 0x8000 ) {
+                printf("Tried to write to 0x%04x\n", addr);
+                return;
+            }
+            break;
+        case 0x01:
+            if ( addr < 0x2000 ) {
+                printf("Tried to write to 0x%04x\n", addr);
+                return;
+            } else if ( addr >= 0x2000 && addr < 0x4000 ) {
+                cpu->active_bank = data & 0x1f;
+                if ( !ram_select )
+                    cpu->active_bank |= upper;
+
+                if ( cpu->active_bank == 0x00 ||
+                     cpu->active_bank == 0x20 ||
+                     cpu->active_bank == 0x40 ||
+                     cpu->active_bank == 0x60 ) {
+                    cpu->active_bank++;
+                }
+
+                printf("Tried to write to 0x%04x\n", addr);
+
+                memcpy(&cpu->memory[0x4000], &cpu->rom[cpu->active_bank * 0x4000], 0x4000);
+                return;
+            } else if ( addr >= 0x4000 && addr < 0x6000 ) {
+                printf("Tried to write to 0x%04x\n", addr);
+                upper = (data & 0x03 ) << 5;
+                return;
+            } else if ( addr >= 0x6000 && addr < 0x8000 ) {
+                printf("Tried to write to 0x%04x\n", addr);
+                ram_select = data & 0x01;
+                return;
+            }
+            break;
+        default:
+            break;
+    }
+
     switch ( addr ) {
         case 0xff00:
             cpu->joystick.select_button    = data & 0x20;
