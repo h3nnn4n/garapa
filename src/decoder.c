@@ -45,6 +45,8 @@ void decoder( _cpu_info *cpu ) {
                 emulate_MOV ( cpu );
     } else
     switch ( *opcode ) {
+        case 0x10: emulate_STOP ( cpu );
+            break;
         case 0x76: emulate_HALT ( cpu );
             break;
         case 0x00: emulate_NOP  ( cpu );
