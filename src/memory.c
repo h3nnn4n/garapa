@@ -91,7 +91,6 @@ uint8_t read_byte ( _cpu_info *cpu, uint16_t addr ) {
         case 0xff43:
             return read_scroll_x ( cpu );
         case 0xff44:
-            printf(" LY = %3d\n", display_read_LY ( cpu ));
             return display_read_LY ( cpu );
         case 0xff45: // LCY
             break;
