@@ -1,17 +1,14 @@
-#ifndef GRAPHICS_H
-#define GRAPHICS_H
+#ifndef GRAPHICS_meu_H
+#define GRAPHICS_meu_H
 
-#include <SDL/SDL.h>
+#define SDL_MAIN_HANDLED
 
 #include "types.h"
 
-SDL_Surface *screen;
+uint32_t *get_frame_buffer (                ) ;
+void     flip_screen      (                ) ;
+void     sdl_init         (                ) ;
+void     input_update     ( _cpu_info *cpu ) ;
+void     sdl_quit         (                ) ;
 
-void flip_screen ( ) ;
-void sdl_init ( ) ;
-void update_screen ( _cpu_info *cpu ) ;
-void input_update ( _cpu_info *cpu ) ;
-void sdl_quit ( ) ;
-void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel) ;
-
-#endif /* GRAPHICS_H */
+#endif /* GRAPHICS_meu_H */

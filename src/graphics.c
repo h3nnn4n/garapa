@@ -1,6 +1,9 @@
-#include <SDL/SDL.h>
 #include <stdint.h>
 #include <stdlib.h>
+
+#include "SDL.h"
+#include "SDL_video.h"
+#include "SDL_render.h"
 
 #include "types.h"
 #include "graphics.h"
@@ -8,6 +11,13 @@
 #define __use_sdl
 
 #ifdef __use_sdl
+
+static SDL_Window   *window;
+static SDL_Renderer *renderer;
+static SDL_Texture  *bitmap;
+static uint32_t *pixels;
+static int screenx = 160;
+static int screeny = 144;
 
 #define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
 #define BYTE_TO_BINARY(byte)  \
@@ -20,16 +30,41 @@
   (byte & 0x02 ? '1' : '0'), \
   (byte & 0x01 ? '1' : '0')
 
-void sdl_init ( ) {
-    SDL_Init(SDL_INIT_VIDEO);
-    screen = SDL_SetVideoMode(160, 144, 8, SDL_DOUBLEBUF);
-
-    SDL_WM_SetCaption("Here comes dat gameboi", NULL);
-
-    SDL_EnableKeyRepeat(0, 0);
+uint32_t *get_frame_buffer () {
+    return pixels;
 }
 
-#pragma GCC diagnostic ignored "-Wunused-parameter"
+void sdl_init ( ) {
+    SDL_Init(SDL_INIT_VIDEO);
+
+    window = SDL_CreateWindow("here comes dat gameboi",
+        SDL_WINDOWPOS_UNDEFINED,
+        SDL_WINDOWPOS_UNDEFINED,
+        screenx,
+        screeny,
+        0);
+
+    renderer = SDL_CreateRenderer(window, -1, 0);
+    bitmap   = SDL_CreateTexture (renderer,
+               SDL_PIXELFORMAT_RGB888,
+               SDL_TEXTUREACCESS_STREAMING,
+               screenx,
+               screeny);
+    pixels   = malloc ( sizeof ( uint32_t ) * screenx * screeny);
+
+    memset(pixels, 255, screenx * screeny * sizeof(uint32_t));
+
+    SDL_UpdateTexture(bitmap, NULL, pixels, screenx * sizeof(uint32_t));
+}
+
+void flip_screen ( ) {
+    SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer, bitmap, NULL, NULL);
+    SDL_RenderPresent(renderer);
+
+    SDL_UpdateTexture(bitmap, NULL, pixels, screenx * sizeof(uint32_t));
+}
+
 void input_update ( _cpu_info *cpu ) {
     SDL_Event ev;
 
@@ -107,10 +142,6 @@ void input_update ( _cpu_info *cpu ) {
         }
     }
     /*printf(BYTE_TO_BINARY_PATTERN"\n", BYTE_TO_BINARY(cpu->portin1));*/
-}
-
-void flip_screen ( ) {
-    SDL_Flip ( screen );
 }
 
 void sdl_quit ( ) {

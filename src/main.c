@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
     }
 
     sdl_init();
-    atexit(SDL_Quit);
+    atexit(sdl_quit);
 
     init_cpu(&cpu);
 

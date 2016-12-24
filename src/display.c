@@ -1,5 +1,6 @@
-#include <SDL/SDL.h>
 #include <stdio.h>
+
+#include "SDL.h"
 
 #include "types.h"
 #include "memory.h"
@@ -183,8 +184,8 @@ uint8_t display_test_screenmode ( _cpu_info *cpu ) {
 }
 
 void draw_background_and_window( _cpu_info *cpu ) {
-    uint8_t *buffer = screen->pixels;
-    uint8_t *memory = cpu->mem_controller.memory;
+    uint32_t *buffer = get_frame_buffer();
+    uint8_t  *memory = cpu->mem_controller.memory;
 
     for (int x = 0; x < 160; ++x) {
         unsigned int map_select, map_offset, tile_num, tile_addr, xm, ym;
@@ -222,7 +223,7 @@ void draw_background_and_window( _cpu_info *cpu ) {
 }
 
 void draw_sprites ( _cpu_info *cpu ) {
-    uint8_t *buffer = screen->pixels;
+    uint32_t *buffer = get_frame_buffer();
 
     // OAM = 0xfe00
     // bit0 = y
