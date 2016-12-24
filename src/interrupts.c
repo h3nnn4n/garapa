@@ -59,8 +59,8 @@ void emulate_INTERRUPT ( _cpu_info *cpu ) {
     }
 
     if ( doit ) {
-        cpu->memory[cpu->sp-1] = (ret >> 8) & 0xff;
-        cpu->memory[cpu->sp-2] = (ret & 0xff);
+        cpu->mem_controller.memory[cpu->sp-1] = (ret >> 8) & 0xff;
+        cpu->mem_controller.memory[cpu->sp-2] = (ret & 0xff);
         cpu->sp                = cpu->sp - 2;
         cpu->enable_interrupts = 0;
         cpu->halted            = 0;

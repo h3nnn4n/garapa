@@ -10,35 +10,34 @@
 #include "graphics.h"
 #include "display.h"
 
-void load_rom ( _cpu_info *cpu, const char* fname, uint16_t offset ) {
-    FILE *f = NULL;
-    off_t buffer_size = -1;
-
-    f = fopen(fname, "rb");
-
-    buffer_size = fsize( fname );
-
-    assert( offset + buffer_size <= 512 * 1024 && "ROM too big for the 64k bytes RAM");
-    if ( fread(cpu->rom + offset, buffer_size, 1, f) != 1 ) {
-        printf("Something went weird while reading into buffer\n");
-    }
-
-    memcpy(&cpu->memory[0x0000], &cpu->rom[0x0000], 0x4000);
-    memcpy(&cpu->memory[0x4000], &cpu->rom[0x4000], 0x4000);
-
-    fclose(f);
-
-    /*fprintf(stderr, "Loaded %s into %04x to %04x\n", fname, offset, offset +(uint16_t) buffer_size);*/
-}
-
 uint8_t read_byte ( _cpu_info *cpu, uint16_t addr ) {
+
+    if ( addr >= 0xa000 && addr < 0xbfff ) {
+        if ( cpu->mem_controller.ram_enable && cpu->mem_controller.ram_size ) {
+            uint16_t offset = addr - 0xa000;
+            if ( cpu->mem_controller.ram_size == 0x01 ) {
+                if ( addr > 0xa7ff ) return 0xff;
+            } else {
+                return cpu->mem_controller.cartridge_ram[ offset ];
+            }
+
+            if ( cpu->mem_controller.ram_size == 0x02 ) {
+                /*printf("Reading from %04x\n", addr);*/
+                return cpu->mem_controller.cartridge_ram[ offset ];
+            }
+
+            return cpu->mem_controller.cartridge_ram[ offset + cpu->mem_controller.ram_bank_number * 0x2000 ];
+        } else {
+            return 0xff;
+        }
+    }
 
     if ( cpu->DMA_in_progress && addr < 0xff80 ) {
         uint8_t dx = cpu->cycles_machine - cpu->DMA_in_progress;
         if ( dx >= 160 ) {
             cpu->DMA_in_progress = 0;
         } else {
-            return cpu->memory[0xff80 + dx];
+            return cpu->mem_controller.memory[0xff80 + dx];
         }
     }
 
@@ -103,7 +102,7 @@ uint8_t read_byte ( _cpu_info *cpu, uint16_t addr ) {
     // No need to check if the address is valid.
     // uint16_t can only hold enough to access the
     // 64kb memory space;
-    return cpu->memory [ addr ];
+    return cpu->mem_controller.memory [ addr ];
 }
 
 uint16_t read_word ( _cpu_info *cpu, uint16_t addr ) {
@@ -149,9 +148,7 @@ void check_passed ( char c ) {
 
 void write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ) {
     /*uint8_t */
-    uint8_t mapper = cpu->memory[0x0147];
-    static uint8_t upper = 0;
-    static uint8_t ram_select = 0;
+    uint8_t mapper = cpu->mem_controller.memory[0x0147];
 
     switch (mapper) {
         case 0x00:
@@ -160,38 +157,65 @@ void write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ) {
                 return;
             }
             break;
+        case 0x03:
         case 0x01:
-            if ( addr < 0x2000 ) {
-                /*printf("Tried to write to 0x%04x\n", addr);*/
+            if ( addr < 0x2000 ) { // Ram Enable
+                cpu->mem_controller.ram_enable = data & 0x0a ? 1 : 0;
+                /*printf(" RAM write : %c\n", cpu->mem_controller.ram_enable ? 'y' : 'n' );*/
                 return;
-            } else if ( addr >= 0x2000 && addr < 0x4000 ) {
-                cpu->active_bank = data & 0x1f;
-                if ( !ram_select )
-                    cpu->active_bank |= upper;
+            } else if ( addr >= 0x2000 && addr < 0x4000 ) { // Rom bank switch
+                cpu->mem_controller.rom_bank_number = data & 0x1f;
+                if ( !cpu->mem_controller.ram_mode )
+                    cpu->mem_controller.rom_bank_number |= cpu->mem_controller.ram_bank_number;
 
-                if ( cpu->active_bank == 0x00 ||
-                     cpu->active_bank == 0x20 ||
-                     cpu->active_bank == 0x40 ||
-                     cpu->active_bank == 0x60 ) {
-                    cpu->active_bank++;
+                if ( cpu->mem_controller.rom_bank_number == 0x00 ||
+                     cpu->mem_controller.rom_bank_number == 0x20 ||
+                     cpu->mem_controller.rom_bank_number == 0x40 ||
+                     cpu->mem_controller.rom_bank_number == 0x60 ) {
+                    cpu->mem_controller.rom_bank_number++;
                 }
 
-                /*printf("Tried to write to 0x%04x\n", addr);*/
+                /*printf(" ROM bank: %2x\n", cpu->mem_controller.rom_bank_number );*/
 
-                memcpy(&cpu->memory[0x4000], &cpu->rom[cpu->active_bank * 0x4000], 0x4000);
+                memcpy(&cpu->mem_controller.memory[0x4000],
+                       &cpu->mem_controller.rom[cpu->mem_controller.rom_bank_number * 0x4000],
+                       0x4000);
                 return;
             } else if ( addr >= 0x4000 && addr < 0x6000 ) {
-                /*printf("Tried to write to 0x%04x\n", addr);*/
-                upper = (data & 0x03 ) << 5;
+                cpu->mem_controller.ram_bank_number = ( data & 0x03 ) << 5;
+                /*printf(" RAM bank: %c\n", cpu->mem_controller.ram_bank_number );*/
                 return;
-            } else if ( addr >= 0x6000 && addr < 0x8000 ) {
-                /*printf("Tried to write to 0x%04x\n", addr);*/
-                ram_select = data & 0x01;
+            } else if ( addr >= 0x6000 && addr < 0x8000 ) { // Ram Ena
+                cpu->mem_controller.ram_mode = data & 0x01;
+                /*printf(" RAM enable: %c\n", cpu->mem_controller.ram_mode ? '0' : '1' );*/
                 return;
             }
             break;
         default:
+            assert ( 0 && "Unsupported MBC " );
             break;
+    }
+
+    if ( addr >= 0xa000 && addr < 0xbfff ) {
+        if ( cpu->mem_controller.ram_enable && cpu->mem_controller.ram_size ) {
+            uint16_t offset = addr - 0xa000;
+            if ( cpu->mem_controller.ram_size == 0x01 ) {
+                if ( addr > 0xa7ff ) return;
+            } else {
+               cpu->mem_controller.cartridge_ram[ offset ] = data;
+               return;
+            }
+
+            if ( cpu->mem_controller.ram_size == 0x02 ) {
+                /*printf("Writing to %04x\n", addr);*/
+                cpu->mem_controller.cartridge_ram[ offset ] = data;
+                return;
+            }
+
+            cpu->mem_controller.cartridge_ram[ offset + cpu->mem_controller.ram_bank_number * 0x2000 ] = data;
+        } else {
+            return;
+        }
     }
 
     switch ( addr ) {
@@ -238,7 +262,7 @@ void write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ) {
             break;
         case 0xff46:
             /*printf("Requested OAM DMA\n");*/
-            memcpy(&cpu->memory[0xfe00], &cpu->memory[data*0x100], 0xa0);
+            memcpy(&cpu->mem_controller.memory[0xfe00], &cpu->mem_controller.memory[data*0x100], 0xa0);
             cpu->DMA_in_progress = cpu->cycles_machine;
             break;
         case 0xff47: // BG Palette
@@ -267,5 +291,5 @@ void write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ) {
             break;
     }
 
-    cpu->memory [ addr ] = data;
+    cpu->mem_controller.memory [ addr ] = data;
 }

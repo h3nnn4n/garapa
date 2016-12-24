@@ -6,7 +6,43 @@
 #include <errno.h>
 
 #include "types.h"
+#include "utils.h"
 #include "disassembler.h"
+#include "cartridge.h"
+
+void load_rom ( _cpu_info *cpu, const char* fname, uint16_t offset ) {
+    FILE *f = NULL;
+    /*off_t buffer_size = -1;*/
+
+    f = fopen(fname, "rb");
+
+    /*buffer_size = fsize( fname );*/
+
+    if ( fread(cpu->mem_controller.memory, 0x0200, 1, f) != 1 ) {
+        printf("Something went weird while reading the ROM\n");
+        exit(-1);
+    }
+
+    cpu->mem_controller.rom           = calloc ( 1, get_rom_size(cpu->mem_controller.memory ));
+    cpu->mem_controller.cartridge_ram = calloc ( 1, get_ram_size(cpu->mem_controller.memory ));
+
+    fseek (f, 0 , SEEK_SET);
+
+    if ( fread(cpu->mem_controller.rom + offset, get_rom_size(cpu->mem_controller.memory ), 1, f) != 1 ) {
+        printf("Something went weird while reading the ROM\n");
+        exit(-1);
+    }
+
+    cpu->mem_controller.ram_size = get_ram_code ( cpu->mem_controller.memory );
+    cpu->mem_controller.rom_size = get_rom_code ( cpu->mem_controller.memory );
+
+    memcpy(&cpu->mem_controller.memory[0x0000], &cpu->mem_controller.rom[0x0000], 0x4000);
+    memcpy(&cpu->mem_controller.memory[0x4000], &cpu->mem_controller.rom[0x4000], 0x4000);
+
+    fclose(f);
+
+    /*fprintf(stderr, "Loaded %s into %04x to %04x\n", fname, offset, offset +(uint16_t) buffer_size);*/
+}
 
 off_t fsize(const char *filename) {
     struct stat st;
@@ -15,13 +51,17 @@ off_t fsize(const char *filename) {
         return st.st_size;
 
     fprintf(stderr, "Cannot determine size of %s: %s\n", filename, strerror(errno));
-return -1;
+    return -1;
 }
 
 void init_cpu( _cpu_info *cpu ) {
-    cpu->memory = calloc ( 1, 0xffff ) ; // Allocs 64Kb of ram
-    cpu->rom    = calloc ( 1, 512 * 1024 ) ;
-    cpu->active_bank = 1;
+    cpu->mem_controller.memory          = calloc ( 1, 0xffff );
+    cpu->mem_controller.rom             = NULL;
+    cpu->mem_controller.cartridge_ram   = NULL;
+    cpu->mem_controller.rom_bank_number = 0;
+    cpu->mem_controller.ram_bank_number = 0;
+    cpu->mem_controller.ram_mode        = 0;
+    cpu->mem_controller.ram_enable      = 0;
 
     cpu->DMA_in_progress = 0;
     cpu->cycles_clock    = 0;
@@ -139,29 +179,29 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->flags.h = 1;
     cpu->flags.c = 1;
 
-    cpu->memory[0xff10] = 0x80;
-    cpu->memory[0xff11] = 0xbf;
-    cpu->memory[0xff12] = 0xf3;
-    cpu->memory[0xff14] = 0xbf;
-    cpu->memory[0xff16] = 0x3f;
-    cpu->memory[0xff19] = 0xbf;
-    cpu->memory[0xff1a] = 0x7f;
-    cpu->memory[0xff1b] = 0xff;
-    cpu->memory[0xff1c] = 0x9f;
-    cpu->memory[0xff1e] = 0xbf;
-    cpu->memory[0xff20] = 0xff;
-    cpu->memory[0xff23] = 0xbf;
-    cpu->memory[0xff24] = 0x77;
-    cpu->memory[0xff25] = 0xf3;
-    cpu->memory[0xff26] = 0xf1;
-    cpu->memory[0xff40] = 0x91;
-    cpu->memory[0xff47] = 0xfc;
-    cpu->memory[0xff48] = 0xff;
-    cpu->memory[0xff49] = 0xff;
+    cpu->mem_controller.memory[0xff10] = 0x80;
+    cpu->mem_controller.memory[0xff11] = 0xbf;
+    cpu->mem_controller.memory[0xff12] = 0xf3;
+    cpu->mem_controller.memory[0xff14] = 0xbf;
+    cpu->mem_controller.memory[0xff16] = 0x3f;
+    cpu->mem_controller.memory[0xff19] = 0xbf;
+    cpu->mem_controller.memory[0xff1a] = 0x7f;
+    cpu->mem_controller.memory[0xff1b] = 0xff;
+    cpu->mem_controller.memory[0xff1c] = 0x9f;
+    cpu->mem_controller.memory[0xff1e] = 0xbf;
+    cpu->mem_controller.memory[0xff20] = 0xff;
+    cpu->mem_controller.memory[0xff23] = 0xbf;
+    cpu->mem_controller.memory[0xff24] = 0x77;
+    cpu->mem_controller.memory[0xff25] = 0xf3;
+    cpu->mem_controller.memory[0xff26] = 0xf1;
+    cpu->mem_controller.memory[0xff40] = 0x91;
+    cpu->mem_controller.memory[0xff47] = 0xfc;
+    cpu->mem_controller.memory[0xff48] = 0xff;
+    cpu->mem_controller.memory[0xff49] = 0xff;
 }
 
 void unimplemented_opcode( _cpu_info *cpu ) {
-    disassembler ( cpu->memory, cpu->pc );
+    disassembler ( cpu->mem_controller.memory, cpu->pc );
     exit(-1);
 }
 

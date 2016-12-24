@@ -232,8 +232,8 @@ void decode_0xcb( _cpu_info *cpu ) {
                 emulate_SET
             };
 
-    target = cpu->memory[cpu->pc + 1] &  0x07;
-    opcode = cpu->memory[cpu->pc + 1] >> 3   ;
+    target = cpu->mem_controller.memory[cpu->pc + 1] &  0x07;
+    opcode = cpu->mem_controller.memory[cpu->pc + 1] >> 3   ;
 
     if ( !(opcode & 0xf8) ) {
         f1[opcode](cpu, target);

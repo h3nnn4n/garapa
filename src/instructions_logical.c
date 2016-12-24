@@ -9,7 +9,7 @@
 #include "instructions_logical.h"
 
 void emulate_ANA ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
 
     switch ( *opcode ) {
         case 0xa0: // ANA B
@@ -37,8 +37,8 @@ void emulate_ANA ( _cpu_info *cpu ) {
             cpu->a       &= cpu->l;
             break;
         case 0xa6: // ANA M
-            cpu->flags.h  = ((cpu->a | cpu->memory[cpu->h << 8 | cpu->l]) & 0x08) != 0;
-            cpu->a       &= cpu->memory[cpu->h << 8 | cpu->l];
+            cpu->flags.h  = ((cpu->a | cpu->mem_controller.memory[cpu->h << 8 | cpu->l]) & 0x08) != 0;
+            cpu->a       &= cpu->mem_controller.memory[cpu->h << 8 | cpu->l];
             /*cpu->cycles_machine  += 1;*/
             break;
         case 0xa7: // ANA A
@@ -59,7 +59,7 @@ void emulate_ANA ( _cpu_info *cpu ) {
 }
 
 void emulate_ANI ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
 
     switch ( *opcode ) {
         case 0xe6: // ANI
@@ -79,7 +79,7 @@ void emulate_ANI ( _cpu_info *cpu ) {
 }
 
 void emulate_XOR ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
 
     switch ( *opcode ) {
         case 0xa8: // XOR B
@@ -101,7 +101,7 @@ void emulate_XOR ( _cpu_info *cpu ) {
             cpu->a ^= cpu->l;
             break;
         case 0xae: // XOR M
-            cpu->a ^= cpu->memory[cpu->h << 8 | cpu->l];
+            cpu->a ^= cpu->mem_controller.memory[cpu->h << 8 | cpu->l];
             /*cpu->cycles_machine += 1;*/
             break;
         case 0xaf: // XOR A
@@ -121,7 +121,7 @@ void emulate_XOR ( _cpu_info *cpu ) {
 }
 
 void emulate_XRI ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
 
     switch ( *opcode ) {
         case 0xee: // XRI D8
@@ -141,7 +141,7 @@ void emulate_XRI ( _cpu_info *cpu ) {
 }
 
 void emulate_ORA ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
 
     switch ( *opcode ) {
         case 0xb0: // ORA B
@@ -163,7 +163,7 @@ void emulate_ORA ( _cpu_info *cpu ) {
             cpu->a |= cpu->l;
             break;
         case 0xb6: // ORA M
-            cpu->a |= cpu->memory[cpu->h << 8 | cpu->l];
+            cpu->a |= cpu->mem_controller.memory[cpu->h << 8 | cpu->l];
             cpu->cycles_machine += 1;
             break;
         case 0xb7: // ORA A
@@ -183,7 +183,7 @@ void emulate_ORA ( _cpu_info *cpu ) {
 }
 
 void emulate_ORI ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
 
     switch ( *opcode ) {
         case 0xf6: // ORI D8
@@ -203,7 +203,7 @@ void emulate_ORI ( _cpu_info *cpu ) {
 }
 
 void emulate_CMP ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint8_t        answer = 0;
     uint8_t        old    = 0;
 
@@ -233,8 +233,8 @@ void emulate_CMP ( _cpu_info *cpu ) {
             old           = cpu->l;
             break;
         case 0xbe: // CMP M
-            answer        = cpu->a - cpu->memory[(cpu->h << 8) | cpu->l];
-            old           = cpu->memory[(cpu->h << 8) | cpu->l];
+            answer        = cpu->a - cpu->mem_controller.memory[(cpu->h << 8) | cpu->l];
+            old           = cpu->mem_controller.memory[(cpu->h << 8) | cpu->l];
             /*cpu->cycles_machine  += 1;*/
             break;
         case 0xbf: // CMP A
@@ -255,7 +255,7 @@ void emulate_CMP ( _cpu_info *cpu ) {
 }
 
 void emulate_CPI ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint8_t        answer = 0;
 
     switch ( *opcode ) {
@@ -277,7 +277,7 @@ void emulate_CPI ( _cpu_info *cpu ) {
 
 
 void emulate_RAL ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc+1];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc+1];
     uint8_t answer = 0;
     uint8_t      t = 0;
     uint16_t  addr = 0;
@@ -303,7 +303,7 @@ void emulate_RAL ( _cpu_info *cpu ) {
 }
 
 void emulate_RAR ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc+1];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc+1];
     uint8_t answer = 0;
     uint8_t      t = 0;
     uint16_t  addr = 0;
@@ -329,7 +329,7 @@ void emulate_RAR ( _cpu_info *cpu ) {
 }
 
 void emulate_CMA ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
 
     switch ( *opcode ) {
             case 0x2f: // CMA
@@ -347,7 +347,7 @@ void emulate_CMA ( _cpu_info *cpu ) {
 }
 
 void emulate_CMC ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
 
     switch ( *opcode ) {
             case 0x3f: // CMC
@@ -364,7 +364,7 @@ void emulate_CMC ( _cpu_info *cpu ) {
 }
 
 void emulate_STC ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
 
     switch ( *opcode ) {
             case 0x37: // STC

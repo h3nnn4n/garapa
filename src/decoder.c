@@ -33,10 +33,10 @@ void decoder( _cpu_info *cpu ) {
         return;
     }
 
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
 
 #ifdef __show_step
-    disassembler ( cpu->memory, cpu->pc );
+    disassembler ( cpu->mem_controller.memory, cpu->pc );
     print_registers(cpu);
 #endif
     uint16_t addr;
@@ -463,7 +463,7 @@ void decoder( _cpu_info *cpu ) {
             decode_0xcb ( cpu );
             break;
         default:
-            disassembler( cpu->memory, cpu->pc );
+            disassembler( cpu->mem_controller.memory, cpu->pc );
             printf(" %2x is not implemented\n", *opcode);
             exit(-1);
     }

@@ -9,7 +9,7 @@
 #include "instructions_arithmetic.h"
 
 void emulate_ADD ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint16_t answer = (uint16_t) cpu->a;
 
     switch ( *opcode ) {
@@ -38,8 +38,8 @@ void emulate_ADD ( _cpu_info *cpu ) {
             cpu->flags.h    = halfcarry( cpu->a, cpu->l, answer );
             break;
         case 0x86:
-            answer += (uint16_t) cpu->memory[(cpu->h<<8) | (cpu->l)];
-            cpu->flags.h    = halfcarry( cpu->a, cpu->memory[(cpu->h<<8) | (cpu->l)], answer );
+            answer += (uint16_t) cpu->mem_controller.memory[(cpu->h<<8) | (cpu->l)];
+            cpu->flags.h    = halfcarry( cpu->a, cpu->mem_controller.memory[(cpu->h<<8) | (cpu->l)], answer );
             cpu->cycles_machine += 1;
             break;
         case 0x87:
@@ -61,7 +61,7 @@ void emulate_ADD ( _cpu_info *cpu ) {
 }
 
 void emulate_ADI ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint16_t t;
 
     switch ( *opcode ) {
@@ -98,7 +98,7 @@ void emulate_ADI ( _cpu_info *cpu ) {
 }
 
 void emulate_ADC ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint16_t answer = 0;
     uint8_t a, b;
     a = cpu->a;
@@ -135,9 +135,9 @@ void emulate_ADC ( _cpu_info *cpu ) {
             b = cpu->l;
             break;
         case 0x8e: // ADC M
-            answer = cpu->a + cpu->memory[cpu->h << 8 | cpu->l] + (cpu->flags.c != 0) ;
+            answer = cpu->a + cpu->mem_controller.memory[cpu->h << 8 | cpu->l] + (cpu->flags.c != 0) ;
             cpu->a = answer & 0xff;
-            b = cpu->memory[cpu->h << 8 | cpu->l];
+            b = cpu->mem_controller.memory[cpu->h << 8 | cpu->l];
             cpu->cycles_machine += 1;
             break;
         case 0x8f: // ADC A
@@ -159,7 +159,7 @@ void emulate_ADC ( _cpu_info *cpu ) {
 }
 
 void emulate_ACI ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint16_t t;
 
     switch ( *opcode ) {
@@ -181,7 +181,7 @@ void emulate_ACI ( _cpu_info *cpu ) {
 }
 
 void emulate_SUB ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint16_t answer = (uint16_t) cpu->a;
 
     switch ( *opcode ) {
@@ -204,7 +204,7 @@ void emulate_SUB ( _cpu_info *cpu ) {
             answer -= (uint16_t) cpu->l;
             break;
         case 0x96:
-            answer -= (uint16_t) cpu->memory[(cpu->h<<8) | (cpu->l)];
+            answer -= (uint16_t) cpu->mem_controller.memory[(cpu->h<<8) | (cpu->l)];
             cpu->cycles_machine += 1;
             break;
         case 0x97:
@@ -226,7 +226,7 @@ void emulate_SUB ( _cpu_info *cpu ) {
 }
 
 void emulate_SUI ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint16_t answer = 0;
 
     switch ( *opcode ) {
@@ -249,7 +249,7 @@ void emulate_SUI ( _cpu_info *cpu ) {
 }
 
 void emulate_SBB ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint16_t answer = 0;
     uint16_t    old = 0;
 
@@ -281,8 +281,8 @@ void emulate_SBB ( _cpu_info *cpu ) {
         case 0x9e:
             {
             uint16_t addr = (cpu->h << 8) | cpu->l;
-            answer = cpu->a - cpu->memory[addr] - (cpu->flags.c != 0) ;
-            old    = cpu->memory[addr];
+            answer = cpu->a - cpu->mem_controller.memory[addr] - (cpu->flags.c != 0) ;
+            old    = cpu->mem_controller.memory[addr];
             cpu->cycles_machine   += 1;
             }
             break;
@@ -305,7 +305,7 @@ void emulate_SBB ( _cpu_info *cpu ) {
 }
 
 void emulate_SBI ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint16_t answer = 0;
 
     switch ( *opcode ) {
@@ -327,7 +327,7 @@ void emulate_SBI ( _cpu_info *cpu ) {
 }
 
 void emulate_INR ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint16_t answer = 0;
 
     switch ( *opcode ) {
@@ -362,8 +362,8 @@ void emulate_INR ( _cpu_info *cpu ) {
             cpu->flags.h  = (answer & 0x0f) == 0x00;
             break;
         case 0x34: // INR M
-            cpu->memory[cpu->h << 8 | cpu->l] += 1;
-            answer = cpu->memory[cpu->h << 8 | cpu->l];
+            cpu->mem_controller.memory[cpu->h << 8 | cpu->l] += 1;
+            answer = cpu->mem_controller.memory[cpu->h << 8 | cpu->l];
             cpu->flags.h  = (answer & 0x0f) == 0x00;
             /*cpu->cycles_machine += 5;*/
             break;
@@ -384,7 +384,7 @@ void emulate_INR ( _cpu_info *cpu ) {
 }
 
 void emulate_DCR ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint16_t answer = 0;
 
     switch ( *opcode ) {
@@ -419,9 +419,9 @@ void emulate_DCR ( _cpu_info *cpu ) {
             cpu->flags.h  = ((cpu->l & 0x0f) == 0x0f);
             break;
         case 0x35: // DCR M
-            answer                            = cpu->memory[cpu->h << 8 | cpu->l] - 1;
-            cpu->memory[cpu->h << 8 | cpu->l] = answer & 0xff;
-            cpu->flags.h                      = ((cpu->memory[cpu->h << 8 | cpu->l] & 0x0f) == 0x0f);
+            answer                            = cpu->mem_controller.memory[cpu->h << 8 | cpu->l] - 1;
+            cpu->mem_controller.memory[cpu->h << 8 | cpu->l] = answer & 0xff;
+            cpu->flags.h                      = ((cpu->mem_controller.memory[cpu->h << 8 | cpu->l] & 0x0f) == 0x0f);
             break;
         case 0x3d: // DCR A
             answer        = cpu->a - 1;
@@ -440,7 +440,7 @@ void emulate_DCR ( _cpu_info *cpu ) {
 }
 
 void emulate_INC ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
 
     switch ( *opcode ) {
         case 0x03: // INC B
@@ -470,7 +470,7 @@ void emulate_INC ( _cpu_info *cpu ) {
 }
 
 void emulate_DCX ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint32_t       answer = 0;
 
     switch ( *opcode ) {
@@ -506,7 +506,7 @@ void emulate_DCX ( _cpu_info *cpu ) {
 }
 
 void emulate_DAD ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint32_t       answer = 0;
 
     switch ( *opcode ) {
@@ -542,7 +542,7 @@ void emulate_DAD ( _cpu_info *cpu ) {
 }
 
 void emulate_DAA ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
 
     switch ( *opcode ) {
         case 0x27: // DAA

@@ -34,7 +34,7 @@ uint8_t *get_reg_ref ( _cpu_info *cpu, uint8_t opcode ) {
         case 0x05: // L
             return &(cpu->l);
         case 0x06: // (HL)
-            return &cpu->memory[( cpu->h << 8 ) | cpu->l];
+            return &cpu->mem_controller.memory[( cpu->h << 8 ) | cpu->l];
         case 0x07: // A
             return &(cpu->a);
         default:
@@ -45,17 +45,17 @@ uint8_t *get_reg_ref ( _cpu_info *cpu, uint8_t opcode ) {
 }
 
 void emulate_LDAX ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint16_t addr = 0;
 
     switch ( *opcode ) {
         case 0x0a: // LDAX B
             addr = cpu->b << 8 | cpu->c;
-            cpu->a = cpu->memory[addr];
+            cpu->a = cpu->mem_controller.memory[addr];
             break;
         case 0x1a: // LDAX D
             addr = cpu->d << 8 | cpu->e;
-            cpu->a = cpu->memory[addr];
+            cpu->a = cpu->mem_controller.memory[addr];
             break;
         default:
             assert( 0 && "Code should not get here\n" );
@@ -66,14 +66,14 @@ void emulate_LDAX ( _cpu_info *cpu ) {
 }
 
 void emulate_STAX ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
 
     switch ( *opcode ) {
         case 0x02: // STAX B
-            cpu->memory[ ( cpu->b << 8 ) | cpu->c ] = cpu->a;
+            cpu->mem_controller.memory[ ( cpu->b << 8 ) | cpu->c ] = cpu->a;
             break;
         case 0x12: // STAX D
-            cpu->memory[ ( cpu->d << 8 ) | cpu->e ] = cpu->a;
+            cpu->mem_controller.memory[ ( cpu->d << 8 ) | cpu->e ] = cpu->a;
             break;
         default:
             assert( 0 && "Code should not get here\n" );
@@ -84,14 +84,14 @@ void emulate_STAX ( _cpu_info *cpu ) {
 }
 
 void emulate_SHLD ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
 
     switch ( *opcode ) {
         case 0x22: // SHLD D16
             {
             uint16_t addr = opcode[2] << 8 | opcode[1];
-            cpu->memory[addr+0] = cpu->l;
-            cpu->memory[addr+1] = cpu->h;
+            cpu->mem_controller.memory[addr+0] = cpu->l;
+            cpu->mem_controller.memory[addr+1] = cpu->h;
             }
             break;
         default:
@@ -103,7 +103,7 @@ void emulate_SHLD ( _cpu_info *cpu ) {
 }
 
 void emulate_LDA ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint16_t addr = 0;
 
     switch ( *opcode ) {
@@ -133,13 +133,13 @@ void emulate_LDA ( _cpu_info *cpu ) {
 }
 
 void emulate_STA ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint16_t addr = 0;
 
     switch ( *opcode ) {
         case 0x32:
             addr = opcode[2] << 8 | opcode[1];
-            cpu->memory[addr] = cpu->a;
+            cpu->mem_controller.memory[addr] = cpu->a;
             break;
         default:
             assert( 0 && "Code should not get here\n" );
@@ -150,7 +150,7 @@ void emulate_STA ( _cpu_info *cpu ) {
 }
 
 void emulate_LD ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
 
     switch ( *opcode ) {
         case 0x01: // LXI B
@@ -177,7 +177,7 @@ void emulate_LD ( _cpu_info *cpu ) {
 }
 
 void emulate_MVI ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
 
     switch ( *opcode ) {
         case 0x06: // MVI B, D8
@@ -199,7 +199,7 @@ void emulate_MVI ( _cpu_info *cpu ) {
             cpu->l = opcode[1];
             break;
         case 0x36: // MVI M, D8
-            cpu->memory[cpu->h << 8 | cpu->l] = opcode[1];
+            cpu->mem_controller.memory[cpu->h << 8 | cpu->l] = opcode[1];
             cpu->cycles_machine += 1;
             break;
         case 0x3e: // MVI A, D8
@@ -214,80 +214,80 @@ void emulate_MVI ( _cpu_info *cpu ) {
 }
 
 void emulate_MOV ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->memory[cpu->pc];
+    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint16_t addr;
 
     switch ( *opcode ) {
         case 0x46: // MOV B, M
             addr = cpu->h << 8 | cpu->l;
-            cpu->b = cpu->memory[addr];
+            cpu->b = cpu->mem_controller.memory[addr];
             cpu->cycles_machine += 1;
             break;
         case 0x56: // MOV D, M
             addr = cpu->h << 8 | cpu->l;
-            cpu->d = cpu->memory[addr];
+            cpu->d = cpu->mem_controller.memory[addr];
             cpu->cycles_machine += 1;
             break;
         case 0x66: // MOV H, M
             addr = cpu->h << 8 | cpu->l;
-            cpu->h = cpu->memory[addr];
+            cpu->h = cpu->mem_controller.memory[addr];
             cpu->cycles_machine += 1;
             break;
 
         case 0x70: // MOV M, B
             addr = cpu->h << 8 | cpu->l;
-            cpu->memory[addr] = cpu->b;
+            cpu->mem_controller.memory[addr] = cpu->b;
             cpu->cycles_machine += 1;
             break;
         case 0x71: // MOV M, C
             addr = cpu->h << 8 | cpu->l;
-            cpu->memory[addr] = cpu->c;
+            cpu->mem_controller.memory[addr] = cpu->c;
             cpu->cycles_machine += 1;
             break;
         case 0x72: // MOV M, D
             addr = cpu->h << 8 | cpu->l;
-            cpu->memory[addr] = cpu->d;
+            cpu->mem_controller.memory[addr] = cpu->d;
             cpu->cycles_machine += 1;
             break;
         case 0x73: // MOV M, E
             addr = cpu->h << 8 | cpu->l;
-            cpu->memory[addr] = cpu->e;
+            cpu->mem_controller.memory[addr] = cpu->e;
             cpu->cycles_machine += 1;
             break;
         case 0x74: // MOV M, H
             addr = cpu->h << 8 | cpu->l;
-            cpu->memory[addr] = cpu->h;
+            cpu->mem_controller.memory[addr] = cpu->h;
             cpu->cycles_machine += 1;
             break;
         case 0x75: // MOV M, L
             addr = cpu->h << 8 | cpu->l;
-            cpu->memory[addr] = cpu->l;
+            cpu->mem_controller.memory[addr] = cpu->l;
             cpu->cycles_machine += 1;
             break;
         case 0x77: // MOV M, A
             addr = cpu->h << 8 | cpu->l;
-            cpu->memory[addr] = cpu->a;
+            cpu->mem_controller.memory[addr] = cpu->a;
             cpu->cycles_machine += 1;
             break;
 
         case 0x4e: // MOV C, M
             addr = cpu->h << 8 | cpu->l;
-            cpu->c = cpu->memory[addr];
+            cpu->c = cpu->mem_controller.memory[addr];
             cpu->cycles_machine += 1;
             break;
         case 0x5e: // MOV E, M
             addr = cpu->h << 8 | cpu->l;
-            cpu->e = cpu->memory[addr];
+            cpu->e = cpu->mem_controller.memory[addr];
             cpu->cycles_machine += 1;
             break;
         case 0x6e: // MOV L, M
             addr = cpu->h << 8 | cpu->l;
-            cpu->l = cpu->memory[addr];
+            cpu->l = cpu->mem_controller.memory[addr];
             cpu->cycles_machine += 1;
             break;
         case 0x7e: // MOV A, M
             addr = cpu->h << 8 | cpu->l;
-            cpu->a = cpu->memory[addr];
+            cpu->a = cpu->mem_controller.memory[addr];
             cpu->cycles_machine += 1;
             break;
         default:

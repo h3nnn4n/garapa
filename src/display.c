@@ -184,6 +184,7 @@ uint8_t display_test_screenmode ( _cpu_info *cpu ) {
 
 void draw_background_and_window( _cpu_info *cpu ) {
     uint8_t *buffer = screen->pixels;
+    uint8_t *memory = cpu->mem_controller.memory;
 
     for (int x = 0; x < 160; ++x) {
         unsigned int map_select, map_offset, tile_num, tile_addr, xm, ym;
@@ -205,15 +206,15 @@ void draw_background_and_window( _cpu_info *cpu ) {
 
         map_offset = (ym/8)*32 + xm/8;
 
-        tile_num = cpu->memory[(0x9800 + map_select*0x400 + map_offset)];
+        tile_num = memory[(0x9800 + map_select*0x400 + map_offset)];
         if(display_test_bg_tileset_select(cpu)) {
             tile_addr = 0x8000 + tile_num*16;
         } else {
             tile_addr = 0x9000 + ((signed char)tile_num)*16;
         }
 
-        b1 = cpu->memory[(tile_addr+(ym%8)*2)];
-        b2 = cpu->memory[(tile_addr+(ym%8)*2+1)];
+        b1 = memory[(tile_addr+(ym%8)*2)];
+        b2 = memory[(tile_addr+(ym%8)*2+1)];
         mask = 128>>(xm%8);
         color = (!!(b2&mask)<<1) | !!(b1&mask);
         buffer[read_active_line(cpu)*160 + x] = cpu->lcd.colors[cpu->lcd.bg_palette[color]];

@@ -80,12 +80,23 @@ typedef struct {
 } _cpu_flags;
 
 typedef struct {
-    _interrupts interrupts;
-    _joystick   joystick;
-
     uint8_t *memory;
     uint8_t *rom;
-    uint8_t active_bank;
+    uint8_t *cartridge_ram;
+
+    uint8_t ram_size;
+    uint8_t rom_size;
+
+    uint8_t rom_bank_number;
+    uint8_t ram_bank_number;
+    uint8_t ram_mode;
+    uint8_t ram_enable;
+} _mem_controller;
+
+typedef struct {
+    _mem_controller mem_controller;
+    _interrupts     interrupts;
+    _joystick       joystick;
 
     uint8_t enable_interrupts;
     uint8_t pending_interrupts;
