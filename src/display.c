@@ -196,7 +196,9 @@ void draw_background_and_window( _cpu_info *cpu ) {
             read_active_line(cpu) - read_window_y(cpu) < 144) {
             xm = x;
             ym = read_active_line(cpu) - read_window_y(cpu);
-            map_select = display_test_windowtilemap(cpu); } else { if(!display_test_bg_enabled(cpu) ) {
+            map_select = display_test_windowtilemap(cpu);
+        } else {
+            if(!display_test_bg_enabled(cpu) ) {
                 buffer[read_active_line(cpu)*160 + x] = 0;
                 return;
             }
@@ -235,6 +237,7 @@ void draw_sprites ( _cpu_info *cpu ) {
         uint8_t posy      = read_byte(cpu, 0xfe00 + (i*4    )) - 16; // Reads the y coordinate
         uint8_t posx      = read_byte(cpu, 0xfe00 + (i*4 + 1)) - 8 ; // Reads the x coordinate
         uint16_t tileaddr = read_byte(cpu, 0xfe00 + (i*4 + 2)); // Tile index
+        uint8_t flags     = read_byte(cpu, 0xfe00 + (i*4 + 3)); // Tile flags
 
         /*if ( cpu->cycles_machine > 46022942 ) printf("Sprite %2d: x: %3d y: %3d\n", i, posx, posy);*/
 
@@ -252,12 +255,18 @@ void draw_sprites ( _cpu_info *cpu ) {
 
             for (int j = 0; j < 8; ++j) { // Loops over the pixels
                 uint8_t color;
+                uint8_t j_flip;
 
-                if ( posx + j >= 160 ) // Out of screen
+                if ( flags & 0x20 ) // HFLIP
+                    j_flip = 7 - j;
+                else
+                    j_flip = j;
+
+                if ( posx + j_flip >= 160 ) // Out of screen
                     continue;
 
-                color = (((bit2 & (0x80 >> j)) != 0) << 1) |
-                         ((bit1 & (0x80 >> j)) != 0)       ;
+                color = (((bit2 & (0x80 >> j_flip)) != 0) << 1) |
+                         ((bit1 & (0x80 >> j_flip)) != 0)       ;
 
                 if ( !color ) continue; // Transparent
 
