@@ -232,7 +232,7 @@ void draw_sprites ( _cpu_info *cpu ) {
     // bit1 = x
     // bit2 = tile number
     // bit3 = atributes
-    // TODO: HFLIP and VFLIP
+    // TODO: Sprites Priority
     for (int i = 0; i < 40; ++i) { // Loops over the 40 sprites
         uint8_t posy      = read_byte(cpu, 0xfe00 + (i*4    )) - 16; // Reads the y coordinate
         uint8_t posx      = read_byte(cpu, 0xfe00 + (i*4 + 1)) - 8 ; // Reads the x coordinate
@@ -247,7 +247,12 @@ void draw_sprites ( _cpu_info *cpu ) {
             /*if ( cpu->cycles_machine > 46022942 )*/
                 /*printf("Sprite %2d: x: %3d y: %3d\n", i, posx, posy);*/
 
-            uint8_t line_offset = (cpu->lcd.active_line - posy) * 2; // 2 bytes per line
+            uint8_t line_offset = cpu->lcd.active_line - posy;
+
+            if ( flags & 0x40 ) // VHLIP
+                line_offset = (7 + display_test_sprite_size(cpu)*8) - line_offset;
+
+            line_offset *= 2;
 
             uint16_t addr = 0x8000 + (tileaddr * 16) + line_offset;
             uint8_t bit1 = read_byte(cpu, addr    );
