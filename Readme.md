@@ -11,7 +11,7 @@ TODO list
  - [ ] Savestates
  - [ ] APU emulation (Audio Processing Unit)
  - [x] SDL2
-  - [ ] Scalling
+  - [x] Scalling
   - [ ] Maybe filters
  - [ ] Pass all of blargg's tests
   - [ ] cgb_sound

@@ -38,10 +38,10 @@ void sdl_init ( ) {
     SDL_Init(SDL_INIT_VIDEO);
 
     window = SDL_CreateWindow("here comes dat gameboi",
-        SDL_WINDOWPOS_UNDEFINED,
-        SDL_WINDOWPOS_UNDEFINED,
-        screenx,
-        screeny,
+        SDL_WINDOWPOS_CENTERED,
+        SDL_WINDOWPOS_CENTERED,
+        screenx * 4,
+        screeny * 4,
         0);
 
     renderer = SDL_CreateRenderer(window, -1, 0);
@@ -51,6 +51,7 @@ void sdl_init ( ) {
                screenx,
                screeny);
     pixels   = malloc ( sizeof ( uint32_t ) * screenx * screeny);
+    SDL_RenderSetScale(renderer, 4, 4);
 
     memset(pixels, 255, screenx * screeny * sizeof(uint32_t));
 
