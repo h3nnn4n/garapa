@@ -24,7 +24,7 @@ void sdl_init ( ) {
     SDL_Init(SDL_INIT_VIDEO);
     screen = SDL_SetVideoMode(160, 144, 8, SDL_DOUBLEBUF);
 
-    SDL_WM_SetCaption("8080 Emulator", NULL);
+    SDL_WM_SetCaption("Here comes dat gameboi", NULL);
 
     SDL_EnableKeyRepeat(0, 0);
 }
