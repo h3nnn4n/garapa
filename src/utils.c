@@ -181,25 +181,47 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->flags.h = 1;
     cpu->flags.c = 1;
 
+    for (int i = 0xff00; i < 0xffff; ++i)
+        cpu->mem_controller.memory[i] = 0xff;
+
+    cpu->mem_controller.memory[0xff00] = 0xcf;
+    cpu->mem_controller.memory[0xff01] = 0x00;
+    cpu->mem_controller.memory[0xff02] = 0x7e;
+    cpu->mem_controller.memory[0xff03] = 0xff;
+    cpu->mem_controller.memory[0xff05] = 0x00;
+    cpu->mem_controller.memory[0xff06] = 0x00;
+    cpu->mem_controller.memory[0xff07] = 0xf8;
+    cpu->mem_controller.memory[0xff08] = 0xff;
+    cpu->mem_controller.memory[0xff09] = 0xff;
     cpu->mem_controller.memory[0xff10] = 0x80;
+    cpu->mem_controller.memory[0xff0a] = 0xff;
+    cpu->mem_controller.memory[0xff0f] = 0xe1;
     cpu->mem_controller.memory[0xff11] = 0xbf;
     cpu->mem_controller.memory[0xff12] = 0xf3;
     cpu->mem_controller.memory[0xff14] = 0xbf;
     cpu->mem_controller.memory[0xff16] = 0x3f;
+    cpu->mem_controller.memory[0xff17] = 0x00;
     cpu->mem_controller.memory[0xff19] = 0xbf;
     cpu->mem_controller.memory[0xff1a] = 0x7f;
     cpu->mem_controller.memory[0xff1b] = 0xff;
     cpu->mem_controller.memory[0xff1c] = 0x9f;
     cpu->mem_controller.memory[0xff1e] = 0xbf;
     cpu->mem_controller.memory[0xff20] = 0xff;
+    cpu->mem_controller.memory[0xff21] = 0x00;
+    cpu->mem_controller.memory[0xff22] = 0x00;
     cpu->mem_controller.memory[0xff23] = 0xbf;
     cpu->mem_controller.memory[0xff24] = 0x77;
     cpu->mem_controller.memory[0xff25] = 0xf3;
     cpu->mem_controller.memory[0xff26] = 0xf1;
     cpu->mem_controller.memory[0xff40] = 0x91;
+    cpu->mem_controller.memory[0xff42] = 0x00;
+    cpu->mem_controller.memory[0xff43] = 0x00;
+    cpu->mem_controller.memory[0xff45] = 0x00;
     cpu->mem_controller.memory[0xff47] = 0xfc;
     cpu->mem_controller.memory[0xff48] = 0xff;
     cpu->mem_controller.memory[0xff49] = 0xff;
+    cpu->mem_controller.memory[0xff4a] = 0x00;
+    cpu->mem_controller.memory[0xff4b] = 0x00;
 }
 
 void unimplemented_opcode( _cpu_info *cpu ) {
