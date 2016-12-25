@@ -3,6 +3,7 @@ override CFLAGS+=-lm -Wall -Wextra -pedantic --std=gnu11 -O3 `sdl2-config --cfla
 
 SOURCES=utils.c                      \
 		disassembler.c               \
+		wad_output.c                 \
 		decoder.c                    \
 		graphics.c                   \
 		time_keeper.c                \
