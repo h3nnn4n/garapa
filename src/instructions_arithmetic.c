@@ -537,7 +537,7 @@ void emulate_DAD ( _cpu_info *cpu ) {
     cpu->h  = (answer >> 8 ) & 0xff;
     cpu->l  = (answer >> 0 ) & 0xff;
 
-    cpu->cycles_machine += 2;
+    cpu->cycles_machine += 3;
     cpu->pc     += 1 ;
 }
 

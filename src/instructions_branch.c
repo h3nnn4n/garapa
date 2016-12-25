@@ -175,7 +175,7 @@ void emulate_RET ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles_machine += 4;
+    cpu->cycles_machine += 3;
 }
 
 void emulate_RZ ( _cpu_info *cpu ) {
