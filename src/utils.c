@@ -163,6 +163,8 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->interrupts.pending_joypad  = 0;
 
     // BIOS SKIP
+    cpu->timer.DIV  = 0xabcc;
+
     cpu->pc = 0x100;
     cpu->sp = 0xfffe;
 
@@ -232,4 +234,9 @@ void print_registers ( _cpu_info *cpu ) {
             cpu->cycles_machine      ,
             cpu->instructions_executed);
     /*printf(BYTE_TO_BINARY_PATTERN"\n", BYTE_TO_BINARY(f));*/
+}
+
+void print_state( _cpu_info *cpu ) {
+    disassembler   ( cpu->mem_controller.memory, cpu->pc );
+    print_registers( cpu );
 }
