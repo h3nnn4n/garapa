@@ -194,6 +194,8 @@ void emulate_MVI ( _cpu_info *cpu ) {
             break;
         case 0x26: // MVI H, D8
             cpu->h = opcode[1];
+            abort();
+            cpu->cycles_machine = 0 ;
             break;
         case 0x2e: // MVI L, D8
             cpu->l = opcode[1];

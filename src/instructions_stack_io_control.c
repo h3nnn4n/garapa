@@ -101,7 +101,7 @@ void emulate_PUSH ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->cycles_machine += 3;
+    cpu->cycles_machine += 4;
     cpu->pc     += 1 ;
 }
 
