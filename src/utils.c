@@ -94,13 +94,13 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->lcd.mode             = 0;
 
     cpu->lcd.power            = 1;
-    cpu->lcd.window_tilemap   = 0;
+    cpu->lcd.window_tilemap   = 1;
     cpu->lcd.window_enabled   = 0;
     cpu->lcd.bg_and_tilemap   = 0;
     cpu->lcd.bg_tileset       = 0;
     cpu->lcd.sprite_size      = 0;
     cpu->lcd.sprite_enable    = 0;
-    cpu->lcd.bg_enable        = 0;
+    cpu->lcd.bg_enable        = 1;
 
     cpu->lcd.lyc_enable       = 0;
     cpu->lcd.mode2_oam        = 0;

@@ -210,7 +210,7 @@ void draw_background_and_window( _cpu_info *cpu ) {
         map_offset = (ym/8)*32 + xm/8;
 
         tile_num = memory[(0x9800 + map_select*0x400 + map_offset)];
-        if(display_test_bg_tileset_select(cpu)) {
+        if(!display_test_bg_tileset_select(cpu)) {
             tile_addr = 0x8000 + tile_num*16;
         } else {
             tile_addr = 0x9000 + ((signed char)tile_num)*16;
