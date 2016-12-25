@@ -16,7 +16,7 @@ unsigned short int disassembler( unsigned char *buffer, unsigned int pc ) {
         case 0x05:   printf ( " %04x : %02x      """"    DEC B                   "  , pc, buffer[pc]                                                          ); op_size = 1; break;
         case 0x06:   printf ( " %04x : %02x %02x   ""    LD B, 0x%02x              ", pc, buffer[pc], buffer[pc+1], buffer[pc+1]                              ); op_size = 2; break;
         case 0x07:   printf ( " %04x : %02x      """"    RLCA                    "  , pc, buffer[pc]                                                          ); op_size = 1; break;
-        case 0x08:   printf ( " %04x : %02x %02x %02x    LD (0x%02x%02x), SP       ", pc, buffer[pc], buffer[pc+1], buffer[pc+2], buffer[pc+1], buffer[pc+2]  ); op_size = 3; break;
+        case 0x08:   printf ( " %04x : %02x %02x %02x    LD (0x%02x%02x), SP         ", pc, buffer[pc], buffer[pc+1], buffer[pc+2], buffer[pc+1], buffer[pc+2]  ); op_size = 3; break;
         case 0x09:   printf ( " %04x : %02x      """"    ADD HL, BC              "  , pc, buffer[pc]                                                          ); op_size = 1; break;
         case 0x0A:   printf ( " %04x : %02x      """"    LD A, (BC)              "  , pc, buffer[pc]                                                          ); op_size = 1; break;
         case 0x0B:   printf ( " %04x : %02x      """"    DEC BC                  "  , pc, buffer[pc]                                                          ); op_size = 1; break;
