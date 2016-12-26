@@ -216,7 +216,6 @@ void draw_background_and_window( _cpu_info *cpu ) {
 
     uint8_t posx;
     uint8_t posy;
-    uint8_t row;
     uint8_t color;
 
     uint16_t bg_addr;
