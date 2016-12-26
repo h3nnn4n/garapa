@@ -19,7 +19,7 @@ SOURCES=utils.c                      \
 		interrupts.c                 \
 		instructions_stack_io_control.c
 
-ROM_PATH=roms/cpu_instrs/individual/
+ROM_PATH=../roms/cpu_instrs/individual/
 SOURCE_BIN=main.c
 EXECUTABLE=main
 
