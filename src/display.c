@@ -183,44 +183,80 @@ uint8_t display_test_screenmode ( _cpu_info *cpu ) {
     return 0x00;
 }
 
+/*
+ *0000-3FFF   16KB ROM Bank 00     (in cartridge, fixed at bank 00)
+ *4000-7FFF   16KB ROM Bank 01..NN (in cartridge, switchable bank number)
+ *8000-9FFF   8KB Video RAM (VRAM) (switchable bank 0-1 in CGB Mode)
+ *A000-BFFF   8KB External RAM     (in cartridge, switchable bank, if any)
+ *C000-CFFF   4KB Work RAM Bank 0 (WRAM)
+ *D000-DFFF   4KB Work RAM Bank 1 (WRAM)  (switchable bank 1-7 in CGB Mode)
+ *E000-FDFF   Same as C000-DDFF (ECHO)    (typically not used)
+ *FE00-FE9F   Sprite Attribute Table (OAM)
+ *FEA0-FEFF   Not Usable
+ *FF00-FF7F   I/O Ports
+ *FF80-FFFE   High RAM (HRAM)
+ *FFFF        Interrupt Enable Register
+ */
+
+/*
+ * FF40 - LCDC - LCD Control (R/W)
+ * Bit 7 - LCD Display Enable             (0=Off, 1=On)
+ * Bit 6 - Window Tile Map Display Select (0=9800-9BFF, 1=9C00-9FFF)
+ * Bit 5 - Window Display Enable          (0=Off, 1=On)
+ * Bit 4 - BG & Window Tile Data Select   (0=8800-97FF, 1=8000-8FFF)
+ * Bit 3 - BG Tile Map Display Select     (0=9800-9BFF, 1=9C00-9FFF)
+ * Bit 2 - OBJ (Sprite) Size              (0=8x8, 1=8x16)
+ * Bit 1 - OBJ (Sprite) Display Enable    (0=Off, 1=On)
+ * Bit 0 - BG Display (for CGB see below) (0=Off, 1=On)
+ */
+
 void draw_background_and_window( _cpu_info *cpu ) {
     uint32_t *buffer = get_frame_buffer();
     uint8_t  *memory = cpu->mem_controller.memory;
 
-    for (int x = 0; x < 160; ++x) {
-        unsigned int map_select, map_offset, tile_num, tile_addr, xm, ym;
-        unsigned char b1, b2, mask, color;
+    uint8_t posx;
+    uint8_t posy;
+    uint8_t row;
+    uint8_t color;
 
-        if( read_active_line(cpu) >= read_window_y(cpu) &&
-            display_test_windowenable(cpu) &&
-            read_active_line(cpu) - read_window_y(cpu) < 144) {
-            xm = x;
-            ym = read_active_line(cpu) - read_window_y(cpu);
-            map_select = display_test_windowtilemap(cpu);
+    uint16_t bg_addr;
+    uint16_t tile_addr;
+
+    for (int i = 0; i < 160; i+=1) { // screen is 160 pixels wide
+        if ( display_test_windowenable ( cpu ) &&          // If windows is active
+            cpu->lcd.active_line >= read_window_y ( cpu ) &&  // and on current scanline
+            read_window_y ( cpu ) - cpu->lcd.active_line < 144 // and on current scanline
+            ) {
+            posy = cpu->lcd.active_line - read_window_y ( cpu ); // Calculate the y position
+            posx = i - read_window_x ( cpu ) + 7;
+            bg_addr = display_test_windowtilemap ( cpu ) ?       // Select address with the tilemap
+                            0x9c00:
+                            0x9800;
         } else {
-            if(!display_test_bg_enabled(cpu) ) {
-                buffer[read_active_line(cpu)*160 + x] = 0;
-                return;
-            }
-            xm = (                    x + read_scroll_x(cpu))%256;
-            ym = (read_active_line(cpu) + read_scroll_y(cpu))%256;
-            map_select = display_test_tilemap_select(cpu);
+            posy = cpu->lcd.active_line + read_scroll_y ( cpu );  // Calculate the y position
+            bg_addr = display_test_tilemap_select ( cpu ) ?       // Select address with the tilemap
+                            0x9c00:
+                            0x9800;
+            posx = read_scroll_x ( cpu ) + i;
+            posy %= 256;
+            posx %= 256;
         }
 
-        map_offset = (ym/8)*32 + xm/8;
+        uint8_t tile_number = memory[bg_addr + (posy/8) * 32 + posx/8]; // Read the tilenumber
 
-        tile_num = memory[(0x9800 + map_select*0x400 + map_offset)];
-        if(!display_test_bg_tileset_select(cpu)) {
-            tile_addr = 0x8000 + tile_num*16;
-        } else {
-            tile_addr = 0x9000 + ((signed char)tile_num)*16;
-        }
+        if (display_test_bg_tileset_select ( cpu ) ) // Reads from the correct position
+            tile_addr = 0x8000 +  tile_number * 16;
+        else
+            tile_addr = 0x9000 +  ((int8_t) tile_number * 16); // Uses 0x9000 instead 0x8800 because the tilenumber here has a signal
 
-        b1 = memory[(tile_addr+(ym%8)*2)];
-        b2 = memory[(tile_addr+(ym%8)*2+1)];
-        mask = 128>>(xm%8);
-        color = (!!(b2&mask)<<1) | !!(b1&mask);
-        buffer[read_active_line(cpu)*160 + x] = cpu->lcd.colors[cpu->lcd.bg_palette[color]];
+        uint16_t offset = (posy % 8 ) * 2;
+        uint8_t bit1 = read_byte(cpu, tile_addr + offset    );
+        uint8_t bit2 = read_byte(cpu, tile_addr + offset + 1);
+
+        color = (((bit2 & (0x01 << (((posx % 8) - 7) * -1))) != 0) << 1) |
+                 ((bit1 & (0x01 << (((posx % 8) - 7) * -1))) != 0)       ;
+
+        buffer[cpu->lcd.active_line*160 + i] = cpu->lcd.colors[cpu->lcd.bg_palette[color]];
     }
 }
 
@@ -305,7 +341,7 @@ void display_update( _cpu_info *cpu ) {
 
     if ( cpu->lcd.active_line != last_line &&
          cpu->lcd.active_line < 144 ) {
-        draw_background_and_window(cpu); // Draw one line of the background
+        draw_background_and_window(cpu);
         draw_sprites(cpu);
     }
 

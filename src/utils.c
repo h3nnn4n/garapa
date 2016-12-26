@@ -9,6 +9,7 @@
 #include "utils.h"
 #include "disassembler.h"
 #include "cartridge.h"
+#include "display.h"
 
 void load_rom ( _cpu_info *cpu, const char* fname, uint16_t offset ) {
     FILE *f = NULL;
@@ -94,9 +95,9 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->lcd.mode             = 0;
 
     cpu->lcd.power            = 1;
-    cpu->lcd.window_tilemap   = 1;
+    cpu->lcd.window_tilemap   = 0;
     cpu->lcd.window_enabled   = 0;
-    cpu->lcd.bg_and_tilemap   = 0;
+    cpu->lcd.bg_and_tilemap   = 1;
     cpu->lcd.bg_tileset       = 0;
     cpu->lcd.sprite_size      = 0;
     cpu->lcd.sprite_enable    = 0;
@@ -132,7 +133,6 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->lcd.colors[1] = 0xc0c0c0;
     cpu->lcd.colors[2] = 0x808080;
     cpu->lcd.colors[3] = 0x000000;
-
     cpu->flags.z   = 0;
     cpu->flags.n   = 0;
     cpu->flags.h   = 0;
