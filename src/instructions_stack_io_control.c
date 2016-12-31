@@ -18,6 +18,7 @@ void emulate_STOP ( _cpu_info *cpu ) {
         default:
             assert( 0 && "Code should not get here\n" ); }
 
+    /* FIXME */ abort();
     cpu->cycles_machine += 1;
     cpu->pc     += 1 ;
 }
@@ -32,6 +33,7 @@ void emulate_HALT ( _cpu_info *cpu ) {
         default:
             assert( 0 && "Code should not get here\n" ); }
 
+    /* FIXME */ abort();
     cpu->cycles_machine += 1;
     cpu->pc     += 1 ;
 }
@@ -66,6 +68,7 @@ void emulate_POP ( _cpu_info *cpu ) {
         default:
             assert( 0 && "Code should not get here\n" ); }
 
+    /* FIXME */ abort();
     cpu->cycles_machine += 3;
     cpu->pc     += 1 ;
 }
@@ -101,6 +104,7 @@ void emulate_PUSH ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
+    /* FIXME */ abort();
     cpu->cycles_machine += 3;
     cpu->pc     += 1 ;
 }
@@ -116,6 +120,7 @@ void emulate_SPHL ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
+    /* FIXME */ abort();
     cpu->cycles_machine += 2;
     cpu->pc     += 1 ;
 }
@@ -132,6 +137,7 @@ void emulate_EI ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
+    /* FIXME */ abort();
     cpu->cycles_machine += 1 ;
     cpu->pc     += 1 ;
 }
@@ -147,11 +153,13 @@ void emulate_DI ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
+    /* FIXME */ abort();
     cpu->cycles_machine += 1 ;
     cpu->pc     += 1 ;
 }
 
 void emulate_NOP ( _cpu_info *cpu ) {
+    /* FIXME */ abort();
     cpu->cycles_machine += 1 ;
     cpu->pc     += 1 ;
 }

@@ -40,7 +40,8 @@ void emulate_ADD ( _cpu_info *cpu ) {
         case 0x86:
             answer += (uint16_t) cpu->mem_controller.memory[(cpu->h<<8) | (cpu->l)];
             cpu->flags.h    = halfcarry( cpu->a, cpu->mem_controller.memory[(cpu->h<<8) | (cpu->l)], answer );
-            cpu->cycles_machine += 1;
+            /* FIXME */ abort();
+    cpu->cycles_machine += 1;
             break;
         case 0x87:
             answer += (uint16_t) cpu->a;
@@ -57,6 +58,7 @@ void emulate_ADD ( _cpu_info *cpu ) {
     cpu->a          = answer & 0xff;
 
     cpu->pc             += 1 ;
+    /* FIXME */ abort();
     cpu->cycles_machine += 1 ;
 }
 
@@ -70,14 +72,16 @@ void emulate_ADI ( _cpu_info *cpu ) {
             t             = cpu->a + (uint8_t) opcode[1];
             cpu->a        = (uint8_t) t;
             cpu->flags.c  = (t > 0xff);
-            cpu->cycles_machine += 2 ;
+            /* FIXME */ abort();
+    cpu->cycles_machine += 2 ;
             break;
         case 0xe8:
             cpu->flags.h  = halfcarry( cpu->sp, opcode[1], cpu->sp + (int8_t) opcode[1] );
             t             = cpu->sp + (int8_t) opcode[1];
             cpu->flags.c  = (t & 0xff) < (cpu->sp & 0xff);
             cpu->sp       = t;
-            cpu->cycles_machine += 4 ;
+            /* FIXME */ abort();
+    cpu->cycles_machine += 4 ;
             break;
         case 0xf8:
             cpu->flags.h  = halfcarry( cpu->sp, opcode[1], cpu->sp + (int8_t) opcode[1] );
@@ -85,7 +89,8 @@ void emulate_ADI ( _cpu_info *cpu ) {
             cpu->flags.c  = (t & 0xff) < (cpu->sp & 0xff);
             cpu->h        = (t & 0xff00) >> 8;
             cpu->l        = (t & 0x00ff) >> 0;
-            cpu->cycles_machine += 3 ;
+            /* FIXME */ abort();
+    cpu->cycles_machine += 3 ;
             break;
         default:
             assert( 0 && "Code should not get here\n" );
@@ -138,7 +143,8 @@ void emulate_ADC ( _cpu_info *cpu ) {
             answer = cpu->a + cpu->mem_controller.memory[cpu->h << 8 | cpu->l] + (cpu->flags.c != 0) ;
             cpu->a = answer & 0xff;
             b = cpu->mem_controller.memory[cpu->h << 8 | cpu->l];
-            cpu->cycles_machine += 1;
+            /* FIXME */ abort();
+    cpu->cycles_machine += 1;
             break;
         case 0x8f: // ADC A
             answer = cpu->a + cpu->a + (cpu->flags.c != 0) ;
@@ -154,6 +160,7 @@ void emulate_ADC ( _cpu_info *cpu ) {
     cpu->flags.c    = ( answer > 0xff );
     cpu->flags.h    = halfcarry( a, b, answer );
 
+    /* FIXME */ abort();
     cpu->cycles_machine += 1 ;
     cpu->pc     += 1 ;
 }
@@ -176,6 +183,7 @@ void emulate_ACI ( _cpu_info *cpu ) {
     cpu->flags.z  = (cpu->a == 0);
     cpu->flags.n  = 0;
 
+    /* FIXME */ abort();
     cpu->cycles_machine += 2 ;
     cpu->pc     += 2 ;
 }
@@ -205,7 +213,8 @@ void emulate_SUB ( _cpu_info *cpu ) {
             break;
         case 0x96:
             answer -= (uint16_t) cpu->mem_controller.memory[(cpu->h<<8) | (cpu->l)];
-            cpu->cycles_machine += 1;
+            /* FIXME */ abort();
+    cpu->cycles_machine += 1;
             break;
         case 0x97:
             answer -= (uint16_t) cpu->a;
@@ -222,6 +231,7 @@ void emulate_SUB ( _cpu_info *cpu ) {
     cpu->a          = answer & 0xff;
 
     cpu->pc        += 1 ;
+    /* FIXME */ abort();
     cpu->cycles_machine    += 1 ;
 }
 
@@ -244,6 +254,7 @@ void emulate_SUI ( _cpu_info *cpu ) {
 
     cpu->a = answer & 0xff;
 
+    /* FIXME */ abort();
     cpu->cycles_machine += 2 ;
     cpu->pc     += 2 ;
 }
@@ -283,7 +294,8 @@ void emulate_SBB ( _cpu_info *cpu ) {
             uint16_t addr = (cpu->h << 8) | cpu->l;
             answer = cpu->a - cpu->mem_controller.memory[addr] - (cpu->flags.c != 0) ;
             old    = cpu->mem_controller.memory[addr];
-            cpu->cycles_machine   += 1;
+            /* FIXME */ abort();
+    cpu->cycles_machine   += 1;
             }
             break;
         case 0x9f:
@@ -300,6 +312,7 @@ void emulate_SBB ( _cpu_info *cpu ) {
     cpu->flags.c    = ( answer > 0xff );
     cpu->a          = answer & 0xff;
 
+    /* FIXME */ abort();
     cpu->cycles_machine += 1 ;
     cpu->pc     += 1 ;
 }
@@ -322,6 +335,7 @@ void emulate_SBI ( _cpu_info *cpu ) {
     cpu->flags.c    = ( answer > 0xff );
     cpu->a          = answer & 0xff;
 
+    /* FIXME */ abort();
     cpu->cycles_machine += 2 ;
     cpu->pc     += 2 ;
 }
@@ -365,7 +379,6 @@ void emulate_INR ( _cpu_info *cpu ) {
             cpu->mem_controller.memory[cpu->h << 8 | cpu->l] += 1;
             answer = cpu->mem_controller.memory[cpu->h << 8 | cpu->l];
             cpu->flags.h  = (answer & 0x0f) == 0x00;
-            /*cpu->cycles_machine += 5;*/
             break;
         case 0x3c: // INR A
             answer = cpu->a + 1;
@@ -379,6 +392,7 @@ void emulate_INR ( _cpu_info *cpu ) {
     cpu->flags.z    = ( answer & 0xff ) == 0;
     cpu->flags.n    = 0;//( answer & 0x80 ) != 0;
 
+    /* FIXME */ abort();
     cpu->cycles_machine += 1 ;
     cpu->pc     += 1 ;
 }
@@ -435,6 +449,7 @@ void emulate_DCR ( _cpu_info *cpu ) {
     cpu->flags.z    = ( answer & 0xff ) == 0;
     cpu->flags.n    = 1;//( answer & 0x80 ) != 0;
 
+    /* FIXME */ abort();
     cpu->cycles_machine += 1 ;
     cpu->pc     += 1 ;
 }
@@ -465,6 +480,7 @@ void emulate_INC ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
+    /* FIXME */ abort();
     cpu->cycles_machine += 2 ;
     cpu->pc     += 1 ;
 }
@@ -501,6 +517,7 @@ void emulate_DCX ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
+    /* FIXME */ abort();
     cpu->cycles_machine += 2 ;
     cpu->pc     += 1 ;
 }
@@ -537,6 +554,7 @@ void emulate_DAD ( _cpu_info *cpu ) {
     cpu->h  = (answer >> 8 ) & 0xff;
     cpu->l  = (answer >> 0 ) & 0xff;
 
+    /* FIXME */ abort();
     cpu->cycles_machine += 3;
     cpu->pc     += 1 ;
 }
@@ -580,6 +598,7 @@ void emulate_DAA ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
+    /* FIXME */ abort();
     cpu->cycles_machine += 1 ;
     cpu->pc     += 1 ;
 }

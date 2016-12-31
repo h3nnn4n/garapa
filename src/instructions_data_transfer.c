@@ -61,6 +61,7 @@ void emulate_LDAX ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
+    /* FIXME */ abort();
     cpu->cycles_machine += 2 ;
     cpu->pc     += 1 ;
 }
@@ -79,6 +80,7 @@ void emulate_STAX ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
+    /* FIXME */ abort();
     cpu->cycles_machine += 2 ;
     cpu->pc     += 1 ;
 }
@@ -98,6 +100,7 @@ void emulate_SHLD ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
+    /* FIXME */ abort();
     cpu->cycles_machine += 16;
     cpu->pc     += 3 ;
 }
@@ -128,6 +131,7 @@ void emulate_LDA ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
+    /* FIXME */ abort();
     cpu->cycles_machine += 2;
     cpu->pc     += 3;
 }
@@ -145,6 +149,7 @@ void emulate_STA ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
+    /* FIXME */ abort();
     cpu->cycles_machine += 13;
     cpu->pc     += 3 ;
 }
@@ -172,6 +177,7 @@ void emulate_LD ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
+    /* FIXME */ abort();
     cpu->cycles_machine += 3;
     cpu->pc     += 3 ;
 }
@@ -194,14 +200,16 @@ void emulate_MVI ( _cpu_info *cpu ) {
             break;
         case 0x26: // MVI H, D8
             cpu->h = opcode[1];
-            cpu->cycles_machine += 0 ;
+            /* FIXME */ abort();
+    cpu->cycles_machine += 0 ;
             break;
         case 0x2e: // MVI L, D8
             cpu->l = opcode[1];
             break;
         case 0x36: // MVI M, D8
             cpu->mem_controller.memory[cpu->h << 8 | cpu->l] = opcode[1];
-            cpu->cycles_machine += 1;
+            /* FIXME */ abort();
+    cpu->cycles_machine += 1;
             break;
         case 0x3e: // MVI A, D8
             cpu->a = opcode[1];
@@ -210,6 +218,7 @@ void emulate_MVI ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
+    /* FIXME */ abort();
     cpu->cycles_machine += 2 ;
     cpu->pc     += 2 ;
 }
@@ -222,74 +231,88 @@ void emulate_MOV ( _cpu_info *cpu ) {
         case 0x46: // MOV B, M
             addr = cpu->h << 8 | cpu->l;
             cpu->b = cpu->mem_controller.memory[addr];
-            cpu->cycles_machine += 1;
+            /* FIXME */ abort();
+    cpu->cycles_machine += 1;
             break;
         case 0x56: // MOV D, M
             addr = cpu->h << 8 | cpu->l;
             cpu->d = cpu->mem_controller.memory[addr];
-            cpu->cycles_machine += 1;
+            /* FIXME */ abort();
+    cpu->cycles_machine += 1;
             break;
         case 0x66: // MOV H, M
             addr = cpu->h << 8 | cpu->l;
             cpu->h = cpu->mem_controller.memory[addr];
-            cpu->cycles_machine += 1;
+            /* FIXME */ abort();
+    cpu->cycles_machine += 1;
             break;
 
         case 0x70: // MOV M, B
             addr = cpu->h << 8 | cpu->l;
             cpu->mem_controller.memory[addr] = cpu->b;
-            cpu->cycles_machine += 1;
+            /* FIXME */ abort();
+    cpu->cycles_machine += 1;
             break;
         case 0x71: // MOV M, C
             addr = cpu->h << 8 | cpu->l;
             cpu->mem_controller.memory[addr] = cpu->c;
-            cpu->cycles_machine += 1;
+            /* FIXME */ abort();
+    cpu->cycles_machine += 1;
             break;
         case 0x72: // MOV M, D
             addr = cpu->h << 8 | cpu->l;
             cpu->mem_controller.memory[addr] = cpu->d;
-            cpu->cycles_machine += 1;
+            /* FIXME */ abort();
+    cpu->cycles_machine += 1;
             break;
         case 0x73: // MOV M, E
             addr = cpu->h << 8 | cpu->l;
             cpu->mem_controller.memory[addr] = cpu->e;
-            cpu->cycles_machine += 1;
+            /* FIXME */ abort();
+    cpu->cycles_machine += 1;
             break;
         case 0x74: // MOV M, H
             addr = cpu->h << 8 | cpu->l;
             cpu->mem_controller.memory[addr] = cpu->h;
-            cpu->cycles_machine += 1;
+            /* FIXME */ abort();
+    cpu->cycles_machine += 1;
             break;
         case 0x75: // MOV M, L
             addr = cpu->h << 8 | cpu->l;
             cpu->mem_controller.memory[addr] = cpu->l;
-            cpu->cycles_machine += 1;
+            /* FIXME */ abort();
+    cpu->cycles_machine += 1;
             break;
         case 0x77: // MOV M, A
             addr = cpu->h << 8 | cpu->l;
             cpu->mem_controller.memory[addr] = cpu->a;
-            cpu->cycles_machine += 1;
+            /* FIXME */ abort();
+    cpu->cycles_machine += 1;
             break;
 
         case 0x4e: // MOV C, M
             addr = cpu->h << 8 | cpu->l;
             cpu->c = cpu->mem_controller.memory[addr];
-            cpu->cycles_machine += 1;
+            /* FIXME */ abort();
+    cpu->cycles_machine += 1;
             break;
         case 0x5e: // MOV E, M
             addr = cpu->h << 8 | cpu->l;
             cpu->e = cpu->mem_controller.memory[addr];
-            cpu->cycles_machine += 1;
+            /* FIXME */ abort();
+    cpu->cycles_machine += 1;
             break;
         case 0x6e: // MOV L, M
             addr = cpu->h << 8 | cpu->l;
             cpu->l = cpu->mem_controller.memory[addr];
-            cpu->cycles_machine += 1;
+            /* FIXME */ abort();
+    cpu->cycles_machine += 1;
             break;
         case 0x7e: // MOV A, M
             addr = cpu->h << 8 | cpu->l;
             cpu->a = cpu->mem_controller.memory[addr];
-            cpu->cycles_machine += 1;
+            /* FIXME */ abort();
+    cpu->cycles_machine += 1;
             break;
         default:
             {
@@ -302,6 +325,7 @@ void emulate_MOV ( _cpu_info *cpu ) {
             break;
     }
 
+    /* FIXME */ abort();
     cpu->cycles_machine += 1 ;
     cpu->pc     += 1 ;
 }
