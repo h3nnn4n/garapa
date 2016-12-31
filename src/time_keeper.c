@@ -90,9 +90,10 @@ uint8_t read_DIV ( _cpu_info *cpu ) {
     return cpu->timer.DIV;
 }
 
-#pragma GCC diagnostic ignored "-Wunused-parameter"
+/*#pragma GCC diagnostic ignored "-Wunused-parameter"*/
 void timer_tick ( _cpu_info *cpu ) {
-    /*cpu->cycles_machine++;*/
+    cpu->cycles_machine += 1;
+    cpu->cycles_clock   += 4;
     /*cpu->cycles_left--;*/
 }
 
