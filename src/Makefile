@@ -7,6 +7,7 @@ SOURCES=utils.c                      \
 		decoder.c                    \
 		graphics.c                   \
 		time_keeper.c                \
+		microcode.c                  \
 		memory.c                     \
 		cartridge.c                  \
 		display.c                    \
