@@ -22,22 +22,24 @@ void decoder( _cpu_info *cpu ) {
     emulate_INTERRUPT( cpu ); // First of all, check if any interrupts need to be serviced
 
     if ( cpu->halted ) {   // If cpu is halted, tick it
-        timer_tick( cpu );
+            timer_tick( cpu );
         return;
     }
 
-    uint8_t opcode = read_byte_at_pc ( cpu ); // THis fetched the opcode and ticks the timer + pc
+    cpu->opcode = read_byte_at_pc ( cpu ); // THis fetched the opcode and ticks the timer + pc
 
 #ifdef __show_step
     disassembler ( cpu->mem_controller.memory, cpu->pc );
     print_registers(cpu);
 #endif
     uint16_t addr;
+    uint16_t t16;
+    uint8_t  t8;
 
-    if ( ( opcode >= 0x40 && opcode <= 0x75 ) || ( opcode >= 0x77 && opcode <= 0x7f ) ) {
+    if ( ( cpu->opcode >= 0x40 && cpu->opcode <= 0x75 ) || ( cpu->opcode >= 0x77 && cpu->opcode <= 0x7f ) ) {
                 emulate_MOV ( cpu );
     } else
-    switch ( opcode ) {
+    switch ( cpu->opcode ) {
         case 0x10: emulate_STOP ( cpu );
             break;
         case 0x76: emulate_HALT ( cpu );
@@ -55,10 +57,17 @@ void decoder( _cpu_info *cpu ) {
         case 0x12:
             emulate_STAX( cpu );
             break;
+
+            // LDAX block
         case 0x0a:
-        case 0x1a:
-            emulate_LDAX ( cpu );
+            addr = cpu->b << 8 | cpu->c;
+            cpu->a = read_byte_with_tick ( cpu, addr );
             break;
+        case 0x1a:
+            addr = cpu->d << 8 | cpu->e;
+            cpu->a = read_byte_with_tick ( cpu, addr );
+            break;
+
         case 0xd2:
             emulate_JNC ( cpu );
             break;
@@ -125,14 +134,14 @@ void decoder( _cpu_info *cpu ) {
             break;
         case 0x18:
             // FIXME
-            cpu->pc += (int8_t) opcode/* FIXME [1]*/ + 2; // Looks like there is a sign bit somewhere
+            cpu->pc += (int8_t) cpu->opcode/* FIXME [1]*/ + 2; // Looks like there is a sign bit somewhere
             cpu->cycles_machine += 3;
             break;
         case 0x20:
             // FIXME
             cpu->pc = cpu->flags.z ?
                         cpu->pc + 2   :
-                        cpu->pc + (int8_t) opcode/* FIXME [1]*/ + 2;
+                        cpu->pc + (int8_t) cpu->opcode/* FIXME [1]*/ + 2;
             cpu->cycles_machine += cpu->flags.z ? 2: 3;
             break;
         case 0x22:
@@ -147,7 +156,7 @@ void decoder( _cpu_info *cpu ) {
         case 0x28:
             if ( cpu->flags.z ) {
                 // FIXME
-                cpu->pc += (int8_t) opcode/* FIXME [1]*/ + 2;
+                cpu->pc += (int8_t) cpu->opcode/* FIXME [1]*/ + 2;
                 cpu->cycles_machine += 3;
             } else {
                 cpu->pc += 2;
@@ -158,13 +167,13 @@ void decoder( _cpu_info *cpu ) {
            cpu->pc = cpu->flags.c ?
                         cpu->pc + 2   :
                         // FIXME
-                        cpu->pc + (int8_t) opcode/* FIXME [1]*/ + 2;
+                        cpu->pc + (int8_t) cpu->opcode/* FIXME [1]*/ + 2;
 
             if ( cpu->flags.c ) {
                 cpu->cycles_machine += 2;
                 /*cpu->pc += 2;*/
             } else {
-                //cpu->pc =+ (int8_t) opcode/* FIXME [1]*/ + 2;
+                //cpu->pc =+ (int8_t) cpu->opcode/* FIXME [1]*/ + 2;
                 cpu->cycles_machine += 3;
             }
             break;
@@ -172,10 +181,10 @@ void decoder( _cpu_info *cpu ) {
             cpu->pc = !cpu->flags.c ?
                         cpu->pc + 2   :
                         // FIXME
-                        cpu->pc + (int8_t) opcode/* FIXME [1]*/ + 2;
+                        cpu->pc + (int8_t) cpu->opcode/* FIXME [1]*/ + 2;
 
             if ( cpu->flags.c ) {
-                //cpu->pc =+ (int8_t) opcode/* FIXME [1]*/ + 2;
+                //cpu->pc =+ (int8_t) cpu->opcode/* FIXME [1]*/ + 2;
                 cpu->cycles_machine += 3;
             } else {
                 cpu->cycles_machine += 2;
@@ -226,10 +235,21 @@ void decoder( _cpu_info *cpu ) {
             emulate_PUSH ( cpu );
             break;
         case 0x01:
+            cpu->b = read_byte_at_pc ( cpu );
+            cpu->c = read_byte_at_pc ( cpu );
+            break;
         case 0x11:
+            cpu->d = read_byte_at_pc ( cpu );
+            cpu->e = read_byte_at_pc ( cpu );
+            break;
         case 0x21:
+            cpu->h = read_byte_at_pc ( cpu );
+            cpu->l = read_byte_at_pc ( cpu );
+            break;
         case 0x31:
-            emulate_LD  ( cpu );
+            addr  = read_byte_at_pc ( cpu );
+            addr |= read_byte_at_pc ( cpu ) << 8;
+            cpu->sp = addr;
             break;
         case 0x32: // LD (HL-),A
             addr              = cpu->h << 8 | cpu->l;
@@ -261,13 +281,13 @@ void decoder( _cpu_info *cpu ) {
             break;
         case 0xe0:
             // FIXME
-            write_byte(cpu, 0xff00 + opcode/* FIXME [1]*/,  cpu->a);
+            write_byte(cpu, 0xff00 + cpu->opcode/* FIXME [1]*/,  cpu->a);
             cpu->cycles_machine += 3;
             cpu->pc     += 2 ;
             break;
         case 0xf0:
             // FIXME
-            cpu->a = read_byte(cpu, 0xff00 + opcode/* FIXME [1]*/);
+            cpu->a = read_byte(cpu, 0xff00 + cpu->opcode/* FIXME [1]*/);
             cpu->cycles_machine += 3;
             cpu->pc     += 2 ;
             break;
@@ -283,7 +303,7 @@ void decoder( _cpu_info *cpu ) {
             break;
         case 0xea:
             // FIXME
-            addr = ( opcode/* FIXME [2]*/ << 8 ) | opcode/* FIXME [1]*/;
+            addr = ( cpu->opcode/* FIXME [2]*/ << 8 ) | cpu->opcode/* FIXME [1]*/;
             write_byte ( cpu, addr, cpu->a );
             cpu->cycles_machine += 4;
             cpu->pc     += 3;
@@ -308,7 +328,7 @@ void decoder( _cpu_info *cpu ) {
         case 0x08:
             {
                 // FIXME
-                uint16_t addr = ( opcode/* FIXME [2]*/ << 8 ) | opcode/* FIXME [1]*/;
+                uint16_t addr = ( cpu->opcode/* FIXME [2]*/ << 8 ) | cpu->opcode/* FIXME [1]*/;
                 write_byte(cpu, addr + 0, ( cpu->sp & 0x00ff ) >> 0 );
                 write_byte(cpu, addr + 1, ( cpu->sp & 0xff00 ) >> 8 );
                 cpu->pc     += 3;
@@ -400,16 +420,34 @@ void decoder( _cpu_info *cpu ) {
         case 0xf6:
             emulate_ORI ( cpu );
             break;
+
+            // MVI Block
         case 0x0e:
-        case 0x1e:
-        case 0x2e:
-        case 0x3e:
-        case 0x06:
-        case 0x16:
-        case 0x26:
-        case 0x36:
-            emulate_MVI ( cpu );
+            cpu->c = read_byte_at_pc ( cpu );
             break;
+        case 0x1e:
+            cpu->e = read_byte_at_pc ( cpu );
+            break;
+        case 0x2e:
+            cpu->l = read_byte_at_pc ( cpu );
+            break;
+        case 0x3e:
+            cpu->a = read_byte_at_pc ( cpu );
+            break;
+        case 0x06:
+            cpu->b = read_byte_at_pc ( cpu );
+            break;
+        case 0x16:
+            cpu->d = read_byte_at_pc ( cpu );
+            break;
+        case 0x26:
+            cpu->h = read_byte_at_pc ( cpu );
+            break;
+        case 0x36:
+            write_byte_with_tick ( cpu, cpu->h << 8 | cpu->l,
+                                   read_byte_at_pc ( cpu ) );
+            break;
+
         case 0xe9:
             emulate_PCHL ( cpu );
             break;
@@ -466,11 +504,11 @@ void decoder( _cpu_info *cpu ) {
             break;
         default:
             disassembler( cpu->mem_controller.memory, cpu->pc );
-            printf(" %2x is not implemented\n", opcode);
+            printf(" %2x is not implemented\n", cpu->opcode);
             exit(-1);
     }
 
-    cpu->instructions_executed += 1;
+    /*cpu->instructions_executed += 1;*/
 
 #ifdef __show_step
     print_registers(cpu);

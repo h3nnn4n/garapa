@@ -5,6 +5,7 @@
 
 #include "memory.h"
 #include "types.h"
+#include "time_keeper.h"
 
 #include "instructions_stack_io_control.h"
 
@@ -159,7 +160,5 @@ void emulate_DI ( _cpu_info *cpu ) {
 }
 
 void emulate_NOP ( _cpu_info *cpu ) {
-    /* FIXME */ abort();
-    cpu->cycles_machine += 1 ;
-    cpu->pc     += 1 ;
+    timer_tick( cpu );
 }

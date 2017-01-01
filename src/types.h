@@ -130,10 +130,11 @@ typedef struct {                              // Struct that holds ALL informati
     uint8_t halted;                           // 1 if the cpu is halted
     uint8_t stoped;                           // 1 if the cpu is stoped
                                               //
-    uint8_t            cycles_left;           // Checks when the CPU is free to fetch/dedoce/execute the next instruction
+    uint8_t            opcode;                // The current opcode being executed
+    uint8_t            cycles_left;           // Checks when the CPU is free to fetch/dedoce/execute the next instruction. This is not used
     unsigned long long cycles_machine;        // M-Cycles - machine cycles
     unsigned long long cycles_clock;          // T-Cycles - timer   cycles
-    unsigned long long instructions_executed; //
+    unsigned long long instructions_executed; // Just a counter of how many instructions were executed
                                               //
     uint8_t DMA_in_progress;                  // This is both a flag and a counter.
                                               // If zero then there is no DMA in progress, otherwise

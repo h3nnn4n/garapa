@@ -6,6 +6,9 @@
 
 #include "types.h"
 #include "time_keeper.h"
+#include "memory.h"
+#include "display.h"
+#include "graphics.h"
 
 // timekeeper is the emulator breaks, to keep it to running WAY TOO FAST
 
@@ -91,10 +94,17 @@ uint8_t read_DIV ( _cpu_info *cpu ) {
 }
 
 /*#pragma GCC diagnostic ignored "-Wunused-parameter"*/
+void timer_tick_and_full_mcycle ( _cpu_info *cpu ) {
+    display_update ( cpu ); // Those will go inside the opcodes
+    timer_update   ( cpu );
+    input_update   ( cpu );
+
+    timer_tick( cpu );
+}
+
 void timer_tick ( _cpu_info *cpu ) {
     cpu->cycles_machine += 1;
     cpu->cycles_clock   += 4;
-    /*cpu->cycles_left--;*/
 }
 
 void timer_update( _cpu_info *cpu ) {

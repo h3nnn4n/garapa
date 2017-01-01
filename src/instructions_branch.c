@@ -3,331 +3,192 @@
 #include <assert.h>
 
 #include "types.h"
+#include "microcode.h"
+#include "time_keeper.h"
 
 #include "instructions_branch.h"
 
 void emulate_JMP ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint16_t addr = 0;
 
-    switch ( *opcode ) {
-        case 0xc3:
-            addr = opcode[2] << 8 | opcode[1];
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
-
-    /* FIXME */ abort();
-    cpu->cycles_machine += 4  ;
-    cpu->pc      = addr;
+    addr  = read_byte_at_pc ( cpu );
+    addr |= read_byte_at_pc ( cpu ) << 8;
+    cpu->pc = addr;
 }
 
 void emulate_JC ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint16_t addr = 0;
 
-    switch ( *opcode ) {
-        case 0xda: // JC
-            if ( cpu->flags.c  ) {
-                addr = opcode[2] << 8 | opcode[1];
-                cpu->pc = addr;
-            } else {
-                cpu->pc += 3;
-            }
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
+    // FIXME
+    // I think both cases take the same ammount of cycles
+    if ( cpu->flags.c  ) {
+        addr  = read_byte_at_pc ( cpu );
+        addr |= read_byte_at_pc ( cpu ) << 8;
+        cpu->pc = addr;
+    } else {
+        cpu->pc += 3;
     }
-
-    /* FIXME */ abort();
-    cpu->cycles_machine += 3  ;
 }
 
 void emulate_JNC ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint16_t addr = 0;
 
-    switch ( *opcode ) {
-        case 0xd2: // JNC
-            if ( !cpu->flags.c  ) {
-                addr = opcode[2] << 8 | opcode[1];
-                cpu->pc = addr;
-            } else {
-                cpu->pc += 3;
-            }
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
+    if ( !cpu->flags.c  ) {
+        addr  = read_byte_at_pc ( cpu );
+        addr |= read_byte_at_pc ( cpu ) << 8;
+        cpu->pc = addr;
+    } else {
+        cpu->pc += 3;
     }
-
-    /* FIXME */ abort();
-    cpu->cycles_machine += 3  ;
 }
 
 void emulate_JM ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
-    uint16_t addr = -1;
+    uint16_t addr = 0;
 
-    switch ( *opcode ) {
-        case 0xfa: // JM
-            addr = opcode[2] << 8 | opcode[1];
-            if ( cpu->flags.n ) {
-                cpu->pc = addr;
-                /* FIXME */ abort();
-    cpu->cycles_machine += 5;
-            } else {
-                cpu->pc += 3;
-            }
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
+    if ( cpu->flags.n ) {
+        addr  = read_byte_at_pc ( cpu );
+        addr |= read_byte_at_pc ( cpu ) << 8;
+        cpu->pc = addr;
+    } else {
+        cpu->pc += 3;
     }
-
-    /* FIXME */ abort();
-    cpu->cycles_machine += 4;
 }
 
 void emulate_JP ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint16_t addr = 0;
 
-    switch ( *opcode ) {
-        case 0xf2: // JP
-            if ( !cpu->flags.n ) {
-                addr = opcode[2] << 8 | opcode[1];
-                cpu->pc = addr;
-            } else {
-                cpu->pc += 3;
-            }
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
+    if ( !cpu->flags.n ) {
+        addr  = read_byte_at_pc ( cpu );
+        addr |= read_byte_at_pc ( cpu ) << 8;
+        cpu->pc = addr;
+    } else {
+        cpu->pc += 3;
     }
-
-    /* FIXME */ abort();
-    cpu->cycles_machine += 2;
 }
 
 void emulate_JZ ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint16_t addr = 0;
 
-    switch ( *opcode ) {
-        case 0xca: // JZ
-            addr = opcode[2] << 8 | opcode[1];
-            if ( cpu->flags.z ) {
-                cpu->pc = addr;
-            } else {
-                cpu->pc += 3;
-            }
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
+    if ( cpu->flags.z ) {
+        addr  = read_byte_at_pc ( cpu );
+        addr |= read_byte_at_pc ( cpu ) << 8;
+        cpu->pc = addr;
+    } else {
+        cpu->pc += 3;
     }
-
-    /* FIXME */ abort();
-    cpu->cycles_machine += 3;
 }
 
 void emulate_JNZ ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint16_t addr = 0;
 
-    switch ( *opcode ) {
-        case 0xc2: // JNZ
-            addr = opcode[2] << 8 | opcode[1];
-            if ( !cpu->flags.z ) {
-                cpu->pc = addr;
-            } else {
-                cpu->pc += 3;
-            }
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
+    if ( !cpu->flags.z ) {
+        addr  = read_byte_at_pc ( cpu );
+        addr |= read_byte_at_pc ( cpu ) << 8;
+        cpu->pc = addr;
+    } else {
+        cpu->pc += 3;
     }
-
-    /* FIXME */ abort();
-    cpu->cycles_machine += 3;
 }
 
 void emulate_RETI ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint16_t addr;
 
-    switch ( *opcode ) {
-        case 0xd9:
-            addr = cpu->mem_controller.memory[cpu->sp+1] << 8 | cpu->mem_controller.memory[cpu->sp];
-            cpu->sp += 2;
-            cpu->pc = addr;
-            cpu->enable_interrupts = 1;
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
+    addr  = read_byte_at_sp ( cpu );
+    addr |= read_byte_at_sp ( cpu ) << 8;
 
-    /* FIXME */ abort();
-    cpu->cycles_machine += 4;
+    timer_tick_and_full_mcycle ( cpu ); // A full cycle while the cpu does something
+
+    cpu->pc = addr;
+
+    cpu->enable_interrupts = 1;
 }
 
 void emulate_RET ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint16_t addr;
 
-    switch ( *opcode ) {
-        case 0xc9:
-            addr = cpu->mem_controller.memory[cpu->sp+1] << 8 | cpu->mem_controller.memory[cpu->sp];
-            cpu->sp += 2;
-            cpu->pc = addr;
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
+    addr  = read_byte_at_sp ( cpu );
 
-    /* FIXME */ abort();
-    cpu->cycles_machine += 3;
+    addr |= read_byte_at_sp ( cpu ) << 8;
+
+    cpu->pc = addr;
 }
 
 void emulate_RZ ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint16_t addr;
 
-    switch ( *opcode ) {
-        case 0xc8:
-            if ( cpu->flags.z ) {
-                addr = cpu->mem_controller.memory[cpu->sp+1] << 8 | cpu->mem_controller.memory[cpu->sp];
-                cpu->sp += 2;
-                cpu->pc = addr;
-                /* FIXME */ abort();
-    cpu->cycles_machine += 2;
-            } else {
-                cpu->pc += 1;
-            }
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
+    if ( cpu->flags.z ) {
+        addr  = read_byte_at_sp ( cpu );
+        addr |= read_byte_at_sp ( cpu ) << 8;
 
-    /* FIXME */ abort();
-    cpu->cycles_machine += 1;
+        cpu->pc = addr;
+    } else {
+        cpu->pc += 1;
+    }
 }
 
 void emulate_RNZ ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint16_t addr;
 
-    switch ( *opcode ) {
-        case 0xc0:
-            if ( !cpu->flags.z ) {
-                addr = cpu->mem_controller.memory[cpu->sp+1] << 8 | cpu->mem_controller.memory[cpu->sp];
-                cpu->sp += 2;
-                cpu->pc = addr;
-                /* FIXME */ abort();
-    cpu->cycles_machine += 2;
-            } else {
-                cpu->pc += 1;
-            }
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
+    if ( !cpu->flags.z ) {
+        addr  = read_byte_at_sp ( cpu );
+        addr |= read_byte_at_sp ( cpu ) << 8;
 
-    /* FIXME */ abort();
-    cpu->cycles_machine += 1;
+        cpu->pc = addr;
+    } else {
+        cpu->pc += 1;
+    }
 }
 
 void emulate_RP ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint16_t addr;
 
-    switch ( *opcode ) {
-        case 0xf0:
-            if ( !cpu->flags.n ) {
-                addr = cpu->mem_controller.memory[cpu->sp+1] << 8 | cpu->mem_controller.memory[cpu->sp];
-                cpu->sp += 2;
-                cpu->pc = addr;
-                /* FIXME */ abort();
-    cpu->cycles_machine += 6;
-            } else {
-                cpu->pc += 1;
-            }
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
+    if ( !cpu->flags.n ) {
+        addr  = read_byte_at_sp ( cpu );
+        addr |= read_byte_at_sp ( cpu ) << 8;
 
-    /* FIXME */ abort();
-    cpu->cycles_machine += 5;
+        cpu->pc = addr;
+    } else {
+        cpu->pc += 1;
+    }
 }
 
 void emulate_RM ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint16_t addr;
 
-    switch ( *opcode ) {
-        case 0xf8:
-            if ( cpu->flags.n ) {
-                addr = cpu->mem_controller.memory[cpu->sp+1] << 8 | cpu->mem_controller.memory[cpu->sp];
-                cpu->sp += 2;
-                cpu->pc = addr;
-            } else {
-                cpu->pc += 1;
-            }
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
+    if ( cpu->flags.n ) {
+        addr  = read_byte_at_sp ( cpu );
+        addr |= read_byte_at_sp ( cpu ) << 8;
 
-    /* FIXME */ abort();
-    cpu->cycles_machine += 3;
+        cpu->pc = addr;
+    } else {
+        cpu->pc += 1;
+    }
 }
 
 void emulate_RNC ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint16_t addr;
 
-    switch ( *opcode ) {
-        case 0xd0: // RNC
-            if ( !cpu->flags.c  ) {
-                addr = cpu->mem_controller.memory[cpu->sp+1] << 8 | cpu->mem_controller.memory[cpu->sp];
-                cpu->sp += 2;
-                cpu->pc = addr;
-                /* FIXME */ abort();
-    cpu->cycles_machine += 2;
-            } else {
-                cpu->pc += 1;
-            }
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
+    if ( !cpu->flags.c ) {
+        addr  = read_byte_at_sp ( cpu );
+        addr |= read_byte_at_sp ( cpu ) << 8;
 
-    /* FIXME */ abort();
-    cpu->cycles_machine += 1;
+        cpu->pc = addr;
+    } else {
+        cpu->pc += 1;
+    }
 }
 
 void emulate_RC ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint16_t addr;
 
-    switch ( *opcode ) {
-        case 0xd8:
-            if ( cpu->flags.c  ) {
-                addr = cpu->mem_controller.memory[cpu->sp+1] << 8 | cpu->mem_controller.memory[cpu->sp];
-                cpu->sp += 2;
-                cpu->pc = addr;
-                /* FIXME */ abort();
-    cpu->cycles_machine += 2;
-            } else {
-                cpu->pc += 1;
-            }
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
+    if ( cpu->flags.c ) {
+        addr  = read_byte_at_sp ( cpu );
+        addr |= read_byte_at_sp ( cpu ) << 8;
 
-    /* FIXME */ abort();
-    cpu->cycles_machine += 1;
+        cpu->pc = addr;
+    } else {
+        cpu->pc += 1;
+    }
 }
 
 void emulate_RST ( _cpu_info *cpu ) {

@@ -15,6 +15,7 @@ void write_DIV  ( _cpu_info *cpu, uint16_t data ) ;
 
 void timer_update ( _cpu_info *cpu ) ;
 void timer_tick   ( _cpu_info *cpu ) ;
+void timer_tick_and_full_mcycle ( _cpu_info *cpu ) ;
 
 uint8_t   read_TAC  ( _cpu_info *cpu ) ;
 uint16_t  read_TMA  ( _cpu_info *cpu ) ;
