@@ -8,7 +8,7 @@
 #include "types.h"
 #include "graphics.h"
 
-#define __use_sdl
+/*#define __use_sdl*/
 
 #ifdef __use_sdl
 
@@ -157,5 +157,6 @@ void flip_screen ( ) {}
 void sdl_init ( ) {}
 void input_update ( _cpu_info *cpu ) {}
 void sdl_quit ( ) {}
+uint32_t *get_frame_buffer () { return NULL; }
 
 #endif

@@ -213,6 +213,7 @@ uint8_t display_test_screenmode ( _cpu_info *cpu ) {
 void draw_background_and_window( _cpu_info *cpu ) {
     uint32_t *buffer = get_frame_buffer();
     uint8_t  *memory = cpu->mem_controller.memory;
+    if ( buffer == NULL ) return;
 
     uint8_t posx;
     uint8_t posy;
@@ -261,6 +262,7 @@ void draw_background_and_window( _cpu_info *cpu ) {
 
 void draw_sprites ( _cpu_info *cpu ) {
     uint32_t *buffer = get_frame_buffer();
+    if ( buffer == NULL ) return;
 
     // OAM = 0xfe00
     // bit0 = y

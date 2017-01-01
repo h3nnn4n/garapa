@@ -13,6 +13,7 @@ void emulate_JMP ( _cpu_info *cpu ) {
 
     addr  = read_byte_at_pc ( cpu );
     addr |= read_byte_at_pc ( cpu ) << 8;
+    timer_tick_and_full_mcycle ( cpu );
     cpu->pc = addr;
 }
 
@@ -110,6 +111,8 @@ void emulate_RET ( _cpu_info *cpu ) {
 
     addr |= read_byte_at_sp ( cpu ) << 8;
 
+    timer_tick_and_full_mcycle ( cpu ); // A full cycle while the cpu does something
+
     cpu->pc = addr;
 }
 
@@ -192,12 +195,11 @@ void emulate_RC ( _cpu_info *cpu ) {
 }
 
 void emulate_RST ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint16_t ret = 0;
 
     ret = cpu->pc + 1;
 
-    switch ( *opcode ) {
+    switch ( cpu->opcode ) {
         case 0xc7:
             cpu->pc = 0x00;
             break;
@@ -226,47 +228,38 @@ void emulate_RST ( _cpu_info *cpu ) {
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->mem_controller.memory[(cpu->sp-1) & 0xffff] = (ret >> 8) & 0xff;
-    cpu->mem_controller.memory[(cpu->sp-2) & 0xffff] = (ret & 0xff);
-    cpu->sp                           = cpu->sp - 2;
+    timer_tick_and_full_mcycle ( cpu );
 
-    /* FIXME */ abort();
-    cpu->cycles_machine += 4;
+    write_byte_at_sp ( cpu, (ret >> 8) & 0xff );
+    write_byte_at_sp ( cpu, (ret >> 0) & 0xff );
 }
 
 void emulate_PCHL ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
-
-    switch ( *opcode ) {
+    switch ( cpu->opcode ) {
         case 0xe9: // PCHL
-            cpu->pc = cpu->h << 8 | cpu->l;
+            cpu->pc = read_hl ( cpu );
             break;
         default:
             assert( 0 && "Code should not get here\n" );
     }
-
-    /* FIXME */ abort();
-    cpu->cycles_machine += 1 ;
 }
 
 void emulate_CNC ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
+    uint16_t t = 0;
 
-    switch ( *opcode ) {
+    switch ( cpu->opcode ) {
         case 0xd4:
             {
                 if ( !cpu->flags.c  ) {
-                    uint16_t ret           = cpu->pc + 3;
-                    cpu->mem_controller.memory[cpu->sp-1] = (ret >> 8) & 0xff;
-                    cpu->mem_controller.memory[cpu->sp-2] = (ret & 0xff);
-                    cpu->sp                = cpu->sp - 2;
-                    cpu->pc                = opcode[2] << 8 | opcode[1];
-                    /* FIXME */ abort();
-    cpu->cycles_machine += 6;
+                    t = cpu->pc + 2;
+                    write_byte_at_sp ( cpu, (t >> 8) & 0xff );
+                    write_byte_at_sp ( cpu, (t >> 0) & 0xff );
+                    t  = read_byte_at_pc ( cpu );
+                    t |= read_byte_at_pc ( cpu ) << 8;
+                    timer_tick_and_full_mcycle ( cpu );
+                    cpu->pc = t;
                 } else {
-                    cpu->pc     += 3;
-                    /* FIXME */ abort();
-    cpu->cycles_machine += 3;
+                    cpu->pc     += 2;
                 }
             }
             break;
@@ -276,23 +269,21 @@ void emulate_CNC ( _cpu_info *cpu ) {
 }
 
 void emulate_CC ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
+    uint16_t t = 0;
 
-    switch ( *opcode ) {
+    switch ( cpu->opcode ) {
         case 0xdc:
             {
                 if ( cpu->flags.c  ) {
-                    uint16_t ret           = cpu->pc + 3;
-                    cpu->mem_controller.memory[cpu->sp-1] = (ret >> 8) & 0xff;
-                    cpu->mem_controller.memory[cpu->sp-2] = (ret & 0xff);
-                    cpu->sp                = cpu->sp - 2;
-                    cpu->pc                = opcode[2] << 8 | opcode[1];
-                    /* FIXME */ abort();
-    cpu->cycles_machine += 6;
+                    t = cpu->pc + 2;
+                    write_byte_at_sp ( cpu, (t >> 8) & 0xff );
+                    write_byte_at_sp ( cpu, (t >> 0) & 0xff );
+                    t  = read_byte_at_pc ( cpu );
+                    t |= read_byte_at_pc ( cpu ) << 8;
+                    timer_tick_and_full_mcycle ( cpu );
+                    cpu->pc = t;
                 } else {
                     cpu->pc     += 3;
-                    /* FIXME */ abort();
-    cpu->cycles_machine += 3;
                 }
             }
             break;
@@ -302,23 +293,22 @@ void emulate_CC ( _cpu_info *cpu ) {
 }
 
 void emulate_CNZ ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
-
-    switch ( *opcode ) {
+    uint16_t t = 0;
+    switch ( cpu->opcode ) {
         case 0xc4: // CNZ
             {
                 if ( !cpu->flags.z ) {
-                    uint16_t ret           = cpu->pc + 3;
-                    cpu->mem_controller.memory[cpu->sp-1] = (ret >> 8) & 0xff;
-                    cpu->mem_controller.memory[cpu->sp-2] = (ret & 0xff);
-                    cpu->sp                = cpu->sp - 2;
-                    cpu->pc                = opcode[2] << 8 | opcode[1];
-                    /* FIXME */ abort();
-    cpu->cycles_machine += 6;
+                    t = cpu->pc + 2;
+                    write_byte_at_sp ( cpu, (t >> 8) & 0xff );
+                    write_byte_at_sp ( cpu, (t >> 0) & 0xff );
+                    t  = read_byte_at_pc ( cpu );
+                    t |= read_byte_at_pc ( cpu ) << 8;
+                    timer_tick_and_full_mcycle ( cpu );
+                    cpu->pc = t;
                 } else {
-                    cpu->pc     += 3;
-                    /* FIXME */ abort();
-    cpu->cycles_machine += 3;
+                    timer_tick_and_full_mcycle ( cpu );
+                    timer_tick_and_full_mcycle ( cpu );
+                    cpu->pc     += 2;
                 }
             }
             break;
@@ -328,23 +318,20 @@ void emulate_CNZ ( _cpu_info *cpu ) {
 }
 
 void emulate_CZ ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
-
-    switch ( *opcode ) {
+    uint16_t t = 0;
+    switch ( cpu->opcode ) {
         case 0xcc: //CZ
             {
                 if ( cpu->flags.z ) {
-                    uint16_t ret           = cpu->pc + 3;
-                    cpu->mem_controller.memory[cpu->sp-1] = (ret >> 8) & 0xff;
-                    cpu->mem_controller.memory[cpu->sp-2] = (ret & 0xff);
-                    cpu->sp                = cpu->sp - 2;
-                    cpu->pc                = opcode[2] << 8 | opcode[1];
-                    /* FIXME */ abort();
-    cpu->cycles_machine += 6;
+                    t = cpu->pc + 2;
+                    write_byte_at_sp ( cpu, (t >> 8) & 0xff );
+                    write_byte_at_sp ( cpu, (t >> 0) & 0xff );
+                    timer_tick_and_full_mcycle ( cpu );
+                    t  = read_byte_at_pc ( cpu );
+                    t |= read_byte_at_pc ( cpu ) << 8;
+                    cpu->pc = t;
                 } else {
-                    cpu->pc     += 3;
-                    /* FIXME */ abort();
-    cpu->cycles_machine += 3;
+                    cpu->pc     += 2;
                 }
             }
             break;
@@ -354,23 +341,20 @@ void emulate_CZ ( _cpu_info *cpu ) {
 }
 
 void emulate_CALL ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
-
-    switch ( *opcode ) {
+    uint16_t t = 0;
+    switch ( cpu->opcode ) {
         case 0xcd:
             {
-                /*assert ( cpu->sp >= 2 && "Got a segfault in the 8080" );*/
-                uint16_t ret           = cpu->pc + 3;
-                cpu->mem_controller.memory[(cpu->sp-1) & 0xffff] = (ret >> 8) & 0xff;
-                cpu->mem_controller.memory[(cpu->sp-2) & 0xffff] = (ret & 0xff);
-                cpu->sp                = cpu->sp - 2;
-                cpu->pc                = opcode[2] << 8 | opcode[1];
+                t = cpu->pc + 2;
+                write_byte_at_sp ( cpu, (t >> 8) & 0xff );
+                write_byte_at_sp ( cpu, (t >> 0) & 0xff );
+                timer_tick_and_full_mcycle ( cpu );
+                t  = read_byte_at_pc ( cpu );
+                t |= read_byte_at_pc ( cpu ) << 8;
+                cpu->pc = t;
             }
             break;
         default:
             assert( 0 && "Code should not get here\n" );
     }
-
-    /* FIXME */ abort();
-    cpu->cycles_machine += 6;
 }

@@ -27,10 +27,6 @@ void emulate_RLC ( _cpu_info *cpu, uint8_t target ) {
 
     cpu->flags.h = 0;
     cpu->flags.n = 0;
-
-    cpu->pc     += 2;
-    /* FIXME */ abort();
-    cpu->cycles_machine += 2;
 }
 
 void emulate_RRC ( _cpu_info *cpu, uint8_t target ) {
@@ -47,10 +43,6 @@ void emulate_RRC ( _cpu_info *cpu, uint8_t target ) {
 
     cpu->flags.h = 0;
     cpu->flags.n = 0;
-
-    cpu->pc     += 2;
-    /* FIXME */ abort();
-    cpu->cycles_machine += 2;
 }
 
 void emulate_RL    ( _cpu_info *cpu, uint8_t target ) {
@@ -67,10 +59,6 @@ void emulate_RL    ( _cpu_info *cpu, uint8_t target ) {
 
     cpu->flags.h = 0;
     cpu->flags.n = 0;
-
-    cpu->pc     += 2;
-    /* FIXME */ abort();
-    cpu->cycles_machine += 2;
 }
 
 void emulate_RR ( _cpu_info *cpu, uint8_t target ) {
@@ -87,10 +75,6 @@ void emulate_RR ( _cpu_info *cpu, uint8_t target ) {
 
     cpu->flags.h = 0;
     cpu->flags.n = 0;
-
-    cpu->pc     += 2;
-    /* FIXME */ abort();
-    cpu->cycles_machine += 2;
 }
 
 void emulate_SLA   ( _cpu_info *cpu, uint8_t target ) {
@@ -106,10 +90,6 @@ void emulate_SLA   ( _cpu_info *cpu, uint8_t target ) {
 
     cpu->flags.h = 0;
     cpu->flags.n = 0;
-
-    cpu->pc     += 2;
-    /* FIXME */ abort();
-    cpu->cycles_machine += 2;
 }
 
 void emulate_SRA   ( _cpu_info *cpu, uint8_t target ) {
@@ -122,10 +102,6 @@ void emulate_SRA   ( _cpu_info *cpu, uint8_t target ) {
 
     cpu->flags.h = 0;
     cpu->flags.n = 0;
-
-    cpu->pc     += 2;
-    /* FIXME */ abort();
-    cpu->cycles_machine += 2;
 }
 
 void emulate_SWAP  ( _cpu_info *cpu, uint8_t target ) {
@@ -144,10 +120,6 @@ void emulate_SWAP  ( _cpu_info *cpu, uint8_t target ) {
     cpu->flags.h = 0;
     cpu->flags.c = 0;
     cpu->flags.n = 0;
-
-    cpu->pc     += 2;
-    /* FIXME */ abort();
-    cpu->cycles_machine += 2;
 }
 
 void emulate_SRL   ( _cpu_info *cpu, uint8_t target ) {
@@ -163,10 +135,6 @@ void emulate_SRL   ( _cpu_info *cpu, uint8_t target ) {
 
     cpu->flags.h = 0;
     cpu->flags.n = 0;
-
-    cpu->pc     += 2;
-    /* FIXME */ abort();
-    cpu->cycles_machine += 2;
 }
 
 void emulate_BIT   ( _cpu_info *cpu, uint8_t target, uint8_t data ) {
@@ -179,10 +147,6 @@ void emulate_BIT   ( _cpu_info *cpu, uint8_t target, uint8_t data ) {
     cpu->flags.z = (*a & data) == 0;
     cpu->flags.h = 1;
     cpu->flags.n = 0;
-
-    cpu->pc     += 2;
-    /* FIXME */ abort();
-    cpu->cycles_machine += 2;
 }
 
 void emulate_RES   ( _cpu_info *cpu, uint8_t target, uint8_t data ) {
@@ -193,10 +157,6 @@ void emulate_RES   ( _cpu_info *cpu, uint8_t target, uint8_t data ) {
     cpu->cycles_machine += 2;
 
     *a          &= ~data;
-
-    cpu->pc     += 2;
-    /* FIXME */ abort();
-    cpu->cycles_machine += 2;
 }
 
 void emulate_SET   ( _cpu_info *cpu, uint8_t target, uint8_t data ) {
@@ -207,10 +167,6 @@ void emulate_SET   ( _cpu_info *cpu, uint8_t target, uint8_t data ) {
     cpu->cycles_machine += 2;
 
     *a          |= data;
-
-    cpu->pc     += 2;
-    /* FIXME */ abort();
-    cpu->cycles_machine += 2;
 }
 
 /*
@@ -252,8 +208,8 @@ void decode_0xcb( _cpu_info *cpu ) {
                 emulate_SET
             };
 
-    target = cpu->mem_controller.memory[cpu->pc + 1] &  0x07;
-    opcode = cpu->mem_controller.memory[cpu->pc + 1] >> 3   ;
+    target = cpu->opcode &  0x07;
+    opcode = cpu->opcode >> 3   ;
 
     if ( !(opcode & 0xf8) ) {
         f1[opcode](cpu, target);

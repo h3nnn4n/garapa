@@ -6,13 +6,12 @@
 #include "utils.h"
 #include "halfcarry.h"
 #include "memory.h"
+#include "microcode.h"
 
 #include "instructions_logical.h"
 
 void emulate_ANA ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
-
-    switch ( *opcode ) {
+    switch ( cpu->opcode ) {
         case 0xa0: // ANA B
             cpu->flags.h  = ((cpu->a | cpu->b) & 0x08) != 0;
             cpu->a       &= cpu->b;
@@ -38,8 +37,8 @@ void emulate_ANA ( _cpu_info *cpu ) {
             cpu->a       &= cpu->l;
             break;
         case 0xa6: // ANA M
-            cpu->flags.h  = ((cpu->a | cpu->mem_controller.memory[cpu->h << 8 | cpu->l]) & 0x08) != 0;
-            cpu->a       &= cpu->mem_controller.memory[cpu->h << 8 | cpu->l];
+            cpu->flags.h  = ((cpu->a | read_byte ( cpu, read_hl ( cpu ))) & 0x08) != 0;
+            cpu->a       &= read_byte_with_tick ( cpu, read_hl ( cpu ));
             break;
         case 0xa7: // ANA A
             cpu->flags.h  = ((cpu->a | cpu->a) & 0x08) != 0;
@@ -53,37 +52,29 @@ void emulate_ANA ( _cpu_info *cpu ) {
     cpu->flags.h  = 1;
     cpu->flags.z  = (cpu->a == 0);
     cpu->flags.n  = 0;
-
-    /* FIXME */ abort();
-    cpu->cycles_machine += 1 ;
-    cpu->pc     += 1 ;
 }
 
 void emulate_ANI ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
+    /*uint8_t t = read_byte_at_pc ( cpu );*/
+    /*printf(" %2x %2x %2x\n", cpu->a, t, cpu->a & t );*/
+    /*cpu->a &= t;*/
 
-    switch ( *opcode ) {
-        case 0xe6: // ANI
-            cpu->a       &= opcode[1];
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
+    /*switch ( cpu->opcode ) {*/
+        /*case 0xe6: // ANI*/
+            /*cpu->a &= read_byte_at_pc ( cpu );*/
+            /*break;*/
+        /*default:*/
+            /*assert( 0 && "Code should not get here\n" );*/
+    /*}*/
 
     cpu->flags.c  = 0;
     cpu->flags.z  = (cpu->a == 0);
     cpu->flags.n  = 0;
     cpu->flags.h  = 1;
-
-    /* FIXME */ abort();
-    cpu->cycles_machine += 2 ;
-    cpu->pc     += 2 ;
 }
 
 void emulate_XOR ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
-
-    switch ( *opcode ) {
+    switch ( cpu->opcode ) {
         case 0xa8: // XOR B
             cpu->a ^= cpu->b;
             break;
@@ -103,7 +94,7 @@ void emulate_XOR ( _cpu_info *cpu ) {
             cpu->a ^= cpu->l;
             break;
         case 0xae: // XOR M
-            cpu->a ^= cpu->mem_controller.memory[cpu->h << 8 | cpu->l];
+            cpu->a ^= read_byte_with_tick ( cpu, read_hl ( cpu ));
             break;
         case 0xaf: // XOR A
             cpu->a ^= cpu->a;
@@ -115,19 +106,13 @@ void emulate_XOR ( _cpu_info *cpu ) {
     cpu->flags.c  = 0;
     cpu->flags.h  = 0;
     cpu->flags.z  = (cpu->a == 0);
-    cpu->flags.n  = 0; //(0x80 == (cpu->a & 0x80));
-
-    /* FIXME */ abort();
-    cpu->cycles_machine += 1 ;
-    cpu->pc     += 1 ;
+    cpu->flags.n  = 0;
 }
 
 void emulate_XRI ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
-
-    switch ( *opcode ) {
+    switch ( cpu->opcode ) {
         case 0xee: // XRI D8
-            cpu->a ^= opcode[1];
+            cpu->a ^= read_byte_at_pc ( cpu );
             break;
         default:
             assert( 0 && "Code should not get here\n" );
@@ -137,16 +122,10 @@ void emulate_XRI ( _cpu_info *cpu ) {
     cpu->flags.h  = 0;
     cpu->flags.z  = (cpu->a == 0);
     cpu->flags.n  = 0;
-
-    /* FIXME */ abort();
-    cpu->cycles_machine += 2 ;
-    cpu->pc     += 2 ;
 }
 
 void emulate_ORA ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
-
-    switch ( *opcode ) {
+    switch ( cpu->opcode ) {
         case 0xb0: // ORA B
             cpu->a |= cpu->b;
             break;
@@ -166,9 +145,7 @@ void emulate_ORA ( _cpu_info *cpu ) {
             cpu->a |= cpu->l;
             break;
         case 0xb6: // ORA M
-            cpu->a |= cpu->mem_controller.memory[cpu->h << 8 | cpu->l];
-            /* FIXME */ abort();
-    cpu->cycles_machine += 1;
+            cpu->a |= read_byte_with_tick ( cpu, read_hl ( cpu ));
             break;
         case 0xb7: // ORA A
             cpu->a |= cpu->a;
@@ -181,10 +158,6 @@ void emulate_ORA ( _cpu_info *cpu ) {
     cpu->flags.h = 0;
     cpu->flags.z = (cpu->a == 0);
     cpu->flags.n = 0;
-
-    /* FIXME */ abort();
-    cpu->cycles_machine += 1 ;
-    cpu->pc     += 1 ;
 }
 
 void emulate_ORI ( _cpu_info *cpu ) {
@@ -209,11 +182,10 @@ void emulate_ORI ( _cpu_info *cpu ) {
 }
 
 void emulate_CMP ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint8_t        answer = 0;
     uint8_t        old    = 0;
 
-    switch ( *opcode ) {
+    switch ( cpu->opcode ) {
         case 0xb8: // CMP B
             answer        = cpu->a - cpu->b;
             old           = cpu->b;
@@ -239,8 +211,8 @@ void emulate_CMP ( _cpu_info *cpu ) {
             old           = cpu->l;
             break;
         case 0xbe: // CMP M
-            answer        = cpu->a - cpu->mem_controller.memory[(cpu->h << 8) | cpu->l];
-            old           = cpu->mem_controller.memory[(cpu->h << 8) | cpu->l];
+            answer        = cpu->a - read_byte_with_tick ( cpu, read_hl ( cpu ));
+            old           = read_byte ( cpu, read_hl ( cpu ) );
             break;
         case 0xbf: // CMP A
             answer        = cpu->a - cpu->a;
@@ -254,20 +226,17 @@ void emulate_CMP ( _cpu_info *cpu ) {
     cpu->flags.n    = 1;
     cpu->flags.h    = ( answer & 0x0f ) > (cpu->a & 0x0f);
     cpu->flags.c    = ( cpu->a < old  );
-
-    /* FIXME */ abort();
-    cpu->cycles_machine += 1 ;
-    cpu->pc     += 1 ;
 }
 
 void emulate_CPI ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
-    uint8_t        answer = 0;
+    uint8_t        answer  = 0;
+    uint8_t        operand = 0;
 
-    switch ( *opcode ) {
+    switch ( cpu->opcode ) {
         case 0xfe: // CPI A
-            answer        = cpu->a - opcode[1];
-            cpu->flags.h  = ((cpu->a - opcode[1]) & 0x0f) > (cpu->a & 0x0f);
+            operand          = read_byte_at_pc ( cpu );
+            cpu->flags.h = ((cpu->a - operand) & 0x0f) > (cpu->a & 0x0f);
+            answer       = cpu->a - operand;
             break;
         default:
             assert( 0 && "Code should not get here\n" );
@@ -275,11 +244,7 @@ void emulate_CPI ( _cpu_info *cpu ) {
 
     cpu->flags.z    = ( answer & 0xff ) == 0;
     cpu->flags.n    = 1;
-    cpu->flags.c    = ( cpu->a < opcode[1] );
-
-    /* FIXME */ abort();
-    cpu->cycles_machine += 2 ;
-    cpu->pc     += 2 ;
+    cpu->flags.c    = ( cpu->a < operand );
 }
 
 
