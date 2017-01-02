@@ -4,6 +4,8 @@
 
 #include "types.h"
 #include "memory.h"
+#include "microcode.h"
+#include "time_keeper.h"
 #include "instructions_data_transfer.h"
 
 #define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
@@ -18,108 +20,167 @@
       (byte & 0x01 ? '1' : '0')
 
 void emulate_RLC ( _cpu_info *cpu, uint8_t target ) {
-    uint8_t *a   = get_reg_ref(cpu, target);
+    if ( target == 6 ) {
+        uint8_t  a   = read_byte_with_tick ( cpu, read_hl ( cpu  ));
 
-    /*if ( target == 6 )*/
-        /*[> FIXME <] abort();*/
-    /*cpu->cycles_machine += 2;*/
+        uint8_t t    = (a     >> 7) & 0x01;
+        cpu->flags.c =   t;
+        a            = (a     << 1)  | t  ;
 
-    uint8_t t    = (*a     >> 7) & 0x01;
-    cpu->flags.c =   t;
-    *a           = (*a     << 1)  | t  ;
-    cpu->flags.z =  *a     == 0   ;
+        write_byte_with_tick ( cpu, read_hl ( cpu ), a);
+        cpu->flags.z =  a     == 0   ;
+    } else {
+        uint8_t *a   = get_reg_ref(cpu, target);
+
+        uint8_t t    = (*a     >> 7) & 0x01;
+        cpu->flags.c =   t;
+        *a           = (*a     << 1)  | t  ;
+        cpu->flags.z =  *a     == 0   ;
+    }
 
     cpu->flags.h = 0;
     cpu->flags.n = 0;
 }
 
 void emulate_RRC ( _cpu_info *cpu, uint8_t target ) {
-    uint8_t *a   = get_reg_ref(cpu, target);
+    if ( target == 6 ) {
+        uint8_t  a   = read_byte_with_tick ( cpu, read_hl ( cpu  ));
 
-    /*if ( target == 6 )*/
-        /*[> FIXME <] abort();*/
-    /*cpu->cycles_machine += 2;*/
+        uint8_t t    =  a     &  0x01;
+        cpu->flags.c =  a     &  0x01;
+        a            = (a     >> 1)  | ( t << 7 );
 
-    uint8_t t    =  *a     &  0x01;
-    cpu->flags.c =  *a     &  0x01;
-    *a           = (*a     >> 1)  | ( t << 7 );
-    cpu->flags.z =  *a     == 0   ;
+        write_byte_with_tick ( cpu, read_hl ( cpu ), a);
+
+        cpu->flags.z =   a     == 0   ;
+    } else {
+        uint8_t *a   = get_reg_ref(cpu, target);
+
+        uint8_t t    =  *a     &  0x01;
+        cpu->flags.c =  *a     &  0x01;
+        *a           = (*a     >> 1)  | ( t << 7 );
+        cpu->flags.z =  *a     == 0   ;
+    }
 
     cpu->flags.h = 0;
     cpu->flags.n = 0;
 }
 
 void emulate_RL    ( _cpu_info *cpu, uint8_t target ) {
-    uint8_t *a   = get_reg_ref(cpu, target);
+    if ( target == 6 ) {
+        uint8_t  a   = read_byte_with_tick ( cpu, read_hl ( cpu  ));
 
-    /*if ( target == 6 )*/
-        /*[> FIXME <] abort();*/
-    /*cpu->cycles_machine += 2;*/
+        uint8_t t    = cpu->flags.c != 0;
+        cpu->flags.c = (a     >> 7) & 0x01;
+        a            = (a     << 1) | t   ;
 
-    uint8_t t    = cpu->flags.c != 0;
-    cpu->flags.c = (*a     >> 7) & 0x01;
-    *a           = (*a     << 1) | t   ;
-    cpu->flags.z =  *a     == 0        ;
+        write_byte_with_tick ( cpu, read_hl ( cpu ), a);
+
+        cpu->flags.z =  a     == 0        ;
+    } else {
+        uint8_t *a   = get_reg_ref(cpu, target);
+
+        uint8_t t    = cpu->flags.c != 0;
+        cpu->flags.c = (*a     >> 7) & 0x01;
+        *a           = (*a     << 1) | t   ;
+        cpu->flags.z =  *a     == 0        ;
+    }
 
     cpu->flags.h = 0;
     cpu->flags.n = 0;
 }
 
 void emulate_RR ( _cpu_info *cpu, uint8_t target ) {
-    uint8_t *a   = get_reg_ref(cpu, target);
+    if ( target == 6 ) {
+        uint8_t  a   = read_byte_with_tick ( cpu, read_hl ( cpu  ));
 
-    /*if ( target == 6 )*/
-        /*[> FIXME <] abort();*/
-    /*cpu->cycles_machine += 2;*/
+        uint8_t t    = cpu->flags.c != 0;
+        cpu->flags.c =  a     &  0x01;
+        a            = (a     >> 1)  | ( t << 7 );
 
-    uint8_t t    = cpu->flags.c != 0;
-    cpu->flags.c =  *a     &  0x01;
-    *a           = (*a     >> 1)  | ( t << 7 );
-    cpu->flags.z =  *a     == 0   ;
+        write_byte_with_tick ( cpu, read_hl ( cpu ), a);
+
+        cpu->flags.z =  a     == 0   ;
+    } else {
+        uint8_t *a   = get_reg_ref(cpu, target);
+
+        uint8_t t    = cpu->flags.c != 0;
+        cpu->flags.c =  *a     &  0x01;
+        *a           = (*a     >> 1)  | ( t << 7 );
+        cpu->flags.z =  *a     == 0   ;
+    }
 
     cpu->flags.h = 0;
     cpu->flags.n = 0;
 }
 
 void emulate_SLA   ( _cpu_info *cpu, uint8_t target ) {
-    uint8_t *a   = get_reg_ref(cpu, target);
+    if ( target == 6 ) {
+        uint8_t  a   = read_byte_with_tick ( cpu, read_hl ( cpu  ));
 
-    /*if ( target == 6 )*/
-        /*[> FIXME <] abort();*/
-    /*cpu->cycles_machine += 2;*/
+        cpu->flags.c = (a     >> 7) & 0x01;
+        a            = (a     << 1)       ;
 
-    cpu->flags.c = (*a     >> 7) & 0x01;
-    *a           = (*a     << 1)       ;
-    cpu->flags.z =  *a     == 0        ;
+        write_byte_with_tick ( cpu, read_hl ( cpu ), a);
+
+        cpu->flags.z =  a     == 0        ;
+    } else {
+        uint8_t *a   = get_reg_ref(cpu, target);
+
+        cpu->flags.c = (*a     >> 7) & 0x01;
+        *a           = (*a     << 1)       ;
+        cpu->flags.z =  *a     == 0        ;
+    }
 
     cpu->flags.h = 0;
     cpu->flags.n = 0;
 }
 
 void emulate_SRA   ( _cpu_info *cpu, uint8_t target ) {
-    uint8_t *a   = get_reg_ref(cpu, target);
+    if ( target == 6 ) {
+        uint8_t  a   = read_byte_with_tick ( cpu, read_hl ( cpu  ));
 
-    uint8_t t    =  *a     &  0x80   ;
-    cpu->flags.c =  *a     &  0x01   ;
-    *a           = (*a     >> 1)  | t;
-    cpu->flags.z =  *a     == 0      ;
+        uint8_t t    =  a     &  0x80   ;
+        cpu->flags.c =  a     &  0x01   ;
+        a            = (a     >> 1)  | t;
+
+        write_byte_with_tick ( cpu, read_hl ( cpu ), a);
+
+        cpu->flags.z =  a     == 0      ;
+    } else {
+        uint8_t *a   = get_reg_ref(cpu, target);
+
+        uint8_t t    =  *a     &  0x80   ;
+        cpu->flags.c =  *a     &  0x01   ;
+        *a           = (*a     >> 1)  | t;
+        cpu->flags.z =  *a     == 0      ;
+    }
 
     cpu->flags.h = 0;
     cpu->flags.n = 0;
 }
 
 void emulate_SWAP  ( _cpu_info *cpu, uint8_t target ) {
-    uint8_t *a   = get_reg_ref(cpu, target);
+    if ( target == 6 ) {
+        uint8_t  a   = read_byte_with_tick ( cpu, read_hl ( cpu  ));
 
-    /*if ( target == 6 )*/
-        /*[> FIXME <] abort();*/
-    /*cpu->cycles_machine += 2;*/
+        uint8_t lo   = a & 0x0f;
+        uint8_t hi   = a & 0xf0;
 
-    uint8_t lo   = *a & 0x0f;
-    uint8_t hi   = *a & 0xf0;
+        a            = (lo << 4) | (hi >> 4);
 
-    *a           = (lo << 4) | (hi >> 4);
-    cpu->flags.z =  *a     == 0         ;
+        write_byte_with_tick ( cpu, read_hl ( cpu ), a);
+
+        cpu->flags.z = a == 0;
+    } else {
+        uint8_t *a   = get_reg_ref(cpu, target);
+
+        uint8_t lo   = *a & 0x0f;
+        uint8_t hi   = *a & 0xf0;
+
+        *a           = (lo << 4) | (hi >> 4);
+        cpu->flags.z =  *a     == 0         ;
+    }
 
     cpu->flags.h = 0;
     cpu->flags.c = 0;
@@ -127,50 +188,53 @@ void emulate_SWAP  ( _cpu_info *cpu, uint8_t target ) {
 }
 
 void emulate_SRL   ( _cpu_info *cpu, uint8_t target ) {
+    if ( target == 6 ) {
+        uint8_t  a   = read_byte_with_tick ( cpu, read_hl ( cpu  ));
+        write_byte_with_tick ( cpu, read_hl ( cpu ), a >> 1);
+        cpu->flags.c =   a     &  0x01;
+        cpu->flags.z = ( a >> 1 ) == 0;
+    } else {
     uint8_t *a   = get_reg_ref(cpu, target);
-
-    /*if ( target == 6 )*/
-        /*[> FIXME <] abort();*/
-    /*cpu->cycles_machine += 2;*/
-
-    cpu->flags.c =  *a     &  0x01;
-    *a           = (*a     >> 1)  ;
-    cpu->flags.z =  *a     == 0   ;
+        cpu->flags.c =  *a     &  0x01;
+        *a           = (*a     >> 1)  ;
+        cpu->flags.z =  *a     == 0   ;
+    }
 
     cpu->flags.h = 0;
     cpu->flags.n = 0;
 }
 
 void emulate_BIT   ( _cpu_info *cpu, uint8_t target, uint8_t data ) {
-    uint8_t *a   = get_reg_ref(cpu, target);
+    if ( target == 6 ) {
+        uint8_t  a   = read_byte_with_tick ( cpu, read_hl ( cpu  ));
+        cpu->flags.z = (a & data) == 0;
+    } else {
+        uint8_t *a   = get_reg_ref(cpu, target);
+        cpu->flags.z = (*a & data) == 0;
+    }
 
-    /*if ( target == 6 )*/
-        /*[> FIXME <] abort();*/
-    /*cpu->cycles_machine += 1;*/
-
-    cpu->flags.z = (*a & data) == 0;
     cpu->flags.h = 1;
     cpu->flags.n = 0;
 }
 
 void emulate_RES   ( _cpu_info *cpu, uint8_t target, uint8_t data ) {
-    uint8_t *a   = get_reg_ref(cpu, target);
-
-    /*if ( target == 6 )*/
-        /*[> FIXME <] abort();*/
-    /*cpu->cycles_machine += 2;*/
-
-    *a          &= ~data;
+    if ( target == 6 ) {
+        uint8_t  a   = read_byte_with_tick ( cpu, read_hl ( cpu  ));
+        write_byte_with_tick ( cpu, read_hl ( cpu ), a &  (~data ));
+    } else {
+        uint8_t *a   = get_reg_ref(cpu, target);
+        *a          &= ~data;
+    }
 }
 
 void emulate_SET   ( _cpu_info *cpu, uint8_t target, uint8_t data ) {
-    uint8_t *a   = get_reg_ref(cpu, target);
-
-    /*if ( target == 6 )*/
-        /*[> FIXME <] abort();*/
-    /*cpu->cycles_machine += 2;*/
-
-    *a          |= data;
+    if ( target == 6 ) {
+        uint8_t  a   = read_byte_with_tick ( cpu, read_hl ( cpu ));
+        write_byte_with_tick ( cpu, read_hl ( cpu ), a | data );
+    } else {
+        uint8_t *a   = get_reg_ref(cpu, target);
+        *a          |= data;
+    }
 }
 
 /*
