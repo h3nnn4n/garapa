@@ -27,7 +27,7 @@ void emulate_JC ( _cpu_info *cpu ) {
         addr |= read_byte_at_pc ( cpu ) << 8;
         cpu->pc = addr;
     } else {
-        cpu->pc += 3;
+        /*cpu->pc += 3;*/
     }
 }
 
@@ -39,7 +39,7 @@ void emulate_JNC ( _cpu_info *cpu ) {
         addr |= read_byte_at_pc ( cpu ) << 8;
         cpu->pc = addr;
     } else {
-        cpu->pc += 3;
+        /*cpu->pc += 3;*/
     }
 }
 
@@ -51,7 +51,7 @@ void emulate_JM ( _cpu_info *cpu ) {
         addr |= read_byte_at_pc ( cpu ) << 8;
         cpu->pc = addr;
     } else {
-        cpu->pc += 3;
+        /*cpu->pc += 3;*/
     }
 }
 
@@ -63,7 +63,7 @@ void emulate_JP ( _cpu_info *cpu ) {
         addr |= read_byte_at_pc ( cpu ) << 8;
         cpu->pc = addr;
     } else {
-        cpu->pc += 3;
+        /*cpu->pc += 3;*/
     }
 }
 
@@ -75,7 +75,7 @@ void emulate_JZ ( _cpu_info *cpu ) {
         addr |= read_byte_at_pc ( cpu ) << 8;
         cpu->pc = addr;
     } else {
-        cpu->pc += 3;
+        /*cpu->pc += 3;*/
     }
 }
 
@@ -87,7 +87,7 @@ void emulate_JNZ ( _cpu_info *cpu ) {
         addr |= read_byte_at_pc ( cpu ) << 8;
         cpu->pc = addr;
     } else {
-        cpu->pc += 3;
+        /*cpu->pc += 3;*/
     }
 }
 
@@ -108,7 +108,6 @@ void emulate_RET ( _cpu_info *cpu ) {
     uint16_t addr;
 
     addr  = read_byte_at_sp ( cpu );
-
     addr |= read_byte_at_sp ( cpu ) << 8;
 
     timer_tick_and_full_mcycle ( cpu ); // A full cycle while the cpu does something
@@ -125,7 +124,7 @@ void emulate_RZ ( _cpu_info *cpu ) {
 
         cpu->pc = addr;
     } else {
-        cpu->pc += 1;
+        /*cpu->pc += 1;*/
     }
 }
 
@@ -138,7 +137,7 @@ void emulate_RNZ ( _cpu_info *cpu ) {
 
         cpu->pc = addr;
     } else {
-        cpu->pc += 1;
+        /*cpu->pc += 1;*/
     }
 }
 
@@ -151,7 +150,7 @@ void emulate_RP ( _cpu_info *cpu ) {
 
         cpu->pc = addr;
     } else {
-        cpu->pc += 1;
+        /*cpu->pc += 1;*/
     }
 }
 
@@ -164,7 +163,7 @@ void emulate_RM ( _cpu_info *cpu ) {
 
         cpu->pc = addr;
     } else {
-        cpu->pc += 1;
+        /*cpu->pc += 1;*/
     }
 }
 
@@ -177,7 +176,7 @@ void emulate_RNC ( _cpu_info *cpu ) {
 
         cpu->pc = addr;
     } else {
-        cpu->pc += 1;
+        /*cpu->pc += 1;*/
     }
 }
 
@@ -190,14 +189,12 @@ void emulate_RC ( _cpu_info *cpu ) {
 
         cpu->pc = addr;
     } else {
-        cpu->pc += 1;
+        /*cpu->pc += 1;*/
     }
 }
 
 void emulate_RST ( _cpu_info *cpu ) {
-    uint16_t ret = 0;
-
-    ret = cpu->pc + 1;
+    uint16_t ret = cpu->pc + 0;
 
     switch ( cpu->opcode ) {
         case 0xc7:

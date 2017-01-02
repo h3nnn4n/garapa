@@ -66,12 +66,15 @@ void emulate_MOV ( _cpu_info *cpu ) {
         case 0x70: // MOV M, B
             addr = cpu->h << 8 | cpu->l;
             write_byte_with_tick ( cpu, addr, cpu->b );
+            break;
         case 0x71: // MOV M, C
             addr = cpu->h << 8 | cpu->l;
             write_byte_with_tick ( cpu, addr, cpu->c );
+            break;
         case 0x72: // MOV M, D
             addr = cpu->h << 8 | cpu->l;
             write_byte_with_tick ( cpu, addr, cpu->d );
+            break;
         case 0x73: // MOV M, E
             addr = cpu->h << 8 | cpu->l;
             write_byte_with_tick ( cpu, addr, cpu->e );

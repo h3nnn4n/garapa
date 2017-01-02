@@ -420,6 +420,7 @@ void decoder( _cpu_info *cpu ) {
             break;
         case 0x26:
             cpu->h = read_byte_at_pc ( cpu );
+            timer_tick_and_full_mcycle ( cpu );
             break;
         case 0x36:
             write_byte_with_tick ( cpu, cpu->h << 8 | cpu->l,
