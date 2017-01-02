@@ -18,7 +18,7 @@ static void return_if ( _cpu_info *cpu, uint8_t flag ) {
         timer_tick_and_full_mcycle ( cpu );
         cpu->pc = addr;
     } else {
-        /*timer_tick_and_full_mcycle ( cpu );*/
+        // Do nothing
     }
 }
 

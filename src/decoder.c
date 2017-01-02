@@ -29,9 +29,9 @@ void decoder( _cpu_info *cpu ) {
     }
 
     cpu->opcode = read_byte_at_pc ( cpu ); // THis fetched the opcode and ticks the timer + pc
-    cpu->pc --;
-    out_put ( cpu );
-    cpu->pc ++;
+    /*cpu->pc --;*/
+    /*out_put ( cpu );*/
+    /*cpu->pc ++;*/
 
 #ifdef __show_step
     disassembler ( cpu->mem_controller.memory, cpu->pc );
@@ -273,20 +273,14 @@ void decoder( _cpu_info *cpu ) {
             write_byte_with_tick ( cpu, 0xff00 + addr, cpu->a );
             break;
         case 0xf0:
-            addr    = read_byte_at_pc ( cpu );
-            cpu-> a = read_byte_with_tick ( cpu, 0xff00 + addr );
+            addr   = read_byte_at_pc ( cpu );
+            cpu->a = read_byte_with_tick ( cpu, 0xff00 + addr );
             break;
         case 0xf2:
-            cpu->a = read_byte(cpu, 0xff00 + cpu->c);
-            /* FIXME */ abort();
-    cpu->cycles_machine += 2;
-            cpu->pc     += 1 ;
+            cpu->a = read_byte_with_tick ( cpu, 0xff00 + cpu->c );
             break;
         case 0xe2:
-            write_byte(cpu, 0xff00 + cpu->c,  cpu->a);
-            /* FIXME */ abort();
-    cpu->cycles_machine += 2 ;
-            cpu->pc     += 1 ;
+            write_byte_with_tick ( cpu, 0xff00 + cpu->c,  cpu->a ) ;
             break;
         case 0xea:
             addr  = read_byte_at_pc ( cpu );
