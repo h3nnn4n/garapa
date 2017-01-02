@@ -21,6 +21,9 @@
       (byte & 0x02 ? '1' : '0'), \
       (byte & 0x01 ? '1' : '0')
 
+// FIXME
+// This has some direct memory access
+// maybe rewrite it
 uint8_t *get_reg_ref ( _cpu_info *cpu, uint8_t opcode ) {
     switch ( opcode ) {
         case 0x00: // B
@@ -36,6 +39,7 @@ uint8_t *get_reg_ref ( _cpu_info *cpu, uint8_t opcode ) {
         case 0x05: // L
             return &(cpu->l);
         case 0x06: // (HL)
+            timer_tick_and_full_mcycle ( cpu );
             return &cpu->mem_controller.memory[( cpu->h << 8 ) | cpu->l];
         case 0x07: // A
             return &(cpu->a);

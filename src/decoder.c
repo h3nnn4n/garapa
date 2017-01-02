@@ -21,14 +21,14 @@
 #include "instructions_stack_io_control.h"
 
 void decoder( _cpu_info *cpu ) {
-    emulate_INTERRUPT( cpu ); // First of all, check if any interrupts need to be serviced
+    emulate_INTERRUPT( cpu );
 
-    if ( cpu->halted ) {   // If cpu is halted, tick it
-            timer_tick( cpu );
+    if ( cpu->halted ) {
+        timer_tick_and_full_mcycle ( cpu );
         return;
     }
 
-    cpu->opcode = read_byte_at_pc ( cpu ); // THis fetched the opcode and ticks the timer + pc
+    cpu->opcode = read_byte_at_pc ( cpu );
     /*cpu->pc --;*/
     /*out_put ( cpu );*/
     /*cpu->pc ++;*/
@@ -37,6 +37,7 @@ void decoder( _cpu_info *cpu ) {
     disassembler ( cpu->mem_controller.memory, cpu->pc );
     print_registers(cpu);
 #endif
+
     uint16_t addr;
     uint16_t t16;
     uint8_t  t8;
@@ -52,6 +53,7 @@ void decoder( _cpu_info *cpu ) {
                 emulate_HALT ( cpu );
             break;
         case 0x00:
+            input_update   ( cpu );
             break;
         case 0xde:
             emulate_SBI( cpu );
@@ -62,7 +64,6 @@ void decoder( _cpu_info *cpu ) {
             addr = read_hl ( cpu );
             cpu->a = read_byte_with_tick ( cpu, addr );
             addr += 1;
-            /*timer_tick_and_full_mcycle ( cpu );*/
             write_hl_16 ( cpu, addr );
             break;
         case 0x3a:
@@ -434,8 +435,9 @@ void decoder( _cpu_info *cpu ) {
         case 0xd6:
             emulate_SUI ( cpu );
             break;
-        case 0xe8:
+
         case 0xf8:
+        case 0xe8:
         case 0xc6:
             emulate_ADI ( cpu );
             break;

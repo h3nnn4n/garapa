@@ -20,8 +20,8 @@
 void emulate_RLC ( _cpu_info *cpu, uint8_t target ) {
     uint8_t *a   = get_reg_ref(cpu, target);
 
-    if ( target == 6 )
-        /* FIXME */ abort();
+    /*if ( target == 6 )*/
+        /*[> FIXME <] abort();*/
     /*cpu->cycles_machine += 2;*/
 
     uint8_t t    = (*a     >> 7) & 0x01;
@@ -36,8 +36,8 @@ void emulate_RLC ( _cpu_info *cpu, uint8_t target ) {
 void emulate_RRC ( _cpu_info *cpu, uint8_t target ) {
     uint8_t *a   = get_reg_ref(cpu, target);
 
-    if ( target == 6 )
-        /* FIXME */ abort();
+    /*if ( target == 6 )*/
+        /*[> FIXME <] abort();*/
     /*cpu->cycles_machine += 2;*/
 
     uint8_t t    =  *a     &  0x01;
@@ -52,8 +52,8 @@ void emulate_RRC ( _cpu_info *cpu, uint8_t target ) {
 void emulate_RL    ( _cpu_info *cpu, uint8_t target ) {
     uint8_t *a   = get_reg_ref(cpu, target);
 
-    if ( target == 6 )
-        /* FIXME */ abort();
+    /*if ( target == 6 )*/
+        /*[> FIXME <] abort();*/
     /*cpu->cycles_machine += 2;*/
 
     uint8_t t    = cpu->flags.c != 0;
@@ -68,8 +68,8 @@ void emulate_RL    ( _cpu_info *cpu, uint8_t target ) {
 void emulate_RR ( _cpu_info *cpu, uint8_t target ) {
     uint8_t *a   = get_reg_ref(cpu, target);
 
-    if ( target == 6 )
-        /* FIXME */ abort();
+    /*if ( target == 6 )*/
+        /*[> FIXME <] abort();*/
     /*cpu->cycles_machine += 2;*/
 
     uint8_t t    = cpu->flags.c != 0;
@@ -84,8 +84,8 @@ void emulate_RR ( _cpu_info *cpu, uint8_t target ) {
 void emulate_SLA   ( _cpu_info *cpu, uint8_t target ) {
     uint8_t *a   = get_reg_ref(cpu, target);
 
-    if ( target == 6 )
-        /* FIXME */ abort();
+    /*if ( target == 6 )*/
+        /*[> FIXME <] abort();*/
     /*cpu->cycles_machine += 2;*/
 
     cpu->flags.c = (*a     >> 7) & 0x01;
@@ -111,8 +111,8 @@ void emulate_SRA   ( _cpu_info *cpu, uint8_t target ) {
 void emulate_SWAP  ( _cpu_info *cpu, uint8_t target ) {
     uint8_t *a   = get_reg_ref(cpu, target);
 
-    if ( target == 6 )
-        /* FIXME */ abort();
+    /*if ( target == 6 )*/
+        /*[> FIXME <] abort();*/
     /*cpu->cycles_machine += 2;*/
 
     uint8_t lo   = *a & 0x0f;
@@ -129,8 +129,8 @@ void emulate_SWAP  ( _cpu_info *cpu, uint8_t target ) {
 void emulate_SRL   ( _cpu_info *cpu, uint8_t target ) {
     uint8_t *a   = get_reg_ref(cpu, target);
 
-    if ( target == 6 )
-        /* FIXME */ abort();
+    /*if ( target == 6 )*/
+        /*[> FIXME <] abort();*/
     /*cpu->cycles_machine += 2;*/
 
     cpu->flags.c =  *a     &  0x01;
@@ -144,8 +144,8 @@ void emulate_SRL   ( _cpu_info *cpu, uint8_t target ) {
 void emulate_BIT   ( _cpu_info *cpu, uint8_t target, uint8_t data ) {
     uint8_t *a   = get_reg_ref(cpu, target);
 
-    if ( target == 6 )
-        /* FIXME */ abort();
+    /*if ( target == 6 )*/
+        /*[> FIXME <] abort();*/
     /*cpu->cycles_machine += 1;*/
 
     cpu->flags.z = (*a & data) == 0;
@@ -156,8 +156,8 @@ void emulate_BIT   ( _cpu_info *cpu, uint8_t target, uint8_t data ) {
 void emulate_RES   ( _cpu_info *cpu, uint8_t target, uint8_t data ) {
     uint8_t *a   = get_reg_ref(cpu, target);
 
-    if ( target == 6 )
-        /* FIXME */ abort();
+    /*if ( target == 6 )*/
+        /*[> FIXME <] abort();*/
     /*cpu->cycles_machine += 2;*/
 
     *a          &= ~data;
@@ -166,8 +166,8 @@ void emulate_RES   ( _cpu_info *cpu, uint8_t target, uint8_t data ) {
 void emulate_SET   ( _cpu_info *cpu, uint8_t target, uint8_t data ) {
     uint8_t *a   = get_reg_ref(cpu, target);
 
-    if ( target == 6 )
-        /* FIXME */ abort();
+    /*if ( target == 6 )*/
+        /*[> FIXME <] abort();*/
     /*cpu->cycles_machine += 2;*/
 
     *a          |= data;

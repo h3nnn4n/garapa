@@ -59,29 +59,25 @@ void emulate_ADD ( _cpu_info *cpu ) {
 void emulate_ADI ( _cpu_info *cpu ) {
     uint16_t t;
 
+    t = read_byte_at_pc ( cpu ) ;
     switch ( cpu->opcode ) {
         case 0xc6: // ADI
-            t = read_byte_at_pc ( cpu ) ;
             cpu->flags.h  = halfcarry( cpu->a, t, cpu->a + t );
             cpu->flags.c  = (t + cpu->a) > 0xff;
             cpu->a       += (uint8_t) t;
             break;
         case 0xe8:
-            /*cpu->flags.h  = halfcarry( cpu->sp, opcode[1], cpu->sp + (int8_t) opcode[1] );*/
-            /*t             = cpu->sp + (int8_t) opcode[1];*/
-            /*cpu->flags.c  = (t & 0xff) < (cpu->sp & 0xff);*/
-            /*cpu->sp       = t;*/
-            /* FIXME */ abort();
-    cpu->cycles_machine += 4 ;
+            cpu->flags.h  = halfcarry( cpu->sp, t, cpu->sp + (int8_t) t );
+            cpu->flags.c  = ((cpu->sp + (int8_t)t) & 0xff) < (cpu->sp & 0xff);
+            t             = cpu->sp + (int8_t) t;
+            cpu->sp       = t;
             break;
         case 0xf8:
-            /*cpu->flags.h  = halfcarry( cpu->sp, opcode[1], cpu->sp + (int8_t) opcode[1] );*/
-            /*t             = cpu->sp + (int8_t) opcode[1];*/
-            /*cpu->flags.c  = (t & 0xff) < (cpu->sp & 0xff);*/
-            /*cpu->h        = (t & 0xff00) >> 8;*/
-            /*cpu->l        = (t & 0x00ff) >> 0;*/
-            /* FIXME */ abort();
-    cpu->cycles_machine += 3 ;
+            cpu->flags.h  = halfcarry( cpu->sp, t, cpu->sp + (int8_t) t );
+            t             = cpu->sp + (int8_t) t;
+            cpu->flags.c  = (t & 0xff) < (cpu->sp & 0xff);
+            cpu->h        = (t & 0xff00) >> 8;
+            cpu->l        = (t & 0x00ff) >> 0;
             break;
         default:
             assert( 0 && "Code should not get here\n" );
@@ -128,12 +124,10 @@ void emulate_ADC ( _cpu_info *cpu ) {
             b = cpu->l;
             break;
         case 0x8e: // ADC M
-            answer = cpu->a + read_byte_with_tick ( cpu, read_hl ( cpu ) ) + (cpu->flags.c != 0) ;
-            answer = cpu->a + cpu->mem_controller.memory[cpu->h << 8 | cpu->l] + (cpu->flags.c != 0) ;
+            b = read_byte_with_tick ( cpu, read_hl ( cpu ) );
+            answer = cpu->a + b + (cpu->flags.c != 0) ;
+            answer = cpu->a + b + (cpu->flags.c != 0) ;
             cpu->a = answer & 0xff;
-            b = cpu->mem_controller.memory[cpu->h << 8 | cpu->l];
-            /* FIXME */ abort();
-    cpu->cycles_machine += 1;
             break;
         case 0x8f: // ADC A
             answer = cpu->a + cpu->a + (cpu->flags.c != 0) ;
@@ -170,10 +164,9 @@ void emulate_ACI ( _cpu_info *cpu ) {
 }
 
 void emulate_SUB ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint16_t answer = (uint16_t) cpu->a;
 
-    switch ( *opcode ) {
+    switch ( cpu->opcode ) {
         case 0x90:
             answer -= (uint16_t) cpu->b;
             break;
@@ -193,9 +186,7 @@ void emulate_SUB ( _cpu_info *cpu ) {
             answer -= (uint16_t) cpu->l;
             break;
         case 0x96:
-            answer -= (uint16_t) cpu->mem_controller.memory[(cpu->h<<8) | (cpu->l)];
-            /* FIXME */ abort();
-    cpu->cycles_machine += 1;
+            answer -= (uint16_t) read_byte_with_tick ( cpu, read_hl ( cpu ));
             break;
         case 0x97:
             answer -= (uint16_t) cpu->a;
@@ -210,10 +201,6 @@ void emulate_SUB ( _cpu_info *cpu ) {
     cpu->flags.h    = (answer & 0x0f) > (cpu->a & 0x0f);
 
     cpu->a          = answer & 0xff;
-
-    cpu->pc        += 1 ;
-    /* FIXME */ abort();
-    cpu->cycles_machine    += 1 ;
 }
 
 void emulate_SUI ( _cpu_info *cpu ) {
@@ -238,11 +225,10 @@ void emulate_SUI ( _cpu_info *cpu ) {
 }
 
 void emulate_SBB ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint16_t answer = 0;
     uint16_t    old = 0;
 
-    switch ( *opcode ) {
+    switch ( cpu->opcode ) {
         case 0x98:
             answer = cpu->a - cpu->b - (cpu->flags.c != 0) ;
             old    = cpu->b;
@@ -269,11 +255,9 @@ void emulate_SBB ( _cpu_info *cpu ) {
             break;
         case 0x9e:
             {
-            uint16_t addr = (cpu->h << 8) | cpu->l;
-            answer = cpu->a - cpu->mem_controller.memory[addr] - (cpu->flags.c != 0) ;
-            old    = cpu->mem_controller.memory[addr];
-            /* FIXME */ abort();
-    cpu->cycles_machine   += 1;
+            uint16_t addr = read_hl ( cpu );
+            old    = read_byte_with_tick ( cpu, addr );
+            answer = cpu->a - old - (cpu->flags.c != 0) ;
             }
             break;
         case 0x9f:
@@ -289,20 +273,17 @@ void emulate_SBB ( _cpu_info *cpu ) {
     cpu->flags.h    = ((cpu->a & 0x0f) - (cpu->flags.c != 0) - (old & 0x0f)) < 0;
     cpu->flags.c    = ( answer > 0xff );
     cpu->a          = answer & 0xff;
-
-    /* FIXME */ abort();
-    cpu->cycles_machine += 1 ;
-    cpu->pc     += 1 ;
 }
 
 void emulate_SBI ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint16_t answer = 0;
+    uint8_t  t = 0;
 
-    switch ( *opcode ) {
+    switch ( cpu->opcode ) {
         case 0xde: // SBI D8
-            answer = cpu->a - opcode[1] - (cpu->flags.c != 0) ;
-            cpu->flags.h  = ((opcode[1] & 0x0f) + (cpu->flags.c != 0)) > (cpu->a & 0x0f);
+            t = read_byte_at_pc ( cpu );
+            answer = cpu->a - t - (cpu->flags.c != 0) ;
+            cpu->flags.h  = ((t & 0x0f) + (cpu->flags.c != 0)) > (cpu->a & 0x0f);
             break;
         default:
             assert( 0 && "Code should not get here\n" );
@@ -312,10 +293,6 @@ void emulate_SBI ( _cpu_info *cpu ) {
     cpu->flags.n    = 1;
     cpu->flags.c    = ( answer > 0xff );
     cpu->a          = answer & 0xff;
-
-    /* FIXME */ abort();
-    cpu->cycles_machine += 2 ;
-    cpu->pc     += 2 ;
 }
 
 void emulate_INR ( _cpu_info *cpu ) {
@@ -450,27 +427,23 @@ void emulate_INC ( _cpu_info *cpu ) {
 }
 
 void emulate_DCX ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
     uint32_t       answer = 0;
 
-    switch ( *opcode ) {
+    switch ( cpu->opcode ) {
         case 0x0b: // DCX B
-            answer  = cpu->b << 8 | cpu->c;
+            answer  = read_bc ( cpu );
             answer -= 1;
-            cpu->b  = (answer >> 8 ) & 0xff;
-            cpu->c  = (answer >> 0 ) & 0xff;
+            write_bc_16 ( cpu, answer );
             break;
         case 0x1b: // DCX D
-            answer  = cpu->d << 8 | cpu->e;
+            answer  = read_de ( cpu );
             answer -= 1;
-            cpu->d  = (answer >> 8 ) & 0xff;
-            cpu->e  = (answer >> 0 ) & 0xff;
+            write_de_16 ( cpu, answer );
             break;
         case 0x2b: // DCX H
-            answer  = cpu->h << 8 | cpu->l;
+            answer  = read_hl ( cpu );
             answer -= 1;
-            cpu->h  = (answer >> 8 ) & 0xff;
-            cpu->l  = (answer >> 0 ) & 0xff;
+            write_hl_16 ( cpu, answer );
             break;
         case 0x3b: // DCX SP
             answer  = cpu->sp;
@@ -480,10 +453,7 @@ void emulate_DCX ( _cpu_info *cpu ) {
         default:
             assert( 0 && "Code should not get here\n" );
     }
-
-    /* FIXME */ abort();
-    cpu->cycles_machine += 2 ;
-    cpu->pc     += 1 ;
+    timer_tick_and_full_mcycle ( cpu );
 }
 
 void emulate_DAD ( _cpu_info *cpu ) {
@@ -514,9 +484,7 @@ void emulate_DAD ( _cpu_info *cpu ) {
 }
 
 void emulate_DAA ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
-
-    switch ( *opcode ) {
+    switch ( cpu->opcode ) {
         case 0x27: // DAA
             {
                 uint16_t ans   = 0;
@@ -551,8 +519,4 @@ void emulate_DAA ( _cpu_info *cpu ) {
         default:
             assert( 0 && "Code should not get here\n" );
     }
-
-    /* FIXME */ abort();
-    cpu->cycles_machine += 1 ;
-    cpu->pc     += 1 ;
 }

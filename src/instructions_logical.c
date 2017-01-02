@@ -157,11 +157,9 @@ void emulate_ORA ( _cpu_info *cpu ) {
 }
 
 void emulate_ORI ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
-
-    switch ( *opcode ) {
+    switch ( cpu->opcode ) {
         case 0xf6: // ORI D8
-            cpu->a |= opcode[1];
+            cpu->a |= read_byte_at_pc ( cpu );
             break;
         default:
             assert( 0 && "Code should not get here\n" );
@@ -171,10 +169,6 @@ void emulate_ORI ( _cpu_info *cpu ) {
     cpu->flags.h  = 0;
     cpu->flags.z  = (cpu->a == 0);
     cpu->flags.n  = 0;
-
-    /* FIXME */ abort();
-    cpu->cycles_machine += 2 ;
-    cpu->pc     += 2 ;
 }
 
 void emulate_CMP ( _cpu_info *cpu ) {
@@ -299,9 +293,7 @@ void emulate_RAR ( _cpu_info *cpu ) {
 }
 
 void emulate_CMA ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
-
-    switch ( *opcode ) {
+    switch ( cpu->opcode ) {
             case 0x2f: // CMA
                 cpu->a ^= 0xff;
             break;
@@ -311,16 +303,10 @@ void emulate_CMA ( _cpu_info *cpu ) {
 
     cpu->flags.h = 1 ;
     cpu->flags.n = 1 ;
-
-    /* FIXME */ abort();
-    cpu->cycles_machine += 1 ;
-    cpu->pc     += 1 ;
 }
 
 void emulate_CMC ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
-
-    switch ( *opcode ) {
+    switch ( cpu->opcode ) {
             case 0x3f: // CMC
                 cpu->flags.c  = !cpu->flags.c ;
                 cpu->flags.n  = 0;
@@ -329,16 +315,10 @@ void emulate_CMC ( _cpu_info *cpu ) {
         default:
             assert( 0 && "Code should not get here\n" );
     }
-
-    /* FIXME */ abort();
-    cpu->cycles_machine += 1 ;
-    cpu->pc     += 1 ;
 }
 
 void emulate_STC ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
-
-    switch ( *opcode ) {
+    switch ( cpu->opcode ) {
             case 0x37: // STC
                 cpu->flags.c  = 1;
                 cpu->flags.n  = 0;
@@ -347,8 +327,4 @@ void emulate_STC ( _cpu_info *cpu ) {
         default:
             assert( 0 && "Code should not get here\n" );
     }
-
-    /* FIXME */ abort();
-    cpu->cycles_machine += 1 ;
-    cpu->pc     += 1 ;
 }
