@@ -55,17 +55,13 @@ void emulate_ANA ( _cpu_info *cpu ) {
 }
 
 void emulate_ANI ( _cpu_info *cpu ) {
-    /*uint8_t t = read_byte_at_pc ( cpu );*/
-    /*printf(" %2x %2x %2x\n", cpu->a, t, cpu->a & t );*/
-    /*cpu->a &= t;*/
-
-    /*switch ( cpu->opcode ) {*/
-        /*case 0xe6: // ANI*/
-            /*cpu->a &= read_byte_at_pc ( cpu );*/
-            /*break;*/
-        /*default:*/
-            /*assert( 0 && "Code should not get here\n" );*/
-    /*}*/
+    switch ( cpu->opcode ) {
+        case 0xe6: // ANI
+            cpu->a &= read_byte_at_pc ( cpu );
+            break;
+        default:
+            assert( 0 && "Code should not get here\n" );
+    }
 
     cpu->flags.c  = 0;
     cpu->flags.z  = (cpu->a == 0);
