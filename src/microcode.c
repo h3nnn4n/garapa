@@ -54,6 +54,16 @@ uint16_t read_hl ( _cpu_info *cpu ) {
     return (cpu->h << 8) | cpu->l;
 }
 
+void write_bc_16 ( _cpu_info *cpu, uint16_t data ) {
+    cpu->c = (data & 0x00ff) >> 0;
+    cpu->b = (data & 0xff00) >> 8;
+}
+
+void write_de_16 ( _cpu_info *cpu, uint16_t data ) {
+    cpu->e = (data & 0x00ff) >> 0;
+    cpu->d = (data & 0xff00) >> 8;
+}
+
 void write_hl_16 ( _cpu_info *cpu, uint16_t data ) {
     cpu->l = (data & 0x00ff) >> 0;
     cpu->h = (data & 0xff00) >> 8;
