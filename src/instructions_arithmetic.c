@@ -63,8 +63,8 @@ void emulate_ADI ( _cpu_info *cpu ) {
         case 0xc6: // ADI
             t = read_byte_at_pc ( cpu ) ;
             cpu->flags.h  = halfcarry( cpu->a, t, cpu->a + t );
-            cpu->a        = (uint8_t) t;
-            cpu->flags.c  = (t > 0xff);
+            cpu->flags.c  = (t + cpu->a) > 0xff;
+            cpu->a       += (uint8_t) t;
             break;
         case 0xe8:
             /*cpu->flags.h  = halfcarry( cpu->sp, opcode[1], cpu->sp + (int8_t) opcode[1] );*/
