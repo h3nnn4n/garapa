@@ -8,7 +8,7 @@
 #include "types.h"
 #include "graphics.h"
 
-/*#define __use_sdl*/
+#define __use_sdl
 
 #ifdef __use_sdl
 
