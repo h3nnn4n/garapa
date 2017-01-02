@@ -35,9 +35,6 @@ int main(int argc, char *argv[]) {
 
     while ( 1 ) {
         decoder        ( &cpu );
-        /*display_update ( &cpu );*/ // Those will go inside the opcodes
-        /*timer_update   ( &cpu );*/
-        /*input_update   ( &cpu );*/
     }
 
     return 0;
