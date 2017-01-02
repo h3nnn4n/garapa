@@ -422,6 +422,7 @@ void emulate_DCR ( _cpu_info *cpu ) {
             answer                            = cpu->mem_controller.memory[cpu->h << 8 | cpu->l] - 1;
             cpu->mem_controller.memory[cpu->h << 8 | cpu->l] = answer & 0xff;
             cpu->flags.h                      = ((cpu->mem_controller.memory[cpu->h << 8 | cpu->l] & 0x0f) == 0x0f);
+            cpu->cycles_machine += 2 ;
             break;
         case 0x3d: // DCR A
             answer        = cpu->a - 1;

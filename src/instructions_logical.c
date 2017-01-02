@@ -102,7 +102,7 @@ void emulate_XOR ( _cpu_info *cpu ) {
             break;
         case 0xae: // XOR M
             cpu->a ^= cpu->mem_controller.memory[cpu->h << 8 | cpu->l];
-            /*cpu->cycles_machine += 1;*/
+            cpu->cycles_machine += 1;
             break;
         case 0xaf: // XOR A
             cpu->a ^= cpu->a;
