@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#include "graphics.h"
 #include "memory.h"
 #include "types.h"
 #include "utils.h"
@@ -29,9 +30,6 @@ void decoder( _cpu_info *cpu ) {
     }
 
     cpu->opcode = read_byte_at_pc ( cpu );
-    /*cpu->pc --;*/
-    /*out_put ( cpu );*/
-    /*cpu->pc ++;*/
 
 #ifdef __show_step
     disassembler ( cpu->mem_controller.memory, cpu->pc );
@@ -39,8 +37,6 @@ void decoder( _cpu_info *cpu ) {
 #endif
 
     uint16_t addr;
-    uint16_t t16;
-    uint8_t  t8;
 
     if ( ( cpu->opcode >= 0x40 && cpu->opcode <= 0x75 ) || ( cpu->opcode >= 0x77 && cpu->opcode <= 0x7f ) ) {
                 emulate_MOV ( cpu );
