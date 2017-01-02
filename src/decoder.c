@@ -11,6 +11,8 @@
 #include "disassembler.h"
 #include "time_keeper.h"
 
+#include "wad_output.h"
+
 #include "instructions_0xcb.h"
 #include "instructions_branch.h"
 #include "instructions_logical.h"
@@ -27,6 +29,9 @@ void decoder( _cpu_info *cpu ) {
     }
 
     cpu->opcode = read_byte_at_pc ( cpu ); // THis fetched the opcode and ticks the timer + pc
+    cpu->pc --;
+    out_put ( cpu );
+    cpu->pc ++;
 
 #ifdef __show_step
     disassembler ( cpu->mem_controller.memory, cpu->pc );
@@ -420,7 +425,6 @@ void decoder( _cpu_info *cpu ) {
             break;
         case 0x26:
             cpu->h = read_byte_at_pc ( cpu );
-            timer_tick_and_full_mcycle ( cpu );
             break;
         case 0x36:
             write_byte_with_tick ( cpu, cpu->h << 8 | cpu->l,
@@ -474,7 +478,7 @@ void decoder( _cpu_info *cpu ) {
             break;
         case 0xfa:
             addr  = read_byte_at_pc ( cpu );
-            addr |= read_byte_at_pc ( cpu );
+            addr |= read_byte_at_pc ( cpu ) << 8;
             cpu->a = read_byte_with_tick ( cpu, addr );
             break;
         case 0xee:

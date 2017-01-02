@@ -8,6 +8,20 @@
 
 #include "instructions_branch.h"
 
+static void return_if ( _cpu_info *cpu, uint8_t flag ) {
+    timer_tick_and_full_mcycle ( cpu );
+    if ( flag ) {
+        uint16_t addr;
+        addr  = read_byte_at_sp ( cpu );
+        addr |= read_byte_at_sp ( cpu ) << 8;
+
+        timer_tick_and_full_mcycle ( cpu );
+        cpu->pc = addr;
+    } else {
+        /*timer_tick_and_full_mcycle ( cpu );*/
+    }
+}
+
 void emulate_JMP ( _cpu_info *cpu ) {
     uint16_t addr = 0;
 
@@ -20,14 +34,12 @@ void emulate_JMP ( _cpu_info *cpu ) {
 void emulate_JC ( _cpu_info *cpu ) {
     uint16_t addr = 0;
 
-    // FIXME
-    // I think both cases take the same ammount of cycles
     if ( cpu->flags.c  ) {
         addr  = read_byte_at_pc ( cpu );
         addr |= read_byte_at_pc ( cpu ) << 8;
         cpu->pc = addr;
     } else {
-        /*cpu->pc += 3;*/
+        cpu->pc += 2;
     }
 }
 
@@ -39,7 +51,7 @@ void emulate_JNC ( _cpu_info *cpu ) {
         addr |= read_byte_at_pc ( cpu ) << 8;
         cpu->pc = addr;
     } else {
-        /*cpu->pc += 3;*/
+        cpu->pc += 2;
     }
 }
 
@@ -51,7 +63,7 @@ void emulate_JM ( _cpu_info *cpu ) {
         addr |= read_byte_at_pc ( cpu ) << 8;
         cpu->pc = addr;
     } else {
-        /*cpu->pc += 3;*/
+        cpu->pc += 2;
     }
 }
 
@@ -63,7 +75,7 @@ void emulate_JP ( _cpu_info *cpu ) {
         addr |= read_byte_at_pc ( cpu ) << 8;
         cpu->pc = addr;
     } else {
-        /*cpu->pc += 3;*/
+        cpu->pc += 2;
     }
 }
 
@@ -75,7 +87,7 @@ void emulate_JZ ( _cpu_info *cpu ) {
         addr |= read_byte_at_pc ( cpu ) << 8;
         cpu->pc = addr;
     } else {
-        /*cpu->pc += 3;*/
+        cpu->pc += 2;
     }
 }
 
@@ -87,7 +99,7 @@ void emulate_JNZ ( _cpu_info *cpu ) {
         addr |= read_byte_at_pc ( cpu ) << 8;
         cpu->pc = addr;
     } else {
-        /*cpu->pc += 3;*/
+        cpu->pc += 2;
     }
 }
 
@@ -116,81 +128,27 @@ void emulate_RET ( _cpu_info *cpu ) {
 }
 
 void emulate_RZ ( _cpu_info *cpu ) {
-    uint16_t addr;
-
-    if ( cpu->flags.z ) {
-        addr  = read_byte_at_sp ( cpu );
-        addr |= read_byte_at_sp ( cpu ) << 8;
-
-        cpu->pc = addr;
-    } else {
-        /*cpu->pc += 1;*/
-    }
+    return_if ( cpu, cpu->flags.z );
 }
 
 void emulate_RNZ ( _cpu_info *cpu ) {
-    uint16_t addr;
-
-    if ( !cpu->flags.z ) {
-        addr  = read_byte_at_sp ( cpu );
-        addr |= read_byte_at_sp ( cpu ) << 8;
-
-        cpu->pc = addr;
-    } else {
-        /*cpu->pc += 1;*/
-    }
+    return_if ( cpu, !cpu->flags.z );
 }
 
 void emulate_RP ( _cpu_info *cpu ) {
-    uint16_t addr;
-
-    if ( !cpu->flags.n ) {
-        addr  = read_byte_at_sp ( cpu );
-        addr |= read_byte_at_sp ( cpu ) << 8;
-
-        cpu->pc = addr;
-    } else {
-        /*cpu->pc += 1;*/
-    }
+    return_if ( cpu, !cpu->flags.n );
 }
 
 void emulate_RM ( _cpu_info *cpu ) {
-    uint16_t addr;
-
-    if ( cpu->flags.n ) {
-        addr  = read_byte_at_sp ( cpu );
-        addr |= read_byte_at_sp ( cpu ) << 8;
-
-        cpu->pc = addr;
-    } else {
-        /*cpu->pc += 1;*/
-    }
+    return_if ( cpu, cpu->flags.n );
 }
 
 void emulate_RNC ( _cpu_info *cpu ) {
-    uint16_t addr;
-
-    if ( !cpu->flags.c ) {
-        addr  = read_byte_at_sp ( cpu );
-        addr |= read_byte_at_sp ( cpu ) << 8;
-
-        cpu->pc = addr;
-    } else {
-        /*cpu->pc += 1;*/
-    }
+    return_if ( cpu, !cpu->flags.c );
 }
 
 void emulate_RC ( _cpu_info *cpu ) {
-    uint16_t addr;
-
-    if ( cpu->flags.c ) {
-        addr  = read_byte_at_sp ( cpu );
-        addr |= read_byte_at_sp ( cpu ) << 8;
-
-        cpu->pc = addr;
-    } else {
-        /*cpu->pc += 1;*/
-    }
+    return_if ( cpu, cpu->flags.c );
 }
 
 void emulate_RST ( _cpu_info *cpu ) {
@@ -280,7 +238,7 @@ void emulate_CC ( _cpu_info *cpu ) {
                     timer_tick_and_full_mcycle ( cpu );
                     cpu->pc = t;
                 } else {
-                    cpu->pc     += 3;
+                    cpu->pc     += 2;
                 }
             }
             break;
