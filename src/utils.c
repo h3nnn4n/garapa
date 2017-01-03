@@ -150,6 +150,8 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->timer.DIV  = 0;
     cpu->timer.TMA  = 0;
 
+    cpu->timer._timer = 0;
+
     cpu->interrupts.masked_vblank   = 1;
     cpu->interrupts.masked_lcdstat  = 1;
     cpu->interrupts.masked_timer    = 1;
@@ -163,7 +165,8 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->interrupts.pending_joypad  = 0;
 
     // BIOS SKIP
-    cpu->timer.DIV  = 0xabcc;
+    /*cpu->timer.DIV    = 0xab;*/
+    /*cpu->timer._timer = 0xabcc;*/
 
     cpu->pc = 0x100;
     cpu->sp = 0xfffe;

@@ -57,6 +57,14 @@ typedef struct {              // This is a struct that holds all information
 } _lcd;                       // TODO: I think that I should have a mirror here for LY compare from 0xff45
 
 typedef struct {        // Timer struct
+    uint16_t _old_clock;// Those are used internally
+    uint16_t _elapsed;  //
+    uint16_t _ticks;    //
+    uint16_t _delta;    //
+
+    uint16_t _timer_old;//
+    uint16_t _timer;    //
+
     uint16_t running;   // Bit 2 from TAC
     uint16_t speed;     //
                         //
