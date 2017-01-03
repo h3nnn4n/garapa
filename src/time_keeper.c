@@ -191,12 +191,12 @@ void timer_update( _cpu_info *cpu ) {
 
     if ( cpu->timer.TIMA_reset_delay == 1 ) {
         cpu->timer.TIMA_reset_delay = 0;
+        cpu->interrupts.pending_timer = 1; // The Interrupt is also delayed one m-cycle
         reset_TIMA ( cpu );
     }
 
     if ( cpu->timer.TIMA > 0xff ) {
         cpu->timer.TIMA_reset_delay = 1;
-        cpu->interrupts.pending_timer = 1;
         cpu->timer.TIMA = 0x00;
     }
 }
