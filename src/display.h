@@ -22,6 +22,8 @@ uint8_t display_test_windowtilemap     ( _cpu_info *cpu ) ;
 uint8_t display_test_lcdpower          ( _cpu_info *cpu ) ;
 uint8_t display_read_stat              ( _cpu_info *cpu ) ;
 
+void    display_write_LYC              ( _cpu_info *cpu, uint8_t data ) ;
+
 void    display_write_stat             ( _cpu_info *cpu, uint8_t data ) ;
 
 void write_spr1_palette ( _cpu_info *cpu, uint8_t data ) ;

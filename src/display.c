@@ -63,10 +63,6 @@ uint8_t read_window_x ( _cpu_info *cpu ) {
     return cpu->lcd.bgx;
 }
 
-uint8_t read_active_line( _cpu_info *cpu ) {
-    return cpu->lcd.active_line;
-}
-
 uint8_t read_lcd_control ( _cpu_info *cpu ) {
     return read_byte ( cpu, 0xff40 );
 }
@@ -138,10 +134,22 @@ uint8_t display_test_bg_enabled ( _cpu_info *cpu ) {
 }
 
 // Current horizontal line being draw
+// mapped 0xff44
 uint8_t display_read_LY ( _cpu_info *cpu ) {
     if ( display_test_lcdpower(cpu) )
         return cpu->lcd.active_line;
     return 0x00;
+}
+
+// The value on 0xff45 used to trigger the LYC interrupt
+uint8_t display_read_LYC ( _cpu_info *cpu ) {
+    if ( display_test_lcdpower(cpu) )
+        return cpu->lcd.lyc_trigger;
+    return 0x00;
+}
+
+void display_write_LYC ( _cpu_info *cpu, uint8_t data ) {
+    cpu->lcd.lyc_trigger = data;
 }
 
 uint8_t display_read_stat  ( _cpu_info *cpu ) {
@@ -325,14 +333,14 @@ void display_update( _cpu_info *cpu ) {
 
     if ( !display_test_lcdpower(cpu) ) return;
 
-    frame    = cycles % (70224/4);
-    cpu->lcd.active_line = frame / (456/4);
+    frame    = cycles % (70224);
+    cpu->lcd.active_line = frame / (456);
 
-           if (frame < 204/4 ) {
+           if (frame < 204 ) {
         cpu->lcd.mode = 2;
-    } else if (frame < 284/4) {
+    } else if (frame < 284) {
         cpu->lcd.mode = 3;
-    } else if (frame < 456/4) {
+    } else if (frame < 456) {
         cpu->lcd.mode = 0;
     }
 

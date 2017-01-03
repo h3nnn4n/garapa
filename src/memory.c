@@ -92,11 +92,13 @@ uint8_t read_byte ( _cpu_info *cpu, uint16_t addr ) {
         case 0xff44:
             return display_read_LY ( cpu );
         case 0xff45: // LCY
-            break;
+            return display_read_LYC ( cpu );
         case 0xff4a:
             return read_window_y ( cpu );
         case 0xff4b:
             return read_window_x ( cpu );
+        default:
+            break;
     }
 
     // No need to check if the address is valid.
@@ -219,7 +221,7 @@ void write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ) {
         }
     }
 
-    switch ( addr ) {
+    switch ( addr ) {  // WRITE
         case 0xff00:
             cpu->joystick.select_button    = data & 0x20;
             cpu->joystick.select_direction = data & 0x10;
@@ -242,11 +244,9 @@ void write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ) {
             write_TAC  ( cpu, data );
             break;
         case 0xff40: // lcd control
-            /*printf("MEU: Write lcd control %2x\n", data);*/
             write_lcd_control ( cpu, data );
             break;
         case 0xff41: // lcd stat
-            /*printf("MEU: Write stat %2x\n", data);*/
             display_write_stat ( cpu, data );
             break;
         case 0xff42:
@@ -256,13 +256,13 @@ void write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ) {
             write_scroll_x ( cpu, data );
             break;
         case 0xff44:
-            // do nothing
-            break;
+            // LY is read only
+            return;
         case 0xff45:
             // do nothing
+            display_write_LYC ( cpu, data );
             break;
         case 0xff46:
-            /*printf("Requested OAM DMA\n");*/
             memcpy(&cpu->mem_controller.memory[0xfe00], &cpu->mem_controller.memory[data*0x100], 0xa0);
             cpu->DMA_in_progress = cpu->cycles_machine;
             break;
@@ -289,7 +289,6 @@ void write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ) {
             cpu->interrupt_mask = data;
             interrupt_write_mask(cpu, data);
             return;
-            break;
     }
 
     cpu->mem_controller.memory [ addr ] = data;

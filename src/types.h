@@ -23,6 +23,7 @@ typedef struct {              // This is a struct that holds all information
                               // are mirrored from RAM.
 
     uint8_t active_line;      // The line number being draw, can be read from 0xff44
+    uint8_t lyc_trigger;      // The line on 0xff45 used to trigger LYC
 
                               // Those are the bits from LCD controll at 0xff40
     uint8_t power;            // Bit 7
@@ -60,6 +61,8 @@ typedef struct {        // Timer struct
     uint8_t  TIMA_reset_delay; // AntonioND reports that when TIMA resets, it takes 4 cycles for
                                // it to get the value from TMA. Meanwhile the value is 0x00. This
                                // does not add to the total of cycles necessary to overflow;
+    uint8_t  TIMA_write_block; // After the m-cycles where TIMA is 0x00, it is reloaded with TMA.
+                               // Attemping to writing to TIMA while TMA is being written will be ignored;
     uint16_t _timer_old;//
     uint16_t _timer;    //
 

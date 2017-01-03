@@ -91,6 +91,7 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->h      = 0;
     cpu->l      = 0;
 
+    cpu->lcd.lyc_trigger      = 0;
     cpu->lcd.active_line      = 0;
     cpu->lcd.mode             = 0;
 
@@ -151,6 +152,7 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->timer.TMA  = 0;
 
     cpu->timer.TIMA_reset_delay = 0;
+    cpu->timer.TIMA_write_block = 0;
     cpu->timer._timer           = 0;
 
     cpu->interrupts.masked_vblank   = 1;

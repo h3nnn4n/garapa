@@ -10,6 +10,7 @@
 #include "display.h"
 #include "graphics.h"
 
+// 0xff07
 void write_TAC ( _cpu_info *cpu, uint8_t data ) {
     cpu->timer.running = data & 0x04;
 
@@ -40,53 +41,53 @@ void write_TAC ( _cpu_info *cpu, uint8_t data ) {
             break;
     }
 
+    /*if ( cpu->timer.TIMA > 0xff ) {*/
+        /*cpu->interrupts.pending_timer = 1;*/
+        /*reset_TIMA ( cpu );*/
+    /*}*/
     if ( cpu->timer.TIMA > 0xff ) {
-        cpu->interrupts.pending_timer = 1;
-        reset_TIMA ( cpu );
+        cpu->timer.TIMA_reset_delay = 1;
+        cpu->interrupts.pending_timer = 1; // Maybe it is dealyed because the cpu cant poll it before
+        /*cpu->timer.TIMA_write_block = 1;*/
+        cpu->timer.TIMA = 0x00;
     }
 
     cpu->timer.TAC     = data;
-
-    /*switch ( data & 0x03 ) {*/
-        /*case 0x00:*/
-            /*cpu->timer.speed = 64;*/
-            /*break;*/
-        /*case 0x01:*/
-            /*cpu->timer.speed = 1 ;*/
-            /*break;*/
-        /*case 0x02:*/
-            /*cpu->timer.speed = 4 ;*/
-            /*break;*/
-        /*case 0x03:*/
-            /*cpu->timer.speed = 16 ;*/
-            /*break;*/
-        /*default:*/
-            /*assert ( 0 && "TAC WRITE, invalid data" );*/
-    /*}*/
 }
 
+// 0xff07
 uint8_t read_TAC ( _cpu_info *cpu ) {
     return cpu->timer.TAC;
 }
 
+// 0xff06
 void write_TMA ( _cpu_info *cpu, uint16_t data ) {
     cpu->timer.TMA = data;
 }
 
+// 0xff06
 uint16_t read_TMA ( _cpu_info *cpu ) {
     return cpu->timer.TMA;
 }
 
+// 0xff05
 void write_TIMA ( _cpu_info *cpu, uint16_t data ) {
+    /*if ( cpu->timer.TIMA_write_block == 1 ) {*/
+        /*[>reset_TIMA ( cpu );<]*/
+        /*cpu->timer.TIMA = cpu->timer.TMA;*/
+        /*return;*/
+    /*}*/
     cpu->timer.TIMA = data;
 }
 
+// 0xff05
 uint16_t read_TIMA ( _cpu_info *cpu ) {
     return cpu->timer.TIMA;
 }
 
 void reset_TIMA ( _cpu_info *cpu ) {
-    write_TIMA(cpu, read_TMA(cpu));
+    cpu->timer.TIMA = cpu->timer.TMA;
+    /*write_TIMA(cpu, read_TMA(cpu));*/
 }
 
 // This is the glitch documented on AntonioND's that
@@ -156,6 +157,11 @@ void timer_update( _cpu_info *cpu ) {
     // DIV is 8 MSB of Timer, so it increases each 256 tcycles;
     // DIV increases each 64 M-CYCLES
 
+
+    /*if ( cpu->timer.TIMA_write_block == 1 ) {*/
+        /*cpu->timer.TIMA_write_block = 0;*/
+    /*}*/
+
     cpu->timer.DIV = cpu->timer._timer >> 8 & 0xff;
 
     if ( cpu->timer.TAC & 0x04 ) // If timer is running
@@ -191,64 +197,14 @@ void timer_update( _cpu_info *cpu ) {
 
     if ( cpu->timer.TIMA_reset_delay == 1 ) {
         cpu->timer.TIMA_reset_delay = 0;
-        cpu->interrupts.pending_timer = 1; // The Interrupt is also delayed one m-cycle
+        /*cpu->interrupts.pending_timer = 1; // The Interrupt is also delayed one m-cycle*/
         reset_TIMA ( cpu );
     }
 
     if ( cpu->timer.TIMA > 0xff ) {
         cpu->timer.TIMA_reset_delay = 1;
+        cpu->interrupts.pending_timer = 1; // Maybe it is dealyed because the cpu cant poll it before
+        /*cpu->timer.TIMA_write_block = 1;*/
         cpu->timer.TIMA = 0x00;
     }
 }
-
-/*void timer_update( _cpu_info *cpu ) {*/
-    /*cpu->timer._delta = cpu->cycles_machine - cpu->timer._old_clock;*/
-    /*cpu->timer._old_clock = cpu->cycles_machine;*/
-
-    /*[>if ( cpu->timer._delta == 1 ) print_timer_status ( cpu );<]*/
-
-    /*[>assert ( cpu->timer._delta == 1 && 1 );//"Timer should only be updated once per mcycle!");<]*/
-
-    /*[>if ( read_TAC(cpu) %0x4)<]*/
-
-    /*cpu->timer._elapsed += cpu->timer._delta * 4;*/
-
-    /*if ( cpu->timer._elapsed >= 16 ) {*/
-        /*cpu->timer._ticks     += 1;*/
-
-        /*if ( cpu->timer._ticks == 16 ) {*/
-            /*cpu->timer._ticks = 0;*/
-            /*cpu->timer.DIV += 1;*/
-            /*[>printf("MEU Divider tick %4x\n", cpu->timer.DIV);<]*/
-        /*}*/
-
-        /*if ( read_TAC(cpu) & 0x4 ) {*/
-            /*if ( cpu->timer._ticks == cpu->timer.speed ) {*/
-                /*cpu->timer._ticks = 0;*/
-                /*write_TIMA(cpu, read_TIMA(cpu) + 1);*/
-            /*}*/
-
-            /*if ( read_TIMA(cpu) == 0x100 ) {*/
-                /*[>printf("MEU: Threw timer int\n");<]*/
-                /*cpu->interrupts.pending_timer = 1;*/
-                /*[>emulate_INTERRUPT( cpu );<]*/
-                /*reset_TIMA(cpu);*/
-                /*[>cpu->halted     = 0;<]*/
-            /*}*/
-        /*}*/
-
-        /*cpu->timer._elapsed -= 16;*/
-    /*}*/
-/*}*/
-
-/*void print_timer_status ( _cpu_info *cpu ) {*/
-    /*printf("running: %c speed: %2d elapsed: %3d delta: %3d ticks: %2d TIMA: %4d %4x\n",*/
-            /*(read_TAC(cpu) & 0x04) ? 'y':'n',*/
-            /*read_TAC(cpu) & 0x03,*/
-            /*cpu->timer._elapsed,*/
-            /*cpu->timer._delta,*/
-            /*cpu->timer._ticks,*/
-            /*read_TIMA(cpu),*/
-            /*read_TIMA(cpu)*/
-          /*);*/
-/*}*/
