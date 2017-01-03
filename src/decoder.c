@@ -80,11 +80,11 @@ void decoder( _cpu_info *cpu ) {
 
             // LDAX block
         case 0x0a:
-            addr = cpu->b << 8 | cpu->c;
+            addr = read_bc ( cpu );
             cpu->a = read_byte_with_tick ( cpu, addr );
             break;
         case 0x1a:
-            addr = cpu->d << 8 | cpu->e;
+            addr = read_de ( cpu );
             cpu->a = read_byte_with_tick ( cpu, addr );
             break;
 
@@ -405,7 +405,7 @@ void decoder( _cpu_info *cpu ) {
             cpu->h = read_byte_at_pc ( cpu );
             break;
         case 0x36:
-            write_byte_with_tick ( cpu, cpu->h << 8 | cpu->l,
+            write_byte_with_tick ( cpu, read_hl ( cpu ),
                                    read_byte_at_pc ( cpu ) );
             break;
 
