@@ -21,7 +21,7 @@ TODO list
   - [ ] instr_timing
   - [ ] interrupt_time
   - [x] mem_timing
-  - [ ] mem_timing-2
+  - [x] mem_timing-2
   - [ ] oam_bug
  - [x] Playable Tetris
  - [ ] MCBs
