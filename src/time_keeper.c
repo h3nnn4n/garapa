@@ -11,25 +11,58 @@
 #include "graphics.h"
 
 void write_TAC ( _cpu_info *cpu, uint8_t data ) {
-    cpu->timer.running = data & 0x03;
-    cpu->timer.TAC     = data;
+    cpu->timer.running = data & 0x04;
 
-    switch ( data & 0x03 ) {
-        case 0x00:
-            cpu->timer.speed = 64;
+    if ( (cpu->timer.TAC & 0x04) && !(data & 0x04) )
+    switch ( cpu->timer.TAC & 0x03 ) {
+        case 0x00: // 00: 4096   Hz ( Increase every 1024 clocks )
+            if ( cpu->timer._timer & 0x0200 ) {
+                cpu->timer.TIMA ++;
+            }
             break;
-        case 0x01:
-            cpu->timer.speed = 1 ;
+        case 0x01: // 01: 262144 Hz ( 16 clocks  )
+            if ( cpu->timer._timer & 0x0008 ) {
+                cpu->timer.TIMA ++;
+            }
             break;
-        case 0x02:
-            cpu->timer.speed = 4 ;
+        case 0x02: // 10: 65536  Hz ( 64 clocks  )
+            if ( cpu->timer._timer & 0x0020 ) {
+                cpu->timer.TIMA ++;
+            }
             break;
-        case 0x03:
-            cpu->timer.speed = 16 ;
+        case 0x03: // 11: 16386  Hz ( 256 clocks )
+            if ( cpu->timer._timer & 0x0080 ) {
+                cpu->timer.TIMA ++;
+            }
             break;
         default:
-            assert ( 0 && "TAC WRITE, invalid data" );
+            assert ( 0 && "Invalid value for TAC when writing to DIV\n");
+            break;
     }
+
+    if ( cpu->timer.TIMA > 0xff ) {
+        cpu->interrupts.pending_timer = 1;
+        reset_TIMA ( cpu );
+    }
+
+    cpu->timer.TAC     = data;
+
+    /*switch ( data & 0x03 ) {*/
+        /*case 0x00:*/
+            /*cpu->timer.speed = 64;*/
+            /*break;*/
+        /*case 0x01:*/
+            /*cpu->timer.speed = 1 ;*/
+            /*break;*/
+        /*case 0x02:*/
+            /*cpu->timer.speed = 4 ;*/
+            /*break;*/
+        /*case 0x03:*/
+            /*cpu->timer.speed = 16 ;*/
+            /*break;*/
+        /*default:*/
+            /*assert ( 0 && "TAC WRITE, invalid data" );*/
+    /*}*/
 }
 
 uint8_t read_TAC ( _cpu_info *cpu ) {
@@ -56,13 +89,50 @@ void reset_TIMA ( _cpu_info *cpu ) {
     write_TIMA(cpu, read_TMA(cpu));
 }
 
+// This is the glitch documented on AntonioND's that
+// makes the TIMA increase when writing to DIV
+// if the bit associated to TAC was 1. This happens
+// due to the falling edge detector
 void write_DIV( _cpu_info *cpu, uint16_t data ) {
+    if ( cpu->timer.TAC & 0x04 )
+    switch ( cpu->timer.TAC & 0x03 ) {
+        case 0x00: // 00: 4096   Hz ( Increase every 1024 clocks )
+            if ( cpu->timer._timer & 0x0200 ) {
+                cpu->timer.TIMA ++;
+            }
+            break;
+        case 0x01: // 01: 262144 Hz ( 16 clocks  )
+            if ( cpu->timer._timer & 0x0008 ) {
+                cpu->timer.TIMA ++;
+            }
+            break;
+        case 0x02: // 10: 65536  Hz ( 64 clocks  )
+            if ( cpu->timer._timer & 0x0020 ) {
+                cpu->timer.TIMA ++;
+            }
+            break;
+        case 0x03: // 11: 16386  Hz ( 256 clocks )
+            if ( cpu->timer._timer & 0x0080 ) {
+                cpu->timer.TIMA ++;
+            }
+            break;
+        default:
+            assert ( 0 && "Invalid value for TAC when writing to DIV\n");
+            break;
+    }
+
+    if ( cpu->timer.TIMA > 0xff ) {
+        cpu->interrupts.pending_timer = 1;
+        reset_TIMA ( cpu );
+    }
+
     cpu->timer._timer = 0;
+    cpu->timer.DIV    = cpu->timer._timer >> 8 & 0xff;
 }
 
 uint8_t read_DIV ( _cpu_info *cpu ) {
     // Making sure it has the correcrt value
-    assert ( cpu->timer.DIV == ((cpu->timer._timer >> 8) && 0xff ));
+    assert ( cpu->timer.DIV == ((cpu->timer._timer >> 8) & 0xff ));
     return cpu->timer.DIV;
 }
 
@@ -88,7 +158,7 @@ void timer_update( _cpu_info *cpu ) {
 
     cpu->timer.DIV = cpu->timer._timer >> 8 & 0xff;
 
-    if ( cpu->timer.TAC & 0x04 )
+    if ( cpu->timer.TAC & 0x04 ) // If timer is running
     switch ( cpu->timer.TAC & 0x03 ) {
         case 0x00: // 00: 4096   Hz ( Increase every 1024 clocks )
             if (!(cpu->timer._timer     & 0x0200 ) &&
