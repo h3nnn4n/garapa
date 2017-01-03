@@ -10,9 +10,13 @@ TODO list
 
  - [ ] Savestates
  - [ ] APU emulation (Audio Processing Unit)
+
+ - [x] Playable Tetris
+
  - [x] SDL2
   - [x] Scalling
   - [ ] Maybe filters
+
  - [ ] Pass all of blargg's tests
   - [ ] cgb_sound
   - [x] cpu_instrs
@@ -23,7 +27,22 @@ TODO list
   - [x] mem_timing
   - [x] mem_timing-2
   - [ ] oam_bug
- - [x] Playable Tetris
+
+ - [ ] Pass Gekkio's timing tests
+  - [x] div_write.gb
+  - [x] rapid_toggle.gb
+  - [x] tim00.gb
+  - [x] tim00_div_trigger.gb
+  - [x] tim01.gb
+  - [x] tim01_div_trigger.gb
+  - [x] tim10.gb
+  - [x] tim10_div_trigger.gb
+  - [x] tim11.gb
+  - [x] tim11_div_trigger.gb
+  - [x] tima_reload.gb
+  - [ ] tima_write_reloading.gb
+  - [ ] tma_write_reloading.gb
+
  - [ ] MCBs
   - [x] NONE :)
   - [x] MCB1
