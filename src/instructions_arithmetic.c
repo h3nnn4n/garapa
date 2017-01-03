@@ -330,8 +330,11 @@ void emulate_INR ( _cpu_info *cpu ) {
             cpu->flags.h  = (answer & 0x0f) == 0x00;
             break;
         case 0x34: // INR M
-            cpu->mem_controller.memory[cpu->h << 8 | cpu->l] += 1;
-            answer = cpu->mem_controller.memory[cpu->h << 8 | cpu->l];
+            answer = read_byte_with_tick ( cpu, read_hl ( cpu ) );
+            answer += 1;
+            write_byte_with_tick ( cpu, read_hl ( cpu ), answer );
+            /*cpu->mem_controller.memory[cpu->h << 8 | cpu->l] += 1;*/
+            /*answer = cpu->mem_controller.memory[cpu->h << 8 | cpu->l];*/
             cpu->flags.h  = (answer & 0x0f) == 0x00;
             break;
         case 0x3c: // INR A
