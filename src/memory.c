@@ -158,6 +158,7 @@ void write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ) {
             }
             break;
         case 0x03:
+        case 0x02:
         case 0x01:
             if ( addr < 0x2000 ) { // Ram Enable
                 cpu->mem_controller.ram_enable = data & 0x0a ? 1 : 0;

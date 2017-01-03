@@ -20,7 +20,7 @@ TODO list
   - [ ] halt_bug.gb
   - [ ] instr_timing
   - [ ] interrupt_time
-  - [ ] mem_timing
+  - [x] mem_timing
   - [ ] mem_timing-2
   - [ ] oam_bug
  - [x] Playable Tetris
