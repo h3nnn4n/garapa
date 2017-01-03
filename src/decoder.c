@@ -246,12 +246,6 @@ void decoder( _cpu_info *cpu ) {
             addr -= 1;
             write_hl_16 ( cpu, addr );
             break;
-        case 0x4f:
-            cpu->c = cpu->a;
-            /* FIXME */ abort();
-    cpu->cycles_machine += 1 ;
-            cpu->pc     += 1 ;
-            break;
         case 0xcd:
             emulate_CALL ( cpu );
             break;
@@ -283,13 +277,6 @@ void decoder( _cpu_info *cpu ) {
             addr  = read_byte_at_pc ( cpu );
             addr |= read_byte_at_pc ( cpu ) << 8;
             write_byte_with_tick ( cpu, addr, cpu->a );
-            break;
-        case 0x77: // MOV M, A
-            addr = ( cpu->h << 8 ) | cpu->l;
-            write_byte(cpu, addr, cpu->a);
-            /* FIXME */ abort();
-    cpu->cycles_machine += 8;
-            cpu->pc     += 1;
             break;
         case 0xc8:
             emulate_RZ ( cpu );

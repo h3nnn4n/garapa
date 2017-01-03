@@ -237,61 +237,6 @@ void emulate_CPI ( _cpu_info *cpu ) {
     cpu->flags.c    = ( cpu->a < operand );
 }
 
-
-void emulate_RAL ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc+1];
-    uint8_t answer = 0;
-    uint8_t      t = 0;
-    uint16_t  addr = 0;
-
-    switch ( *opcode ) {
-        case 0x16: // RAL
-            addr = ( cpu->h << 8 ) | cpu->l;
-            t = read_byte( cpu, addr );
-            answer = ( t << 1 ) | ( cpu->flags.c  ? 0x1 : 0x0 );
-            write_byte(cpu, addr, answer);
-            cpu->flags.c  = (t & 0x80) != 0;
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
-
-    cpu->flags.z = answer == 0;
-    cpu->flags.n = 0;
-    cpu->flags.h = 0;
-
-    /* FIXME */ abort();
-    cpu->cycles_machine += 1 ;
-    cpu->pc     += 2 ;
-}
-
-void emulate_RAR ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc+1];
-    uint8_t answer = 0;
-    uint8_t      t = 0;
-    uint16_t  addr = 0;
-
-    switch ( *opcode ) {
-        case 0x1f: // RAR
-            addr = ( cpu->h << 8 ) | cpu->l;
-            t = read_byte( cpu, addr );
-            answer = ( t >> 1 ) | (( cpu->flags.c  & 0x1 ) << 7 );
-            write_byte(cpu, addr, answer);
-            cpu->flags.c  = t & 0x1;
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
-
-    cpu->flags.z = answer == 0;
-    cpu->flags.n = 0;
-    cpu->flags.h = 0;
-
-    /* FIXME */ abort();
-    cpu->cycles_machine += 1 ;
-    cpu->pc     += 2 ;
-}
-
 void emulate_CMA ( _cpu_info *cpu ) {
     switch ( cpu->opcode ) {
             case 0x2f: // CMA
