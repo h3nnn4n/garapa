@@ -4,6 +4,8 @@
 #include "memory.h"
 #include "utils.h"
 #include "types.h"
+#include "microcode.h"
+#include "time_keeper.h"
 
 // Bit 0: V-Blank  Interrupt Request (INT 40h)  (1=Request)
 // Bit 1: LCD STAT Interrupt Request (INT 48h)  (1=Request)
@@ -25,43 +27,61 @@ void emulate_INTERRUPT ( _cpu_info *cpu ) {
             read_byte(cpu, 0xffff)
             )
        ) {
+        // It takes 4 m-cycles for the cpu to wake
+        timer_tick_and_full_mcycle ( cpu );
+        timer_tick_and_full_mcycle ( cpu );
+        timer_tick_and_full_mcycle ( cpu );
+        timer_tick_and_full_mcycle ( cpu );
+
         cpu->halted = 0;
         return;
     }
 
     uint8_t  doit = 0;
     uint16_t  ret = cpu->pc;
-
-           if ( intn & 0x01 ) { // vblank
-        /*printf("MEU: Vblank Int\n");*/
-        cpu->pc = 0x0040;
-        cpu->interrupts.pending_vblank = 0;
-        doit = 1;
-    } else if ( intn & 0x02 ) { // lcdstat
-        /*printf("MEU: LcsStat Int\n");*/
-        cpu->pc = 0x0048;
-        cpu->interrupts.pending_lcdstat = 0;
-        doit = 1;
-    } else if ( intn & 0x04 ) { // timer
-        /*printf("MEU: Timer Int\n");*/
-        cpu->pc = 0x0050;
-        cpu->interrupts.pending_timer = 0;
-        doit = 1;
-    } else if ( intn & 0x08 ) { // serial
-        /*printf("MEU: Serial Int\n");*/
-        cpu->pc = 0x0058;
-        doit = 1;
-    } else if ( intn & 0x10 ) { // joypad
-        /*printf("MEU: Joypad Blank Int\n");*/
-        cpu->pc = 0x0060;
-        cpu->interrupts.pending_joypad = 0;
-        doit = 1;
-    }
+    if (
+            read_byte(cpu, 0xff0f) &
+            read_byte(cpu, 0xffff)
+       ) doit = 1;
 
     if ( doit ) {
-        cpu->mem_controller.memory[cpu->sp-1] = (ret >> 8) & 0xff;
-        cpu->mem_controller.memory[cpu->sp-2] = (ret & 0xff);
-        cpu->sp                = cpu->sp - 2;
+        if ( cpu->halted == 1 ) // Waking the CPU up is 1 m-cycle
+            timer_tick_and_full_mcycle ( cpu );
+
+        timer_tick_and_full_mcycle ( cpu );
+        timer_tick_and_full_mcycle ( cpu );
+        write_byte_at_sp ( cpu, (ret >> 8) & 0xff);
+        write_byte_at_sp ( cpu, (ret >> 0) & 0xff);
+
+           if ( intn & 0x01 ) { // vblank
+        cpu->pc = 0x0040;
+        cpu->interrupts.pending_vblank = 0;
+        doit = 0;
+        timer_tick_and_full_mcycle ( cpu );
+    } else if ( intn & 0x02 ) { // lcdstat
+        cpu->pc = 0x0048;
+        cpu->interrupts.pending_lcdstat = 0;
+        doit = 0;
+        timer_tick_and_full_mcycle ( cpu );
+    } else if ( intn & 0x04 ) { // timer
+        cpu->pc = 0x0050;
+        cpu->interrupts.pending_timer = 0;
+        doit = 0;
+        timer_tick_and_full_mcycle ( cpu );
+    } else if ( intn & 0x08 ) { // serial
+        cpu->pc = 0x0058;
+        doit = 0;
+        timer_tick_and_full_mcycle ( cpu );
+    } else if ( intn & 0x10 ) { // joypad
+        cpu->pc = 0x0060;
+        cpu->interrupts.pending_joypad = 0;
+        doit = 0;
+        timer_tick_and_full_mcycle ( cpu );
+    }
+
+        if ( doit )
+            assert ( 0 && "It should never happened: Interrupt requested but nothing was serviced");
+
         cpu->enable_interrupts = 0;
         cpu->halted            = 0;
     }
