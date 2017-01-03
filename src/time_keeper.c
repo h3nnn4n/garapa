@@ -67,9 +67,10 @@ uint8_t read_DIV ( _cpu_info *cpu ) {
 }
 
 void timer_tick_and_full_mcycle ( _cpu_info *cpu ) {
-    timer_update   ( cpu );
     timer_bump     ( cpu );
+    timer_update   ( cpu );
     display_update ( cpu );
+
     input_update   ( cpu );
 }
 

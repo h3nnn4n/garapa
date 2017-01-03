@@ -165,8 +165,8 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->interrupts.pending_joypad  = 0;
 
     // BIOS SKIP
-    /*cpu->timer.DIV    = 0xab;*/
-    /*cpu->timer._timer = 0xabcc;*/
+    cpu->timer._timer = 0xabcc;
+    cpu->timer.DIV    = 0xab;
 
     cpu->pc = 0x100;
     cpu->sp = 0xfffe;
