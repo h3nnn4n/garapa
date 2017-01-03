@@ -144,21 +144,38 @@ uint8_t read_DIV ( _cpu_info *cpu ) {
 }
 
 void timer_tick_and_full_mcycle ( _cpu_info *cpu ) {
-    timer_bump     ( cpu );
+    /*timer_bump     ( cpu );*/
+
     timer_update   ( cpu );
+    timer_update   ( cpu );
+    timer_update   ( cpu );
+    timer_update   ( cpu );
+
     display_update ( cpu );
 
     input_update   ( cpu );
 }
 
-void timer_bump ( _cpu_info *cpu ) {
-    cpu->cycles_machine  += 1;
-    cpu->cycles_clock    += 4;
-    cpu->timer._timer_old = cpu->timer._timer;
-    cpu->timer._timer    += 4;
-}
+/*void timer_bump ( _cpu_info *cpu ) {*/
+    /*cpu->cycles_machine  += 1;*/
+    /*cpu->cycles_clock    += 4;*/
+    /*cpu->timer._timer_old = cpu->timer._timer;*/
+    /*cpu->timer._timer    += 4;*/
+/*}*/
 
 void timer_update( _cpu_info *cpu ) {
+    static int8_t mcycle_bump = -1;
+    cpu->cycles_clock    += 1;
+    cpu->timer._timer_old = cpu->timer._timer;
+    cpu->timer._timer    += 1;
+
+    mcycle_bump += 1;
+
+    if ( mcycle_bump == 4 ) {
+        cpu->cycles_machine += 1;
+        mcycle_bump = 0;
+    }
+
     // Timer Increases each 4 T-CYCLES ( 1 M-CYCLE );
     // DIV is 8 MSB of Timer, so it increases each 256 tcycles;
     // DIV increases each 64 M-CYCLES
