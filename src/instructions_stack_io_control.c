@@ -84,22 +84,6 @@ void emulate_PUSH ( _cpu_info *cpu ) {
     }
 }
 
-void emulate_SPHL ( _cpu_info *cpu ) {
-    unsigned char *opcode = &cpu->mem_controller.memory[cpu->pc];
-
-    switch ( *opcode ) {
-        case 0xf9: // SPHL B
-            cpu->sp = cpu->h << 8 | cpu->l;
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
-
-    /* FIXME */ abort();
-    cpu->cycles_machine += 2;
-    cpu->pc     += 1 ;
-}
-
 void emulate_EI ( _cpu_info *cpu ) {
     switch ( cpu->opcode ) {
             case 0xfb: // EI
@@ -119,8 +103,4 @@ void emulate_DI ( _cpu_info *cpu ) {
         default:
             assert( 0 && "Code should not get here\n" );
     }
-}
-
-void emulate_NOP ( _cpu_info *cpu ) {
-    timer_tick( cpu );
 }

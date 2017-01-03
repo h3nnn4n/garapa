@@ -5,13 +5,10 @@
 
 void emulate_PUSH      ( _cpu_info *cpu );
 void emulate_POP       ( _cpu_info *cpu );
-void emulate_XTHL      ( _cpu_info *cpu );
-void emulate_SPHL      ( _cpu_info *cpu );
 void emulate_IN        ( _cpu_info *cpu );
 void emulate_OUT       ( _cpu_info *cpu );
 void emulate_EI        ( _cpu_info *cpu );
 void emulate_DI        ( _cpu_info *cpu );
-void emulate_NOP       ( _cpu_info *cpu );
 void emulate_HALT      ( _cpu_info *cpu );
 void emulate_STOP      ( _cpu_info *cpu );
 void emulate_INTERRUPT ( _cpu_info *cpu );
