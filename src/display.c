@@ -326,58 +326,93 @@ void draw_sprites ( _cpu_info *cpu ) {
     }
 }
 
+// Mode 0 lasts 201-207
+// Mode 2 lasts 77-83
+// Mode 3 lasts 169-174
+//
+// Modes 0 + 2 + 3 takes 456 clocks
+//
+// VBLANK lasts 4560 clocks
+//
+// Vertical refresh every 70224 clocks
+//
+// Scanline: Mode 2 -> 3 -> 0
+// Lines 144-153: Mode 1
+//
+// Mode 0: Access VRAM and OAM
+// Mode 1: Access VRAM and OAM
+// Mode 2: Access VRAM but no OAM
+// Mode 3: No access to VRAM and OAM
+
 void display_update( _cpu_info *cpu ) {
-    uint32_t cycles = cpu->cycles_machine;
-    uint32_t frame;
-    static uint16_t last_line;
+    static int16_t cycles_left  = 456;
+    static int16_t cycles_spent = 0;
+    static uint8_t lyc_delay    = 0;
+    static uint8_t blank_delay  = 0;
+    int schedule_vblank = 0;
 
     if ( !display_test_lcdpower(cpu) ) return;
 
-    frame    = cycles % (70224);
-    cpu->lcd.active_line = frame / (456);
+    cycles_left--;
+    cycles_spent++;
 
-           if (frame < 204 ) {
-        cpu->lcd.mode = 2;
-    } else if (frame < 284) {
-        cpu->lcd.mode = 3;
-    } else if (frame < 456) {
+    // New scan line
+    if ( cycles_spent > 456 && cycles_left < 0 ) {
+        cycles_left  = 456;
+        cycles_spent = 0;
+
+        cpu->lcd.active_line += 1;
+        if ( cpu->lcd.active_line == 144 ) {
+            schedule_vblank = 1;
+        } else if ( cpu->lcd.active_line < 144 ) {
+            draw_background_and_window(cpu);
+            draw_sprites(cpu);
+        }
+    }
+
+    if ( cycles_spent < 204 ) {
         cpu->lcd.mode = 0;
+    } else if ( cycles_spent < 204 + 80 ) {
+        cpu->lcd.mode = 2;
+    } else if ( cycles_spent < 204 + 80 + 172 ) {
+        cpu->lcd.mode = 3;
     }
 
     if ( cpu->lcd.active_line >= 144 ) {
         cpu->lcd.mode = 1;
     }
 
-    if ( cpu->lcd.active_line != last_line &&
-         cpu->lcd.active_line < 144 ) {
-        draw_background_and_window(cpu);
-        draw_sprites(cpu);
-    }
-
-    if ( display_read_LY(cpu) == read_byte(cpu, 0xff45) &&
-         display_test_LYC_enable(cpu) ){
+    if ( cycles_spent >= 4 &&
+         display_read_LY(cpu) == read_byte(cpu, 0xff45) &&
+         display_test_LYC_enable(cpu) )
+    {
         cpu->interrupts.pending_lcdstat = 1;
     }
 
-    if ( cpu->lcd.mode == 2 && cpu->lcd.mode2_oam ) {
+    if ( cycles_spent >= 4 &&
+         cpu->lcd.mode == 2 &&
+         cpu->lcd.mode2_oam )
+    {
         cpu->interrupts.pending_lcdstat = 1;
     }
 
-    if ( cpu->lcd.mode == 1 && cpu->lcd.mode1_vblank ) {
+    if ( cycles_spent >= 4 &&
+         cpu->lcd.mode == 1 &&
+         cpu->lcd.mode1_vblank )
+    {
         cpu->interrupts.pending_lcdstat = 1;
     }
 
-    if ( cpu->lcd.mode == 0 && cpu->lcd.mode0_hblank ) {
+    if ( cycles_spent >= 4 &&
+         cpu->lcd.mode == 0 &&
+         cpu->lcd.mode0_hblank )
+    {
         cpu->interrupts.pending_lcdstat = 1;
     }
 
-    /*printf("MEU: mode: %x line: %3d frame: %6d\n", cpu->lcd.mode, cpu->lcd.active_line, frame);*/
-
-    if ( last_line == 143 && cpu->lcd.active_line == 144 ) {
-        /*printf("MEU: LCD requested vblank int\n");*/
+    if ( schedule_vblank == 1 ) {
+        schedule_vblank = 0;
         cpu->interrupts.pending_vblank = 1;
         flip_screen();
     }
-
-    last_line = cpu->lcd.active_line;
 }
