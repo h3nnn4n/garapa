@@ -154,6 +154,7 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->timer.TIMA_reset_delay = 0;
     cpu->timer.TIMA_write_block = 0;
     cpu->timer._timer           = 0;
+    cpu->timer._timer_old       = 0;
 
     cpu->interrupts.masked_vblank   = 1;
     cpu->interrupts.masked_lcdstat  = 1;
