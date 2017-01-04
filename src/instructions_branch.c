@@ -9,16 +9,51 @@
 #include "instructions_branch.h"
 
 static void return_if ( _cpu_info *cpu, uint8_t flag ) {
-    timer_tick_and_full_mcycle ( cpu );
     if ( flag ) {
         uint16_t addr;
+
+        timer_tick_and_full_mcycle ( cpu );
+
         addr  = read_byte_at_sp ( cpu );
         addr |= read_byte_at_sp ( cpu ) << 8;
 
         timer_tick_and_full_mcycle ( cpu );
         cpu->pc = addr;
     } else {
-        // Do nothing
+        timer_tick_and_full_mcycle ( cpu );
+    }
+}
+
+static void call_if ( _cpu_info *cpu, uint8_t flag ) {
+    uint16_t t  = 0;
+    uint16_t t2 = 0;
+
+    if ( flag ) {
+        t = cpu->pc + 2;
+        write_byte_at_sp ( cpu, (t >> 8) & 0xff );
+        write_byte_at_sp ( cpu, (t >> 0) & 0xff );
+        timer_tick_and_full_mcycle ( cpu );
+        t  = read_byte_at_pc ( cpu );
+        t |= read_byte_at_pc ( cpu ) << 8;
+        cpu->pc = t;
+    } else {
+        timer_tick_and_full_mcycle ( cpu );
+        timer_tick_and_full_mcycle ( cpu );
+        cpu->pc     += 2;
+    }
+}
+
+static void jmp_if ( _cpu_info *cpu, uint8_t flag ) {
+    if ( flag ) {
+        uint16_t addr;
+        addr  = read_byte_at_pc ( cpu );
+        addr |= read_byte_at_pc ( cpu ) << 8;
+        timer_tick_and_full_mcycle ( cpu );
+        cpu->pc = addr;
+    } else {
+        timer_tick_and_full_mcycle ( cpu );
+        timer_tick_and_full_mcycle ( cpu );
+        cpu->pc += 2;
     }
 }
 
@@ -32,75 +67,27 @@ void emulate_JMP ( _cpu_info *cpu ) {
 }
 
 void emulate_JC ( _cpu_info *cpu ) {
-    uint16_t addr = 0;
-
-    if ( cpu->flags.c  ) {
-        addr  = read_byte_at_pc ( cpu );
-        addr |= read_byte_at_pc ( cpu ) << 8;
-        cpu->pc = addr;
-    } else {
-        cpu->pc += 2;
-    }
+    jmp_if ( cpu, cpu->flags.c );
 }
 
 void emulate_JNC ( _cpu_info *cpu ) {
-    uint16_t addr = 0;
-
-    if ( !cpu->flags.c  ) {
-        addr  = read_byte_at_pc ( cpu );
-        addr |= read_byte_at_pc ( cpu ) << 8;
-        cpu->pc = addr;
-    } else {
-        cpu->pc += 2;
-    }
+    jmp_if ( cpu, !cpu->flags.c );
 }
 
 void emulate_JM ( _cpu_info *cpu ) {
-    uint16_t addr = 0;
-
-    if ( cpu->flags.n ) {
-        addr  = read_byte_at_pc ( cpu );
-        addr |= read_byte_at_pc ( cpu ) << 8;
-        cpu->pc = addr;
-    } else {
-        cpu->pc += 2;
-    }
+    jmp_if ( cpu, cpu->flags.n );
 }
 
 void emulate_JP ( _cpu_info *cpu ) {
-    uint16_t addr = 0;
-
-    if ( !cpu->flags.n ) {
-        addr  = read_byte_at_pc ( cpu );
-        addr |= read_byte_at_pc ( cpu ) << 8;
-        cpu->pc = addr;
-    } else {
-        cpu->pc += 2;
-    }
+    jmp_if ( cpu, !cpu->flags.n );
 }
 
 void emulate_JZ ( _cpu_info *cpu ) {
-    uint16_t addr = 0;
-
-    if ( cpu->flags.z ) {
-        addr  = read_byte_at_pc ( cpu );
-        addr |= read_byte_at_pc ( cpu ) << 8;
-        cpu->pc = addr;
-    } else {
-        cpu->pc += 2;
-    }
+    jmp_if ( cpu, cpu->flags.z );
 }
 
 void emulate_JNZ ( _cpu_info *cpu ) {
-    uint16_t addr = 0;
-
-    if ( !cpu->flags.z ) {
-        addr  = read_byte_at_pc ( cpu );
-        addr |= read_byte_at_pc ( cpu ) << 8;
-        cpu->pc = addr;
-    } else {
-        cpu->pc += 2;
-    }
+    jmp_if ( cpu, !cpu->flags.z );
 }
 
 void emulate_RETI ( _cpu_info *cpu ) {
@@ -113,7 +100,8 @@ void emulate_RETI ( _cpu_info *cpu ) {
 
     cpu->pc = addr;
 
-    cpu->enable_interrupts = 1;
+    cpu->enable_interrupts  = 1;
+    cpu->pending_interrupts = 2;
 }
 
 void emulate_RET ( _cpu_info *cpu ) {
@@ -154,6 +142,10 @@ void emulate_RC ( _cpu_info *cpu ) {
 void emulate_RST ( _cpu_info *cpu ) {
     uint16_t ret = cpu->pc + 0;
 
+    timer_tick_and_full_mcycle ( cpu );
+
+    write_byte_at_sp ( cpu, (ret >> 8) & 0xff );
+    write_byte_at_sp ( cpu, (ret >> 0) & 0xff );
     switch ( cpu->opcode ) {
         case 0xc7:
             cpu->pc = 0x00;
@@ -182,11 +174,6 @@ void emulate_RST ( _cpu_info *cpu ) {
         default:
             assert( 0 && "Code should not get here\n" );
     }
-
-    timer_tick_and_full_mcycle ( cpu );
-
-    write_byte_at_sp ( cpu, (ret >> 8) & 0xff );
-    write_byte_at_sp ( cpu, (ret >> 0) & 0xff );
 }
 
 void emulate_PCHL ( _cpu_info *cpu ) {
@@ -200,113 +187,37 @@ void emulate_PCHL ( _cpu_info *cpu ) {
 }
 
 void emulate_CNC ( _cpu_info *cpu ) {
-    uint16_t t = 0;
-
-    switch ( cpu->opcode ) {
-        case 0xd4:
-            {
-                if ( !cpu->flags.c  ) {
-                    t = cpu->pc + 2;
-                    write_byte_at_sp ( cpu, (t >> 8) & 0xff );
-                    write_byte_at_sp ( cpu, (t >> 0) & 0xff );
-                    t  = read_byte_at_pc ( cpu );
-                    t |= read_byte_at_pc ( cpu ) << 8;
-                    timer_tick_and_full_mcycle ( cpu );
-                    cpu->pc = t;
-                } else {
-                    cpu->pc     += 2;
-                }
-            }
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
+    call_if ( cpu, !cpu->flags.c );
 }
 
 void emulate_CC ( _cpu_info *cpu ) {
-    uint16_t t = 0;
-
-    switch ( cpu->opcode ) {
-        case 0xdc:
-            {
-                if ( cpu->flags.c  ) {
-                    t = cpu->pc + 2;
-                    write_byte_at_sp ( cpu, (t >> 8) & 0xff );
-                    write_byte_at_sp ( cpu, (t >> 0) & 0xff );
-                    t  = read_byte_at_pc ( cpu );
-                    t |= read_byte_at_pc ( cpu ) << 8;
-                    timer_tick_and_full_mcycle ( cpu );
-                    cpu->pc = t;
-                } else {
-                    cpu->pc     += 2;
-                }
-            }
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
+    call_if ( cpu, cpu->flags.c );
 }
 
 void emulate_CNZ ( _cpu_info *cpu ) {
-    uint16_t t = 0;
-    switch ( cpu->opcode ) {
-        case 0xc4: // CNZ
-            {
-                if ( !cpu->flags.z ) {
-                    t = cpu->pc + 2;
-                    write_byte_at_sp ( cpu, (t >> 8) & 0xff );
-                    write_byte_at_sp ( cpu, (t >> 0) & 0xff );
-                    t  = read_byte_at_pc ( cpu );
-                    t |= read_byte_at_pc ( cpu ) << 8;
-                    timer_tick_and_full_mcycle ( cpu );
-                    cpu->pc = t;
-                } else {
-                    timer_tick_and_full_mcycle ( cpu );
-                    timer_tick_and_full_mcycle ( cpu );
-                    cpu->pc     += 2;
-                }
-            }
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
+    call_if ( cpu, !cpu->flags.z );
 }
 
 void emulate_CZ ( _cpu_info *cpu ) {
-    uint16_t t = 0;
-    switch ( cpu->opcode ) {
-        case 0xcc: //CZ
-            {
-                if ( cpu->flags.z ) {
-                    t = cpu->pc + 2;
-                    write_byte_at_sp ( cpu, (t >> 8) & 0xff );
-                    write_byte_at_sp ( cpu, (t >> 0) & 0xff );
-                    timer_tick_and_full_mcycle ( cpu );
-                    t  = read_byte_at_pc ( cpu );
-                    t |= read_byte_at_pc ( cpu ) << 8;
-                    cpu->pc = t;
-                } else {
-                    cpu->pc     += 2;
-                }
-            }
-            break;
-        default:
-            assert( 0 && "Code should not get here\n" );
-    }
+    call_if ( cpu, cpu->flags.z );
 }
 
 void emulate_CALL ( _cpu_info *cpu ) {
-    uint16_t t = 0;
+    uint16_t t  = 0;
+    uint16_t t2 = 0;
+
     switch ( cpu->opcode ) {
         case 0xcd:
             {
                 t = cpu->pc + 2;
-                write_byte_at_sp ( cpu, (t >> 8) & 0xff );
-                write_byte_at_sp ( cpu, (t >> 0) & 0xff );
+                t2  = read_byte_at_pc ( cpu );      // Read Jump Addr
+                t2 |= read_byte_at_pc ( cpu ) << 8;
+
                 timer_tick_and_full_mcycle ( cpu );
-                t  = read_byte_at_pc ( cpu );
-                t |= read_byte_at_pc ( cpu ) << 8;
-                cpu->pc = t;
+
+                write_byte_at_sp ( cpu, (t >> 8) & 0xff ); // Push ret addr
+                write_byte_at_sp ( cpu, (t >> 0) & 0xff );
+                cpu->pc = t2;
             }
             break;
         default:
