@@ -30,37 +30,37 @@ void write_bg_palette ( _cpu_info *cpu, uint8_t data ) {
 }
 
 void write_scroll_y ( _cpu_info *cpu, uint8_t data ) {
-    cpu->lcd.scy = data;
+    cpu->lcd.bg_scroll_y = data;
 }
 
 void write_scroll_x ( _cpu_info *cpu, uint8_t data ) {
-    cpu->lcd.scx = data;
+    cpu->lcd.bg_scroll_x = data;
 }
 
 void write_window_y ( _cpu_info *cpu, uint8_t data ) {
-    cpu->lcd.bgy = data;
+    cpu->lcd.window_scroll_y = data;
 }
 
 void write_window_x ( _cpu_info *cpu, uint8_t data ) {
-    cpu->lcd.bgx = data;
+    cpu->lcd.window_scroll_x = data;
 }
 
 // SCY
 uint8_t read_scroll_y ( _cpu_info *cpu ) {
-    return cpu->lcd.scy;
+    return cpu->lcd.bg_scroll_y;
 }
 
 // SCX
 uint8_t read_scroll_x ( _cpu_info *cpu ) {
-    return cpu->lcd.scx;
+    return cpu->lcd.bg_scroll_x;
 }
 
 uint8_t read_window_y ( _cpu_info *cpu ) {
-    return cpu->lcd.bgy;
+    return cpu->lcd.window_scroll_y;
 }
 
 uint8_t read_window_x ( _cpu_info *cpu ) {
-    return cpu->lcd.bgx;
+    return cpu->lcd.window_scroll_x;
 }
 
 uint8_t read_lcd_control ( _cpu_info *cpu ) {
@@ -138,6 +138,7 @@ uint8_t display_test_bg_enabled ( _cpu_info *cpu ) {
 uint8_t display_read_LY ( _cpu_info *cpu ) {
     if ( display_test_lcdpower(cpu) )
         return cpu->lcd.active_line;
+
     return 0x00;
 }
 
@@ -145,6 +146,7 @@ uint8_t display_read_LY ( _cpu_info *cpu ) {
 uint8_t display_read_LYC ( _cpu_info *cpu ) {
     if ( display_test_lcdpower(cpu) )
         return cpu->lcd.lyc_trigger;
+
     return 0x00;
 }
 
@@ -345,74 +347,97 @@ void draw_sprites ( _cpu_info *cpu ) {
 // Mode 3: No access to VRAM and OAM
 
 void display_update( _cpu_info *cpu ) {
-    static int16_t cycles_left  = 456;
-    static int16_t cycles_spent = 0;
-    static uint8_t lyc_delay    = 0;
-    static uint8_t blank_delay  = 0;
-    int schedule_vblank = 0;
+    static uint16_t cycles_left     = 456;
+    static uint16_t cycles_spent    = 0;
+    static uint8_t  lyc_delay       = 0;
+    static uint8_t  mode_cmp        = 255;
+
+    uint8_t         irq             = 0;
 
     if ( !display_test_lcdpower(cpu) ) return;
+
+    /*printf(" Spent: %3d %3d  mode: %2d  ly: %3d\n", cycles_left, cycles_spent, cpu->lcd.mode, cpu->lcd.active_line);*/
+
+    mode_cmp = 255;
+
+    if ( lyc_delay > 0 ) {
+        lyc_delay --;
+    }
 
     cycles_left--;
     cycles_spent++;
 
-    // New scan line
-    if ( cycles_spent > 456 && cycles_left < 0 ) {
+    if ( cpu->lcd.mode == 0 && cycles_spent == 4 ) {
+        if ( cpu->lcd.active_line < 144 ) {
+            cpu->lcd.mode = 2;
+        } else {
+            cpu->lcd.mode = 1;
+            /*cpu->lcd.active_line = 0;*/
+
+            cpu->interrupts.pending_vblank = 1;
+
+            flip_screen();
+        }
+    } else if ( cpu->lcd.mode == 0 && cycles_spent >= 1 && cycles_spent < 4 && cpu->lcd.active_line >= 1 &&
+                cpu->lcd.active_line <= 143 ) {
+        mode_cmp = 2;
+    } else if ( cpu->lcd.mode == 2 && cycles_spent == 84 ) {
+        cpu->lcd.mode = 3;
+
+        cpu->lcd.m3_cycles = 175;
+
+        if ( cpu->lcd.window_scroll_x == 0 ) {
+            // Do nothing
+        } else if ( cpu->lcd.window_scroll_x <= 4 ) {
+            cpu->lcd.m3_cycles += 4;
+        } else {
+            cpu->lcd.m3_cycles += 8;
+        }
+
+        draw_background_and_window(cpu);
+        draw_sprites(cpu);
+    } else if ( cpu->lcd.mode == 3 && cycles_spent >= ((84 + cpu->lcd.m3_cycles) -7 ) &&
+            cycles_spent < (84 + cpu->lcd.m3_cycles ) ) {
+        mode_cmp = 0;
+    } else if ( cpu->lcd.mode == 3 && cycles_spent == (84 + cpu->lcd.m3_cycles) ) {
+        cpu->lcd.mode = 0;
+    } else if ( cpu->lcd.mode == 0 && cycles_spent == 456 ) {
+        cpu->lcd.active_line += 1;
+        lyc_delay = 4;
+        cpu->lcd.mode = 0;
         cycles_left  = 456;
         cycles_spent = 0;
+    } else if ( cpu->lcd.mode == 1 ) {
+        if ( cycles_spent == 456 ) {
+            cycles_left  = 456;
+            cycles_spent = 0;
 
-        cpu->lcd.active_line += 1;
-        if ( cpu->lcd.active_line == 144 ) {
-            schedule_vblank = 1;
-        } else if ( cpu->lcd.active_line < 144 ) {
-            draw_background_and_window(cpu);
-            draw_sprites(cpu);
+            if ( cpu->lcd.active_line == 0 ) {
+                cpu->lcd.mode = 0;
+            } else {
+                cpu->lcd.active_line += 1;
+                lyc_delay = 4;
+            }
+        } else if ( cpu->lcd.active_line == 153 && cycles_spent == 4 ) {
+            cpu->lcd.active_line = 0;
+            lyc_delay = 4;
         }
     }
 
-    if ( cycles_spent < 204 ) {
-        cpu->lcd.mode = 0;
-    } else if ( cycles_spent < 204 + 80 ) {
-        cpu->lcd.mode = 2;
-    } else if ( cycles_spent < 204 + 80 + 172 ) {
-        cpu->lcd.mode = 3;
+    if ( mode_cmp == 255 ) {
+        mode_cmp = cpu->lcd.mode;
     }
 
-    if ( cpu->lcd.active_line >= 144 ) {
-        cpu->lcd.mode = 1;
+    if (((lyc_delay == 1) && (cpu->lcd.active_line == cpu->lcd.lyc_trigger) && (cpu->lcd.lyc_enable == 1)) ||
+         (cpu->lcd.mode == 0 && cpu->lcd.mode0_hblank ) ||
+         (cpu->lcd.mode == 2 && cpu->lcd.mode2_oam    ) ||
+         (cpu->lcd.mode == 1 && (cpu->lcd.mode2_oam || cpu->lcd.mode1_vblank))) {
+        irq = 1;
     }
 
-    if ( cycles_spent >= 4 &&
-         display_read_LY(cpu) == read_byte(cpu, 0xff45) &&
-         display_test_LYC_enable(cpu) )
-    {
+    if ( !cpu->lcd.stat_irq && irq ) {
         cpu->interrupts.pending_lcdstat = 1;
     }
 
-    if ( cycles_spent >= 4 &&
-         cpu->lcd.mode == 2 &&
-         cpu->lcd.mode2_oam )
-    {
-        cpu->interrupts.pending_lcdstat = 1;
-    }
-
-    if ( cycles_spent >= 4 &&
-         cpu->lcd.mode == 1 &&
-         cpu->lcd.mode1_vblank )
-    {
-        cpu->interrupts.pending_lcdstat = 1;
-    }
-
-    if ( cycles_spent >= 4 &&
-         cpu->lcd.mode == 0 &&
-         cpu->lcd.mode0_hblank )
-    {
-        cpu->interrupts.pending_lcdstat = 1;
-    }
-
-    if ( schedule_vblank == 1 ) {
-        schedule_vblank = 0;
-        cpu->interrupts.pending_vblank = 1;
-        flip_screen();
-    }
+    cpu->lcd.stat_irq = irq;
 }

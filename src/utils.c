@@ -94,6 +94,8 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->lcd.lyc_trigger      = 0;
     cpu->lcd.active_line      = 0;
     cpu->lcd.mode             = 0;
+    cpu->lcd.m3_cycles        = 0;
+    cpu->lcd.stat_irq         = 0;
 
     cpu->lcd.power            = 1;
     cpu->lcd.window_tilemap   = 0;
@@ -110,10 +112,10 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->lcd.mode0_hblank     = 0;
     cpu->lcd.lyc_ly_triggered = 0;
 
-    cpu->lcd.scy            = 0;
-    cpu->lcd.scx            = 0;
-    cpu->lcd.bgx            = 0;
-    cpu->lcd.bgy            = 0;
+    cpu->lcd.window_scroll_y  = 0;
+    cpu->lcd.window_scroll_x  = 0;
+    cpu->lcd.bg_scroll_x      = 0;
+    cpu->lcd.bg_scroll_y      = 0;
 
     cpu->lcd.bg_palette[0] = 3;
     cpu->lcd.bg_palette[1] = 2;
@@ -134,6 +136,7 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->lcd.colors[1] = 0xc0c0c0;
     cpu->lcd.colors[2] = 0x808080;
     cpu->lcd.colors[3] = 0x000000;
+
     cpu->flags.z   = 0;
     cpu->flags.n   = 0;
     cpu->flags.h   = 0;

@@ -24,6 +24,7 @@ typedef struct {              // This is a struct that holds all information
 
     uint8_t active_line;      // The line number being draw, can be read from 0xff44
     uint8_t lyc_trigger;      // The line on 0xff45 used to trigger LYC
+    uint8_t stat_irq;         // Used to simulate a falling edge detector
 
                               // Those are the bits from LCD controll at 0xff40
     uint8_t power;            // Bit 7
@@ -44,6 +45,8 @@ typedef struct {              // This is a struct that holds all information
     uint8_t lyc_ly_triggered; // Bit 2
     uint8_t mode;             // Bit 0 and 1
 
+    uint8_t m3_cycles;        // Extra Cycles for mode3
+
                               // The color palettes for
     uint8_t  bg_palette[4];   // background at 0xff47
     uint8_t  spr1_palette[4]; // sprite 1 at 0xff48
@@ -51,10 +54,19 @@ typedef struct {              // This is a struct that holds all information
     uint32_t colors[4];       // This is the colors that the UI draws
                               // Maybe I should hide it somehere else?
 
-    uint8_t scy;              // Windows Y scroll at 0xff4a
-    uint8_t scx;              // Windows X scroll at 0xff4b
-    uint8_t bgx;              // Background Y scroll at 0xff42
-    uint8_t bgy;              // Background X scroll at 0xff42
+                              //// Bad Naming FTW
+    //uint8_t scy;              // Windows Y scroll at 0xff4a
+    //uint8_t scx;              // Windows X scroll at 0xff4b
+    //uint8_t bgx;              // Background Y scroll at 0xff42
+    //uint8_t bgy;              // Background X scroll at 0xff42
+
+    uint8_t bg_scroll_y;        // Background Y scroll at 0xff42
+    uint8_t bg_scroll_x;        // Background X scroll at 0xff42
+    uint8_t window_scroll_x;    // Windows Y scroll at 0xff4a
+    uint8_t window_scroll_y;    // Windows X scroll at 0xff4b
+
+    // TODO: Use this
+    uint8_t window_line_y;      // To keep track of which lines of the window where draw
 } _lcd;                       // TODO: I think that I should have a mirror here for LY compare from 0xff45
 
 typedef struct {        // Timer struct
