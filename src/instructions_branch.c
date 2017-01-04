@@ -26,7 +26,7 @@ static void return_if ( _cpu_info *cpu, uint8_t flag ) {
 
 static void call_if ( _cpu_info *cpu, uint8_t flag ) {
     uint16_t t  = 0;
-    uint16_t t2 = 0;
+    /*uint16_t t2 = 0; // FIXME Order is wrong*/
 
     if ( flag ) {
         t = cpu->pc + 2;
