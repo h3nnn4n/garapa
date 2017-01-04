@@ -22,7 +22,7 @@ TODO list
   - [x] cpu_instrs
   - [ ] dmg_sound
   - [ ] halt_bug.gb
-  - [ ] instr_timing
+  - [x] instr_timing
   - [ ] interrupt_time
   - [x] mem_timing
   - [x] mem_timing-2
