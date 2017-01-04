@@ -66,7 +66,6 @@ void decoder( _cpu_info *cpu ) {
             addr = read_hl ( cpu );
             cpu->a = read_byte_with_tick ( cpu, addr );
             addr -= 1;
-            timer_tick_and_full_mcycle ( cpu );
             write_hl_16 ( cpu, addr );
             break;
 
@@ -282,19 +281,18 @@ void decoder( _cpu_info *cpu ) {
             emulate_RZ ( cpu );
             break;
         case 0xf9:
+            timer_tick_and_full_mcycle ( cpu );
             cpu->sp = read_hl ( cpu );
             break;
         case 0xfe:
             emulate_CPI ( cpu );
             break;
         case 0x08:
-            {
-                addr  = read_byte_at_pc ( cpu );
-                addr |= read_byte_at_pc ( cpu ) << 8;
+            addr  = read_byte_at_pc ( cpu );
+            addr |= read_byte_at_pc ( cpu ) << 8;
 
-                write_byte_with_tick ( cpu, addr + 0, ( cpu->sp & 0x00ff ) >> 0 );
-                write_byte_with_tick ( cpu, addr + 1, ( cpu->sp & 0xff00 ) >> 8 );
-            }
+            write_byte_with_tick ( cpu, addr + 0, ( cpu->sp & 0x00ff ) >> 0 );
+            write_byte_with_tick ( cpu, addr + 1, ( cpu->sp & 0xff00 ) >> 8 );
             break;
         case 0x0b:
         case 0x1b:
