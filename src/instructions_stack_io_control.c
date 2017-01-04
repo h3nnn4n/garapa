@@ -88,7 +88,7 @@ void emulate_EI ( _cpu_info *cpu ) {
     switch ( cpu->opcode ) {
             case 0xfb: // EI
             cpu->enable_interrupts = 1;
-            cpu->pending_interrupts = 2;
+            cpu->pending_interrupts = 2; // Sets the interrupt delay
             break;
         default:
             assert( 0 && "Code should not get here\n" );
