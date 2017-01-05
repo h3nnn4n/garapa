@@ -156,8 +156,8 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->timer.DIV  = 0;
     cpu->timer.TMA  = 0;
 
-    cpu->timer.TIMA_reset_delay = 0;
-    cpu->timer.TIMA_write_block = 0;
+    cpu->timer.TIMA_timer = 0;
+    cpu->timer.TIMA_reload_timer = 0;
     cpu->timer._timer           = 0;
     cpu->timer._timer_old       = 0;
 

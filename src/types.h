@@ -74,10 +74,10 @@ typedef struct {              // This is a struct that holds all information
 } _lcd;                       // TODO: I think that I should have a mirror here for LY compare from 0xff45
 
 typedef struct {        // Timer struct
-    uint8_t  TIMA_reset_delay; // AntonioND reports that when TIMA resets, it takes 4 cycles for
+    uint8_t  TIMA_timer; // AntonioND reports that when TIMA resets, it takes 4 cycles for
                                // it to get the value from TMA. Meanwhile the value is 0x00. This
                                // does not add to the total of cycles necessary to overflow;
-    uint8_t  TIMA_write_block; // After the m-cycles where TIMA is 0x00, it is reloaded with TMA.
+    uint8_t  TIMA_reload_timer; // After the m-cycles where TIMA is 0x00, it is reloaded with TMA.
                                // Attemping to writing to TIMA while TMA is being written will be ignored;
     uint16_t _timer_old;//
     uint16_t _timer;    //

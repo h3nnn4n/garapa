@@ -14,16 +14,17 @@ int debug = 0;
 
 void print_timer_state ( _cpu_info *cpu ) {
     /*printf(" CYCLES: %8llu /%8llu  TIMER: %4x  DIV: %2x  TIMA: %2x  TMA: %2x  TIMA_delay: %2d  Enable: %c  Speed: %2x\n",*/
-    printf("  Timer: DIV: %2x  TIMA: %2x  TMA: %2x  TIMA_delay: %2d  Enable: %c  Speed: %2x\n",
+    printf("  Timer: DIV: %2x  TIMA: %2x  TMA: %2x  TIMA_reload_delay: %2d  TIMA_delay: %2d  Enable: %c  Speed: %2x\n",
             /*cpu->cycles_clock,*/
             /*cpu->cycles_machine,*/
             cpu->timer._timer,
             /*cpu->timer.DIV,*/
             cpu->timer.TIMA,
             cpu->timer.TMA,
-            /*cpu->timer.TIMA_reset_delay ? 'y':'n',*/
+            /*cpu->timer.TIMA_timer ? 'y':'n',*/
             /*cpu->timer.TAC & 0x04 ? 'y':'n',*/
-            cpu->timer.TIMA_reset_delay,
+            cpu->timer.TIMA_reload_timer,
+            cpu->timer.TIMA_timer,
             cpu->timer.TAC & 0x04 ? '1':'0',
             cpu->timer.TAC & 0x03
             );
@@ -68,12 +69,12 @@ void write_TAC ( _cpu_info *cpu, uint8_t data ) {
         /*cpu->interrupts.pending_timer = 1;*/
         /*reset_TIMA ( cpu );*/
     /*}*/
-    if ( cpu->timer.TIMA > 0xff ) {
-        cpu->timer.TIMA_reset_delay = 1;
-        cpu->interrupts.pending_timer = 1; // Maybe it is dealyed because the cpu cant poll it before
-        /*cpu->timer.TIMA_write_block = 1;*/
-        cpu->timer.TIMA = 0x00;
-    }
+    /*if ( cpu->timer.TIMA > 0xff ) {*/
+        /*cpu->timer.TIMA_timer = 1;*/
+        /*cpu->interrupts.pending_timer = 1; // Maybe it is dealyed because the cpu cant poll it before*/
+        /*[>cpu->timer.TIMA_reload_timer = 1;<]*/
+        /*cpu->timer.TIMA = 0x00;*/
+    /*}*/
 
     if ( debug ) printf("TAC changed: %2x ->: Enable: %c  Speed: %2x\n",
             data,
@@ -92,7 +93,11 @@ uint8_t read_TAC ( _cpu_info *cpu ) {
 // 0xff06
 void write_TMA ( _cpu_info *cpu, uint16_t data ) {
     if ( debug ) printf("TMA changed %2x to %2x\n", cpu->timer.TMA, data);
+
     cpu->timer.TMA = data;
+
+    if ( cpu->timer.TIMA_reload_timer > 0 )
+        cpu->timer.TIMA = cpu->timer.TMA;
 }
 
 // 0xff06
@@ -103,14 +108,14 @@ uint16_t read_TMA ( _cpu_info *cpu ) {
 
 // 0xff05
 void write_TIMA ( _cpu_info *cpu, uint16_t data ) {
-    /*if ( cpu->timer.TIMA_write_block == 1 ) {*/
-        /*[>reset_TIMA ( cpu );<]*/
-        /*cpu->timer.TIMA = cpu->timer.TMA;*/
-        /*return;*/
-    /*}*/
     if ( debug ) printf("TIMA changed %2x to %2x, was: " , cpu->timer.TIMA, data);
     if ( debug ) print_timer_state ( cpu );
-    cpu->timer.TIMA = data;
+
+    if ( cpu->timer.TIMA_timer == 0 ) {
+        cpu->timer.TIMA = data;
+
+        cpu->timer.TIMA_reload_timer = 0;
+    }
 }
 
 // 0xff05
@@ -158,9 +163,9 @@ void write_DIV( _cpu_info *cpu, uint16_t data ) {
     }
 
     if ( cpu->timer.TIMA > 0xff ) {
-        cpu->timer.TIMA_reset_delay = 1;
+        cpu->timer.TIMA_timer = 1;
         cpu->interrupts.pending_timer = 1; // Maybe it is dealyed because the cpu cant poll it before
-        /*cpu->timer.TIMA_write_block = 1;*/
+        /*cpu->timer.TIMA_reload_timer = 1;*/
         cpu->timer.TIMA = 0x00;
     }
 
@@ -208,9 +213,9 @@ void timer_update( _cpu_info *cpu ) {
         /*print_timer_state ( cpu );*/
     }
 
-    /*if ( cpu->timer.TIMA_write_block == 1 ) {*/
-        /*cpu->timer.TIMA_write_block = 0;*/
-    /*}*/
+    if ( cpu->timer.TIMA_timer > 0 ) {
+        cpu->timer.TIMA_timer --;
+    }
 
     cpu->timer.DIV = cpu->timer._timer >> 8 & 0xff;
 
@@ -245,18 +250,19 @@ void timer_update( _cpu_info *cpu ) {
             break;
     }
 
-    if ( cpu->timer.TIMA_reset_delay == 1 ) {
-        cpu->timer.TIMA_reset_delay = 0;
-        /*cpu->interrupts.pending_timer = 1; // The Interrupt is also delayed one m-cycle*/
-        reset_TIMA ( cpu );
+    if ( cpu->timer.TIMA_reload_timer > 0 ) {
+        cpu->timer.TIMA_reload_timer--;
+        if ( cpu->timer.TIMA_reload_timer == 0 ) {
+            reset_TIMA ( cpu );
+            cpu->timer.TIMA_timer = 1;
+        }
     }
 
     if ( cpu->timer.TIMA > 0xff ) {
-        cpu->timer.TIMA_reset_delay = 1; // FIXME should be 4
-        cpu->interrupts.pending_timer = 1; // Maybe it is dealyed because the cpu cant poll it before
-        /*cpu->timer.TIMA_write_block = 1;*/
+        cpu->timer.TIMA_reload_timer = 4;
+        cpu->interrupts.pending_timer = 1;
         cpu->timer.TIMA = 0x00;
-        /*reset_TIMA ( cpu );*/
+
         if ( debug ) printf("TIMA RESET: ");
         if ( debug ) print_timer_state ( cpu );
     }
