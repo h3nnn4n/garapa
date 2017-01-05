@@ -65,6 +65,7 @@ void emulate_ADI ( _cpu_info *cpu ) {
             cpu->flags.h  = halfcarry( cpu->a, t, cpu->a + t );
             cpu->flags.c  = (t + cpu->a) > 0xff;
             cpu->a       += (uint8_t) t;
+            cpu->flags.z  = (cpu->a == 0);
             break;
         case 0xe8:
             cpu->flags.h  = halfcarry( cpu->sp, t, cpu->sp + (int8_t) t );
@@ -73,6 +74,7 @@ void emulate_ADI ( _cpu_info *cpu ) {
             timer_tick_and_full_mcycle ( cpu );
             timer_tick_and_full_mcycle ( cpu );
             cpu->sp       = t;
+            cpu->flags.z  = 0;
             break;
         case 0xf8:
             cpu->flags.h  = halfcarry( cpu->sp, t, cpu->sp + (int8_t) t );
@@ -81,12 +83,12 @@ void emulate_ADI ( _cpu_info *cpu ) {
             cpu->flags.c  = (t & 0xff) < (cpu->sp & 0xff);
             cpu->h        = (t & 0xff00) >> 8;
             cpu->l        = (t & 0x00ff) >> 0;
+            cpu->flags.z  = 0;
             break;
         default:
             assert( 0 && "Code should not get here\n" );
     }
 
-    cpu->flags.z  = (cpu->a == 0);
     cpu->flags.n  = 0;
 }
 
