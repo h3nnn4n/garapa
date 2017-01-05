@@ -26,6 +26,7 @@ typedef struct {
 
 _sprite_info sprites[40];
 uint8_t sprite_pivot;
+uint8_t pixel_pipeline_stalls;
 
 void write_spr1_palette ( _cpu_info *cpu, uint8_t data ) {
     cpu->lcd.bg_palette[0] = ( data >> 0 ) & 0x03;
@@ -291,7 +292,8 @@ void draw_background_and_window( _cpu_info *cpu ) {
 }
 
 void fetch_sprites ( _cpu_info *cpu ) {
-    sprite_pivot = 0;
+    pixel_pipeline_stalls = 0;
+    sprite_pivot          = 0;
 
     // OAM = 0xfe00
     // bit0 = y
@@ -330,6 +332,28 @@ void fetch_sprites ( _cpu_info *cpu ) {
             sprite_pivot ++;
         }
     }
+}
+
+void sort_sprites ( _cpu_info *cpu ) {
+    // Dumb bubble sort
+    // Should be fast enough
+
+    int run;
+
+    do {
+        run = 0;
+        for (int i = 0; i < sprite_pivot; ++i) {
+            if ( (sprites[i].posx >  sprites[i+1].posy) ||
+                ((sprites[i].posx == sprites[i+1].posy) && sprites[i].tile > sprites[i+1].tile)) {
+
+                _sprite_info t = sprites[i  ];
+                sprites[i  ]   = sprites[i+1];
+                sprites[i+1]   = t;
+
+                run = 1;
+            }
+        }
+    } while ( run );
 }
 
 void draw_sprites ( _cpu_info *cpu ) {
@@ -371,49 +395,6 @@ void draw_sprites ( _cpu_info *cpu ) {
                          ((bit1 & (0x80 >> j_flip)) != 0)       ;
 
                 if ( !color ) continue;
-
-                buffer[cpu->lcd.active_line*160 + posx + j] = cpu->lcd.colors[cpu->lcd.bg_palette[color]];
-            }
-        }
-    }
-
-    return;
-    for (int i = 0; i < 40; ++i) { // Loops over the 40 sprites
-        uint8_t posy      = read_byte(cpu, 0xfe00 + (i*4    )) - 16; // Reads the y coordinate
-        uint8_t posx      = read_byte(cpu, 0xfe00 + (i*4 + 1)) - 8 ; // Reads the x coordinate
-        uint16_t tileaddr = read_byte(cpu, 0xfe00 + (i*4 + 2)); // Tile index
-        uint8_t flags     = read_byte(cpu, 0xfe00 + (i*4 + 3)); // Tile flags
-
-        if ( ( cpu->lcd.active_line >= posy ) && // Checks if the sprite overlaps the current line
-             ( cpu->lcd.active_line < posy + ( cpu->lcd.sprite_size ? 16 : 8 ) ) ) {
-
-            uint8_t line_offset = cpu->lcd.active_line - posy;
-
-            if ( flags & 0x40 ) // VHLIP
-                line_offset = (7 + display_test_sprite_size(cpu)*8) - line_offset;
-
-            line_offset *= 2;
-
-            uint16_t addr = 0x8000 + (tileaddr * 16) + line_offset;
-            uint8_t bit1 = read_byte(cpu, addr    );
-            uint8_t bit2 = read_byte(cpu, addr + 1);
-
-            for (int j = 0; j < 8; ++j) { // Loops over the pixels
-                uint8_t color;
-                uint8_t j_flip;
-
-                if ( flags & 0x20 ) // HFLIP
-                    j_flip = 7 - j;
-                else
-                    j_flip = j;
-
-                if ( posx + j_flip >= 160 ) // Out of screen
-                    continue;
-
-                color = (((bit2 & (0x80 >> j_flip)) != 0) << 1) |
-                         ((bit1 & (0x80 >> j_flip)) != 0)       ;
-
-                if ( !color ) continue; // Transparent
 
                 buffer[cpu->lcd.active_line*160 + posx + j] = cpu->lcd.colors[cpu->lcd.bg_palette[color]];
             }
@@ -488,7 +469,9 @@ void display_update( _cpu_info *cpu ) {
         }
 
         draw_background_and_window(cpu);
+
         fetch_sprites(cpu);
+        sort_sprites(cpu);
         draw_sprites(cpu);
     } else if ( cpu->lcd.mode == 3 && cycles_spent >= ((84 + cpu->lcd.m3_cycles) -7 ) &&
             cycles_spent < (84 + cpu->lcd.m3_cycles ) ) {
