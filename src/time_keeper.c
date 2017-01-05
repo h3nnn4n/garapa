@@ -69,12 +69,14 @@ void write_TAC ( _cpu_info *cpu, uint8_t data ) {
         /*cpu->interrupts.pending_timer = 1;*/
         /*reset_TIMA ( cpu );*/
     /*}*/
-    /*if ( cpu->timer.TIMA > 0xff ) {*/
-        /*cpu->timer.TIMA_timer = 1;*/
-        /*cpu->interrupts.pending_timer = 1; // Maybe it is dealyed because the cpu cant poll it before*/
-        /*[>cpu->timer.TIMA_reload_timer = 1;<]*/
-        /*cpu->timer.TIMA = 0x00;*/
-    /*}*/
+    if ( cpu->timer.TIMA > 0xff ) {
+        cpu->timer.TIMA_reload_timer = 4;
+        cpu->interrupts.pending_timer = 1;
+        cpu->timer.TIMA = 0x00;
+
+        if ( debug ) printf("TIMA RESET: ");
+        if ( debug ) print_timer_state ( cpu );
+    }
 
     if ( debug ) printf("TAC changed: %2x ->: Enable: %c  Speed: %2x\n",
             data,

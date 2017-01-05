@@ -28,7 +28,7 @@ TODO list
   - [x] mem_timing-2
   - [ ] oam_bug
 
- - [ ] Pass Gekkio's timing tests
+ - [x] Pass Gekkio's timing tests
   - [x] div_write.gb
   - [x] rapid_toggle.gb
   - [x] tim00.gb
@@ -40,8 +40,8 @@ TODO list
   - [x] tim11.gb
   - [x] tim11_div_trigger.gb
   - [x] tima_reload.gb
-  - [ ] tima_write_reloading.gb
-  - [ ] tma_write_reloading.gb
+  - [x] tima_write_reloading.gb
+  - [x] tma_write_reloading.gb
 
  - [ ] Pass Gekkio's gpu tests
   - [ ] hblank_ly_scx_timing-GS.gb
