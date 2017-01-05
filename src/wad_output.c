@@ -7,7 +7,8 @@ unsigned short int out2( unsigned char *buffer, unsigned int pc ) ;
 void out1 ( _cpu_info *cpu ) ;
 
 void out_put(_cpu_info *cpu) {
-    printf ( "TRACE:wadatsumi::gb::cpu:%11llu: ", cpu->cycles_machine+1 ) ;
+    /*printf ( "TRACE:wadatsumi::gb::cpu:%11llu: ", cpu->cycles_machine ) ;*/
+    printf ( "Cycles: %11llu: ", cpu->cycles_machine ) ;
     out2   ( cpu->mem_controller.memory, cpu->pc                        ) ;
     out1   ( cpu                                                        ) ;
     puts   ( ""                                                         ) ;
@@ -282,7 +283,7 @@ unsigned short int out2( unsigned char *buffer, unsigned int pc ) {
         case 0xE5:   printf ( "PUSH HL                  "                                  ); op_size = 1; break;
         case 0xE6:   printf ( "AND A, 0x%02X              ",                 buffer[pc+1]  ); op_size = 2; break;
         case 0xE7:   printf ( "RST 0x20                 "                                  ); op_size = 1; break;
-        case 0xE8:   printf ( "ADD SP, %02X             ",     buffer[pc+1]                ); op_size = 2; break;
+        case 0xE8:   printf ( "ADD SP, %02X               ",     buffer[pc+1]                ); op_size = 2; break;
         case 0xE9:   printf ( "JP HL                    "                                  ); op_size = 1; break;
         case 0xEA:   printf ( "LD (0x%02X%02X), A           ",  buffer[pc+2], buffer[pc+1] ); op_size = 3; break;
         case 0xEB:   printf ( "-                        "                                  ); op_size = 0; break;
