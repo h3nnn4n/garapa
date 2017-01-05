@@ -26,6 +26,10 @@ typedef struct {              // This is a struct that holds all information
     uint8_t lyc_trigger;      // The line on 0xff45 used to trigger LYC
     uint8_t stat_irq;         // Used to simulate a falling edge detector
 
+    uint16_t cycles_spent;    // How many cycles the LCD spent on the active scanline
+    uint8_t  lyc_delay;       // LY = LYC has a delay, this controls it
+    uint8_t  mode_cmp;        // Used to emulate something fishy for the LCD
+
                               // Those are the bits from LCD controll at 0xff40
     uint8_t power;            // Bit 7
     uint8_t window_tilemap;   // Bit 6

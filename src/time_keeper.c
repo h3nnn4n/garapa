@@ -13,15 +13,18 @@
 int debug = 0;
 
 void print_timer_state ( _cpu_info *cpu ) {
-    printf(" CYCLES: %8llu /%8llu  TIMER: %4x  DIV: %2x  TIMA: %2x  TMA: %2x  TIMA_delay: %c  Enable: %c  Speed: %2x\n",
-            cpu->cycles_clock,
-            cpu->cycles_machine,
+    /*printf(" CYCLES: %8llu /%8llu  TIMER: %4x  DIV: %2x  TIMA: %2x  TMA: %2x  TIMA_delay: %2d  Enable: %c  Speed: %2x\n",*/
+    printf("  Timer: DIV: %2x  TIMA: %2x  TMA: %2x  TIMA_delay: %2d  Enable: %c  Speed: %2x\n",
+            /*cpu->cycles_clock,*/
+            /*cpu->cycles_machine,*/
             cpu->timer._timer,
-            cpu->timer.DIV,
+            /*cpu->timer.DIV,*/
             cpu->timer.TIMA,
             cpu->timer.TMA,
-            cpu->timer.TIMA_reset_delay ? 'y':'n',
-            cpu->timer.TAC & 0x04 ? 'y':'n',
+            /*cpu->timer.TIMA_reset_delay ? 'y':'n',*/
+            /*cpu->timer.TAC & 0x04 ? 'y':'n',*/
+            cpu->timer.TIMA_reset_delay,
+            cpu->timer.TAC & 0x04 ? '1':'0',
             cpu->timer.TAC & 0x03
             );
 }
@@ -189,7 +192,9 @@ void timer_update( _cpu_info *cpu ) {
     // DIV is the upper 8 (MSB) bits, and it increases every 256 t-cycles
     // or 64 NOPs
     //
-    if ( debug ) print_timer_state ( cpu );
+    /*if ( debug ) print_timer_state ( cpu );*/
+    print_timer_state ( cpu );
+
     static int8_t mcycle_bump = 0;
     cpu->cycles_clock    += 1;
     cpu->timer._timer_old = cpu->timer._timer;
@@ -247,7 +252,7 @@ void timer_update( _cpu_info *cpu ) {
     }
 
     if ( cpu->timer.TIMA > 0xff ) {
-        cpu->timer.TIMA_reset_delay = 1;
+        cpu->timer.TIMA_reset_delay = 1; // FIXME should be 4
         cpu->interrupts.pending_timer = 1; // Maybe it is dealyed because the cpu cant poll it before
         /*cpu->timer.TIMA_write_block = 1;*/
         cpu->timer.TIMA = 0x00;

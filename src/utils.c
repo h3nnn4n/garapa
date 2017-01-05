@@ -96,6 +96,8 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->lcd.mode             = 0;
     cpu->lcd.m3_cycles        = 0;
     cpu->lcd.stat_irq         = 0;
+    cpu->lcd.lyc_delay        = 0;
+    cpu->lcd.cycles_spent     = 0;
 
     cpu->lcd.power            = 1;
     cpu->lcd.window_tilemap   = 0;

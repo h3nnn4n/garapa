@@ -22,19 +22,21 @@
 #include "instructions_stack_io_control.h"
 
 void decoder( _cpu_info *cpu ) {
-    emulate_INTERRUPT( cpu );
-
-    if ( cpu->halted ) {
+    if ( cpu->halted &&
+         /*cpu->enable_interrupts &&*/
+        (( read_byte(cpu, 0xff0f) &
+           read_byte(cpu, 0xffff)) == 0 )) {
         timer_tick_and_full_mcycle ( cpu );
+        /*printf("Halted, skipping\n");*/
         return;
     }
 
-    cpu->opcode = read_byte_at_pc ( cpu );
+    emulate_INTERRUPT( cpu );
 
-#ifdef __show_step
-    disassembler ( cpu->mem_controller.memory, cpu->pc );
-    print_registers(cpu);
-#endif
+    cpu->opcode = read_byte_at_pc ( cpu );
+    cpu->pc --;
+    out_put ( cpu );
+    cpu->pc ++;
 
     uint16_t addr;
 

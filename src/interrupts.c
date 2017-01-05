@@ -13,12 +13,17 @@
 // Bit 3: Serial   Interrupt Request (INT 58h)  (1=Request)
 // Bit 4: Joypad   Interrupt Request (INT 60h)  (1=Request)
 void emulate_INTERRUPT ( _cpu_info *cpu ) {
-    if ( cpu->pending_interrupts == 2 ) {
-        cpu->pending_interrupts --;
-        return;
-    } else {
-        cpu->pending_interrupts = 0;
-    }
+    /*if ( cpu->pending_interrupts == 2 ) {*/
+        /*cpu->pending_interrupts --;*/
+        /*return;*/
+    /*} else {*/
+        /*cpu->pending_interrupts = 0;*/
+    /*}*/
+
+    /*printf("%4x %4x %2d\n",*/
+            /*read_byte(cpu, 0xff0f),*/
+            /*read_byte(cpu, 0xffff),*/
+            /*cpu->enable_interrupts);*/
 
     uint8_t intn = read_byte(cpu, 0xff0f) & (read_byte(cpu, 0xffff));
 
@@ -28,10 +33,11 @@ void emulate_INTERRUPT ( _cpu_info *cpu ) {
             )
        ) {
         // It takes 4 m-cycles for the cpu to wake
-        timer_tick_and_full_mcycle ( cpu );
-        timer_tick_and_full_mcycle ( cpu );
-        timer_tick_and_full_mcycle ( cpu );
-        timer_tick_and_full_mcycle ( cpu );
+        /*printf("Interrupt!! Cpu is waking up without servicing\n");*/
+        /*timer_tick_and_full_mcycle ( cpu );*/
+        /*timer_tick_and_full_mcycle ( cpu );*/
+        /*timer_tick_and_full_mcycle ( cpu );*/
+        /*timer_tick_and_full_mcycle ( cpu );*/
 
         cpu->halted = 0;
         return;
@@ -45,45 +51,51 @@ void emulate_INTERRUPT ( _cpu_info *cpu ) {
        ) doit = 1;
 
     if ( doit ) {
-        if ( cpu->halted == 1 ) // Waking the CPU up is 1 m-cycle
-            timer_tick_and_full_mcycle ( cpu );
+        printf("Interrupt!\n");
 
         timer_tick_and_full_mcycle ( cpu );
         timer_tick_and_full_mcycle ( cpu );
         write_byte_at_sp ( cpu, (ret >> 8) & 0xff);
         write_byte_at_sp ( cpu, (ret >> 0) & 0xff);
 
-           if ( intn & 0x01 ) { // vblank
-        cpu->pc = 0x0040;
-        cpu->interrupts.pending_vblank = 0;
-        doit = 0;
-        timer_tick_and_full_mcycle ( cpu );
-    } else if ( intn & 0x02 ) { // lcdstat
-        cpu->pc = 0x0048;
-        cpu->interrupts.pending_lcdstat = 0;
-        doit = 0;
-        timer_tick_and_full_mcycle ( cpu );
-    } else if ( intn & 0x04 ) { // timer
-        cpu->pc = 0x0050;
-        cpu->interrupts.pending_timer = 0;
-        doit = 0;
-        timer_tick_and_full_mcycle ( cpu );
-    } else if ( intn & 0x08 ) { // serial
-        cpu->pc = 0x0058;
-        doit = 0;
-        timer_tick_and_full_mcycle ( cpu );
-    } else if ( intn & 0x10 ) { // joypad
-        cpu->pc = 0x0060;
-        cpu->interrupts.pending_joypad = 0;
-        doit = 0;
-        timer_tick_and_full_mcycle ( cpu );
-    }
+////////////////////////////////////////////////////////////////////////////////////////
+            if ( intn & 0x01 ) { // vblank
+            cpu->pc = 0x0040;
+            cpu->interrupts.pending_vblank = 0;
+            doit = 0;
+            timer_tick_and_full_mcycle ( cpu );
+        } else if ( intn & 0x02 ) { // lcdstat
+            cpu->pc = 0x0048;
+            cpu->interrupts.pending_lcdstat = 0;
+            doit = 0;
+            timer_tick_and_full_mcycle ( cpu );
+        } else if ( intn & 0x04 ) { // timer
+            cpu->pc = 0x0050;
+            cpu->interrupts.pending_timer = 0;
+            doit = 0;
+            timer_tick_and_full_mcycle ( cpu );
+        } else if ( intn & 0x08 ) { // serial
+            cpu->pc = 0x0058;
+            doit = 0;
+            timer_tick_and_full_mcycle ( cpu );
+        } else if ( intn & 0x10 ) { // joypad
+            cpu->pc = 0x0060;
+            cpu->interrupts.pending_joypad = 0;
+            doit = 0;
+            timer_tick_and_full_mcycle ( cpu );
+        }
+
+        /*if ( cpu->halted == 1 ) // Waking the CPU up is 1 m-cycle*/
+            /*timer_tick_and_full_mcycle ( cpu );*/
 
         if ( doit )
             assert ( 0 && "It should never happened: Interrupt requested but nothing was serviced");
 
         cpu->enable_interrupts = 0;
         cpu->halted            = 0;
+        printf("Interrupt Serviced\n");
+    } else {
+        /*printf("No int\n");*/
     }
 }
 
@@ -105,10 +117,6 @@ void interrupt_write_IF( _cpu_info *cpu, uint8_t mask) {
     cpu->interrupts.pending_timer   = !!(mask & 0x04);
     cpu->interrupts.pending_serial  = !!(mask & 0x08);
     cpu->interrupts.pending_joypad  = !!(mask & 0x10);
-
-    if ( mask && cpu->enable_interrupts ) {
-        cpu->pending_interrupts = 1;
-    }
 }
 
 uint8_t interrupt_read_mask( _cpu_info *cpu ) {
