@@ -96,7 +96,7 @@ void write_TMA ( _cpu_info *cpu, uint16_t data ) {
 
     cpu->timer.TMA = data;
 
-    if ( cpu->timer.TIMA_reload_timer > 0 )
+    if ( cpu->timer.TIMA_timer > 0 )
         cpu->timer.TIMA = cpu->timer.TMA;
 }
 
@@ -162,18 +162,35 @@ void write_DIV( _cpu_info *cpu, uint16_t data ) {
             break;
     }
 
+    /*if ( cpu->timer.TIMA > 0xff ) {*/
+        /*cpu->timer.TIMA_timer = 1;*/
+        /*cpu->interrupts.pending_timer = 1; // Maybe it is dealyed because the cpu cant poll it before*/
+        /*[>cpu->timer.TIMA_reload_timer = 1;<]*/
+        /*cpu->timer.TIMA = 0x00;*/
+    /*}*/
+
     if ( cpu->timer.TIMA > 0xff ) {
-        cpu->timer.TIMA_timer = 1;
-        cpu->interrupts.pending_timer = 1; // Maybe it is dealyed because the cpu cant poll it before
-        /*cpu->timer.TIMA_reload_timer = 1;*/
+        cpu->timer.TIMA_reload_timer = 4;
+        cpu->interrupts.pending_timer = 1;
         cpu->timer.TIMA = 0x00;
+
+        if ( debug ) printf("TIMA RESET: ");
+        if ( debug ) print_timer_state ( cpu );
     }
+
+    /*if ( cpu->timer.TIMA_reload_timer > 0 ) {*/
+        /*cpu->timer.TIMA_reload_timer--;*/
+        /*if ( cpu->timer.TIMA_reload_timer == 0 ) {*/
+            /*reset_TIMA ( cpu );*/
+            /*cpu->timer.TIMA_timer = 1;*/
+        /*}*/
+    /*}*/
 
     if ( debug ) printf("DIV was reset");
 
-    cpu->timer._timer = data - data; // Just to use the parameter and remove and warning
-    cpu->timer._timer_old = 0;
-    cpu->timer.DIV    = cpu->timer._timer >> 8 & 0xff;
+    cpu->timer._timer_old = cpu->timer._timer;
+    cpu->timer._timer     = data - data; // Just to use the parameter and remove and warning
+    cpu->timer.DIV        = cpu->timer._timer >> 8 & 0xff;
 }
 
 uint8_t read_DIV ( _cpu_info *cpu ) {
@@ -217,6 +234,14 @@ void timer_update( _cpu_info *cpu ) {
         cpu->timer.TIMA_timer --;
     }
 
+    if ( cpu->timer.TIMA_reload_timer > 0 ) {
+        cpu->timer.TIMA_reload_timer--;
+        if ( cpu->timer.TIMA_reload_timer == 0 ) {
+            reset_TIMA ( cpu );
+            cpu->timer.TIMA_timer = 1;
+        }
+    }
+
     cpu->timer.DIV = cpu->timer._timer >> 8 & 0xff;
 
     if ( cpu->timer.TAC & 0x04 ) // If timer is running
@@ -248,14 +273,6 @@ void timer_update( _cpu_info *cpu ) {
         default:
             assert ( 0 && "Invalid value for TAC\n");
             break;
-    }
-
-    if ( cpu->timer.TIMA_reload_timer > 0 ) {
-        cpu->timer.TIMA_reload_timer--;
-        if ( cpu->timer.TIMA_reload_timer == 0 ) {
-            reset_TIMA ( cpu );
-            cpu->timer.TIMA_timer = 1;
-        }
     }
 
     if ( cpu->timer.TIMA > 0xff ) {
