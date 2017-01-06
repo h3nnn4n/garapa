@@ -28,7 +28,7 @@ TODO list
   - [x] mem_timing-2
   - [ ] oam_bug
 
- - [x] Pass Gekkio's timing tests
+ - [x] Pass Gekkio's timer tests
   - [x] div_write.gb
   - [x] rapid_toggle.gb
   - [x] tim00.gb
@@ -50,9 +50,45 @@ TODO list
   - [x] intr_2_mode0_timing.gb
   - [ ] intr_2_mode0_timing_sprites.gb
   - [x] intr_2_mode3_timing.gb
-  - [ ] intr_2_oam_ok_timing.gb
+  - [x] intr_2_oam_ok_timing.gb
   - [ ] stat_irq_blocking.gb
   - [x] vblank_stat_intr-GS.gb
+
+ - [ ] Pass Gekkio's bits tests
+  - [x] mem_oam.gb
+  - [x] reg_f.gb
+  - [ ] unused_hwio-GS.gb
+
+ - [ ] Pass Gekkio's general tests
+  - [x] add_sp_e_timing.gb
+  - [x] boot_regs-dmg.gb
+  - [ ] call_cc_timing.gb
+  - [ ] call_cc_timing2.gb
+  - [x] call_timing.gb
+  - [x] call_timing2.gb
+  - [x] di_timing-GS.gb
+  - [x] div_timing.gb
+  - [ ] ei_timing.gb
+  - [x] halt_ime0_ei.gb
+  - [x] halt_ime0_nointr_timing.gb
+  - [x] halt_ime1_timing.gb
+  - [x] halt_ime1_timing2-GS.gb
+  - [ ] if_ie_registers.gb
+  - [ ] intr_timing.gb
+  - [x] jp_cc_timing.gb
+  - [x] jp_timing.gb
+  - [x] ld_hl_sp_e_timing.gb
+  - [x] oam_dma_restart.gb
+  - [x] oam_dma_start.gb
+  - [x] oam_dma_timing.gb
+  - [x] pop_timing.gb
+  - [x] push_timing.gb
+  - [ ] rapid_di_ei.gb
+  - [x] ret_cc_timing.gb
+  - [x] ret_timing.gb
+  - [ ] reti_intr_timing.gb
+  - [x] reti_timing.gb
+  - [x] rst_timing.gb
 
  - [ ] MCBs
   - [x] NONE :)
