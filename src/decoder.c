@@ -27,16 +27,12 @@ void decoder( _cpu_info *cpu ) {
         (( read_byte(cpu, 0xff0f) &
            read_byte(cpu, 0xffff)) == 0 )) {
         timer_tick_and_full_mcycle ( cpu );
-        /*printf("Halted, skipping\n");*/
         return;
     }
 
     emulate_INTERRUPT( cpu );
 
     cpu->opcode = read_byte_at_pc ( cpu );
-    cpu->pc --;
-    out_put ( cpu );
-    cpu->pc ++;
 
     uint16_t addr;
 
@@ -474,9 +470,4 @@ void decoder( _cpu_info *cpu ) {
     }
 
     cpu->instructions_executed += 1;
-
-#ifdef __show_step
-    print_registers(cpu);
-    puts("");
-#endif
 }
