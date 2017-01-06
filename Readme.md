@@ -66,8 +66,8 @@ TODO list
  - [ ] Pass Gekkio's general tests
   - [x] add_sp_e_timing.gb
   - [x] boot_regs-dmg.gb
-  - [ ] call_cc_timing.gb
-  - [ ] call_cc_timing2.gb
+  - [x] call_cc_timing.gb
+  - [x] call_cc_timing2.gb
   - [x] call_timing.gb
   - [x] call_timing2.gb
   - [x] di_timing-GS.gb
