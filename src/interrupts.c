@@ -46,12 +46,14 @@ void emulate_INTERRUPT ( _cpu_info *cpu ) {
     uint8_t  doit = 0;
     uint16_t  ret = cpu->pc;
     if (    cpu->pending_interrupts == 0 &&
+            cpu->enable_interrupts  == 1 &&
             read_byte(cpu, 0xff0f) &
             read_byte(cpu, 0xffff)
        ) doit = 1;
 
     if ( doit ) {
-        printf("Interrupt!\n");
+        /*printf("Interrupt!\n");*/
+        printf("Interrupt: ");
 
         timer_tick_and_full_mcycle ( cpu );
         timer_tick_and_full_mcycle ( cpu );
@@ -60,25 +62,31 @@ void emulate_INTERRUPT ( _cpu_info *cpu ) {
 
 ////////////////////////////////////////////////////////////////////////////////////////
             if ( intn & 0x01 ) { // vblank
+            printf("VLANK\n");
             cpu->pc = 0x0040;
             cpu->interrupts.pending_vblank = 0;
             doit = 0;
             timer_tick_and_full_mcycle ( cpu );
         } else if ( intn & 0x02 ) { // lcdstat
+            printf("STAT\n");
             cpu->pc = 0x0048;
             cpu->interrupts.pending_lcdstat = 0;
             doit = 0;
             timer_tick_and_full_mcycle ( cpu );
         } else if ( intn & 0x04 ) { // timer
+            printf("TIMER\n");
             cpu->pc = 0x0050;
             cpu->interrupts.pending_timer = 0;
             doit = 0;
             timer_tick_and_full_mcycle ( cpu );
         } else if ( intn & 0x08 ) { // serial
+            printf("SERIAL\n");
             cpu->pc = 0x0058;
+            cpu->interrupts.pending_serial = 0;
             doit = 0;
             timer_tick_and_full_mcycle ( cpu );
         } else if ( intn & 0x10 ) { // joypad
+            printf("JOYPAD\n");
             cpu->pc = 0x0060;
             cpu->interrupts.pending_joypad = 0;
             doit = 0;
