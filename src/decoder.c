@@ -38,6 +38,11 @@ void decoder( _cpu_info *cpu ) {
     out_put ( cpu );
     cpu->pc ++;
 
+    if ( cpu->halt_bug ) {
+        cpu->halt_bug = 0;
+        cpu->pc--;
+    }
+
     uint16_t addr;
 
     if ( ( cpu->opcode >= 0x40 && cpu->opcode <= 0x75 ) || ( cpu->opcode >= 0x77 && cpu->opcode <= 0x7f ) ) {

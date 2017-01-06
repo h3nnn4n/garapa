@@ -171,10 +171,7 @@ typedef struct {                              // Struct that holds ALL informati
     unsigned long long cycles_clock;          // T-Cycles - timer   cycles
     unsigned long long instructions_executed; // Just a counter of how many instructions were executed
                                               //
-    uint8_t DMA_in_progress;                  // This is both a flag and a counter.
-                                              // If zero then there is no DMA in progress, otherwise
-                                              // it holds how many mcycles are needed for the DMA to finish;
-                                              // Something like that :)
+    uint8_t halt_bug;                         // Used to signal the halt bug
                                               //
     uint16_t pc;                              // The registers for the cpu
     uint16_t sp;                              //

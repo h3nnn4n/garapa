@@ -25,7 +25,7 @@ TODO list
   - [ ] cgb_sound
   - [x] cpu_instrs
   - [ ] dmg_sound
-  - [ ] halt_bug.gb
+  - [x] halt_bug.gb
   - [x] instr_timing
   - [ ] interrupt_time
   - [x] mem_timing

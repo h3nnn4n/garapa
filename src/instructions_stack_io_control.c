@@ -20,8 +20,13 @@ void emulate_STOP ( _cpu_info *cpu ) {
 }
 
 void emulate_HALT ( _cpu_info *cpu ) {
+    uint8_t intn = read_byte(cpu, 0xff0f) & (read_byte(cpu, 0xffff));
+
     switch ( cpu->opcode ) {
         case 0x76:
+            if ( cpu->enable_interrupts == 0 && intn )
+                cpu->halt_bug = 1;
+
             cpu->halted = 1;
             break;
         default:

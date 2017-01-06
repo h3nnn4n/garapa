@@ -64,7 +64,7 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->mem_controller.ram_mode        = 0;
     cpu->mem_controller.ram_enable      = 0;
 
-    cpu->DMA_in_progress = 0;
+    cpu->halt_bug        = 0;
     cpu->cycles_clock    = 0;
     cpu->cycles_machine  = 0;
     cpu->cycles_left     = 0;
