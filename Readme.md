@@ -44,7 +44,7 @@ TODO list
   - [x] tma_write_reloading.gb
 
  - [ ] Pass Gekkio's gpu tests
-  - [ ] hblank_ly_scx_timing-GS.gb
+  - [x] hblank_ly_scx_timing-GS.gb
   - [x] intr_1_2_timing-GS.gb
   - [x] intr_2_0_timing.gb
   - [x] intr_2_mode0_timing.gb

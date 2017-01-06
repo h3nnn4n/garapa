@@ -108,10 +108,12 @@ void write_lcd_control ( _cpu_info *cpu, uint8_t data ) {
         cpu->lcd.active_line  = 0;
         cpu->lcd.cycles_spent = 0;
         cpu->lcd.mode         = 0;
-        printf("LCD is now off\n");
+        /*printf("LCD is now off\n");*/
     } else {
-        printf("LCD is now on\n");
+        /*printf("LCD is now on\n");*/
     }
+
+    printf("ff40 lcd control write\n");
 }
 
 // 0 = Off
@@ -193,11 +195,13 @@ uint8_t display_read_stat  ( _cpu_info *cpu ) {
     return ( display_test_LYC_enable( cpu )) << 6 | cpu->lcd.mode;
 }
 
+// 0xff41 lcd stat
 void display_write_stat ( _cpu_info *cpu, uint8_t data ) {
     cpu->lcd.lyc_enable   = (data & 0x40) != 0; // bit 6
     cpu->lcd.mode2_oam    = (data & 0x20) != 0; // bit 5
     cpu->lcd.mode1_vblank = (data & 0x10) != 0; // bit 4
     cpu->lcd.mode0_hblank = (data & 0x08) != 0; // bit 3
+    printf("ff41 lcd control write\n");
 }
 
 // LY = LYC check enable
@@ -507,7 +511,7 @@ void display_update( _cpu_info *cpu ) {
 
     if ( !display_test_lcdpower(cpu) ) return;
 
-    printf(" Spent: %3d  mode: %2d  ly: %3d  lyc: %3d\n",
+    printf(" Spent: %3d  mode: %2d  ly: %3d  lyc: %3d  ",
             cpu->lcd.cycles_spent, cpu->lcd.mode, cpu->lcd.active_line, cpu->lcd.lyc_trigger);
 
     cpu->lcd.mode_cmp = 255;
@@ -538,9 +542,9 @@ void display_update( _cpu_info *cpu ) {
 
         cpu->lcd.m3_cycles = 175;
 
-        if ( cpu->lcd.window_scroll_x == 0 ) {
+        if ( ( cpu->lcd.bg_scroll_x % 8 ) == 0 ) {
             // Do nothing
-        } else if ( cpu->lcd.window_scroll_x <= 4 ) {
+        } else if ( ( cpu->lcd.bg_scroll_x % 8 ) <= 4 ) {
             cpu->lcd.m3_cycles += 4;
         } else {
             cpu->lcd.m3_cycles += 8;
@@ -560,9 +564,10 @@ void display_update( _cpu_info *cpu ) {
         fetch_sprites(cpu);
         /*sort_sprites(cpu);*/
         draw_sprites(cpu);
+
         cpu->lcd.m3_cycles += pixel_pipeline_cycles;
     } else if ( cpu->lcd.mode == 3 && cpu->lcd.cycles_spent >= ((85 + cpu->lcd.m3_cycles) -7 ) &&
-            cpu->lcd.cycles_spent < (84 + cpu->lcd.m3_cycles ) ) {
+            cpu->lcd.cycles_spent < (85 + cpu->lcd.m3_cycles ) ) {
         cpu->lcd.mode_cmp = 0;
     } else if ( cpu->lcd.mode == 3 && cpu->lcd.cycles_spent == (85 + cpu->lcd.m3_cycles) ) {
         cpu->lcd.mode = 0;
@@ -598,12 +603,15 @@ void display_update( _cpu_info *cpu ) {
         irq = 1;
     }
 
+    printf("m3_cycles: %3d  irq: %2d %2d\n", cpu->lcd.m3_cycles, cpu->lcd.stat_irq, irq);
+
     if ( !cpu->lcd.stat_irq && irq ) {
-        printf("STAT Interrupt\n");
-      /*if((cpu->lcd.lyc_delay == 1) && (cpu->lcd.active_line == cpu->lcd.lyc_trigger) && (cpu->lcd.lyc_enable == 1)) printf("LYC\n");*/
-      /*if (cpu->lcd.mode == 0 && cpu->lcd.mode0_hblank ) printf("MODE0\n");*/
-      /*if (cpu->lcd.mode == 2 && cpu->lcd.mode2_oam    ) printf("MODE2\n");*/
-      /*if (cpu->lcd.mode == 1 && (cpu->lcd.mode2_oam || cpu->lcd.mode1_vblank)) printf("MODE1\n");*/
+        /*printf("STAT Interrupt\n");*/
+        printf("STAT Interrupt: ");
+      if((cpu->lcd.lyc_delay == 1) && (cpu->lcd.active_line == cpu->lcd.lyc_trigger) && (cpu->lcd.lyc_enable == 1)) printf("LYC\n");
+      if (cpu->lcd.mode_cmp == 0 && cpu->lcd.mode0_hblank ) printf("MODE0\n");
+      if (cpu->lcd.mode_cmp == 2 && cpu->lcd.mode2_oam    ) printf("MODE2\n");
+      if (cpu->lcd.mode_cmp == 1 && (cpu->lcd.mode2_oam || cpu->lcd.mode1_vblank)) printf("MODE1\n");
         cpu->interrupts.pending_lcdstat = 1;
     }
 
