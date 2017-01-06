@@ -3,13 +3,17 @@ Here comes dat gameboi
 Oh shit waddup
 --------------
 
-This is not an gameboy emulator (yet).
+Here comes dat gameboi is GameBoy Emulator written in C. The main objective of the emulator was to be a leaning experiece for me. I am trying to make it as accurate as possible, using several test roms available on the internet, namely [blargg's](http://gbdev.gg8.se/files/roms/blargg-gb-tests/) and [gekkio's](https://github.com/Gekkio/mooneye-gb/tree/master/tests).
+The emulator still is a WIP ( Work In Progress ) and it is somewhat messy, but I am working on it on a daily basis.
+
+I would like to thank mehcode and gekkio for all the help and support they gave me, also for everyone else at [EmuDev's slack](https://slofile.com/slack/emudev).
 
 TODO list
 =========
 
  - [ ] Savestates
  - [ ] APU emulation (Audio Processing Unit)
+ - [ ] Make the PPU render correctly (it passes (most) tests but draws incorrectly)
 
  - [x] Playable Tetris
 
