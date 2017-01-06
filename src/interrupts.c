@@ -13,12 +13,12 @@
 // Bit 3: Serial   Interrupt Request (INT 58h)  (1=Request)
 // Bit 4: Joypad   Interrupt Request (INT 60h)  (1=Request)
 void emulate_INTERRUPT ( _cpu_info *cpu ) {
-    /*if ( cpu->pending_interrupts == 2 ) {*/
-        /*cpu->pending_interrupts --;*/
-        /*return;*/
-    /*} else {*/
-        /*cpu->pending_interrupts = 0;*/
-    /*}*/
+    if ( cpu->pending_interrupts == 2 ) {
+        cpu->pending_interrupts --;
+        return;
+    } else {
+        cpu->pending_interrupts = 0;
+    }
 
     /*printf("%4x %4x %2d\n",*/
             /*read_byte(cpu, 0xff0f),*/
@@ -45,7 +45,7 @@ void emulate_INTERRUPT ( _cpu_info *cpu ) {
 
     uint8_t  doit = 0;
     uint16_t  ret = cpu->pc;
-    if (
+    if (    cpu->pending_interrupts == 0 &&
             read_byte(cpu, 0xff0f) &
             read_byte(cpu, 0xffff)
        ) doit = 1;

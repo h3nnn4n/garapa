@@ -103,7 +103,7 @@ void emulate_RETI ( _cpu_info *cpu ) {
     cpu->pc = addr;
 
     cpu->enable_interrupts  = 1;
-    cpu->pending_interrupts = 2;
+    /*cpu->pending_interrupts = 2;*/
 }
 
 void emulate_RET ( _cpu_info *cpu ) {
