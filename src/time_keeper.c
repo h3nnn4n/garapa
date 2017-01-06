@@ -208,6 +208,8 @@ void timer_tick_and_full_mcycle ( _cpu_info *cpu ) {
         display_update ( cpu );
     }
 
+    dma_step ( cpu );
+
     input_update   ( cpu );
 }
 

@@ -10,8 +10,32 @@
 #include "graphics.h"
 #include "display.h"
 
-uint8_t read_byte ( _cpu_info *cpu, uint16_t addr ) {
+void dma_step ( _cpu_info *cpu ) {
+    if ( cpu->dma.oam_dma_timer > 0 ) {
+        uint16_t src = cpu->dma.oam_dma_source + cpu->dma.oam_dma_index;
+        uint8_t data = read_byte ( cpu, src );
+        // info!("oam/transfer [{:X}] {:X} -> [{:X}]",
+        //       src,
+        //       r,
+        //       0xFE00 + self.oam_dma_index);
+        /*self.gpu.oam[self.oam_dma_index as usize] = r;*/
+        cpu->mem_controller.memory [ 0xfe00 + cpu->dma.oam_dma_index ] = data;
 
+        cpu->dma.oam_dma_index ++;
+        cpu->dma.oam_dma_timer --;
+    }
+
+    if ( cpu->dma.oam_dma_delay_timer > 0 ) {
+        cpu->dma.oam_dma_delay_timer --;
+        if ( cpu->dma.oam_dma_delay_timer == 0 ) {
+            cpu->dma.oam_dma_timer = 160;
+            cpu->dma.oam_dma_index = 0;
+            cpu->dma.oam_dma_source = cpu->dma.oam_dma_next_source;
+        }
+    }
+}
+
+uint8_t read_byte ( _cpu_info *cpu, uint16_t addr ) {
     if ( addr >= 0xa000 && addr < 0xbfff ) {
         if ( cpu->mem_controller.ram_enable && cpu->mem_controller.ram_size ) {
             uint16_t offset = addr - 0xa000;
@@ -32,13 +56,9 @@ uint8_t read_byte ( _cpu_info *cpu, uint16_t addr ) {
         }
     }
 
-    if ( cpu->DMA_in_progress && addr < 0xff80 ) {
-        uint8_t dx = cpu->cycles_machine - cpu->DMA_in_progress;
-        if ( dx >= 160 ) {
-            cpu->DMA_in_progress = 0;
-        } else {
-            return cpu->mem_controller.memory[0xff80 + dx];
-        }
+    if ( ( ( addr >= 0xFE00 ) && ( addr <= 0xFE9F ) ) &&
+         ( cpu->dma.oam_dma_timer > 0 || cpu->lcd.mode == 3 )) {
+        return 0xff;
     }
 
     switch ( addr ) {
@@ -149,7 +169,6 @@ void check_passed ( char c ) {
 }
 
 void write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ) {
-    /*uint8_t */
     uint8_t mapper = cpu->mem_controller.memory[0x0147];
 
     switch (mapper) {
@@ -221,6 +240,13 @@ void write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ) {
         }
     }
 
+    if ( ( ( addr >= 0xFE00 ) && ( addr <= 0xFE9F ) ) &&
+         ( cpu->dma.oam_dma_timer > 0 )) {
+         /*( cpu->dma.oam_dma_timer > 0 || cpu->lcd.mode >= 2 )) {*/
+        /*printf("Write blocked: DMA_timer: %3d  LCD_mode: %2d\n", cpu->dma.oam_dma_timer, cpu->lcd.mode);*/
+        return;
+    }
+
     switch ( addr ) {  // WRITE
         case 0xff00:
             cpu->joystick.select_button    = data & 0x20;
@@ -263,8 +289,9 @@ void write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ) {
             display_write_LYC ( cpu, data );
             break;
         case 0xff46:
-            memcpy(&cpu->mem_controller.memory[0xfe00], &cpu->mem_controller.memory[data*0x100], 0xa0);
-            cpu->DMA_in_progress = cpu->cycles_machine;
+            cpu->dma.oam_dma_next_source = (uint16_t) data << 8;
+            cpu->dma.oam_dma_delay_timer = 2;
+            /*abort();*/
             break;
         case 0xff47: // BG Palette
             write_bg_palette   ( cpu, data ) ;

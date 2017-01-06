@@ -69,6 +69,12 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->cycles_machine  = 0;
     cpu->cycles_left     = 0;
 
+    cpu->dma.oam_dma_source      = 0;
+    cpu->dma.oam_dma_next_source = 0;
+    cpu->dma.oam_dma_delay_timer = 0;
+    cpu->dma.oam_dma_index       = 0;
+    cpu->dma.oam_dma_timer       = 0;
+
     cpu->joystick.select_button    = 1;
     cpu->joystick.select_direction = 1;
 

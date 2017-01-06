@@ -137,6 +137,15 @@ typedef struct {               // Struct that holds the info relative to the ROM
 } _mem_controller;             // TODO: Rewrite it, so that the _mem_controller works as a bus;
                                // This way all memory access will be centralized here
 
+typedef struct {                  // Struct for holding all the DMA information
+    uint16_t oam_dma_source;      // The source;
+    uint16_t oam_dma_next_source; // Source for the next DMA, if any;
+    uint8_t  oam_dma_delay_timer; // Delay until next DMA;
+    uint16_t oam_dma_index;       // Index for the running DMA;
+    uint16_t oam_dma_timer;       // How long the DMA has been running;
+} _dma;                           //
+
+
 typedef struct {                              // Struct that holds ALL information relative to the gameboy state;
     _mem_controller mem_controller;           // The structs for other parts of the gameboy's inner state
     _interrupts     interrupts;               //
@@ -144,6 +153,7 @@ typedef struct {                              // Struct that holds ALL informati
     _cpu_flags      flags;                    //
     _timer          timer;                    //
     _lcd            lcd;                      //
+    _dma            dma;                      //
                                               //
     uint8_t enable_interrupts;                // Interrupt enable flag
     uint8_t pending_interrupts;               // Interrupt delay. In some situations interrupts take some extra cycles
