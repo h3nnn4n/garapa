@@ -72,13 +72,13 @@ TODO list
   - [x] call_timing2.gb
   - [x] di_timing-GS.gb
   - [x] div_timing.gb
-  - [ ] ei_timing.gb
+  - [x] ei_timing.gb
   - [x] halt_ime0_ei.gb
   - [x] halt_ime0_nointr_timing.gb
   - [x] halt_ime1_timing.gb
   - [x] halt_ime1_timing2-GS.gb
-  - [ ] if_ie_registers.gb
-  - [ ] intr_timing.gb
+  - [x] if_ie_registers.gb
+  - [x] intr_timing.gb
   - [x] jp_cc_timing.gb
   - [x] jp_timing.gb
   - [x] ld_hl_sp_e_timing.gb
@@ -87,10 +87,10 @@ TODO list
   - [x] oam_dma_timing.gb
   - [x] pop_timing.gb
   - [x] push_timing.gb
-  - [ ] rapid_di_ei.gb
+  - [x] rapid_di_ei.gb
   - [x] ret_cc_timing.gb
   - [x] ret_timing.gb
-  - [ ] reti_intr_timing.gb
+  - [x] reti_intr_timing.gb
   - [x] reti_timing.gb
   - [x] rst_timing.gb
 

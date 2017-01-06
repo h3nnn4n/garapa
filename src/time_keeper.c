@@ -10,9 +10,6 @@
 #include "display.h"
 #include "graphics.h"
 
-// TODO: There is a lot of copy-pasted code that could be
-// moved into a function
-
 int debug = 0;
 
 void print_timer_state ( _cpu_info *cpu ) {
@@ -68,6 +65,10 @@ void write_TAC ( _cpu_info *cpu, uint8_t data ) {
             break;
     }
 
+    /*if ( cpu->timer.TIMA > 0xff ) {*/
+        /*cpu->interrupts.pending_timer = 1;*/
+        /*reset_TIMA ( cpu );*/
+    /*}*/
     if ( cpu->timer.TIMA > 0xff ) {
         cpu->timer.TIMA_reload_timer = 4;
         cpu->interrupts.pending_timer = 1;
@@ -217,7 +218,8 @@ void timer_update( _cpu_info *cpu ) {
     // DIV is the upper 8 (MSB) bits, and it increases every 256 t-cycles
     // or 64 NOPs
     //
-    if ( debug ) print_timer_state ( cpu );
+    /*if ( debug ) print_timer_state ( cpu );*/
+    print_timer_state ( cpu );
 
     static int8_t mcycle_bump = 0;
     cpu->cycles_clock    += 1;

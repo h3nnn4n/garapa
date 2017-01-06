@@ -26,16 +26,18 @@ static void return_if ( _cpu_info *cpu, uint8_t flag ) {
 
 static void call_if ( _cpu_info *cpu, uint8_t flag ) {
     uint16_t t  = 0;
-    /*uint16_t t2 = 0; // FIXME Order is wrong*/
+    uint16_t t2 = 0;
 
     if ( flag ) {
         t = cpu->pc + 2;
+        t2  = read_byte_at_pc ( cpu );
+        t2 |= read_byte_at_pc ( cpu ) << 8;
+
+        timer_tick_and_full_mcycle ( cpu );
+
         write_byte_at_sp ( cpu, (t >> 8) & 0xff );
         write_byte_at_sp ( cpu, (t >> 0) & 0xff );
-        timer_tick_and_full_mcycle ( cpu );
-        t  = read_byte_at_pc ( cpu );
-        t |= read_byte_at_pc ( cpu ) << 8;
-        cpu->pc = t;
+        cpu->pc = t2;
     } else {
         timer_tick_and_full_mcycle ( cpu );
         timer_tick_and_full_mcycle ( cpu );
@@ -101,7 +103,6 @@ void emulate_RETI ( _cpu_info *cpu ) {
     cpu->pc = addr;
 
     cpu->enable_interrupts  = 1;
-    cpu->pending_interrupts = 2;
 }
 
 void emulate_RET ( _cpu_info *cpu ) {
