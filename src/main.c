@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
 
     load_rom ( &cpu, argv[1], 0x0000 );
 
-    print_rom_info(&cpu);
+    /*print_rom_info(&cpu);*/
 
     while ( 1 ) {
         decoder        ( &cpu );

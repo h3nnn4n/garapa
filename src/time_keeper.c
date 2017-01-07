@@ -219,7 +219,7 @@ void timer_update( _cpu_info *cpu ) {
     // or 64 NOPs
     //
     /*if ( debug ) print_timer_state ( cpu );*/
-    print_timer_state ( cpu );
+    /*print_timer_state ( cpu );*/
 
     static int8_t mcycle_bump = 0;
     cpu->cycles_clock    += 1;
