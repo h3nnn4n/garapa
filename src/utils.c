@@ -13,14 +13,14 @@
 
 void load_rom ( _cpu_info *cpu, const char* fname, uint16_t offset ) {
     FILE *f = NULL;
-    off_t buffer_size = -1;
+    /*off_t buffer_size = -1;*/
 
     f = fopen(fname, "rb");
 
     if ( f == NULL )
         fprintf(stderr, "Error while opening: %s\n", fname);
 
-    buffer_size = fsize( fname );
+    /*buffer_size = fsize( fname );*/
 
     if ( fread(cpu->mem_controller.memory, 0x0200, 1, f) != 1 ) {
         printf("Something went weird while reading the ROM\n");
