@@ -192,7 +192,16 @@ void display_write_LYC ( _cpu_info *cpu, uint8_t data ) {
 }
 
 uint8_t display_read_stat  ( _cpu_info *cpu ) {
-    return ( display_test_LYC_enable( cpu )) << 6 | cpu->lcd.mode;
+    return 0x80 |
+        ( cpu->lcd.lyc_enable    << 6 ) |
+        ( cpu->lcd.mode2_oam     << 5 ) |
+        ( cpu->lcd.mode1_vblank  << 4 ) |
+        ( cpu->lcd.mode0_hblank  << 3 ) |
+        ( cpu->lcd.lyc_delay     == 0  &&
+          cpu->lcd.lyc_trigger   ==
+          cpu->lcd.active_line ) << 2   |
+        ( cpu->lcd.mode );
+
 }
 
 // 0xff41 lcd stat
@@ -529,7 +538,7 @@ void display_update( _cpu_info *cpu ) {
             cpu->lcd.mode = 1;
             /*cpu->lcd.active_line = 0;*/
 
-            printf("VBLANK Interrupt\n");
+            /*printf("VBLANK Interrupt\n");*/
             cpu->interrupts.pending_vblank = 1;
 
             flip_screen();
@@ -573,7 +582,7 @@ void display_update( _cpu_info *cpu ) {
         cpu->lcd.mode = 0;
     } else if ( cpu->lcd.mode == 0 && cpu->lcd.cycles_spent == 457 ) {
         cpu->lcd.active_line += 1;
-        cpu->lcd.lyc_delay = 4;
+        cpu->lcd.lyc_delay = 3;
         cpu->lcd.mode = 0;
         cpu->lcd.cycles_spent = 1;
     } else if ( cpu->lcd.mode == 1 ) {
@@ -584,11 +593,11 @@ void display_update( _cpu_info *cpu ) {
                 cpu->lcd.mode = 0;
             } else {
                 cpu->lcd.active_line += 1;
-                cpu->lcd.lyc_delay = 4;
+                cpu->lcd.lyc_delay = 3;
             }
         } else if ( cpu->lcd.active_line == 153 && cpu->lcd.cycles_spent == 5 ) {
             cpu->lcd.active_line = 0;
-            cpu->lcd.lyc_delay = 4;
+            cpu->lcd.lyc_delay = 3;
         }
     }
 
@@ -596,7 +605,7 @@ void display_update( _cpu_info *cpu ) {
         cpu->lcd.mode_cmp = cpu->lcd.mode;
     }
 
-    if (((cpu->lcd.lyc_delay == 1) && (cpu->lcd.active_line == cpu->lcd.lyc_trigger) && (cpu->lcd.lyc_enable == 1)) ||
+    if (((cpu->lcd.lyc_delay == 0) && (cpu->lcd.active_line == cpu->lcd.lyc_trigger) && (cpu->lcd.lyc_enable == 1)) ||
          (cpu->lcd.mode_cmp == 0 && cpu->lcd.mode0_hblank ) ||
          (cpu->lcd.mode_cmp == 2 && cpu->lcd.mode2_oam    ) ||
          (cpu->lcd.mode_cmp == 1 && (cpu->lcd.mode2_oam || cpu->lcd.mode1_vblank))) {
@@ -608,7 +617,7 @@ void display_update( _cpu_info *cpu ) {
     if ( !cpu->lcd.stat_irq && irq ) {
         /*printf("STAT Interrupt\n");*/
         printf("STAT Interrupt: ");
-      if((cpu->lcd.lyc_delay == 1) && (cpu->lcd.active_line == cpu->lcd.lyc_trigger) && (cpu->lcd.lyc_enable == 1)) printf("LYC\n");
+      if((cpu->lcd.lyc_delay == 0) && (cpu->lcd.active_line == cpu->lcd.lyc_trigger) && (cpu->lcd.lyc_enable == 1)) printf("LYC\n");
       if (cpu->lcd.mode_cmp == 0 && cpu->lcd.mode0_hblank ) printf("MODE0\n");
       if (cpu->lcd.mode_cmp == 2 && cpu->lcd.mode2_oam    ) printf("MODE2\n");
       if (cpu->lcd.mode_cmp == 1 && (cpu->lcd.mode2_oam || cpu->lcd.mode1_vblank)) printf("MODE1\n");
