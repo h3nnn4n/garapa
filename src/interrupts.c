@@ -45,11 +45,11 @@ void emulate_INTERRUPT ( _cpu_info *cpu ) {
        ) doit = 1;
 
     if ( doit ) {
+        printf("Interrupt: ");
         timer_tick_and_full_mcycle ( cpu );
         timer_tick_and_full_mcycle ( cpu );
         write_byte_at_sp ( cpu, (ret >> 8) & 0xff);
         write_byte_at_sp ( cpu, (ret >> 0) & 0xff);
-        timer_tick_and_full_mcycle ( cpu );
 
             if ( intn & 0x01 ) { // vblank
             printf("VLANK\n");
@@ -78,11 +78,14 @@ void emulate_INTERRUPT ( _cpu_info *cpu ) {
             doit = 0;
         }
 
+        timer_tick_and_full_mcycle ( cpu );
+
         if ( doit )
             assert ( 0 && "It should never happened: Interrupt requested but nothing was serviced");
 
         cpu->enable_interrupts = 0;
         cpu->halted            = 0;
+        printf("Interrupt Serviced\n");
     }
 }
 
