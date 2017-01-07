@@ -55,7 +55,7 @@ TODO list
   - [ ] intr_2_mode0_timing_sprites.gb
   - [x] intr_2_mode3_timing.gb
   - [x] intr_2_oam_ok_timing.gb
-  - [ ] stat_irq_blocking.gb
+  - [x] stat_irq_blocking.gb
   - [x] vblank_stat_intr-GS.gb
 
  - [ ] Pass Gekkio's bits tests
@@ -63,7 +63,7 @@ TODO list
   - [x] reg_f.gb
   - [ ] unused_hwio-GS.gb
 
- - [ ] Pass Gekkio's general tests
+ - [x] Pass Gekkio's general tests
   - [x] add_sp_e_timing.gb
   - [x] boot_regs-dmg.gb
   - [x] call_cc_timing.gb
