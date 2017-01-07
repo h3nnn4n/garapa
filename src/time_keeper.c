@@ -4,13 +4,13 @@
 #include <assert.h>
 #include <unistd.h>
 
+#include "debug.h"
+
 #include "types.h"
 #include "time_keeper.h"
 #include "memory.h"
 #include "display.h"
 #include "graphics.h"
-
-int debug_timer = 0;
 
 void print_timer_state ( _cpu_info *cpu ) {
     /*printf(" CYCLES: %8llu /%8llu  TIMER: %4x  DIV: %2x  TIMA: %2x  TMA: %2x  TIMA_delay: %2d  Enable: %c  Speed: %2x\n",*/

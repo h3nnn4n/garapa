@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#include "debug.h"
+
 #include "graphics.h"
 #include "memory.h"
 #include "types.h"
@@ -20,8 +22,6 @@
 #include "instructions_arithmetic.h"
 #include "instructions_data_transfer.h"
 #include "instructions_stack_io_control.h"
-
-int debug_decoder = 0;
 
 void decoder( _cpu_info *cpu ) {
     if ( cpu->halted &&
@@ -474,8 +474,12 @@ void decoder( _cpu_info *cpu ) {
             emulate_XRI( cpu );
             break;
         case 0xcb:
-            if ( debug_decoder ) out_put ( cpu );
             cpu->opcode = read_byte_at_pc ( cpu );
+            if ( debug_decoder ) {
+                cpu->pc -= 2;
+                out_put ( cpu );
+                cpu->pc += 2;
+            }
             decode_0xcb ( cpu );
             break;
         default:

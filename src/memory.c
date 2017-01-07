@@ -36,6 +36,8 @@ void dma_step ( _cpu_info *cpu ) {
 }
 
 uint8_t read_byte ( _cpu_info *cpu, uint16_t addr ) {
+    /*printf("Reading %4x = %2x\n", addr, cpu->mem_controller.memory [ addr ]);*/
+
     if ( addr >= 0xa000 && addr < 0xbfff ) {
         if ( cpu->mem_controller.ram_enable && cpu->mem_controller.ram_size ) {
             uint16_t offset = addr - 0xa000;

@@ -1,13 +1,12 @@
 #include <stdio.h>
 #include <assert.h>
 
+#include "debug.h"
 #include "memory.h"
 #include "utils.h"
 #include "types.h"
 #include "microcode.h"
 #include "time_keeper.h"
-
-int debug_interrupts = 0;
 
 // Bit 0: V-Blank  Interrupt Request (INT 40h)  (1=Request)
 // Bit 1: LCD STAT Interrupt Request (INT 48h)  (1=Request)

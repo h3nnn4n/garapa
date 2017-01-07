@@ -2,12 +2,11 @@
 
 #include "SDL.h"
 
+#include "debug.h"
 #include "types.h"
 #include "memory.h"
 #include "display.h"
 #include "graphics.h"
-
-int debug_display = 0;
 
 typedef struct {
     uint8_t  posx;
@@ -115,7 +114,7 @@ void write_lcd_control ( _cpu_info *cpu, uint8_t data ) {
         /*printf("LCD is now on\n");*/
     }
 
-    if ( debug_display ) printf("ff40 lcd control write\n");
+    /*if ( debug_display ) printf("ff40 lcd control write\n");*/
 }
 
 // 0 = Off
