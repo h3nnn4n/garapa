@@ -21,6 +21,8 @@
 #include "instructions_data_transfer.h"
 #include "instructions_stack_io_control.h"
 
+int debug_decoder = 0;
+
 void decoder( _cpu_info *cpu ) {
     if ( cpu->halted &&
          /*cpu->enable_interrupts &&*/
@@ -34,9 +36,12 @@ void decoder( _cpu_info *cpu ) {
     emulate_INTERRUPT( cpu );
 
     cpu->opcode = read_byte_at_pc ( cpu );
-    cpu->pc --;
-    out_put ( cpu );
-    cpu->pc ++;
+
+    if ( cpu->opcode != 0xcb && debug_decoder ) {
+        cpu->pc --;
+        out_put ( cpu );
+        cpu->pc ++;
+    }
 
     if ( cpu->halt_bug ) {
         cpu->halt_bug = 0;
@@ -469,6 +474,7 @@ void decoder( _cpu_info *cpu ) {
             emulate_XRI( cpu );
             break;
         case 0xcb:
+            if ( debug_decoder ) out_put ( cpu );
             cpu->opcode = read_byte_at_pc ( cpu );
             decode_0xcb ( cpu );
             break;

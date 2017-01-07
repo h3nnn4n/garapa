@@ -7,6 +7,8 @@
 #include "microcode.h"
 #include "time_keeper.h"
 
+int debug_interrupts = 0;
+
 // Bit 0: V-Blank  Interrupt Request (INT 40h)  (1=Request)
 // Bit 1: LCD STAT Interrupt Request (INT 48h)  (1=Request)
 // Bit 2: Timer    Interrupt Request (INT 50h)  (1=Request)
@@ -45,34 +47,34 @@ void emulate_INTERRUPT ( _cpu_info *cpu ) {
        ) doit = 1;
 
     if ( doit ) {
-        printf("Interrupt: ");
+        if ( debug_interrupts ) printf("Interrupt: ");
         timer_tick_and_full_mcycle ( cpu );
         timer_tick_and_full_mcycle ( cpu );
         write_byte_at_sp ( cpu, (ret >> 8) & 0xff);
         write_byte_at_sp ( cpu, (ret >> 0) & 0xff);
 
             if ( intn & 0x01 ) { // vblank
-            printf("VLANK\n");
+            if ( debug_interrupts ) printf("VLANK\n");
             cpu->pc = 0x0040;
             cpu->interrupts.pending_vblank = 0;
             doit = 0;
         } else if ( intn & 0x02 ) { // lcdstat
-            printf("STAT\n");
+            if ( debug_interrupts ) printf("STAT\n");
             cpu->pc = 0x0048;
             cpu->interrupts.pending_lcdstat = 0;
             doit = 0;
         } else if ( intn & 0x04 ) { // timer
-            printf("TIMER\n");
+            if ( debug_interrupts ) printf("TIMER\n");
             cpu->pc = 0x0050;
             cpu->interrupts.pending_timer = 0;
             doit = 0;
         } else if ( intn & 0x08 ) { // serial
-            printf("SERIAL\n");
+            if ( debug_interrupts ) printf("SERIAL\n");
             cpu->pc = 0x0058;
             cpu->interrupts.pending_serial = 0;
             doit = 0;
         } else if ( intn & 0x10 ) { // joypad
-            printf("JOYPAD\n");
+            if ( debug_interrupts ) printf("JOYPAD\n");
             cpu->pc = 0x0060;
             cpu->interrupts.pending_joypad = 0;
             doit = 0;
@@ -85,7 +87,7 @@ void emulate_INTERRUPT ( _cpu_info *cpu ) {
 
         cpu->enable_interrupts = 0;
         cpu->halted            = 0;
-        printf("Interrupt Serviced\n");
+        if ( debug_interrupts ) printf("Interrupt Serviced\n");
     }
 }
 

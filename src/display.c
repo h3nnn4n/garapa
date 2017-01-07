@@ -7,6 +7,8 @@
 #include "display.h"
 #include "graphics.h"
 
+int debug_display = 0;
+
 typedef struct {
     uint8_t  posx;
     uint8_t  posy;
@@ -113,7 +115,7 @@ void write_lcd_control ( _cpu_info *cpu, uint8_t data ) {
         /*printf("LCD is now on\n");*/
     }
 
-    printf("ff40 lcd control write\n");
+    if ( debug_display ) printf("ff40 lcd control write\n");
 }
 
 // 0 = Off
@@ -210,7 +212,7 @@ void display_write_stat ( _cpu_info *cpu, uint8_t data ) {
     cpu->lcd.mode2_oam    = (data & 0x20) != 0; // bit 5
     cpu->lcd.mode1_vblank = (data & 0x10) != 0; // bit 4
     cpu->lcd.mode0_hblank = (data & 0x08) != 0; // bit 3
-    printf("ff41 lcd control write\n");
+    if ( debug_display ) printf("ff41 lcd control write\n");
 }
 
 // LY = LYC check enable
@@ -520,7 +522,7 @@ void display_update( _cpu_info *cpu ) {
 
     if ( !display_test_lcdpower(cpu) ) return;
 
-    printf(" Spent: %3d  mode: %2d  ly: %3d  lyc: %3d  ",
+    if ( debug_display ) printf(" Spent: %3d  mode: %2d  ly: %3d  lyc: %3d  ",
             cpu->lcd.cycles_spent, cpu->lcd.mode, cpu->lcd.active_line, cpu->lcd.lyc_trigger);
 
     cpu->lcd.mode_cmp = 255;
@@ -612,15 +614,17 @@ void display_update( _cpu_info *cpu ) {
         irq = 1;
     }
 
-    printf("m3_cycles: %3d  irq: %2d %2d\n", cpu->lcd.m3_cycles, cpu->lcd.stat_irq, irq);
+    if ( debug_display ) printf("m3_cycles: %3d  irq: %2d %2d\n", cpu->lcd.m3_cycles, cpu->lcd.stat_irq, irq);
 
     if ( !cpu->lcd.stat_irq && irq ) {
         /*printf("STAT Interrupt\n");*/
-        printf("STAT Interrupt: ");
-      if((cpu->lcd.lyc_delay == 0) && (cpu->lcd.active_line == cpu->lcd.lyc_trigger) && (cpu->lcd.lyc_enable == 1)) printf("LYC\n");
-      if (cpu->lcd.mode_cmp == 0 && cpu->lcd.mode0_hblank ) printf("MODE0\n");
-      if (cpu->lcd.mode_cmp == 2 && cpu->lcd.mode2_oam    ) printf("MODE2\n");
-      if (cpu->lcd.mode_cmp == 1 && (cpu->lcd.mode2_oam || cpu->lcd.mode1_vblank)) printf("MODE1\n");
+        if ( debug_display ) {
+            printf("STAT Interrupt: ");
+            if((cpu->lcd.lyc_delay == 0) && (cpu->lcd.active_line == cpu->lcd.lyc_trigger) && (cpu->lcd.lyc_enable == 1)) printf("LYC\n");
+            if (cpu->lcd.mode_cmp == 0 && cpu->lcd.mode0_hblank ) printf("MODE0\n");
+            if (cpu->lcd.mode_cmp == 2 && cpu->lcd.mode2_oam    ) printf("MODE2\n");
+            if (cpu->lcd.mode_cmp == 1 && (cpu->lcd.mode2_oam || cpu->lcd.mode1_vblank)) printf("MODE1\n");
+        }
         cpu->interrupts.pending_lcdstat = 1;
     }
 

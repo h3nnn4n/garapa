@@ -10,7 +10,7 @@
 #include "display.h"
 #include "graphics.h"
 
-int debug = 0;
+int debug_timer = 0;
 
 void print_timer_state ( _cpu_info *cpu ) {
     /*printf(" CYCLES: %8llu /%8llu  TIMER: %4x  DIV: %2x  TIMA: %2x  TMA: %2x  TIMA_delay: %2d  Enable: %c  Speed: %2x\n",*/
@@ -39,25 +39,25 @@ void write_TAC ( _cpu_info *cpu, uint8_t data ) {
         case 0x00: // 00: 4096   Hz ( Increase every 1024 clocks )
             if ( cpu->timer._timer & 0x0200 ) {
                 cpu->timer.TIMA ++;
-                if ( debug ) printf("TIMA triggered on TAC write\n");
+                if ( debug_timer ) printf("TIMA triggered on TAC write\n");
             }
             break;
         case 0x01: // 01: 262144 Hz ( 16 clocks  )
             if ( cpu->timer._timer & 0x0008 ) {
                 cpu->timer.TIMA ++;
-                if ( debug ) printf("TIMA triggered on TAC write\n");
+                if ( debug_timer ) printf("TIMA triggered on TAC write\n");
             }
             break;
         case 0x02: // 10: 65536  Hz ( 64 clocks  )
             if ( cpu->timer._timer & 0x0020 ) {
                 cpu->timer.TIMA ++;
-                if ( debug ) printf("TIMA triggered on TAC write\n");
+                if ( debug_timer ) printf("TIMA triggered on TAC write\n");
             }
             break;
         case 0x03: // 11: 16386  Hz ( 256 clocks )
             if ( cpu->timer._timer & 0x0080 ) {
                 cpu->timer.TIMA ++;
-                if ( debug ) printf("TIMA triggered on TAC write\n");
+                if ( debug_timer ) printf("TIMA triggered on TAC write\n");
             }
             break;
         default:
@@ -74,11 +74,11 @@ void write_TAC ( _cpu_info *cpu, uint8_t data ) {
         cpu->interrupts.pending_timer = 1;
         cpu->timer.TIMA = 0x00;
 
-        if ( debug ) printf("TIMA RESET: ");
-        if ( debug ) print_timer_state ( cpu );
+        if ( debug_timer ) printf("TIMA RESET: ");
+        if ( debug_timer ) print_timer_state ( cpu );
     }
 
-    if ( debug ) printf("TAC changed: %2x ->: Enable: %c  Speed: %2x\n",
+    if ( debug_timer ) printf("TAC changed: %2x ->: Enable: %c  Speed: %2x\n",
             data,
             data & 0x04 ? 'y':'n',
             data & 0x03);
@@ -88,13 +88,13 @@ void write_TAC ( _cpu_info *cpu, uint8_t data ) {
 
 // 0xff07
 uint8_t read_TAC ( _cpu_info *cpu ) {
-    if ( debug ) printf("TAC was read\n");
+    if ( debug_timer ) printf("TAC was read\n");
     return cpu->timer.TAC;
 }
 
 // 0xff06
 void write_TMA ( _cpu_info *cpu, uint16_t data ) {
-    if ( debug ) printf("TMA changed %2x to %2x\n", cpu->timer.TMA, data);
+    if ( debug_timer ) printf("TMA changed %2x to %2x\n", cpu->timer.TMA, data);
 
     cpu->timer.TMA = data;
 
@@ -104,14 +104,14 @@ void write_TMA ( _cpu_info *cpu, uint16_t data ) {
 
 // 0xff06
 uint16_t read_TMA ( _cpu_info *cpu ) {
-    if ( debug ) printf("TMA was read\n");
+    if ( debug_timer ) printf("TMA was read\n");
     return cpu->timer.TMA;
 }
 
 // 0xff05
 void write_TIMA ( _cpu_info *cpu, uint16_t data ) {
-    if ( debug ) printf("TIMA changed %2x to %2x, was: " , cpu->timer.TIMA, data);
-    if ( debug ) print_timer_state ( cpu );
+    if ( debug_timer ) printf("TIMA changed %2x to %2x, was: " , cpu->timer.TIMA, data);
+    if ( debug_timer ) print_timer_state ( cpu );
 
     if ( cpu->timer.TIMA_timer == 0 ) {
         cpu->timer.TIMA = data;
@@ -122,8 +122,8 @@ void write_TIMA ( _cpu_info *cpu, uint16_t data ) {
 
 // 0xff05
 uint16_t read_TIMA ( _cpu_info *cpu ) {
-    if ( debug ) printf("TIMA was read: ");
-    if ( debug ) print_timer_state ( cpu );
+    if ( debug_timer ) printf("TIMA was read: ");
+    if ( debug_timer ) print_timer_state ( cpu );
     return cpu->timer.TIMA;
 }
 
@@ -176,8 +176,8 @@ void write_DIV( _cpu_info *cpu, uint16_t data ) {
         cpu->interrupts.pending_timer = 1;
         cpu->timer.TIMA = 0x00;
 
-        if ( debug ) printf("TIMA RESET: ");
-        if ( debug ) print_timer_state ( cpu );
+        if ( debug_timer ) printf("TIMA RESET: ");
+        if ( debug_timer ) print_timer_state ( cpu );
     }
 
     /*if ( cpu->timer.TIMA_reload_timer > 0 ) {*/
@@ -188,7 +188,7 @@ void write_DIV( _cpu_info *cpu, uint16_t data ) {
         /*}*/
     /*}*/
 
-    if ( debug ) printf("DIV was reset");
+    if ( debug_timer ) printf("DIV was reset");
 
     cpu->timer._timer_old = cpu->timer._timer;
     cpu->timer._timer     = data - data; // Just to use the parameter and remove and warning
@@ -196,7 +196,7 @@ void write_DIV( _cpu_info *cpu, uint16_t data ) {
 }
 
 uint8_t read_DIV ( _cpu_info *cpu ) {
-    if ( debug ) printf("DIV was read: ");
+    if ( debug_timer ) printf("DIV was read: ");
     // Making sure it has the correcrt value
     assert ( cpu->timer.DIV == ((cpu->timer._timer >> 8) & 0xff ));
     return cpu->timer.DIV;
@@ -218,7 +218,7 @@ void timer_update( _cpu_info *cpu ) {
     // DIV is the upper 8 (MSB) bits, and it increases every 256 t-cycles
     // or 64 NOPs
     //
-    /*if ( debug ) print_timer_state ( cpu );*/
+    /*if ( debug_timer ) print_timer_state ( cpu );*/
     /*print_timer_state ( cpu );*/
 
     static int8_t mcycle_bump = 0;
@@ -284,7 +284,7 @@ void timer_update( _cpu_info *cpu ) {
         cpu->interrupts.pending_timer = 1;
         cpu->timer.TIMA = 0x00;
 
-        if ( debug ) printf("TIMA RESET: ");
-        if ( debug ) print_timer_state ( cpu );
+        if ( debug_timer ) printf("TIMA RESET: ");
+        if ( debug_timer ) print_timer_state ( cpu );
     }
 }
