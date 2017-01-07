@@ -17,6 +17,7 @@ typedef struct {
 
 _test_control test_control;
 
+uint32_t test_get_hash    (                                                ) ;
 uint8_t test_step         ( _test_control *t                               ) ;
 void test_create_buffer   ( _test_control* t                               ) ;
 void test_reset_buffer    ( _test_control* t                               ) ;

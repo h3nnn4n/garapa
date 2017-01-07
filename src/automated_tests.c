@@ -48,7 +48,7 @@ _test_info tests_to_run[] = {
     { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/oam_dma_start.gb"                   , 6  , 0xd7c76a01 } ,
     { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/oam_dma_timing.gb"                  , 5  , 0xd42bf4fb } ,
     { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/pop_timing.gb"                      , 2  , 0xc419cfa5 } ,
-    { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/push_timing.gb"                     , 5  , 0x64d18db1 } ,
+    { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/push_timing.gb"                     , 6  , 0x279f2c82 } ,
     { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/rapid_di_ei.gb"                     , 2  , 0xce52a906 } ,
     { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/ret_cc_timing.gb"                   , 6  , 0x27fb3d0d } ,
     { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/ret_timing.gb"                      , 6  , 0x27fb3d0d } ,
@@ -76,7 +76,7 @@ _test_info tests_to_run[] = {
     { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/gpu/intr_2_mode0_timing.gb"         , 4  , 0x9af87bb4 } ,
     { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/gpu/intr_2_mode0_timing_sprites.gb" , 5  , 0/*x30c78aed*/ } ,
     { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/gpu/intr_2_mode3_timing.gb"         , 4  , 0x9bed9573 } ,
-    { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/gpu/intr_2_oam_ok_timing.gb"        , 4  , 0/*x4a48c5b6*/ } ,
+    { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/gpu/intr_2_oam_ok_timing.gb"        , 6  , 0x79330f39 } ,
     { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/gpu/stat_irq_blocking.gb"           , 4  , 0x27fb3d0d } ,
     { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/gpu/vblank_stat_intr-GS.gb"         , 10 , 0x350c17f4 } ,
 
@@ -108,6 +108,36 @@ uint8_t test_step ( _test_control *t ) {
     t->test_spent_frames += 1;
 
     return t->test_spent_frames >= t->test_needed_frames && t->test_enable;
+}
+
+uint32_t test_get_hash ( ) {
+    int i = 22;
+
+    test_create_buffer( &test_control );
+
+    _cpu_info cpu;
+
+    test_control.test_needed_frames = tests_to_run[i].frames;
+
+    init_cpu ( &cpu ); // Memory leak here
+
+    load_rom ( &cpu, tests_to_run[i].name, 0x0000 );
+
+    cpu.die = 0;
+
+    while ( cpu.die == 0 ) {
+        decoder        ( &cpu );
+    }
+
+    uint32_t hash = hashlittle(test_control.test_bitmap, sizeof (uint32_t) * 144 * 160, 12);
+
+    printf("#%3d [ %s "C_RESET"] 0x%08x -- %s\n", i + 1, hash == tests_to_run[i].hash ? C_GRN "PASS" : C_RED "FAIL", hash, tests_to_run[i].name );
+    printf("{ \"%s\", %3d, 0x%08x },\n", tests_to_run[i].name, tests_to_run[i].frames, hash );
+    test_reset_buffer( &test_control );
+
+    test_free_buffer( &test_control );
+
+    return hash;
 }
 
 void test_run ( ) {
