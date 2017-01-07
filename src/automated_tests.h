@@ -23,6 +23,7 @@ void test_reset_buffer    ( _test_control* t                               ) ;
 void test_free_buffer     ( _test_control* t                               ) ;
 void test_write_to_buffer ( _test_control* t, uint16_t addr, uint32_t data ) ;
 void test_run             (                                                ) ;
+void test_run_adjust      (                                                ) ;
 
 
 #endif /* AUTOMATED_TESTS_H */
