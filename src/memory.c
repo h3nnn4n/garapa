@@ -59,7 +59,9 @@ uint8_t read_byte ( _cpu_info *cpu, uint16_t addr ) {
     }
 
     if ( ( ( addr >= 0xFE00 ) && ( addr <= 0xFE9F ) ) &&
-         ( cpu->dma.oam_dma_timer > 0 || cpu->lcd.mode == 3 )) {
+            // FIXME TODO What is wrong here?
+         /*( cpu->dma.oam_dma_timer > 0 || cpu->lcd.mode == 3 )) {*/
+         ( cpu->dma.oam_dma_timer > 0 )) {
         return 0xff;
     }
 
