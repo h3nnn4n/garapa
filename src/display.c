@@ -14,6 +14,8 @@ typedef struct {
     uint8_t  hflip;
     uint8_t  vflip;
 
+    uint8_t  palette_number;
+
     uint8_t  priority; // 1 if above background
                        // PS: Actual bit in OAM is 0 for when above
     uint8_t  tile;
@@ -33,27 +35,28 @@ uint8_t priority_cache[144 * 160];
 uint8_t sprite_x_cache[144 * 160];
 uint8_t sprite_stall_buckets[(168 + 256 + 7) / 8]; // How big?
 
-
-void write_spr1_palette ( _cpu_info *cpu, uint8_t data ) {
+// 0xff47
+void write_bg_palette ( _cpu_info *cpu, uint8_t data ) {
     cpu->lcd.bg_palette[0] = ( data >> 0 ) & 0x03;
     cpu->lcd.bg_palette[1] = ( data >> 2 ) & 0x03;
     cpu->lcd.bg_palette[2] = ( data >> 4 ) & 0x03;
     cpu->lcd.bg_palette[3] = ( data >> 6 ) & 0x03;
 }
 
-void write_spr2_palette ( _cpu_info *cpu, uint8_t data ) {
+// 0xff48
+void write_spr1_palette ( _cpu_info *cpu, uint8_t data ) {
     cpu->lcd.spr1_palette[0] = ( data >> 0 ) & 0x03;
     cpu->lcd.spr1_palette[1] = ( data >> 2 ) & 0x03;
     cpu->lcd.spr1_palette[2] = ( data >> 4 ) & 0x03;
     cpu->lcd.spr1_palette[3] = ( data >> 6 ) & 0x03;
 }
 
-void write_bg_palette ( _cpu_info *cpu, uint8_t data ) {
-    cpu->lcd.spr1_palette[0] = ( data >> 0 ) & 0x03;
-    cpu->lcd.spr1_palette[1] = ( data >> 2 ) & 0x03;
-    cpu->lcd.spr1_palette[2] = ( data >> 4 ) & 0x03;
-    cpu->lcd.spr1_palette[3] = ( data >> 6 ) & 0x03;
-
+// 0xff49
+void write_spr2_palette ( _cpu_info *cpu, uint8_t data ) {
+    cpu->lcd.spr2_palette[0] = ( data >> 0 ) & 0x03;
+    cpu->lcd.spr2_palette[1] = ( data >> 2 ) & 0x03;
+    cpu->lcd.spr2_palette[2] = ( data >> 4 ) & 0x03;
+    cpu->lcd.spr2_palette[3] = ( data >> 6 ) & 0x03;
 }
 
 void write_scroll_y ( _cpu_info *cpu, uint8_t data ) {
@@ -342,6 +345,8 @@ void fetch_sprites ( _cpu_info *cpu ) {
         sprites[sprite_pivot].hflip = !!(flags & 0x20);
         sprites[sprite_pivot].tile  = tileaddr;
 
+        sprites[sprite_pivot].palette_number = !!(flags & 0x08);
+
         if ( ( cpu->lcd.active_line >= posy ) && // Checks if the sprite overlaps the current line
              ( cpu->lcd.active_line < posy + ( cpu->lcd.sprite_size ? 16 : 8 ) ) ) {
 
@@ -407,6 +412,7 @@ void draw_sprites ( _cpu_info *cpu ) {
     for (int i = 0; i < sprites_to_draw; ++i) {
         uint8_t posy      = sprites[i].posy;
         uint8_t posx      = sprites[i].posx;
+        uint8_t pallete   = sprites[i].palette_number;
 
         if ( sprites_draw >= 10 ) break;
 
@@ -451,7 +457,8 @@ void draw_sprites ( _cpu_info *cpu ) {
 
                 if ( !color ) continue;
 
-                buffer[cpu->lcd.active_line*160 + posx + j] = cpu->lcd.colors[cpu->lcd.bg_palette[color]];
+                buffer[cpu->lcd.active_line*160 + posx + j] = pallete ? cpu->lcd.colors[cpu->lcd.spr1_palette[color]] :
+                                                                        cpu->lcd.colors[cpu->lcd.spr2_palette[color]];
             }
 
             if ( rendered ) {
