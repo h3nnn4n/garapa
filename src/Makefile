@@ -1,8 +1,10 @@
 CC=gcc
-override CFLAGS+=-lm -Wall -Wextra -pedantic --std=gnu11 -O3 `sdl2-config --cflags --libs`
+override CFLAGS+=-lm -Wall -Wextra -pedantic --std=gnu11 -Og `sdl2-config --cflags --libs`
 
 SOURCES=utils.c                      \
 		disassembler.c               \
+		lookup3.c                    \
+		automated_tests.c            \
 		wad_output.c                 \
 		decoder.c                    \
 		graphics.c                   \

@@ -2,6 +2,8 @@
 
 #include "SDL.h"
 
+#include "automated_tests.h"
+
 #include "debug.h"
 #include "types.h"
 #include "memory.h"
@@ -322,6 +324,10 @@ void draw_background_and_window( _cpu_info *cpu ) {
         priority_cache[cpu->lcd.active_line * 160 + i] = color > 0 ? 1 : 0;
 
         buffer[cpu->lcd.active_line*160 + i] = cpu->lcd.colors[cpu->lcd.bg_palette[color]];
+
+        test_write_to_buffer(&test_control,
+                              cpu->lcd.active_line*160 + i,
+                              cpu->lcd.colors[cpu->lcd.bg_palette[color]]);
     }
 }
 
@@ -460,6 +466,10 @@ void draw_sprites ( _cpu_info *cpu ) {
 
                 buffer[cpu->lcd.active_line*160 + posx + j] = pallete ? cpu->lcd.colors[cpu->lcd.spr2_palette[color]] :
                                                                         cpu->lcd.colors[cpu->lcd.spr1_palette[color]];
+                test_write_to_buffer(&test_control,
+                                      cpu->lcd.active_line*160 + posx + j,
+                                      pallete ? cpu->lcd.colors[cpu->lcd.spr2_palette[color]] :
+                                                cpu->lcd.colors[cpu->lcd.spr1_palette[color]]);
             }
 
             if ( rendered ) {
@@ -551,6 +561,7 @@ void display_update( _cpu_info *cpu ) {
             cpu->interrupts.pending_vblank = 1;
 
             flip_screen();
+            cpu->die = test_step ( &test_control );
         }
     } else if ( cpu->lcd.mode == 0 && cpu->lcd.cycles_spent >= 1 && cpu->lcd.cycles_spent < 5 && cpu->lcd.active_line >= 1 &&
                 cpu->lcd.active_line <= 143 ) {

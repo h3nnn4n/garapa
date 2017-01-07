@@ -183,6 +183,8 @@ typedef struct {                              // Struct that holds ALL informati
     uint8_t e;                                //
     uint8_t h;                                //
     uint8_t l;                                //
+
+    uint8_t die;                              // Used by the test routines. Signals when emulator should stop;
 } _cpu_info;                                  //
 
 #endif /* TYPES_H */
