@@ -284,6 +284,7 @@ void draw_background_and_window( _cpu_info *cpu ) {
     uint16_t bg_addr;
     uint16_t tile_addr;
 
+    /*for (int i = 0; i < 160; i+=2) { // screen is 160 pixels wide*/
     for (int i = 0; i < 160; i+=1) { // screen is 160 pixels wide
         if ( display_test_windowenable ( cpu ) &&          // If windows is active
             cpu->lcd.active_line >= read_window_y ( cpu ) &&  // and on current scanline
@@ -345,6 +346,8 @@ void fetch_sprites ( _cpu_info *cpu ) {
         sprites[sprite_pivot].hflip = !!(flags & 0x20);
         sprites[sprite_pivot].tile  = tileaddr;
 
+        printf(" x: %3d y: %3d\n", posx, posy);
+
         sprites[sprite_pivot].palette_number = !!(flags & 0x08);
 
         if ( ( cpu->lcd.active_line >= posy ) && // Checks if the sprite overlaps the current line
@@ -366,6 +369,8 @@ void fetch_sprites ( _cpu_info *cpu ) {
             sprite_pivot ++;
         }
     }
+
+    printf("\n");
 }
 
 void sort_sprites ( ) {
@@ -457,8 +462,8 @@ void draw_sprites ( _cpu_info *cpu ) {
 
                 if ( !color ) continue;
 
-                buffer[cpu->lcd.active_line*160 + posx + j] = pallete ? cpu->lcd.colors[cpu->lcd.spr1_palette[color]] :
-                                                                        cpu->lcd.colors[cpu->lcd.spr2_palette[color]];
+                buffer[cpu->lcd.active_line*160 + posx + j] = pallete ? cpu->lcd.colors[cpu->lcd.spr2_palette[color]] :
+                                                                        cpu->lcd.colors[cpu->lcd.spr1_palette[color]];
             }
 
             if ( rendered ) {
