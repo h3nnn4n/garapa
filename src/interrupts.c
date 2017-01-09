@@ -130,7 +130,7 @@ void interrupt_write_IF( _cpu_info *cpu, uint8_t mask) {
 }
 
 uint8_t interrupt_read_mask( _cpu_info *cpu ) {
-    unsigned char mask = 0;
+    unsigned char mask = cpu->interrupts.ununsed_bits;
 
     mask |= (!cpu->interrupts.masked_vblank  << 0);
     mask |= (!cpu->interrupts.masked_lcdstat << 1);
@@ -147,4 +147,6 @@ void interrupt_write_mask( _cpu_info *cpu, uint8_t mask ) {
     cpu->interrupts.masked_timer   = !(mask & 0x04);
     cpu->interrupts.masked_serial  = !(mask & 0x08);
     cpu->interrupts.masked_joypad  = !(mask & 0x10);
+
+    cpu->interrupts.ununsed_bits   = mask & 0xe0;
 }

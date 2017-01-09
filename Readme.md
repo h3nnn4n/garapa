@@ -58,10 +58,10 @@ TODO list
   - [x] stat_irq_blocking.gb
   - [x] vblank_stat_intr-GS.gb
 
- - [ ] Pass Gekkio's bits tests
+ - [x] Pass Gekkio's bits tests
   - [x] mem_oam.gb
   - [x] reg_f.gb
-  - [ ] unused_hwio-GS.gb
+  - [x] unused_hwio-GS.gb
 
  - [x] Pass Gekkio's general tests
   - [x] add_sp_e_timing.gb

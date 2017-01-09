@@ -126,8 +126,11 @@ typedef struct {             // Interrupt controll Struct;
     uint8_t masked_lcdstat;  // respective interrupt is masked and
     uint8_t masked_timer;    // wont be serviced.
     uint8_t masked_serial;   //
-    uint8_t masked_joypad;   // I THINK!!!
-} _interrupts;               // TODO: Check it
+    uint8_t masked_joypad;   //
+
+    uint8_t ununsed_bits;    // Ununsed bits that are R/W
+                             // Gekkio's unused_hwio-GS tests it
+} _interrupts;               //
 
 typedef struct { // The flags from the CPU
     uint8_t z  ; // Zero flag

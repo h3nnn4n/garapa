@@ -131,8 +131,10 @@ uint8_t read_byte ( _cpu_info *cpu, uint16_t addr ) {
                 }
                 return 0xc0 | ( input );
             }
-        case 0xffff:
-            return interrupt_read_mask( cpu );
+        case 0xff01:
+            return 0x00;
+        case 0xff02:
+            return 0x7e;
         case 0xff0f:
             return interrupt_read_IF( cpu );
         case 0xff04: // DIV
@@ -142,7 +144,7 @@ uint8_t read_byte ( _cpu_info *cpu, uint16_t addr ) {
         case 0xff06: // TMA
             return read_TMA  ( cpu );
         case 0xff07: // TAC
-            return read_TAC  ( cpu );
+            return read_TAC  ( cpu ) | 0xf8;
         case 0xff41:
             return display_read_stat ( cpu );
         case 0xff42:
@@ -157,8 +159,44 @@ uint8_t read_byte ( _cpu_info *cpu, uint16_t addr ) {
             return read_window_y ( cpu );
         case 0xff4b:
             return read_window_x ( cpu );
+
+        case 0xff10:
+            return 0 | 0x80;
+        case 0xff1a:
+            return 0 | 0x7f;
+        case 0xff1c:
+            return 0 | 0x9f;
+        case 0xff20:
+            return 0 | 0xc0;
+        case 0xff23:
+            return 0 | 0x3f;
+        case 0xff26:
+            return 0 | 0x70;
+
+        case 0xff03:
+        case 0xff08:
+        case 0xff09:
+        case 0xff0a:
+        case 0xff0b:
+        case 0xff0c:
+        case 0xff0d:
+        case 0xff0e:
+        case 0xff15:
+        case 0xff1f:
+        case 0xff27:
+        case 0xff28:
+        case 0xff29:
+            return 0 | 0xff;
+
+        case 0xffff:
+            return interrupt_read_mask( cpu );
+
         default:
             break;
+    }
+
+    if ( addr >= 0xff4c && addr <= 0xff7f ) {
+        return 0xff;
     }
 
     // No need to check if the address is valid.

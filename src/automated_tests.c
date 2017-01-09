@@ -101,7 +101,7 @@ _test_info tests_to_run[] = {
 
     { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/bits/mem_oam.gb"                    , 2  , 0x27fb3d0d } ,
     { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/bits/reg_f.gb"                      , 2  , 0xaaddf876 } ,
-    { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/bits/unused_hwio-GS.gb"             , 2  , 0/*x1ce880f3*/ } ,
+    { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/bits/unused_hwio-GS.gb"             , 2  , 0x27fb3d0d } ,
 };
 
 void test_create_buffer ( _test_control* t ) {
