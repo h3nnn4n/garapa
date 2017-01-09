@@ -52,7 +52,7 @@ typedef struct {
 
 _sprite_info sprites[40];
 uint8_t sprite_pivot;
-uint8_t pixel_pipeline_cycles;
+uint16_t pixel_pipeline_cycles;
 
 uint8_t priority_cache[144 * 160];
 uint8_t sprite_x_cache[144 * 160];
@@ -362,8 +362,8 @@ void fetch_sprites ( _cpu_info *cpu ) {
     // bit3 = atributes
     // TODO: Sprites Priority
     for (int i = 0; i < 40; ++i) { // Loops over the 40 sprites
-        int8_t posy      = dma_read(cpu, 0xfe00 + (i*4    )) - 16; // Reads the y coordinate
-        int8_t posx      = dma_read(cpu, 0xfe00 + (i*4 + 1)) - 8 ; // Reads the x coordinate
+        int16_t posy      = dma_read(cpu, 0xfe00 + (i*4    )) - 16; // Reads the y coordinate
+        int16_t posx      = dma_read(cpu, 0xfe00 + (i*4 + 1)) - 8 ; // Reads the x coordinate
         uint16_t tileaddr = dma_read(cpu, 0xfe00 + (i*4 + 2)); // Tile index
         uint8_t flags     = dma_read(cpu, 0xfe00 + (i*4 + 3)); // Tile flags
 
@@ -426,7 +426,7 @@ void draw_sprites ( _cpu_info *cpu ) {
 
     pixel_pipeline_cycles    = 0;
 
-    uint8_t rendered         = 0;
+    uint8_t  rendered        = 0;
     uint16_t has_sprite_at_0 = 0;
     uint16_t sprites_draw    = 0;
     uint32_t cache_index     = 0;
@@ -445,12 +445,9 @@ void draw_sprites ( _cpu_info *cpu ) {
         uint8_t pallete   = sprites[i].palette_number;
 
         if ( sprites_draw >= 10 ) break;
-        /*printf(" sprite x: :%4d  y: :%4d\n", posx, posy);*/
 
         if ( ( cpu->lcd.active_line >= posy ) &&
              ( cpu->lcd.active_line < posy + ( cpu->lcd.sprite_size ? 16 : 8 ) ) ) {
-
-            if ( debug_display ) printf(" sprite %04x x: %4d  y: %4d\n", 0xfe00 + (i*4    ), posx, posy);
 
             uint8_t bit1 = sprites[i].color_bit1;
             uint8_t bit2 = sprites[i].color_bit2;
@@ -499,10 +496,11 @@ void draw_sprites ( _cpu_info *cpu ) {
             }
 
             if ( rendered ) {
-                if ( posx < 168 ) {
+                int16_t posx2 = posx + 8;
+                if ( posx2 < 168 ) {
                     pixel_pipeline_cycles += 6;
 
-                    int16_t x = posx + (int8_t) cpu->lcd.bg_scroll_x;
+                    int16_t x = posx2 + (int16_t) cpu->lcd.bg_scroll_x;
 
                     if ( x < 0 ) {
                         x = 0;
@@ -538,7 +536,6 @@ void draw_sprites ( _cpu_info *cpu ) {
         pixel_pipeline_cycles += cpu->lcd.bg_scroll_x & 0x07;
     }
 
-    //Rounds down to a m-cycle
     pixel_pipeline_cycles &= 0xfc;
 }
 
@@ -621,9 +618,9 @@ void display_update( _cpu_info *cpu ) {
             fetch_sprites(cpu);
             /*sort_sprites(cpu);*/
             draw_sprites(cpu);
+            cpu->lcd.m3_cycles += pixel_pipeline_cycles;
         }
 
-        cpu->lcd.m3_cycles += pixel_pipeline_cycles;
     } else if ( cpu->lcd.mode == 3 && cpu->lcd.cycles_spent >= ((85 + cpu->lcd.m3_cycles) -7 ) &&
             cpu->lcd.cycles_spent < (85 + cpu->lcd.m3_cycles ) ) {
         cpu->lcd.mode_cmp = 0;

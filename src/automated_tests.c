@@ -93,7 +93,7 @@ _test_info tests_to_run[] = {
     { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/gpu/intr_1_2_timing-GS.gb"          , 5  , 0x3b217b13 } ,
     { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/gpu/intr_2_0_timing.gb"             , 4  , 0xf8005057 } ,
     { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/gpu/intr_2_mode0_timing.gb"         , 4  , 0x9af87bb4 } ,
-    { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/gpu/intr_2_mode0_timing_sprites.gb" , 5  , 0/*x30c78aed*/ } ,
+    { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/gpu/intr_2_mode0_timing_sprites.gb" , 213, 0x27fb3d0d } ,
     { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/gpu/intr_2_mode3_timing.gb"         , 4  , 0x9bed9573 } ,
     { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/gpu/intr_2_oam_ok_timing.gb"        , 6  , 0x79330f39 } ,
     { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/gpu/stat_irq_blocking.gb"           , 4  , 0x27fb3d0d } ,

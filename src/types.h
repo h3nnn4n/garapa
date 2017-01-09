@@ -68,7 +68,7 @@ typedef struct {              // This is a struct that holds all information
     uint8_t lyc_ly_triggered; // Bit 2
     uint8_t mode;             // Bit 0 and 1
 
-    uint8_t m3_cycles;        // Extra Cycles for mode3
+    uint16_t m3_cycles;       // Extra Cycles for mode3
 
                               // The color palettes for
     uint8_t  bg_palette[4];   // background at 0xff47
