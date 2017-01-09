@@ -67,7 +67,7 @@ _test_info tests_to_run[] = {
     { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/oam_dma_start.gb"                   , 6  , 0xd7c76a01 } ,
     { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/oam_dma_timing.gb"                  , 5  , 0xd42bf4fb } ,
     { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/pop_timing.gb"                      , 2  , 0xc419cfa5 } ,
-    { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/push_timing.gb"                     , 6  , 0x64d18db1 /*0x279f2c82*/ } ,
+    { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/push_timing.gb"                     , 6  , 0x279f2c82 } ,
     { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/rapid_di_ei.gb"                     , 2  , 0xce52a906 } ,
     { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/ret_cc_timing.gb"                   , 6  , 0x27fb3d0d } ,
     { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/ret_timing.gb"                      , 6  , 0x27fb3d0d } ,

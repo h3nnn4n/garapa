@@ -32,8 +32,8 @@
 #define dma_read(cpu,addr) (cpu->mem_controller.memory[addr])
 
 typedef struct {
-    uint8_t  posx;
-    uint8_t  posy;
+    int16_t  posx;
+    int16_t  posy;
     uint8_t  hflip;
     uint8_t  vflip;
 
@@ -300,8 +300,8 @@ void draw_background_and_window( _cpu_info *cpu ) {
     uint8_t  *memory = cpu->mem_controller.memory;
     if ( buffer == NULL ) return;
 
-    uint8_t posx;
-    uint8_t posy;
+    uint16_t posx;
+    uint16_t posy;
     uint8_t color;
 
     uint16_t bg_addr;
@@ -362,8 +362,8 @@ void fetch_sprites ( _cpu_info *cpu ) {
     // bit3 = atributes
     // TODO: Sprites Priority
     for (int i = 0; i < 40; ++i) { // Loops over the 40 sprites
-        uint8_t posy      = dma_read(cpu, 0xfe00 + (i*4    )) - 16; // Reads the y coordinate
-        uint8_t posx      = dma_read(cpu, 0xfe00 + (i*4 + 1)) - 8 ; // Reads the x coordinate
+        int8_t posy      = dma_read(cpu, 0xfe00 + (i*4    )) - 16; // Reads the y coordinate
+        int8_t posx      = dma_read(cpu, 0xfe00 + (i*4 + 1)) - 8 ; // Reads the x coordinate
         uint16_t tileaddr = dma_read(cpu, 0xfe00 + (i*4 + 2)); // Tile index
         uint8_t flags     = dma_read(cpu, 0xfe00 + (i*4 + 3)); // Tile flags
 
@@ -374,6 +374,8 @@ void fetch_sprites ( _cpu_info *cpu ) {
         sprites[sprite_pivot].tile  = tileaddr;
 
         sprites[sprite_pivot].palette_number = !!(flags & 0x08);
+
+        /*printf(" sprite %04x x: %4d  y: %4d\n", 0xfe00 + (i*4    ), posx, posy);*/
 
         if ( ( cpu->lcd.active_line >= posy ) && // Checks if the sprite overlaps the current line
              ( cpu->lcd.active_line < posy + ( cpu->lcd.sprite_size ? 16 : 8 ) ) ) {
@@ -438,14 +440,17 @@ void draw_sprites ( _cpu_info *cpu ) {
 
     int sprites_to_draw = sprite_pivot <= 10 ? sprite_pivot : 10;
     for (int i = 0; i < sprites_to_draw; ++i) {
-        uint8_t posy      = sprites[i].posy;
-        uint8_t posx      = sprites[i].posx;
+        int16_t posy      = sprites[i].posy;
+        int16_t posx      = sprites[i].posx;
         uint8_t pallete   = sprites[i].palette_number;
 
         if ( sprites_draw >= 10 ) break;
+        /*printf(" sprite x: :%4d  y: :%4d\n", posx, posy);*/
 
         if ( ( cpu->lcd.active_line >= posy ) &&
              ( cpu->lcd.active_line < posy + ( cpu->lcd.sprite_size ? 16 : 8 ) ) ) {
+
+            if ( debug_display ) printf(" sprite %04x x: %4d  y: %4d\n", 0xfe00 + (i*4    ), posx, posy);
 
             uint8_t bit1 = sprites[i].color_bit1;
             uint8_t bit2 = sprites[i].color_bit2;
@@ -612,9 +617,11 @@ void display_update( _cpu_info *cpu ) {
 
         draw_background_and_window(cpu);
 
-        fetch_sprites(cpu);
-        /*sort_sprites(cpu);*/
-        draw_sprites(cpu);
+        if ( cpu->lcd.power && cpu->lcd.sprite_enable ) {
+            fetch_sprites(cpu);
+            /*sort_sprites(cpu);*/
+            draw_sprites(cpu);
+        }
 
         cpu->lcd.m3_cycles += pixel_pipeline_cycles;
     } else if ( cpu->lcd.mode == 3 && cpu->lcd.cycles_spent >= ((85 + cpu->lcd.m3_cycles) -7 ) &&
