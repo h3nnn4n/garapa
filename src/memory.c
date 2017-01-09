@@ -14,12 +14,13 @@ void dma_step ( _cpu_info *cpu ) {
     if ( cpu->dma.oam_dma_timer > 0 ) {
         uint16_t src = cpu->dma.oam_dma_source + cpu->dma.oam_dma_index;
         uint8_t data = read_byte ( cpu, src );
-        // info!("oam/transfer [{:X}] {:X} -> [{:X}]",
-        //       src,
-        //       r,
-        //       0xFE00 + self.oam_dma_index);
-        /*self.gpu.oam[self.oam_dma_index as usize] = r;*/
         cpu->mem_controller.memory [ 0xfe00 + cpu->dma.oam_dma_index ] = data;
+
+        /*printf("DMA: %3d %3d %4x %2x\n",*/
+                /*cpu->dma.oam_dma_index,*/
+                /*cpu->dma.oam_dma_timer,*/
+                /*0xfe00 + cpu->dma.oam_dma_index,*/
+                /*data);*/
 
         cpu->dma.oam_dma_index ++;
         cpu->dma.oam_dma_timer --;
@@ -37,6 +38,29 @@ void dma_step ( _cpu_info *cpu ) {
 
 uint8_t read_byte ( _cpu_info *cpu, uint16_t addr ) {
     /*printf("Reading %4x = %2x\n", addr, cpu->mem_controller.memory [ addr ]);*/
+    if ( ( addr >= 0xFE00 ) && ( addr <= 0xFE9F ) ) {
+        if (
+            ( cpu->dma.oam_dma_timer == 0 )
+            &&
+            (
+             ( cpu->lcd.power == 0 )
+             ||
+             ( cpu->lcd.mode  <  2 )
+            )
+        ) {
+            return cpu->mem_controller.memory [ addr ];
+        } else {
+            return 0xff;
+        }
+    }
+
+    if ( ( addr >= 0x8000 ) && ( addr <= 0x9fff ) ) {
+        if ( cpu->lcd.power == 0 || cpu->lcd.mode < 3 ) {
+            return cpu->mem_controller.memory [ addr ];
+        } else {
+            return 0xff;
+        }
+    }
 
     if ( addr >= 0xa000 && addr < 0xbfff ) {
         if ( cpu->mem_controller.ram_enable && cpu->mem_controller.ram_size ) {
@@ -56,13 +80,6 @@ uint8_t read_byte ( _cpu_info *cpu, uint16_t addr ) {
         } else {
             return 0xff;
         }
-    }
-
-    if ( ( ( addr >= 0xFE00 ) && ( addr <= 0xFE9F ) ) &&
-            // FIXME TODO What is wrong here?
-         /*( cpu->dma.oam_dma_timer > 0 || cpu->lcd.mode == 3 )) {*/
-         ( cpu->dma.oam_dma_timer > 0 )) {
-        return 0xff;
     }
 
     switch ( addr ) {
@@ -175,6 +192,30 @@ void check_passed ( char c ) {
 void write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ) {
     uint8_t mapper = cpu->mem_controller.memory[0x0147];
 
+    if ( ( addr >= 0xFE00 ) && ( addr <= 0xFE9F ) ) {
+        if (
+            ( cpu->dma.oam_dma_timer == 0 )
+            &&
+            (
+             ( cpu->lcd.power == 0 )
+             ||
+             ( cpu->lcd.mode  <  2 )
+            )
+        ) {
+            cpu->mem_controller.memory [ addr ] = data;
+        } else {
+            return;
+        }
+    }
+
+    if ( ( addr >= 0x8000 ) && ( addr <= 0x9fff ) ) {
+        if ( cpu->lcd.power == 0 || cpu->lcd.mode < 3 ) {
+            cpu->mem_controller.memory [ addr ] = data;
+        } else {
+            return;
+        }
+    }
+
     switch (mapper) {
         case 0x00:
             if ( addr < 0x8000 ) {
@@ -223,6 +264,7 @@ void write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ) {
     }
 
     if ( addr >= 0xa000 && addr < 0xbfff ) {
+        /*printf(" CART RAM: %4x %2x\n", addr, data);*/
         if ( cpu->mem_controller.ram_enable && cpu->mem_controller.ram_size ) {
             uint16_t offset = addr - 0xa000;
             if ( cpu->mem_controller.ram_size == 0x01 ) {
@@ -242,13 +284,6 @@ void write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ) {
         } else {
             return;
         }
-    }
-
-    if ( ( ( addr >= 0xFE00 ) && ( addr <= 0xFE9F ) ) &&
-         ( cpu->dma.oam_dma_timer > 0 )) {
-         /*( cpu->dma.oam_dma_timer > 0 || cpu->lcd.mode >= 2 )) {*/
-        /*printf("Write blocked: DMA_timer: %3d  LCD_mode: %2d\n", cpu->dma.oam_dma_timer, cpu->lcd.mode);*/
-        return;
     }
 
     switch ( addr ) {  // WRITE

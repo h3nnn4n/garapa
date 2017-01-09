@@ -10,6 +10,8 @@
 #include "display.h"
 #include "graphics.h"
 
+#define dma_read(cpu,addr) (cpu->mem_controller.memory[addr])
+
 typedef struct {
     uint8_t  posx;
     uint8_t  posy;
@@ -96,7 +98,7 @@ uint8_t read_window_x ( _cpu_info *cpu ) {
 }
 
 uint8_t read_lcd_control ( _cpu_info *cpu ) {
-    return read_byte ( cpu, 0xff40 );
+    return dma_read ( cpu, 0xff40 );
 }
 
 // 0xff40
@@ -207,7 +209,7 @@ uint8_t display_read_stat  ( _cpu_info *cpu ) {
           cpu->lcd.lyc_trigger   ==
           cpu->lcd.active_line ) << 2   |
         ( cpu->lcd.mode );
-
+    if ( debug_display ) printf("ff41 lcd control write\n");
 }
 
 // 0xff41 lcd stat
@@ -315,8 +317,8 @@ void draw_background_and_window( _cpu_info *cpu ) {
             tile_addr = 0x9000 +  ((int8_t) tile_number * 16); // Uses 0x9000 instead 0x8800 because the tilenumber here has a signal
 
         uint16_t offset = (posy % 8 ) * 2;
-        uint8_t bit1 = read_byte(cpu, tile_addr + offset    );
-        uint8_t bit2 = read_byte(cpu, tile_addr + offset + 1);
+        uint8_t bit1 = dma_read(cpu, tile_addr + offset    );
+        uint8_t bit2 = dma_read(cpu, tile_addr + offset + 1);
 
         color = (((bit2 & (0x01 << (((posx % 8) - 7) * -1))) != 0) << 1) |
                  ((bit1 & (0x01 << (((posx % 8) - 7) * -1))) != 0)       ;
@@ -341,10 +343,10 @@ void fetch_sprites ( _cpu_info *cpu ) {
     // bit3 = atributes
     // TODO: Sprites Priority
     for (int i = 0; i < 40; ++i) { // Loops over the 40 sprites
-        uint8_t posy      = read_byte(cpu, 0xfe00 + (i*4    )) - 16; // Reads the y coordinate
-        uint8_t posx      = read_byte(cpu, 0xfe00 + (i*4 + 1)) - 8 ; // Reads the x coordinate
-        uint16_t tileaddr = read_byte(cpu, 0xfe00 + (i*4 + 2)); // Tile index
-        uint8_t flags     = read_byte(cpu, 0xfe00 + (i*4 + 3)); // Tile flags
+        uint8_t posy      = dma_read(cpu, 0xfe00 + (i*4    )) - 16; // Reads the y coordinate
+        uint8_t posx      = dma_read(cpu, 0xfe00 + (i*4 + 1)) - 8 ; // Reads the x coordinate
+        uint16_t tileaddr = dma_read(cpu, 0xfe00 + (i*4 + 2)); // Tile index
+        uint8_t flags     = dma_read(cpu, 0xfe00 + (i*4 + 3)); // Tile flags
 
         sprites[sprite_pivot].posx  = posx;
         sprites[sprite_pivot].posy  = posy;
@@ -367,8 +369,8 @@ void fetch_sprites ( _cpu_info *cpu ) {
             uint16_t addr = 0x8000 + (tileaddr * 16) + line_offset;
 
             sprites[sprite_pivot].tileaddr   = addr;
-            sprites[sprite_pivot].color_bit1 = read_byte(cpu, addr    );
-            sprites[sprite_pivot].color_bit2 = read_byte(cpu, addr + 1);
+            sprites[sprite_pivot].color_bit1 = dma_read(cpu, addr    );
+            sprites[sprite_pivot].color_bit2 = dma_read(cpu, addr + 1);
 
             sprite_pivot ++;
         }
@@ -539,7 +541,8 @@ void display_update( _cpu_info *cpu ) {
 
     if ( !display_test_lcdpower(cpu) ) return;
 
-    if ( debug_display ) printf(" Spent: %3d  mode: %2d  ly: %3d  lyc: %3d  ",
+    if ( debug_display ) printf(" PPU: Power: %2d  Spent: %3d  mode: %2d  ly: %3d  lyc: %3d  ",
+            cpu->lcd.power,
             cpu->lcd.cycles_spent, cpu->lcd.mode, cpu->lcd.active_line, cpu->lcd.lyc_trigger);
 
     cpu->lcd.mode_cmp = 255;
