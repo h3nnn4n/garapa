@@ -45,6 +45,25 @@
 #define C_RESET "\x1B[0m"
 
 _test_info tests_to_run[] = {
+
+    /*[>{ "../roms/interrupt_time/interrupt_time.gb"               , 250, 0x0b6d0b00 },<]*/
+    /*[>{ "../roms/oam_bug/oam_bug.gb"                             , 250, 0xd42b67b7 },<]*/
+    { "../roms/instr_timing/instr_timing.gb",  51, 0x0fd8d884 },
+    { "../roms/mem_timing-2/mem_timing.gb", 176, 0xdf43457c },
+    { "../roms/mem_timing/mem_timing.gb", 101, 0xe098572c },
+    { "../roms/cpu_instrs/individual/01-special.gb", 151, 0xed49ac66 },
+    { "../roms/cpu_instrs/individual/02-interrupts.gb",  26, 0x0272e622 },
+    { "../roms/cpu_instrs/individual/03-op sp,hl.gb", 151, 0x1eec8b56 },
+    { "../roms/cpu_instrs/individual/04-op r,imm.gb", 176, 0x803116be },
+    { "../roms/cpu_instrs/individual/05-op rp.gb", 226, 0x88430655 },
+    { "../roms/cpu_instrs/individual/06-ld r,r.gb",  51, 0xc797de2e },
+    { "../roms/cpu_instrs/individual/07-jr,jp,call,ret,rst.gb",  51, 0x724495ab },
+    { "../roms/cpu_instrs/individual/08-misc instrs.gb",  51, 0x50fb82c0 },
+
+    { "../roms/cpu_instrs/individual/09-op r,r.gb"             , 543, 0xf08b2fb3 },
+    { "../roms/cpu_instrs/individual/10-bit ops.gb"            , 826, 0xf17a1980 },
+    { "../roms/cpu_instrs/individual/11-op a,(hl).gb"          ,1048, 0x9daeb15f },
+
     { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/add_sp_e_timing.gb"                 , 5  , 0x473989eb } ,
     { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/boot_regs-dmg.gb"                   , 2  , 0x0b8ee224 } ,
     { "../roms/gekkio.fi/files/mooneye-gb/nightly/tests/acceptance/call_cc_timing.gb"                  , 5  , 0x27fb3d0d } ,
@@ -164,7 +183,7 @@ void test_run ( ) {
 
     _cpu_info cpu;
 
-    for (int i = 0; i < 54; ++i) {
+    for (int i = 0; i < 68; ++i) {
         test_control.test_needed_frames = tests_to_run[i].frames;
 
         init_cpu ( &cpu ); // Memory leak here
