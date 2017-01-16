@@ -502,7 +502,7 @@ void decoder( _cpu_info *cpu ) {
             decode_0xcb ( cpu );
             break;
         default:
-            disassembler( cpu->mem_controller.memory, cpu->pc );
+            disassembler( cpu );
             printf(" %2x is not implemented\n", cpu->opcode);
             exit(-1);
     }

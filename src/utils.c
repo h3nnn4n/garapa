@@ -46,6 +46,9 @@ void load_rom ( _cpu_info *cpu, const char* fname, uint16_t offset ) {
         exit(-1);
     }
 
+    cpu->mem_controller.ram_size = get_ram_code ( cpu->mem_controller.memory );
+    cpu->mem_controller.rom_size = get_rom_code ( cpu->mem_controller.memory );
+
     cpu->mem_controller.rom           = calloc ( 1, get_rom_size(cpu->mem_controller.memory ));
     cpu->mem_controller.cartridge_ram = calloc ( 1, get_ram_size(cpu->mem_controller.memory ));
 
@@ -56,11 +59,8 @@ void load_rom ( _cpu_info *cpu, const char* fname, uint16_t offset ) {
         exit(-1);
     }
 
-    cpu->mem_controller.ram_size = get_ram_code ( cpu->mem_controller.memory );
-    cpu->mem_controller.rom_size = get_rom_code ( cpu->mem_controller.memory );
-
-    memcpy(&cpu->mem_controller.memory[0x0000], &cpu->mem_controller.rom[0x0000], 0x4000);
-    memcpy(&cpu->mem_controller.memory[0x4000], &cpu->mem_controller.rom[0x4000], 0x4000);
+    /*memcpy(&cpu->mem_controller.memory[0x0000], &cpu->mem_controller.rom[0x0000], 0x4000);*/
+    /*memcpy(&cpu->mem_controller.memory[0x4000], &cpu->mem_controller.rom[0x4000], 0x4000);*/
 
     fclose(f);
 
@@ -265,7 +265,7 @@ void init_cpu( _cpu_info *cpu ) {
 }
 
 void unimplemented_opcode( _cpu_info *cpu ) {
-    disassembler ( cpu->mem_controller.memory, cpu->pc );
+    disassembler ( cpu );
     exit(-1);
 }
 
@@ -299,6 +299,6 @@ void print_registers ( _cpu_info *cpu ) {
 }
 
 void print_state( _cpu_info *cpu ) {
-    disassembler   ( cpu->mem_controller.memory, cpu->pc );
+    disassembler   ( cpu );
     print_registers( cpu );
 }

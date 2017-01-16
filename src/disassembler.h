@@ -20,6 +20,8 @@
 #ifndef DISASSEMBLER_H
 #define DISASSEMBLER_H
 
-unsigned short int disassembler( unsigned char *buffer, unsigned int pc ) ;
+#include "types.h"
+
+unsigned short int disassembler( _cpu_info *cpu ) ;
 
 #endif /* DISASSEMBLER_H */

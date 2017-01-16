@@ -18,6 +18,8 @@
  * 3. This notice may not be removed or altered from any source distribution. *
  ******************************************************************************/
 #include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 
 #include "cartridge.h"
 #include "types.h"
@@ -132,4 +134,115 @@ void print_rom_info ( _cpu_info *cpu ) {
     printf("RAM size: 0x%02x %s\n", cpu->mem_controller.memory[0x0149], ram_size_code[cpu->mem_controller.memory[0x0149]]);
 
     printf("-------------------------\n");
+}
+
+
+uint16_t cartridge_read ( _cpu_info *cpu, uint16_t addr ) {
+    if ( addr >= 0xa000 && addr < 0xbfff ) {
+        if ( cpu->mem_controller.ram_enable && cpu->mem_controller.ram_size ) {
+            uint16_t offset = addr - 0xa000;
+            if ( cpu->mem_controller.ram_size == 0x01 ) {
+                if ( addr > 0xa7ff ) return 0xff;
+            } else {
+                return cpu->mem_controller.cartridge_ram[ offset ];
+            }
+
+            if ( cpu->mem_controller.ram_size == 0x02 ) {
+                /*printf("Reading from %04x\n", addr);*/
+                return cpu->mem_controller.cartridge_ram[ offset ];
+            }
+
+            return cpu->mem_controller.cartridge_ram[ offset + cpu->mem_controller.ram_bank_number * 0x2000 ];
+        } else {
+            return 0xff;
+        }
+    } else if ( addr < 0x4000 ) {
+        /*printf("Reading from bank %x \n", 0 );*/
+        return cpu->mem_controller.rom [ addr ];
+    } else if ( addr >= 0x4000 && addr < 0x8000 ) {
+        /*printf("Reading from bank %x addr = %4x %4x \n", cpu->mem_controller.rom_bank_number, 0x4000 + cpu->mem_controller.rom_bank_number * ( addr - 0x4000 ), addr );*/
+        return cpu->mem_controller.rom [ 0x4000 * cpu->mem_controller.rom_bank_number + ( addr - 0x4000 ) ];
+    }
+
+    assert ( 0 && "Invalid address to be read from the cartridge");
+
+    return 0;
+}
+
+void cartridge_write ( _cpu_info *cpu, uint16_t addr, uint8_t data ) {
+    uint8_t mapper = cpu->mem_controller.rom[0x0147];
+
+    switch (mapper) {
+        case 0x00:
+            if ( addr < 0x8000 ) {
+                /*printf("Tried to write to 0x%04x\n", addr);*/
+                return;
+            }
+            break;
+        case 0x03:
+        case 0x02:
+        case 0x01:
+            if ( addr < 0x2000 ) { // Ram Enable
+                cpu->mem_controller.ram_enable = data & 0x0a ? 1 : 0;
+                /*printf(" RAM write : %c\n", cpu->mem_controller.ram_enable ? 'y' : 'n' );*/
+                return;
+            } else if ( addr >= 0x2000 && addr < 0x4000 ) { // Rom bank switch
+                cpu->mem_controller.rom_bank_number = data & 0x1f;
+                if ( !cpu->mem_controller.ram_mode )
+                    cpu->mem_controller.rom_bank_number |= cpu->mem_controller.ram_bank_number;
+
+                if ( cpu->mem_controller.rom_bank_number == 0x00 ||
+                     cpu->mem_controller.rom_bank_number == 0x20 ||
+                     cpu->mem_controller.rom_bank_number == 0x40 ||
+                     cpu->mem_controller.rom_bank_number == 0x60 ) {
+                    cpu->mem_controller.rom_bank_number++;
+                }
+
+                /*printf(" ROM bank: %2x\n", cpu->mem_controller.rom_bank_number );*/
+
+                /*memcpy(&cpu->mem_controller.memory[0x4000],*/
+                       /*&cpu->mem_controller.rom[cpu->mem_controller.rom_bank_number * 0x4000],*/
+                       /*0x4000);*/
+                return;
+            } else if ( addr >= 0x4000 && addr < 0x6000 ) {
+                cpu->mem_controller.ram_bank_number = ( data & 0x03 ) << 5;
+                /*printf(" RAM bank: %c\n", cpu->mem_controller.ram_bank_number );*/
+                return;
+            } else if ( addr >= 0x6000 && addr < 0x8000 ) { // Ram Ena
+                cpu->mem_controller.ram_mode = data & 0x01;
+                /*printf(" RAM enable: %c\n", cpu->mem_controller.ram_mode ? '0' : '1' );*/
+                return;
+            }
+            break;
+        default:
+            assert ( 0 && "Unsupported MBC " );
+            break;
+    }
+
+    if ( addr >= 0xa000 && addr < 0xbfff ) {
+        /*printf(" CART RAM: %4x %2x\n", addr, data);*/
+        if ( cpu->mem_controller.ram_enable && cpu->mem_controller.ram_size ) {
+            uint16_t offset = addr - 0xa000;
+            if ( cpu->mem_controller.ram_size == 0x01 ) {
+                if ( addr > 0xa7ff ) return;
+            } else {
+               cpu->mem_controller.cartridge_ram[ offset ] = data;
+               return;
+            }
+
+            if ( cpu->mem_controller.ram_size == 0x02 ) {
+                /*printf("Writing to %04x\n", addr);*/
+                cpu->mem_controller.cartridge_ram[ offset ] = data;
+                return;
+            }
+
+            cpu->mem_controller.cartridge_ram[ offset + cpu->mem_controller.ram_bank_number * 0x2000 ] = data;
+        } else {
+            return;
+        }
+    }
+
+    printf("addr - %4x\n", addr );
+
+    assert ( 0 && "Invalid cartridge write");
 }

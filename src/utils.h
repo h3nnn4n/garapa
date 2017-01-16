@@ -28,7 +28,6 @@
 
 #include "types.h"
 
-unsigned short int disassembler ( unsigned char *buffer   , unsigned int pc     ) ;
 struct timespec            diff ( struct timespec start   , struct timespec end ) ;
 off_t                     fsize ( const char    *filename                       ) ;
 void            print_registers ( _cpu_info     *cpu                            ) ;
