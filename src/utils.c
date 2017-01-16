@@ -81,7 +81,7 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->mem_controller.memory          = calloc ( 1, 0xffff );
     cpu->mem_controller.rom             = NULL;
     cpu->mem_controller.cartridge_ram   = NULL;
-    cpu->mem_controller.rom_bank_number = 0;
+    cpu->mem_controller.rom_bank_number = 1;
     cpu->mem_controller.ram_bank_number = 0;
     cpu->mem_controller.ram_mode        = 0;
     cpu->mem_controller.ram_enable      = 0;

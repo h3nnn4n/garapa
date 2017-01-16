@@ -138,6 +138,8 @@ void print_rom_info ( _cpu_info *cpu ) {
 
 
 uint16_t cartridge_read ( _cpu_info *cpu, uint16_t addr ) {
+    uint8_t mapper = cpu->mem_controller.rom[0x0147];
+
     if ( addr >= 0xa000 && addr < 0xbfff ) {
         if ( cpu->mem_controller.ram_enable && cpu->mem_controller.ram_size ) {
             uint16_t offset = addr - 0xa000;
@@ -160,8 +162,12 @@ uint16_t cartridge_read ( _cpu_info *cpu, uint16_t addr ) {
         /*printf("Reading from bank %x \n", 0 );*/
         return cpu->mem_controller.rom [ addr ];
     } else if ( addr >= 0x4000 && addr < 0x8000 ) {
-        /*printf("Reading from bank %x addr = %4x %4x \n", cpu->mem_controller.rom_bank_number, 0x4000 + cpu->mem_controller.rom_bank_number * ( addr - 0x4000 ), addr );*/
-        return cpu->mem_controller.rom [ 0x4000 * cpu->mem_controller.rom_bank_number + ( addr - 0x4000 ) ];
+        /*printf("Reading from bank %x addr = %4x %4x \n", cpu->mem_controller.rom_bank_number, 0x4000 * cpu->mem_controller.rom_bank_number + ( addr - 0x4000 ), addr );*/
+        if ( mapper ) {
+            return cpu->mem_controller.rom [ 0x4000 * cpu->mem_controller.rom_bank_number + ( addr - 0x4000 ) ];
+        } else {
+            return cpu->mem_controller.rom [ addr ];
+        }
     }
 
     assert ( 0 && "Invalid address to be read from the cartridge");

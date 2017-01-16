@@ -59,7 +59,6 @@ uint8_t *get_reg_ref ( _cpu_info *cpu, uint8_t opcode ) {
             return &(cpu->l);
         case 0x06: // (HL)
             assert ( 0 && "This should not be used for (HL) access");
-            return &cpu->mem_controller.memory[( cpu->h << 8 ) | cpu->l];
         case 0x07: // A
             return &(cpu->a);
         default:

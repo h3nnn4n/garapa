@@ -24,6 +24,7 @@
 #include "types.h"
 #include "utils.h"
 #include "microcode.h"
+#include "memory.h"
 #include "time_keeper.h"
 #include "halfcarry.h"
 
@@ -59,7 +60,7 @@ void emulate_ADD ( _cpu_info *cpu ) {
             break;
         case 0x86:
             answer += (uint16_t) read_byte_with_tick ( cpu, read_hl ( cpu ) );
-            cpu->flags.h    = halfcarry( cpu->a, cpu->mem_controller.memory[ read_hl ( cpu ) ], answer );
+            cpu->flags.h    = halfcarry( cpu->a, read_byte( cpu, read_hl ( cpu ) ), answer );
             break;
         case 0x87:
             answer += (uint16_t) cpu->a;

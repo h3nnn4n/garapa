@@ -21,8 +21,8 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include "interrupts.h"
 #include "memory.h"
+#include "interrupts.h"
 #include "time_keeper.h"
 #include "utils.h"
 #include "types.h"
@@ -57,17 +57,8 @@ void dma_step ( _cpu_info *cpu ) {
 }
 
 uint8_t read_byte ( _cpu_info *cpu, uint16_t addr ) {
-    /*printf("Reading %4x = %2x\n", addr, cpu->mem_controller.memory [ addr ]);*/
     if ( ( addr >= 0xFE00 ) && ( addr <= 0xFE9F ) ) {
-        if (
-            ( cpu->dma.oam_dma_timer == 0 )
-            &&
-            (
-             ( cpu->lcd.power == 0 )
-             ||
-             ( cpu->lcd.mode  <  2 )
-            )
-        ) {
+        if ( ( cpu->dma.oam_dma_timer == 0 ) && ( ( cpu->lcd.power == 0 ) || ( cpu->lcd.mode  <  2 ))) {
             return cpu->mem_controller.memory [ addr ];
         } else {
             return 0xff;
@@ -82,6 +73,10 @@ uint8_t read_byte ( _cpu_info *cpu, uint16_t addr ) {
         }
     }
 
+    return _read_byte ( cpu, addr );
+}
+
+uint8_t _read_byte ( _cpu_info *cpu, uint16_t addr ) {
     if ( addr < 0x8000 ) {
         return cartridge_read ( cpu, addr );
     }

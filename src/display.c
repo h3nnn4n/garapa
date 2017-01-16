@@ -29,7 +29,7 @@
 #include "display.h"
 #include "graphics.h"
 
-#define dma_read(cpu,addr) (cpu->mem_controller.memory[addr])
+#define dma_read(cpu,addr) (_read_byte(cpu, addr))
 
 typedef struct {
     int16_t  posx;
