@@ -58,6 +58,21 @@ char *mbc_code[] = {
     [0xFF] = "HuC1+RAM+BATTERY"
 };
 
+uint32_t rom_nbanks[] = {
+    [0x00] = 0   , // " 32KByte (no ROM banking)",
+    [0x01] = 4   , // " 64KByte (4 banks)",
+    [0x02] = 8   , // "128KByte (8 banks)",
+    [0x03] = 16  , // "256KByte (16 banks)",
+    [0x04] = 32  , // "512KByte (32 banks)",
+    [0x05] = 64  , // "  1MByte (64 banks)",
+    [0x06] = 128 , // "  2MByte (128 banks)",
+    [0x07] = 256 , // "  4MByte (256 banks)",
+    [0x08] = 512 , // "  8MByte (512 banks)",
+    [0x52] = 72  , // "1.1MByte (72 banks)",
+    [0x53] = 80  , // "1.2MByte (80 banks)",
+    [0x54] = 96  // "1.5MByte (96 banks)"
+};
+
 uint32_t rom_size[] = {
     [0x00] = 2   * 0x4000, // " 32KByte (no ROM banking)",
     [0x01] = 4   * 0x4000, // " 64KByte (4 banks)",
@@ -162,9 +177,10 @@ uint16_t cartridge_read ( _cpu_info *cpu, uint16_t addr ) {
         /*printf("Reading from bank %x \n", 0 );*/
         return cpu->mem_controller.rom [ addr ];
     } else if ( addr >= 0x4000 && addr < 0x8000 ) {
-        /*printf("Reading from bank %x addr = %4x %4x \n", cpu->mem_controller.rom_bank_number, 0x4000 * cpu->mem_controller.rom_bank_number + ( addr - 0x4000 ), addr );*/
+        printf("Reading from bank %x addr = %4x %4x \n", cpu->mem_controller.rom_bank_number, 0x4000 * cpu->mem_controller.rom_bank_number + ( addr - 0x4000 ), addr );
         if ( mapper ) {
-            return cpu->mem_controller.rom [ 0x4000 * cpu->mem_controller.rom_bank_number + ( addr - 0x4000 ) ];
+            uint32_t addr2 = 0x4000 * cpu->mem_controller.rom_bank_number + ( addr - 0x4000 );
+            return cpu->mem_controller.rom [ addr2 ];
         } else {
             return cpu->mem_controller.rom [ addr ];
         }
@@ -196,6 +212,10 @@ void cartridge_write ( _cpu_info *cpu, uint16_t addr, uint8_t data ) {
                 cpu->mem_controller.rom_bank_number = data & 0x1f;
                 if ( !cpu->mem_controller.ram_mode )
                     cpu->mem_controller.rom_bank_number |= cpu->mem_controller.ram_bank_number;
+
+                if ( cpu->mem_controller.rom_bank_number > rom_nbanks[cpu->mem_controller.rom_size] ) {
+                    cpu->mem_controller.rom_bank_number %= rom_nbanks[cpu->mem_controller.rom_size];
+                }
 
                 if ( cpu->mem_controller.rom_bank_number == 0x00 ||
                      cpu->mem_controller.rom_bank_number == 0x20 ||
