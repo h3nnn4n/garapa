@@ -23,6 +23,8 @@
 #include "types.h"
 
 #define MAX_SPRITE 1000
+#define __X_SIZE 10
+#define __Y_SIZE 22
 
 typedef struct {
     int posx;
@@ -35,8 +37,16 @@ typedef struct {
     int used_sprites;
 } _sprite_t_info;
 
+typedef struct {
+    int data[__X_SIZE][__Y_SIZE];
+} _bg_info;
+
 void sprite_info_add(int posx, int posy, int id);
 void sprite_info_reset();
+_bg_info* get_bg_info_pointer();
+
+void draw_text(char *text, int x, int y, int r, int g, int b) ;
+void draw_rectangle(int x, int y, int r, int g, int b) ;
 
 void other_window_init ( ) ;
 void other_sdl_quit ( ) ;

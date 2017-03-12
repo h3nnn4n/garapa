@@ -43,6 +43,7 @@ static int other_screenx = 160 * 4;
 static int other_screeny = 144 * 4;
 
 _sprite_t_info sprite_t_info;
+_bg_info bg_info;
 
 TTF_Font* font;
 
@@ -100,44 +101,58 @@ void other_window_init ( ) {
     font = TTF_OpenFont("inconsolata.ttf", 12);
 }
 
-void draw_rectangle(int x, int y) {
+_bg_info* get_bg_info_pointer () {
+    return &bg_info;
+}
+
+void draw_rectangle(int x, int y, int r, int g, int b) {
     int size = 1;
     int x2 = x / size;
     int y2 = y / size;
     int w2 = 8 / size;
-    SDL_SetRenderDrawColor(other_renderer, 0, 0, 0, 0);
+    SDL_SetRenderDrawColor(other_renderer, r, g, b, 0);
     SDL_Rect dstrect = { x2, y2, w2, w2 };
     SDL_RenderFillRect(other_renderer, &dstrect);
 }
 
 void draw_falling_blocks() {
     for (int i = 0; i < sprite_t_info.used_sprites; ++i) {
-        /*printf("Keepo\n");*/
         if ( sprite_t_info.sprite_list[i].posx >= 16 && sprite_t_info.sprite_list[i].posx <= 88 ) {
-            /*printf("Kappa\n");*/
-            draw_rectangle(sprite_t_info.sprite_list[i].posx, sprite_t_info.sprite_list[i].posy);
+            draw_rectangle(sprite_t_info.sprite_list[i].posx, sprite_t_info.sprite_list[i].posy, 0, 0, 0);
         }
     }
+}
+
+void draw_bg() {
+    for (int i = 16; i < 88; i += 8) {
+        for (int j = 8; j < 136; j += 8) {
+            if ( bg_info.data[i/8][j/8] ) {
+                draw_rectangle(i, j, 255, 0, 0);
+            }
+        }
+    }
+}
+
+void draw_text(char *text, int x, int y, int r, int g, int b) {
+    int texW = 0;
+    int texH = 0;
+
+    SDL_Color color = { r, g, b, 0 };
+    SDL_Surface* surface = TTF_RenderText_Solid(font, text, color);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(other_renderer, surface);
+
+    SDL_QueryTexture(texture, NULL, NULL, &texW, &texH);
+    SDL_Rect dstrect = { x, y, texW, texH };
+
+    SDL_RenderCopy(other_renderer, texture, NULL, &dstrect);
 }
 
 void other_flip_screen ( ) {
     SDL_RenderClear(other_renderer);
     SDL_RenderCopy(other_renderer, other_bitmap, NULL, NULL);
 
+    draw_bg();
     draw_falling_blocks();
-
-    /*int texW = 0;*/
-    /*int texH = 0;*/
-
-    /*SDL_Color color = { 255, 0, 0, 0 };*/
-    /*SDL_Surface* surface = TTF_RenderText_Solid(font, "testerinno kappacino", color);*/
-    /*SDL_Texture* texture = SDL_CreateTextureFromSurface(other_renderer, surface);*/
-
-    /*SDL_QueryTexture(texture, NULL, NULL, &texW, &texH);*/
-    /*SDL_Rect dstrect = { 0, 0, texW, texH };*/
-
-    /*SDL_RenderCopy(other_renderer, texture, NULL, &dstrect);*/
-    /*[>SDL_RenderPresent(other_renderer);<]*/
 
     SDL_UpdateTexture(other_bitmap, NULL, other_pixels, other_screenx * sizeof(uint32_t));
 

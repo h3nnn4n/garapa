@@ -331,6 +331,7 @@ void draw_background_and_window( _cpu_info *cpu ) {
 
         uint8_t tile_number = memory[bg_addr + (posy/8) * 32 + posx/8]; // Read the tilenumber
 
+
         if (display_test_bg_tileset_select ( cpu ) ) // Reads from the correct position
             tile_addr = 0x8000 +  tile_number * 16;
         else
@@ -346,11 +347,46 @@ void draw_background_and_window( _cpu_info *cpu ) {
         priority_cache[cpu->lcd.active_line * 160 + i] = color > 0 ? 1 : 0;
 
         buffer[cpu->lcd.active_line*160 + i] = cpu->lcd.colors[cpu->lcd.bg_palette[color]];
+        if ( cpu->lcd.active_line % 8 == 0 && i % 8 == 0 ) {
+            if ( posx >= 16 && posx <= 88 && posy >= 8 && posy <= 136 ) {
+                if ( tile_addr == 0 ) {
+                    buffer[cpu->lcd.active_line*160 + i] = 0xff0000;
+                }
+            }
+        }
 
         test_write_to_buffer(&test_control,
                               cpu->lcd.active_line*160 + i,
                               cpu->lcd.colors[cpu->lcd.bg_palette[color]]);
     }
+
+}
+
+void update_bg_info( _cpu_info *cpu ) {
+    /*return;*/
+    uint8_t  *memory  = cpu->mem_controller.memory;
+    _bg_info* bg_info = get_bg_info_pointer();
+
+    uint16_t bg_addr    = 0;
+    uint16_t tile_addr  = 0;
+    uint8_t tile_number = 0;
+
+    bg_addr = display_test_tilemap_select ( cpu ) ? 0x9c00 : 0x9800;
+
+    for (int x = 2; x < 12; x++ ) {
+        for (int y = 1; y < 18; y++ ) {
+            tile_number = memory[bg_addr + y * 32 + x]; // Read the tilenumber
+            /*printf("%2x ", tile_number);*/
+            if ( tile_number != 0x2f ) {
+                bg_info->data[x][y] = 1;
+            } else {
+                bg_info->data[x][y] = 0;
+            }
+        }
+        /*printf("\n");*/
+    }
+
+    /*printf("\n");*/
 }
 
 void fetch_sprites ( _cpu_info *cpu ) {
@@ -562,53 +598,15 @@ void draw_sprites ( _cpu_info *cpu ) {
 
 void grab_tetris_info ( _cpu_info *cpu ) {
     sprite_info_reset();
-    sprite_pivot          = 0;
 
-    // OAM = 0xfe00
-    // bit0 = y
-    // bit1 = x
-    // bit2 = tile number
-    // bit3 = atributes
-    // TODO: Sprites Priority
     for (int i = 0; i < 40; ++i) { // Loops over the 40 sprites
         int16_t posy      = dma_read(cpu, 0xfe00 + (i*4    )) - 16; // Reads the y coordinate
         int16_t posx      = dma_read(cpu, 0xfe00 + (i*4 + 1)) - 8 ; // Reads the x coordinate
         uint16_t tileaddr = dma_read(cpu, 0xfe00 + (i*4 + 2)); // Tile index
-        /*uint8_t flags     = dma_read(cpu, 0xfe00 + (i*4 + 3)); // Tile flags*/
-
-        /*sprites[sprite_pivot].posx  = posx;*/
-        /*sprites[sprite_pivot].posy  = posy;*/
-        /*sprites[sprite_pivot].vflip = !!(flags & 0x40);*/
-        /*sprites[sprite_pivot].hflip = !!(flags & 0x20);*/
-        /*sprites[sprite_pivot].tile  = tileaddr;*/
-
-        /*sprites[sprite_pivot].palette_number = !!(flags & 0x08);*/
-
-        /*printf(" sprite %04x x: %4d  y: %4d\n", 0xfe00 + (i*4    ), posx, posy);*/
-
         if ( posx >= 0 && posy >= 0 && posy < 144 ) {
-        /*if ( ( cpu->lcd.active_line >= posy ) && // Checks if the sprite overlaps the current line*/
-             /*( cpu->lcd.active_line < posy + ( cpu->lcd.sprite_size ? 16 : 8 ) ) ) {*/
-            /*printf("sprite: %3d tileaddr: %4x pos: %3d %3d\n", i, tileaddr, posx, posy);*/
             sprite_info_add(posx, posy, tileaddr);
-
-            /*uint8_t line_offset = cpu->lcd.active_line - posy;*/
-
-            /*if ( flags & 0x40 ) // VHLIP*/
-                /*line_offset = (7 + display_test_sprite_size(cpu)*8) - line_offset;*/
-
-            /*line_offset *= 2;*/
-
-            /*uint16_t addr = 0x8000 + (tileaddr * 16) + line_offset;*/
-
-            /*sprites[sprite_pivot].tileaddr   = addr;*/
-            /*sprites[sprite_pivot].color_bit1 = dma_read(cpu, addr    );*/
-            /*sprites[sprite_pivot].color_bit2 = dma_read(cpu, addr + 1);*/
-
-            /*sprite_pivot ++;*/
         }
     }
-    /*puts("");*/
 }
 
 void display_update( _cpu_info *cpu ) {
@@ -628,6 +626,7 @@ void display_update( _cpu_info *cpu ) {
 
     if ( cpu->lcd.active_line == 1 ) {
         grab_tetris_info(cpu);
+        update_bg_info(cpu);
     }
 
     cpu->lcd.cycles_spent++;
