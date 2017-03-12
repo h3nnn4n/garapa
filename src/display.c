@@ -28,6 +28,7 @@
 #include "memory.h"
 #include "display.h"
 #include "graphics.h"
+#include "other_window.h"
 
 #define dma_read(cpu,addr) (_read_byte(cpu, addr))
 
@@ -379,6 +380,7 @@ void fetch_sprites ( _cpu_info *cpu ) {
 
         if ( ( cpu->lcd.active_line >= posy ) && // Checks if the sprite overlaps the current line
              ( cpu->lcd.active_line < posy + ( cpu->lcd.sprite_size ? 16 : 8 ) ) ) {
+            /*printf("sprite: %3d tileaddr: %4x pos: %3d %3d\n", i, tileaddr, posx, posy);*/
 
             uint8_t line_offset = cpu->lcd.active_line - posy;
 
@@ -396,6 +398,7 @@ void fetch_sprites ( _cpu_info *cpu ) {
             sprite_pivot ++;
         }
     }
+    /*puts("");*/
 }
 
 void sort_sprites ( ) {
@@ -557,6 +560,57 @@ void draw_sprites ( _cpu_info *cpu ) {
 // Mode 2: Access VRAM but no OAM
 // Mode 3: No access to VRAM and OAM
 
+void grab_tetris_info ( _cpu_info *cpu ) {
+    sprite_info_reset();
+    sprite_pivot          = 0;
+
+    // OAM = 0xfe00
+    // bit0 = y
+    // bit1 = x
+    // bit2 = tile number
+    // bit3 = atributes
+    // TODO: Sprites Priority
+    for (int i = 0; i < 40; ++i) { // Loops over the 40 sprites
+        int16_t posy      = dma_read(cpu, 0xfe00 + (i*4    )) - 16; // Reads the y coordinate
+        int16_t posx      = dma_read(cpu, 0xfe00 + (i*4 + 1)) - 8 ; // Reads the x coordinate
+        uint16_t tileaddr = dma_read(cpu, 0xfe00 + (i*4 + 2)); // Tile index
+        /*uint8_t flags     = dma_read(cpu, 0xfe00 + (i*4 + 3)); // Tile flags*/
+
+        /*sprites[sprite_pivot].posx  = posx;*/
+        /*sprites[sprite_pivot].posy  = posy;*/
+        /*sprites[sprite_pivot].vflip = !!(flags & 0x40);*/
+        /*sprites[sprite_pivot].hflip = !!(flags & 0x20);*/
+        /*sprites[sprite_pivot].tile  = tileaddr;*/
+
+        /*sprites[sprite_pivot].palette_number = !!(flags & 0x08);*/
+
+        /*printf(" sprite %04x x: %4d  y: %4d\n", 0xfe00 + (i*4    ), posx, posy);*/
+
+        if ( posx >= 0 && posy >= 0 && posy < 144 ) {
+        /*if ( ( cpu->lcd.active_line >= posy ) && // Checks if the sprite overlaps the current line*/
+             /*( cpu->lcd.active_line < posy + ( cpu->lcd.sprite_size ? 16 : 8 ) ) ) {*/
+            /*printf("sprite: %3d tileaddr: %4x pos: %3d %3d\n", i, tileaddr, posx, posy);*/
+            sprite_info_add(posx, posy, tileaddr);
+
+            /*uint8_t line_offset = cpu->lcd.active_line - posy;*/
+
+            /*if ( flags & 0x40 ) // VHLIP*/
+                /*line_offset = (7 + display_test_sprite_size(cpu)*8) - line_offset;*/
+
+            /*line_offset *= 2;*/
+
+            /*uint16_t addr = 0x8000 + (tileaddr * 16) + line_offset;*/
+
+            /*sprites[sprite_pivot].tileaddr   = addr;*/
+            /*sprites[sprite_pivot].color_bit1 = dma_read(cpu, addr    );*/
+            /*sprites[sprite_pivot].color_bit2 = dma_read(cpu, addr + 1);*/
+
+            /*sprite_pivot ++;*/
+        }
+    }
+    /*puts("");*/
+}
+
 void display_update( _cpu_info *cpu ) {
     uint8_t         irq             = 0;
 
@@ -572,6 +626,10 @@ void display_update( _cpu_info *cpu ) {
         cpu->lcd.lyc_delay --;
     }
 
+    if ( cpu->lcd.active_line == 1 ) {
+        grab_tetris_info(cpu);
+    }
+
     cpu->lcd.cycles_spent++;
 
     if ( cpu->lcd.mode == 0 && cpu->lcd.cycles_spent == 5 ) {
@@ -585,6 +643,7 @@ void display_update( _cpu_info *cpu ) {
             cpu->interrupts.pending_vblank = 1;
 
             flip_screen();
+            other_flip_screen();
             cpu->die = test_step ( &test_control );
         }
     } else if ( cpu->lcd.mode == 0 && cpu->lcd.cycles_spent >= 1 && cpu->lcd.cycles_spent < 5 && cpu->lcd.active_line >= 1 &&

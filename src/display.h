@@ -45,6 +45,8 @@ void    display_write_LYC              ( _cpu_info *cpu, uint8_t data ) ;
 
 void    display_write_stat             ( _cpu_info *cpu, uint8_t data ) ;
 
+void     draw_sprites ( _cpu_info *cpu ) ;
+
 void write_spr1_palette ( _cpu_info *cpu, uint8_t data ) ;
 void write_spr2_palette ( _cpu_info *cpu, uint8_t data ) ;
 void write_bg_palette   ( _cpu_info *cpu, uint8_t data ) ;

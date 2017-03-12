@@ -17,49 +17,31 @@
  *    misrepresented as being the original software.                          *
  * 3. This notice may not be removed or altered from any source distribution. *
  ******************************************************************************/
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <time.h>
-#include <assert.h>
+#ifndef OTHER_WINDOW_H
+#define OTHER_WINDOW_H
 
-#include <sys/types.h>
-
-#include "utils.h"
 #include "types.h"
-#include "memory.h"
-#include "cartridge.h"
-#include "other_window.h"
-#include "decoder.h"
-#include "graphics.h"
-#include "display.h"
-#include "disassembler.h"
-#include "time_keeper.h"
-#include "automated_tests.h"
 
-int main(int argc, char *argv[]) {
-    _cpu_info cpu;
-    sdl_init();
-    other_window_init();
-    atexit(sdl_quit);
+#define MAX_SPRITE 1000
 
-    if ( argc == 1 ) {
-        test_control.test_enable = 1;
-        test_run ();
-        return 0;
-    }
+typedef struct {
+    int posx;
+    int posy;
+    int id;
+} _sprite_list;
 
-    test_control.test_enable = 0;
+typedef struct {
+    _sprite_list sprite_list[MAX_SPRITE];
+    int used_sprites;
+} _sprite_t_info;
 
-    init_cpu(&cpu);
+void sprite_info_add(int posx, int posy, int id);
+void sprite_info_reset();
 
-    load_rom ( &cpu, argv[1], 0x0000 );
+void other_window_init ( ) ;
+void other_sdl_quit ( ) ;
+void other_flip_screen ( ) ;
+uint32_t *other_get_frame_buffer () ;
+uint32_t *other_get_frame_buffer_vision () ;
 
-    print_rom_info(&cpu);
-
-    while ( 1 ) {
-        decoder        ( &cpu );
-    }
-
-    return 0;
-}
+#endif /* OTHER_WINDOW_H */

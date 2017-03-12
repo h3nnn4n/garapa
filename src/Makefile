@@ -1,11 +1,12 @@
 CC=gcc
-override CFLAGS+=-lm -Wall -Wextra -pedantic --std=gnu11 -O3 `sdl2-config --cflags --libs`
+override CFLAGS+=-lm -Wall -Wextra -pedantic --std=gnu11 -O3 `sdl2-config --cflags --libs` -lSDL2_ttf
 
 SOURCES=utils.c                      \
 		disassembler.c               \
 		lookup3.c                    \
 		automated_tests.c            \
 		wad_output.c                 \
+		other_window.c               \
 		decoder.c                    \
 		graphics.c                   \
 		time_keeper.c                \
@@ -18,7 +19,7 @@ SOURCES=utils.c                      \
 		instructions_logical.c       \
 		instructions_arithmetic.c    \
 		instructions_0xcb.c          \
-		halfcarry.c                   \
+		halfcarry.c                  \
 		interrupts.c                 \
 		instructions_stack_io_control.c
 

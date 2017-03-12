@@ -177,7 +177,7 @@ uint16_t cartridge_read ( _cpu_info *cpu, uint16_t addr ) {
         /*printf("Reading from bank %x \n", 0 );*/
         return cpu->mem_controller.rom [ addr ];
     } else if ( addr >= 0x4000 && addr < 0x8000 ) {
-        printf("Reading from bank %x addr = %4x %4x \n", cpu->mem_controller.rom_bank_number, 0x4000 * cpu->mem_controller.rom_bank_number + ( addr - 0x4000 ), addr );
+        /*printf("Reading from bank %x addr = %4x %4x \n", cpu->mem_controller.rom_bank_number, 0x4000 * cpu->mem_controller.rom_bank_number + ( addr - 0x4000 ), addr );*/
         if ( mapper ) {
             uint32_t addr2 = 0x4000 * cpu->mem_controller.rom_bank_number + ( addr - 0x4000 );
             return cpu->mem_controller.rom [ addr2 ];

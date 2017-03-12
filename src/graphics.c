@@ -27,6 +27,8 @@
 #include "types.h"
 #include "graphics.h"
 
+#include "other_window.h"
+
 #define __use_sdl
 
 #ifdef __use_sdl
@@ -56,7 +58,7 @@ uint32_t *get_frame_buffer () {
 void sdl_init ( ) {
     SDL_Init(SDL_INIT_VIDEO);
 
-    window = SDL_CreateWindow("here comes dat gameboi",
+    window = SDL_CreateWindow("here comes dat gameboi - LELmark edition",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
         screenx * 4,
@@ -151,7 +153,9 @@ void input_update ( _cpu_info *cpu ) {
                         break;
                 }
                 break;
+            case SDL_WINDOWEVENT_CLOSE:
             case SDL_QUIT:
+                printf("QUIT!\n");
                 exit(0);
                 break;
             default:
