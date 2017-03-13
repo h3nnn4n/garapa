@@ -1,3 +1,6 @@
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "other_window.h"
 #include "types.h"
 #include "graphics.h"
@@ -42,19 +45,42 @@ int complete_rows(){
     return total;
 }
 
-int holes() {
+int surface_smoothness() {
     _bg_info *bg_info = get_bg_info_pointer();
 
     int total = 0;
 
-    for (int i = 1; i < 9; ++i) {
-        for (int j = 1; j < 16; ++j) {
-            if ( bg_info->data[i][j] == 0 ) {
-                if ( bg_info->data[i-1][j] == 1 && bg_info->data[i+1][j] == 1 ) {
-                    if ( bg_info->data[i][j-1] == 1 && bg_info->data[i][j+1] == 1 ) {
-                        total += 1;
-                    }
-                }
+    int h[10];
+
+    for (int i = 0; i < 10; ++i) {
+        h[i] = 0;
+        for (int j = 0; j < 17; ++j) {
+            if ( bg_info->data[i][j] == 1 ) {
+                h[i] = 17 - j;
+                break;
+            }
+        }
+    }
+
+    for (int i = 0; i < 9; ++i) {
+        total += abs(h[i] - h[i+1]);
+    }
+
+    return total;
+}
+
+int covered_cells() {
+    _bg_info *bg_info = get_bg_info_pointer();
+
+    int total = 0;
+
+    for (int i = 0; i < 10; ++i) {
+        int found = 0;
+        for (int j = 0; j < 17; ++j) {
+            if ( bg_info->data[i][j] == 1 && !found ) {
+                found = 1;
+            } else if ( bg_info->data[i][j] == 0 && found ) {
+                total++;
             }
         }
     }

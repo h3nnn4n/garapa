@@ -165,6 +165,16 @@ void evaluate_cost() {
 
     sprintf(text, "complete_rows: %d", complete_rows_cost);
     draw_text(text, 100, 20, 255, 0, 0);
+
+    int covered_cells_cost = covered_cells();
+
+    sprintf(text, "covered_cells: %d", covered_cells_cost);
+    draw_text(text, 100, 40, 255, 0, 0);
+
+    int surface_smoothness_cost = surface_smoothness();
+
+    sprintf(text, "surface_smoothness: %d", surface_smoothness_cost);
+    draw_text(text, 100, 60, 255, 0, 0);
 }
 
 void other_flip_screen ( ) {
