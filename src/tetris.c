@@ -87,3 +87,38 @@ int covered_cells() {
 
     return total;
 }
+
+int well_cells(){
+    _bg_info *bg_info = get_bg_info_pointer();
+
+    int total = 0;
+
+    for (int i = 1; i < 9; ++i) {
+        int found = 0;
+        for (int j = 0; j < 17; ++j) {
+            if ( bg_info->data[i][j] == 0 && bg_info->data[i-1][j] == 1 && bg_info->data[i+1][j] == 1  ) {
+                total += 1;
+            } else if ( bg_info->data[i][j] == 1 ) {
+                break;
+            }
+        }
+    }
+
+    for (int j = 0; j < 17; ++j) {
+        if ( bg_info->data[9][j] == 0 && bg_info->data[8][j] == 1  ) {
+            total += 1;
+        } else if ( bg_info->data[9][j] == 1 ) {
+            break;
+        }
+    }
+
+    for (int j = 0; j < 17; ++j) {
+        if ( bg_info->data[0][j] == 0 && bg_info->data[1][j] == 1  ) {
+            total += 1;
+        } else if ( bg_info->data[0][j] == 1 ) {
+            break;
+        }
+    }
+
+    return total;
+}
