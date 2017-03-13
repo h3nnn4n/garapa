@@ -31,6 +31,8 @@
 #include "types.h"
 #include "graphics.h"
 
+#include "tetris.h"
+
 /*#define __use_other_sdl*/
 
 /*#ifdef __use_other_sdl*/
@@ -99,7 +101,7 @@ void other_window_init ( ) {
 
     SDL_UpdateTexture(other_bitmap, NULL, other_pixels, other_screenx * sizeof(uint32_t));
 
-    font = TTF_OpenFont("inconsolata.ttf", 12);
+    font = TTF_OpenFont("inconsolata.ttf", 18);
 }
 
 _bg_info* get_bg_info_pointer () {
@@ -152,12 +154,27 @@ void draw_text(char *text, int x, int y, int r, int g, int b) {
     SDL_RenderCopy(other_renderer, texture, NULL, &dstrect);
 }
 
+void evaluate_cost() {
+    char text[256];
+    int aggregate_height_cost = aggregate_height();
+
+    sprintf(text, "aggregate height: %d", aggregate_height_cost);
+    draw_text(text, 100, 0, 255, 0, 0);
+
+    int complete_rows_cost = complete_rows();
+
+    sprintf(text, "complete_rows: %d", complete_rows_cost);
+    draw_text(text, 100, 20, 255, 0, 0);
+}
+
 void other_flip_screen ( ) {
     SDL_RenderClear(other_renderer);
     SDL_RenderCopy(other_renderer, other_bitmap, NULL, NULL);
 
     draw_bg();
     draw_falling_blocks();
+
+    evaluate_cost();
 
     SDL_UpdateTexture(other_bitmap, NULL, other_pixels, other_screenx * sizeof(uint32_t));
 

@@ -10,6 +10,7 @@ SOURCES=utils.c                      \
 		decoder.c                    \
 		graphics.c                   \
 		time_keeper.c                \
+		tetris.c                     \
 		microcode.c                  \
 		memory.c                     \
 		cartridge.c                  \
