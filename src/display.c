@@ -363,7 +363,6 @@ void draw_background_and_window( _cpu_info *cpu ) {
 }
 
 void update_bg_info( _cpu_info *cpu ) {
-    /*return;*/
     uint8_t  *memory  = cpu->mem_controller.memory;
     _bg_info* bg_info = get_bg_info_pointer();
 
@@ -378,9 +377,9 @@ void update_bg_info( _cpu_info *cpu ) {
             tile_number = memory[bg_addr + y * 32 + x]; // Read the tilenumber
             /*printf("%2x ", tile_number);*/
             if ( tile_number != 0x2f ) {
-                bg_info->data[x][y] = 1;
+                bg_info->data[x - 2][y - 1] = 1;
             } else {
-                bg_info->data[x][y] = 0;
+                bg_info->data[x - 2][y - 1] = 0;
             }
         }
         /*printf("\n");*/
@@ -604,9 +603,11 @@ void grab_tetris_info ( _cpu_info *cpu ) {
         int16_t posx      = dma_read(cpu, 0xfe00 + (i*4 + 1)) - 8 ; // Reads the x coordinate
         uint16_t tileaddr = dma_read(cpu, 0xfe00 + (i*4 + 2)); // Tile index
         if ( posx >= 0 && posy >= 0 && posy < 144 ) {
+            /*printf("Added %3d %3d %3d\n", posx, posy, tileaddr);*/
             sprite_info_add(posx, posy, tileaddr);
         }
     }
+    /*printf("\n");*/
 }
 
 void display_update( _cpu_info *cpu ) {

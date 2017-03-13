@@ -19,6 +19,7 @@
  ******************************************************************************/
 #include <stdint.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #include "SDL.h"
 #include "SDL_ttf.h"
@@ -117,16 +118,20 @@ void draw_rectangle(int x, int y, int r, int g, int b) {
 
 void draw_falling_blocks() {
     for (int i = 0; i < sprite_t_info.used_sprites; ++i) {
+        /*printf(" %d %d %d\n", i, sprite_t_info.sprite_list[i].posx, sprite_t_info.sprite_list[i].posy);*/
         if ( sprite_t_info.sprite_list[i].posx >= 16 && sprite_t_info.sprite_list[i].posx <= 88 ) {
             draw_rectangle(sprite_t_info.sprite_list[i].posx, sprite_t_info.sprite_list[i].posy, 0, 0, 0);
         }
     }
+
+    /*printf("\n");*/
 }
 
 void draw_bg() {
-    for (int i = 16; i < 88; i += 8) {
-        for (int j = 8; j < 136; j += 8) {
-            if ( bg_info.data[i/8][j/8] ) {
+    for (int i = 16; i <= 88; i += 8) {
+        for (int j = 8; j <= 136; j += 8) {
+            assert(i/8 * 10 + j/8 <= 10*22);
+            if ( bg_info.data[i/8 - 2][j/8 - 1] ) {
                 draw_rectangle(i, j, 255, 0, 0);
             }
         }
