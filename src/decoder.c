@@ -26,6 +26,7 @@
 #include "graphics.h"
 #include "memory.h"
 #include "types.h"
+#include "rev.h"
 #include "utils.h"
 #include "decoder.h"
 #include "halfcarry.h"
@@ -53,6 +54,19 @@ void decoder( _cpu_info *cpu ) {
     }
 
     emulate_INTERRUPT( cpu );
+
+    /*disassembler(cpu);*/
+    /*printf("\n");*/
+
+    write_executed_code(cpu);
+
+    static int counter = 0;
+
+    counter ++;
+
+    if ( counter % 10000 == 0 ) {
+        dump_to_file();
+    }
 
     cpu->opcode = read_byte_at_pc ( cpu );
 

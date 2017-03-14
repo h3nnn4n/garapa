@@ -84,7 +84,7 @@ uint8_t _read_byte ( _cpu_info *cpu, uint16_t addr ) {
     switch ( addr ) {
         case 0xff00:
             {
-                /*printf (" %d %d %d %d - %d %d %d %d\n",*/
+                /*printf ("joystick was read %d %d %d %d - %d %d %d %d\n",*/
                           /*cpu->joystick.button_start  ,*/
                           /*cpu->joystick.button_select ,*/
                           /*cpu->joystick.button_b      ,*/
@@ -93,6 +93,7 @@ uint8_t _read_byte ( _cpu_info *cpu, uint16_t addr ) {
                           /*cpu->joystick.button_up     ,*/
                           /*cpu->joystick.button_left   ,*/
                           /*cpu->joystick.button_right  );*/
+
                 uint8_t input = 0;
                 if ( cpu->joystick.select_button == 0 ) {
                     input =
@@ -109,6 +110,9 @@ uint8_t _read_byte ( _cpu_info *cpu, uint16_t addr ) {
                         ( cpu->joystick.button_left   << 1 ) |
                         ( cpu->joystick.button_right  << 0 ) ;
                 }
+
+                /*printf(" value of: %4x\n", 0xc0 | ( input ));*/
+
                 return 0xc0 | ( input );
             }
         case 0xff01:

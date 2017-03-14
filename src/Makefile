@@ -8,7 +8,9 @@ SOURCES=utils.c                      \
 		wad_output.c                 \
 		other_window.c               \
 		decoder.c                    \
+		rev.c                        \
 		graphics.c                   \
+		opt_to_str.c                 \
 		time_keeper.c                \
 		tetris.c                     \
 		microcode.c                  \

@@ -1,0 +1,18 @@
+#ifndef REV_H
+#define REV_H
+
+#include "types.h"
+
+#define MEM_SIZE  0xffff
+#define TEXT_SIZE 1024
+
+typedef struct {
+    char code_and_data[MEM_SIZE][TEXT_SIZE];
+    int is_executed[MEM_SIZE];
+} _rev_data;
+
+void reset_code_and_data();
+void write_executed_code (_cpu_info *cpu);
+void dump_to_file();
+
+#endif /* REV_H */

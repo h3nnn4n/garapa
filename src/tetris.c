@@ -94,7 +94,6 @@ int well_cells(){
     int total = 0;
 
     for (int i = 1; i < 9; ++i) {
-        int found = 0;
         for (int j = 0; j < 17; ++j) {
             if ( bg_info->data[i][j] == 0 && bg_info->data[i-1][j] == 1 && bg_info->data[i+1][j] == 1  ) {
                 total += 1;

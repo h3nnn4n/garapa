@@ -25,6 +25,7 @@
 
 #include <sys/types.h>
 
+#include "rev.h"
 #include "utils.h"
 #include "types.h"
 #include "memory.h"
@@ -56,6 +57,8 @@ int main(int argc, char *argv[]) {
     load_rom ( &cpu, argv[1], 0x0000 );
 
     print_rom_info(&cpu);
+
+    reset_code_and_data();
 
     while ( 1 ) {
         decoder        ( &cpu );
