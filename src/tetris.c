@@ -3,6 +3,7 @@
 
 #include "other_window.h"
 #include "types.h"
+#include "tetris.h"
 #include "graphics.h"
 
 int aggregate_height() {
@@ -12,9 +13,7 @@ int aggregate_height() {
 
     for (int i = 0; i < 10; ++i) {
         int last = 17;
-        for (int j = 0; j < 17; ++j) {
-            if ( bg_info->data[i][j] == 1 ) {
-                last = j;
+        for (int j = 0; j < 17; ++j) { if ( bg_info->data[i][j] == 1 ) { last = j;
                 break;
             }
         }
@@ -120,4 +119,72 @@ int well_cells(){
     }
 
     return total;
+}
+
+_piece_type get_current_piece(){
+    _cpu_info *cpu = get_cpu_pointer();
+    int index;
+    int value;
+
+    index = 0xc203;
+    value = cpu->mem_controller.memory[index];
+
+    switch (value) {
+        case 0x0c:
+        case 0x0d:
+        case 0x0e:
+        case 0x0f:
+            return SQUARE;
+
+        case 0x04:
+            return Ja;
+        case 0x05:
+            return Jb;
+        case 0x06:
+            return Jc;
+        case 0x07:
+            return Jd;
+
+        case 0x00:
+            return La;
+        case 0x01:
+            return Lb;
+        case 0x02:
+            return Lc;
+        case 0x03:
+            return Ld;
+
+        case 0x08:
+        case 0x0a:
+            return Ia;
+        case 0x09:
+        case 0x0b:
+            return Ib;
+
+        case 0x14:
+        case 0x16:
+            return Sa;
+        case 0x15:
+        case 0x17:
+            return Sb;
+
+        case 0x10:
+        case 0x12:
+            return Za;
+        case 0x11:
+        case 0x13:
+            return Zb;
+
+        case 0x18:
+            return Ta;
+        case 0x19:
+            return Tb;
+        case 0x1a:
+            return Tc;
+        case 0x1b:
+            return Td;
+
+        default:
+            return Unknow;
+    }
 }

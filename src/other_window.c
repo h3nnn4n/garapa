@@ -327,7 +327,6 @@ void print_screen_state(){
         default:
             sprintf(screen, "Unknow");
             printf("Unknow screen: %2x %3d\n", index, index);
-            sleep(10);
             break;
     }
 
