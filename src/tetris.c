@@ -215,14 +215,40 @@ _piece get_piece_coord_from_id() {
     _piece_type piece_type = get_current_piece();
 
     switch (piece_type) {
+        case La:
+        case Lb:
+        case Lc:
+        case Ld:
+            return La_piece;
+
         case Ta:
         case Tb:
         case Tc:
         case Td:
             return Ta_piece;
+
+        case Ja:
+        case Jb:
+        case Jc:
+        case Jd:
+            return Ja_piece;
+
+        case Sa:
+        case Sb:
+            return Sa_piece;
+
+        case Ia:
+        case Ib:
+            return Ia_piece;
+
+        case SQUARE:
+            return Ia_piece;
+
         default:
             return NULL_piece;
     }
+
+    return NULL_piece;
 }
 
 _piece_type get_current_piece(){
