@@ -153,11 +153,11 @@ void draw_falling_blocks() {
         int x = sprite_t_info.sprite_list[i].posx;
         int y = sprite_t_info.sprite_list[i].posy;
 
-        int x2 = get_cpu_pointer()->mem_controller.memory[0xff92] - 8;
-        int y2 = get_cpu_pointer()->mem_controller.memory[0xff93] - 16;
+        /*int x2 = get_cpu_pointer()->mem_controller.memory[0xff92] - 8;*/
+        /*int y2 = get_cpu_pointer()->mem_controller.memory[0xff93] - 16;*/
 
         if (  x >= 16 && x <= 88 ) {
-            printf("x,y : %3d %3d\n", (x - x2) / 8, (y - y2) / 8);
+            /*printf("x,y : %3d %3d\n", (x - x2) / 8, (y - y2) / 8);*/
             draw_rectangle(x, y, 0, 0, 0);
         }
     }
@@ -364,7 +364,6 @@ void print_screen_state(){
 }
 
 void new_piece_on_screen_hook() {
-    char text[256];
     static int old_pos = 100;
     _cpu_info *cpu = get_cpu_pointer();
 
