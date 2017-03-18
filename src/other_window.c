@@ -48,6 +48,8 @@
 
 /*#ifdef __use_other_sdl*/
 
+static _obj_costs obj_cost;
+
 static _cpu_info* cpu_info;
 
 static SDL_Window   *other_window;
@@ -176,30 +178,29 @@ void draw_text(char *text, int x, int y, int r, int g, int b) {
 }
 
 void evaluate_cost() {
-    char text[256];
-    int aggregate_height_cost = aggregate_height();
+    obj_cost.aggregate_height_cost   = aggregate_height();
+    obj_cost.complete_rows_cost      = complete_rows();
+    obj_cost.covered_cells_cost      = covered_cells();
+    obj_cost.surface_smoothness_cost = surface_smoothness();
+    obj_cost.well_cells_cost         = well_cells();
+}
 
-    sprintf(text, "aggregate height: %d", aggregate_height_cost);
+void print_cost() {
+    char text[256];
+
+    sprintf(text, "aggregate height: %d", obj_cost.aggregate_height_cost);
     draw_text(text, 100, 0, 0x2a, 0x7d, 0xd5);
 
-    int complete_rows_cost = complete_rows();
-
-    sprintf(text, "complete_rows: %d", complete_rows_cost);
+    sprintf(text, "complete_rows: %d", obj_cost.complete_rows_cost);
     draw_text(text, 100, 20, 0x2a, 0x7d, 0xd5);
 
-    int covered_cells_cost = covered_cells();
-
-    sprintf(text, "covered_cells: %d", covered_cells_cost);
+    sprintf(text, "covered_cells: %d", obj_cost.covered_cells_cost);
     draw_text(text, 100, 40, 0x2a, 0x7d, 0xd5);
 
-    int surface_smoothness_cost = surface_smoothness();
-
-    sprintf(text, "surface_smoothness: %d", surface_smoothness_cost);
+    sprintf(text, "surface_smoothness: %d", obj_cost.surface_smoothness_cost);
     draw_text(text, 100, 60, 0x2a, 0x7d, 0xd5);
 
-    int well_cells_cost = well_cells();
-
-    sprintf(text, "well_cells: %d", well_cells_cost);
+    sprintf(text, "well_cells: %d", obj_cost.well_cells_cost);
     draw_text(text, 100, 80, 0x2a, 0x7d, 0xd5);
 }
 
@@ -334,6 +335,21 @@ void print_screen_state(){
     draw_text(text, 400, 0, 0x2a, 0x90, 0xf5);
 }
 
+void new_piece_on_screen_hook() {
+    static int old_pos = 100;
+    _cpu_info *cpu = get_cpu_pointer();
+
+    /*uint16_t y_pos = 0xffb2;*/
+    uint16_t y_pos = 0xff93;
+
+    if ( abs(cpu->mem_controller.memory[y_pos] - old_pos) > 8 ) {
+        evaluate_cost();
+        printf("New piece\n");
+    }
+
+    old_pos = cpu->mem_controller.memory[y_pos];
+}
+
 void other_flip_screen ( ) {
     SDL_RenderClear(other_renderer);
     SDL_RenderCopy(other_renderer, other_bitmap, NULL, NULL);
@@ -344,7 +360,9 @@ void other_flip_screen ( ) {
         draw_bg();
         draw_falling_blocks();
 
-        evaluate_cost();
+        new_piece_on_screen_hook();
+
+        print_cost();
 
         mem_fiddling();
         print_current_piece();

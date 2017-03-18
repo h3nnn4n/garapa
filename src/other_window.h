@@ -38,6 +38,14 @@ typedef struct {
 } _sprite_t_info;
 
 typedef struct {
+    int aggregate_height_cost;
+    int complete_rows_cost;
+    int covered_cells_cost;
+    int surface_smoothness_cost;
+    int well_cells_cost;
+} _obj_costs;
+
+typedef struct {
     int data[__X_SIZE][__Y_SIZE];
 } _bg_info;
 
