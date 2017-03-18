@@ -49,6 +49,7 @@ void draw_text(char *text, int x, int y, int r, int g, int b) ;
 void draw_rectangle(int x, int y, int r, int g, int b) ;
 
 void set_cpu_pointer(_cpu_info *cpu);
+_cpu_info *get_cpu_pointer();
 
 void other_window_init ( ) ;
 void other_sdl_quit ( ) ;

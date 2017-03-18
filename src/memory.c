@@ -184,7 +184,7 @@ uint8_t _read_byte ( _cpu_info *cpu, uint16_t addr ) {
     }
 
     /*if ( addr == 0xff80 || addr == 0xff81 ) {*/
-        /*printf(" Mem Access at %04x\n", addr);*/
+        /*printf(" mem read at %04x\n", addr);*/
     /*}*/
 
     // No need to check if the address is valid.

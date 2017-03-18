@@ -28,6 +28,7 @@
 #include "graphics.h"
 
 #include "other_window.h"
+#include "rev.h"
 
 #define __use_sdl
 
@@ -95,6 +96,15 @@ void input_update ( _cpu_info *cpu ) {
         switch (ev.type) {
             case SDL_KEYDOWN:
                 switch(ev.key.keysym.sym) {
+                    case SDLK_t:
+                        mem_find_mark_equal();
+                        break;
+                    case SDLK_u:
+                        mem_find_mark_diff();
+                        break;
+                    case SDLK_y:
+                        mem_find_start();
+                        break;
                     case SDLK_z:
                         cpu->joystick.button_a      = 0;
                         break;

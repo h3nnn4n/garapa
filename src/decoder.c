@@ -62,6 +62,10 @@ void decoder( _cpu_info *cpu ) {
     static int counter = 0;
 
     /*if ( cpu->pc == 0x27f7 ) {*/
+    /*if ( cpu->pc == 0x0033 ) {*/
+        /*if ( cpu->mem_controller.memory[0xffe1] == 0 ) {*/
+            /*exit(0);*/
+        /*}*/
     /*if ( counter > 100000 ) {*/
         /*sleep(23222);*/
         /*exit(0);*/

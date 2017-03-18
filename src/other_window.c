@@ -67,6 +67,10 @@ void set_cpu_pointer(_cpu_info *cpu) {
     cpu_info = cpu;
 }
 
+_cpu_info *get_cpu_pointer() {
+    return cpu_info;
+}
+
 /*#define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"*/
 /*#define BYTE_TO_BINARY(byte)  \*/
       /*(byte & 0x80 ? '1' : '0'), \*/
@@ -202,8 +206,6 @@ void evaluate_cost() {
 void mem_fiddling() {
     char text[256];
     int index;
-    static int old_screen_state = -1;
-    static int counter = 0;
 
     sprintf(text, "0xff80 = %04x "BYTE_TO_BINARY_PATTERN, cpu_info->mem_controller.memory[0xff80], BYTE_TO_BINARY(cpu_info->mem_controller.memory[0xff80]));
     draw_text(text, 400, 0, 0x2a, 0x90, 0xf5);
@@ -211,68 +213,12 @@ void mem_fiddling() {
     sprintf(text, "0xff81 = %04x "BYTE_TO_BINARY_PATTERN, cpu_info->mem_controller.memory[0xff81], BYTE_TO_BINARY(cpu_info->mem_controller.memory[0xff81]));
     draw_text(text, 400, 20, 0x2a, 0x90, 0xf5);
 
-    int a = cpu_info->mem_controller.memory[0xffe1];
-
-    /*if ( a != old_screen_state ) {*/
-        /*old_screen_state = a;*/
-        /*printf("0xffe1 = %04x "BYTE_TO_BINARY_PATTERN"\n", cpu_info->mem_controller.memory[0xffe1], BYTE_TO_BINARY(cpu_info->mem_controller.memory[0xffe1]));*/
-    /*}*/
-
     sprintf(text, "0xffe1 = %04x "BYTE_TO_BINARY_PATTERN, cpu_info->mem_controller.memory[0xffe1], BYTE_TO_BINARY(cpu_info->mem_controller.memory[0xffe1]));
     draw_text(text, 400, 40, 0x2a, 0x90, 0xf5);
 
-    int begin = 0xff80;
-    int end   = 0xffa0;
-
-    if ( counter-- == 0 ) {
-        for (int i = begin; i < end; ++i) {
-            printf("___");
-            if ( (i) % 0x08 == 0 ) {
-                printf("__");
-            }
-        }
-        printf("\n");
-
-        for (int i = begin; i < end; ++i) {
-            if ( (i) % 0x08 == 0 ) {
-                printf("| ");
-            }
-            printf("%02x ", i & 0x00ff);
-        }
-
-        counter = 64;
-
-        printf("| ");
-        printf("\n");
-    }
-
-
-    for (int i = begin; i < end; ++i) {
-        if ( (i) % 0x08 == 0 ) {
-            printf("| ");
-        }
-        /*printf("%04x: %02x %02d | ", i, cpu_info->mem_controller.memory[i], cpu_info->mem_controller.memory[i]);*/
-        printf("%02x ", cpu_info->mem_controller.memory[i]);
-    }
-
-    printf("| ");
-    printf("\n");
-
-    index = 0xffb2;
-    sprintf(text, "0x%04x = %02d "BYTE_TO_BINARY_PATTERN, index, cpu_info->mem_controller.memory[index], BYTE_TO_BINARY(cpu_info->mem_controller.memory[index]));
-    draw_text(text, 400, 60, 0x2a, 0x90, 0xf5);
-
-    index = 0xffb3;
-    sprintf(text, "0x%04x = %02d "BYTE_TO_BINARY_PATTERN, index, cpu_info->mem_controller.memory[index], BYTE_TO_BINARY(cpu_info->mem_controller.memory[index]));
-    draw_text(text, 400, 80, 0x2a, 0x90, 0xf5);
-
-    index = 0xffae;
-    sprintf(text, "0x%04x = %02d "BYTE_TO_BINARY_PATTERN, index, cpu_info->mem_controller.memory[index], BYTE_TO_BINARY(cpu_info->mem_controller.memory[index]));
-    draw_text(text, 400, 100, 0x2a, 0x90, 0xf5);
-
-    index = 0xffae;
-    sprintf(text, "0x%04x = %02d "BYTE_TO_BINARY_PATTERN, index, cpu_info->mem_controller.memory[index], BYTE_TO_BINARY(cpu_info->mem_controller.memory[index]));
-    draw_text(text, 400, 120, 0x2a, 0x90, 0xf5);
+    index = 0xc203;
+    sprintf(text, "0x%04x = %02x "BYTE_TO_BINARY_PATTERN, index, cpu_info->mem_controller.memory[index], BYTE_TO_BINARY(cpu_info->mem_controller.memory[index]));
+    draw_text(text, 400, 200, 0x2a, 0x90, 0xf5);
 }
 
 void other_flip_screen ( ) {
