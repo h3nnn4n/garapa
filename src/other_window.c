@@ -207,7 +207,7 @@ void print_cost() {
 void mem_fiddling() {
     if ( cpu_info->mem_controller.memory[0xffe1] == 0x0000 ) {
         char text[256];
-        /*int index;*/
+        int index;
 
         sprintf(text, "0xff80 = %04x "BYTE_TO_BINARY_PATTERN, cpu_info->mem_controller.memory[0xff80], BYTE_TO_BINARY(cpu_info->mem_controller.memory[0xff80]));
         draw_text(text, 400, 20, 0x2a, 0x90, 0xf5);
@@ -215,12 +215,16 @@ void mem_fiddling() {
         sprintf(text, "0xff81 = %04x "BYTE_TO_BINARY_PATTERN, cpu_info->mem_controller.memory[0xff81], BYTE_TO_BINARY(cpu_info->mem_controller.memory[0xff81]));
         draw_text(text, 400, 40, 0x2a, 0x90, 0xf5);
 
-        sprintf(text, "0xffe1 = %04x "BYTE_TO_BINARY_PATTERN, cpu_info->mem_controller.memory[0xffe1], BYTE_TO_BINARY(cpu_info->mem_controller.memory[0xffe1]));
+        /*sprintf(text, "0xffe1 = %04x "BYTE_TO_BINARY_PATTERN, cpu_info->mem_controller.memory[0xffe1], BYTE_TO_BINARY(cpu_info->mem_controller.memory[0xffe1]));*/
+        /*draw_text(text, 400, 60, 0x2a, 0x90, 0xf5);*/
+
+        index = 0xff93;
+        sprintf(text, "y: 0x%04x = %02d ", index, cpu_info->mem_controller.memory[index]);
         draw_text(text, 400, 60, 0x2a, 0x90, 0xf5);
 
-        /*index = 0xc203;*/
-        /*sprintf(text, "0x%04x = %02x "BYTE_TO_BINARY_PATTERN, index, cpu_info->mem_controller.memory[index], BYTE_TO_BINARY(cpu_info->mem_controller.memory[index]));*/
-        /*draw_text(text, 400, 80, 0x2a, 0x90, 0xf5);*/
+        index = 0xff92;
+        sprintf(text, "x: 0x%04x = %02d ", index, cpu_info->mem_controller.memory[index]);
+        draw_text(text, 400, 80, 0x2a, 0x90, 0xf5);
     }
 }
 
