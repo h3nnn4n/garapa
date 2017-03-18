@@ -56,17 +56,25 @@ void decoder( _cpu_info *cpu ) {
     emulate_INTERRUPT( cpu );
 
     /*disassembler(cpu);*/
+    /*printf(" A: %2x  B: %2x  C: %2x  D: %2x  E: %2x  H: %2x  L: %2x", cpu->a, cpu->b, cpu->c, cpu->d, cpu->e, cpu->h, cpu->l);*/
     /*printf("\n");*/
-
-    write_executed_code(cpu);
 
     static int counter = 0;
 
+    /*if ( cpu->pc == 0x27f7 ) {*/
+    /*if ( counter > 100000 ) {*/
+        /*sleep(23222);*/
+        /*exit(0);*/
+    /*}*/
+
+    /*write_executed_code(cpu);*/
+
+
     counter ++;
 
-    if ( counter % 10000 == 0 ) {
-        dump_to_file();
-    }
+    /*if ( counter % 10000 == 0 ) {*/
+        /*dump_to_file();*/
+    /*}*/
 
     cpu->opcode = read_byte_at_pc ( cpu );
 

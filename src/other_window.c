@@ -33,9 +33,22 @@
 
 #include "tetris.h"
 
+#define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
+#define BYTE_TO_BINARY(byte)  \
+      (byte & 0x80 ? '1' : '0'), \
+  (byte & 0x40 ? '1' : '0'), \
+  (byte & 0x20 ? '1' : '0'), \
+  (byte & 0x10 ? '1' : '0'), \
+  (byte & 0x08 ? '1' : '0'), \
+  (byte & 0x04 ? '1' : '0'), \
+  (byte & 0x02 ? '1' : '0'), \
+  (byte & 0x01 ? '1' : '0')
+
 /*#define __use_other_sdl*/
 
 /*#ifdef __use_other_sdl*/
+
+static _cpu_info* cpu_info;
 
 static SDL_Window   *other_window;
 static SDL_Renderer *other_renderer;
@@ -49,6 +62,10 @@ _sprite_t_info sprite_t_info;
 _bg_info bg_info;
 
 TTF_Font* font;
+
+void set_cpu_pointer(_cpu_info *cpu) {
+    cpu_info = cpu;
+}
 
 /*#define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"*/
 /*#define BYTE_TO_BINARY(byte)  \*/
@@ -182,6 +199,15 @@ void evaluate_cost() {
     draw_text(text, 100, 80, 0x2a, 0x7d, 0xd5);
 }
 
+void mem_fiddling() {
+    char text[256];
+    sprintf(text, "0xff80 = "BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(cpu_info->mem_controller.memory[0xff80]));
+    draw_text(text, 400, 0, 0x2a, 0x90, 0xf5);
+
+    sprintf(text, "0xff81 = "BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(cpu_info->mem_controller.memory[0xff81]));
+    draw_text(text, 400, 20, 0x2a, 0x90, 0xf5);
+}
+
 void other_flip_screen ( ) {
     SDL_RenderClear(other_renderer);
     SDL_RenderCopy(other_renderer, other_bitmap, NULL, NULL);
@@ -190,6 +216,8 @@ void other_flip_screen ( ) {
     draw_falling_blocks();
 
     evaluate_cost();
+
+    mem_fiddling();
 
     SDL_UpdateTexture(other_bitmap, NULL, other_pixels, other_screenx * sizeof(uint32_t));
 

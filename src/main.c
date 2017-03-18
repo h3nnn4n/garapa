@@ -60,6 +60,8 @@ int main(int argc, char *argv[]) {
 
     reset_code_and_data();
 
+    set_cpu_pointer( &cpu );
+
     while ( 1 ) {
         decoder        ( &cpu );
     }

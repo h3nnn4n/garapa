@@ -48,6 +48,8 @@ _bg_info* get_bg_info_pointer();
 void draw_text(char *text, int x, int y, int r, int g, int b) ;
 void draw_rectangle(int x, int y, int r, int g, int b) ;
 
+void set_cpu_pointer(_cpu_info *cpu);
+
 void other_window_init ( ) ;
 void other_sdl_quit ( ) ;
 void other_flip_screen ( ) ;

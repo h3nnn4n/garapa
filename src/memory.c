@@ -183,6 +183,10 @@ uint8_t _read_byte ( _cpu_info *cpu, uint16_t addr ) {
         return 0xff;
     }
 
+    /*if ( addr == 0xff80 || addr == 0xff81 ) {*/
+        /*printf(" Mem Access at %04x\n", addr);*/
+    /*}*/
+
     // No need to check if the address is valid.
     // uint16_t can only hold enough to access the
     // 64kb memory space;
