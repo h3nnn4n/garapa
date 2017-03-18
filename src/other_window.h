@@ -21,6 +21,7 @@
 #define OTHER_WINDOW_H
 
 #include "types.h"
+#include "tetris.h"
 
 #define MAX_SPRITE 1000
 #define __X_SIZE 10
@@ -38,20 +39,13 @@ typedef struct {
 } _sprite_t_info;
 
 typedef struct {
-    int aggregate_height_cost;
-    int complete_rows_cost;
-    int covered_cells_cost;
-    int surface_smoothness_cost;
-    int well_cells_cost;
-} _obj_costs;
-
-typedef struct {
     int data[__X_SIZE][__Y_SIZE];
 } _bg_info;
 
 void sprite_info_add(int posx, int posy, int id);
 void sprite_info_reset();
 _bg_info* get_bg_info_pointer();
+_obj_costs* get_obj_cost_pointer();
 
 void draw_text(char *text, int x, int y, int r, int g, int b) ;
 void draw_rectangle(int x, int y, int r, int g, int b) ;
@@ -64,5 +58,7 @@ void other_sdl_quit ( ) ;
 void other_flip_screen ( ) ;
 uint32_t *other_get_frame_buffer () ;
 uint32_t *other_get_frame_buffer_vision () ;
+
+
 
 #endif /* OTHER_WINDOW_H */

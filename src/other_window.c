@@ -60,6 +60,8 @@ static uint32_t *other_pixels;
 static int other_screenx = 160 * 4;
 static int other_screeny = 144 * 4;
 
+static _point best;
+
 _sprite_t_info sprite_t_info;
 _bg_info bg_info;
 
@@ -67,6 +69,10 @@ TTF_Font* font;
 
 void set_cpu_pointer(_cpu_info *cpu) {
     cpu_info = cpu;
+}
+
+_obj_costs* get_obj_cost_pointer() {
+    return &obj_cost;
 }
 
 _cpu_info *get_cpu_pointer() {
@@ -144,10 +150,22 @@ void draw_rectangle(int x, int y, int r, int g, int b) {
 void draw_falling_blocks() {
     for (int i = 0; i < sprite_t_info.used_sprites; ++i) {
         /*printf(" %d %d %d\n", i, sprite_t_info.sprite_list[i].posx, sprite_t_info.sprite_list[i].posy);*/
-        if ( sprite_t_info.sprite_list[i].posx >= 16 && sprite_t_info.sprite_list[i].posx <= 88 ) {
-            draw_rectangle(sprite_t_info.sprite_list[i].posx, sprite_t_info.sprite_list[i].posy, 0, 0, 0);
+        int x = sprite_t_info.sprite_list[i].posx;
+        int y = sprite_t_info.sprite_list[i].posy;
+
+        int x2 = get_cpu_pointer()->mem_controller.memory[0xff92] - 8;
+        int y2 = get_cpu_pointer()->mem_controller.memory[0xff93] - 16;
+
+        if (  x >= 16 && x <= 88 ) {
+            printf("x,y : %3d %3d\n", (x - x2) / 8, (y - y2) / 8);
+            draw_rectangle(x, y, 0, 0, 0);
         }
     }
+
+    int x = get_cpu_pointer()->mem_controller.memory[0xff92] - 8;
+    int y = get_cpu_pointer()->mem_controller.memory[0xff93] - 16;
+
+    draw_rectangle(x, y, 0, 127, 127);
 
     /*printf("\n");*/
 }
@@ -202,6 +220,9 @@ void print_cost() {
 
     sprintf(text, "well_cells: %d", obj_cost.well_cells_cost);
     draw_text(text, 100, 80, 0x2a, 0x7d, 0xd5);
+
+    sprintf(text, "total: %f", get_cost() );
+    draw_text(text, 100, 100, 0x2a, 0x7d, 0xd5);
 }
 
 void mem_fiddling() {
@@ -225,6 +246,9 @@ void mem_fiddling() {
         index = 0xff92;
         sprintf(text, "x: 0x%04x = %02d ", index, cpu_info->mem_controller.memory[index]);
         draw_text(text, 400, 80, 0x2a, 0x90, 0xf5);
+
+        sprintf(text, "best: %3x , %3d ", best.x, best.y);
+        draw_text(text, 20, 150, 0xff, 0x00, 0x00);
     }
 }
 
@@ -340,6 +364,7 @@ void print_screen_state(){
 }
 
 void new_piece_on_screen_hook() {
+    char text[256];
     static int old_pos = 100;
     _cpu_info *cpu = get_cpu_pointer();
 
@@ -347,11 +372,25 @@ void new_piece_on_screen_hook() {
     uint16_t y_pos = 0xff93;
 
     if ( abs(cpu->mem_controller.memory[y_pos] - old_pos) > 8 ) {
-        evaluate_cost();
         printf("New piece\n");
+        evaluate_cost();
+
+        best = get_best_move();
     }
 
     old_pos = cpu->mem_controller.memory[y_pos];
+}
+
+void start_game_hook() {
+    static int old = -1;
+    int atual = cpu_info->mem_controller.memory[0xffe1];
+
+    if ( atual == 0x0000 && old != atual ) {
+        /*printf("HOOK\n");*/
+        initialize_weight();
+    }
+
+    old = atual;
 }
 
 void other_flip_screen ( ) {
@@ -359,6 +398,8 @@ void other_flip_screen ( ) {
     SDL_RenderCopy(other_renderer, other_bitmap, NULL, NULL);
 
     print_screen_state();
+
+    start_game_hook();
 
     if ( cpu_info->mem_controller.memory[0xffe1] == 0x0000 ) {
         draw_bg();
