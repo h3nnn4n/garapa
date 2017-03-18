@@ -204,33 +204,100 @@ void evaluate_cost() {
 }
 
 void mem_fiddling() {
+    if ( cpu_info->mem_controller.memory[0xffe1] == 0x0000 ) {
+        char text[256];
+        /*int index;*/
+
+        sprintf(text, "0xff80 = %04x "BYTE_TO_BINARY_PATTERN, cpu_info->mem_controller.memory[0xff80], BYTE_TO_BINARY(cpu_info->mem_controller.memory[0xff80]));
+        draw_text(text, 400, 20, 0x2a, 0x90, 0xf5);
+
+        sprintf(text, "0xff81 = %04x "BYTE_TO_BINARY_PATTERN, cpu_info->mem_controller.memory[0xff81], BYTE_TO_BINARY(cpu_info->mem_controller.memory[0xff81]));
+        draw_text(text, 400, 40, 0x2a, 0x90, 0xf5);
+
+        sprintf(text, "0xffe1 = %04x "BYTE_TO_BINARY_PATTERN, cpu_info->mem_controller.memory[0xffe1], BYTE_TO_BINARY(cpu_info->mem_controller.memory[0xffe1]));
+        draw_text(text, 400, 60, 0x2a, 0x90, 0xf5);
+
+        /*index = 0xc203;*/
+        /*sprintf(text, "0x%04x = %02x "BYTE_TO_BINARY_PATTERN, index, cpu_info->mem_controller.memory[index], BYTE_TO_BINARY(cpu_info->mem_controller.memory[index]));*/
+        /*draw_text(text, 400, 80, 0x2a, 0x90, 0xf5);*/
+    }
+}
+
+void print_current_piece(){
     char text[256];
     int index;
 
-    sprintf(text, "0xff80 = %04x "BYTE_TO_BINARY_PATTERN, cpu_info->mem_controller.memory[0xff80], BYTE_TO_BINARY(cpu_info->mem_controller.memory[0xff80]));
-    draw_text(text, 400, 0, 0x2a, 0x90, 0xf5);
-
-    sprintf(text, "0xff81 = %04x "BYTE_TO_BINARY_PATTERN, cpu_info->mem_controller.memory[0xff81], BYTE_TO_BINARY(cpu_info->mem_controller.memory[0xff81]));
-    draw_text(text, 400, 20, 0x2a, 0x90, 0xf5);
-
-    sprintf(text, "0xffe1 = %04x "BYTE_TO_BINARY_PATTERN, cpu_info->mem_controller.memory[0xffe1], BYTE_TO_BINARY(cpu_info->mem_controller.memory[0xffe1]));
-    draw_text(text, 400, 40, 0x2a, 0x90, 0xf5);
-
     index = 0xc203;
     sprintf(text, "0x%04x = %02x "BYTE_TO_BINARY_PATTERN, index, cpu_info->mem_controller.memory[index], BYTE_TO_BINARY(cpu_info->mem_controller.memory[index]));
-    draw_text(text, 400, 200, 0x2a, 0x90, 0xf5);
+    draw_text(text, 400, 100, 0x2a, 0x90, 0xf5);
+}
+
+void print_screen_state(){
+    char text[256];
+    char screen[256];
+    int index;
+
+    index = cpu_info->mem_controller.memory[0xffe1];
+
+    switch (index) {
+        case 0xff:
+            sprintf(screen, "????");
+            break;
+        case 0x24:
+        case 0x25:
+            sprintf(screen, "credits");
+            break;
+        case 0x06:
+        case 0x07:
+            sprintf(screen, "menu");
+            break;
+        case 0x08:
+        case 0x0e:
+            sprintf(screen, "gametype");
+            break;
+        case 0x10:
+        case 0x11:
+            sprintf(screen, "A-Game");
+            break;
+        case 0x00:
+        case 0x0a:
+            sprintf(screen, "In Game");
+            break;
+        case 0x01:
+        case 0x0d:
+        case 0x04:
+            sprintf(screen, "Game Over");
+            break;
+        case 0x15:
+        case 0x12:
+            sprintf(screen, "A-Game score");
+            break;
+        default:
+            sprintf(screen, "Unknow");
+            printf("Unknow screen: %2x %3d\n", index, index);
+            sleep(10);
+            break;
+    }
+
+    sprintf(text, "screen: %02x %s", cpu_info->mem_controller.memory[index], screen);
+    draw_text(text, 400, 0, 0x2a, 0x90, 0xf5);
 }
 
 void other_flip_screen ( ) {
     SDL_RenderClear(other_renderer);
     SDL_RenderCopy(other_renderer, other_bitmap, NULL, NULL);
 
-    draw_bg();
-    draw_falling_blocks();
+    print_screen_state();
 
-    evaluate_cost();
+    if ( cpu_info->mem_controller.memory[0xffe1] == 0x0000 ) {
+        draw_bg();
+        draw_falling_blocks();
 
-    mem_fiddling();
+        evaluate_cost();
+
+        mem_fiddling();
+        print_current_piece();
+    }
 
     SDL_UpdateTexture(other_bitmap, NULL, other_pixels, other_screenx * sizeof(uint32_t));
 
