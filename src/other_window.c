@@ -225,10 +225,62 @@ void mem_fiddling() {
 
 void print_current_piece(){
     char text[256];
+    char name[256];
     int index;
+    int value;
 
     index = 0xc203;
-    sprintf(text, "0x%04x = %02x "BYTE_TO_BINARY_PATTERN, index, cpu_info->mem_controller.memory[index], BYTE_TO_BINARY(cpu_info->mem_controller.memory[index]));
+    value = cpu_info->mem_controller.memory[index];
+
+    switch (value) {
+        case 0x0c:
+        case 0x0d:
+        case 0x0e:
+        case 0x0f:
+            sprintf(name, "Square");
+            break;
+        case 0x04:
+        case 0x05:
+        case 0x06:
+        case 0x07:
+            sprintf(name, "J");
+            break;
+        case 0x00:
+        case 0x01:
+        case 0x02:
+        case 0x03:
+            sprintf(name, "L");
+            break;
+        case 0x08:
+        case 0x09:
+        case 0x0a:
+        case 0x0b:
+            sprintf(name, "I");
+            break;
+        case 0x14:
+        case 0x15:
+        case 0x16:
+        case 0x17:
+            sprintf(name, "S");
+            break;
+        case 0x10:
+        case 0x11:
+        case 0x12:
+        case 0x13:
+            sprintf(name, "Z");
+            break;
+        case 0x18:
+        case 0x19:
+        case 0x1a:
+        case 0x1b:
+            sprintf(name, "T");
+            break;
+        default:
+            sprintf(name, "??");
+            break;
+    }
+
+    sprintf(text, "0x%04x = %02x %s", index, cpu_info->mem_controller.memory[index], name);
     draw_text(text, 400, 100, 0x2a, 0x90, 0xf5);
 }
 
