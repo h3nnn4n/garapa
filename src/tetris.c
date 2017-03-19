@@ -25,34 +25,31 @@
 #include "tetris.h"
 #include "graphics.h"
 
-_piece Ta_piece     = {  { -1 , -1 } , { 0  , -1 } , { 1  , -1 } , { 0 , 0 }  } ; // Ta
-_piece Tb_piece     = {  { -1 , -1 } , { 0  , -1 } , { 1  , -1 } , { 0 , 0 }  } ; // Ta
-_piece Tc_piece     = {  { -1 , -1 } , { 0  , -1 } , { 1  , -1 } , { 0 , 0 }  } ; // Ta
-_piece Td_piece     = {  { -1 , -1 } , { 0  , -1 } , { 1  , -1 } , { 0 , 0 }  } ; // Ta
+_piece Ta_piece     = {{ -1, -1 }, {  0, -1 }, { 1, -1 }, { 0, 0 }} ; // Ta
+_piece Tb_piece     = {{  0, -2 }, {  0, -1 }, { 1, -1 }, { 0, 0 }} ; // Tb
+_piece Tc_piece     = {{ -1, -1 }, { -2,  0 }, {-1,  0 }, { 0, 0 }} ; // Tc
+_piece Td_piece     = {{  0, -2 }, { -1, -1 }, { 0, -1 }, { 0, 0 }} ; // Td
 
-_piece Ja_piece     = {  { -2 , -1 } , { -1 , -1 } , { 0  , -1 } , { 0 , 0 }  } ; // Ja
-_piece Jb_piece     = {  { 0  , -2 } , { 1  , -2 } , { 0  , -1 } , { 0 , 0 }  } ; // Jb
-_piece Jc_piece     = {  { -2 , -1 } , { -2 , 0  } , { -1 , 0  } , { 0 , 0 }  } ; // Jc
-_piece Jd_piece     = {  { 0  , -2 } , { 0  , -1 } , { -1 , 0  } , { 0 , 0 }  } ; // Jd
+_piece Ja_piece     = {{ -2, -1 }, { -1, -1 }, { 0, -1 }, { 0, 0 }} ; // Ja
+_piece Jb_piece     = {{  0, -2 }, {  1, -2 }, { 0, -1 }, { 0, 0 }} ; // Jb
+_piece Jc_piece     = {{ -2, -1 }, { -2,  0 }, { 1,  0 }, { 0, 0 }} ; // Jc
+_piece Jd_piece     = {{  0, -2 }, {  0, -1 }, { 1,  0 }, { 0, 0 }} ; // Jd
 
-_piece La_piece     = {  { 0  , -1 } , { 1  , -1 } , { 2  , -1 } , { 0 , 0 }  } ; // La
-_piece Lb_piece     = {  { -1 , -2 } , { -1 , -1 } , { -1 , 0  } , { 0 , 0 }  } ; // Lb
-_piece Lc_piece     = {  { 0  , -1 } , { -2 , 0  } , { -1 , 0  } , { 0 , 0 }  } ; // Lc
-_piece Ld_piece     = {  { -1 , -2 } , { 0  , -2 } , { 0  , -1 } , { 0 , 0 }  } ; // Ld
+_piece La_piece     = {{  0, -1 }, {  1, -1 }, { 2, -1 }, { 0, 0 }} ; // La
+_piece Lb_piece     = {{ -1, -2 }, { -1, -1 }, { 1,  0 }, { 0, 0 }} ; // Lb
+_piece Lc_piece     = {{  0, -1 }, { -2, 0  }, { 1,  0 }, { 0, 0 }} ; // Lc
+_piece Ld_piece     = {{ -1, -2 }, {  0, -2 }, { 0, -1 }, { 0, 0 }} ; // Ld
 
-_piece Sa_piece     = {  { 0  , -1 } , { 1  , -1 } , { -1 , 0  } , { 0 , 0 }  } ; // Sa
-_piece Sb_piece     = {  { -1 , -2 } , { -1 , -1 } , { 0  , -1 } , { 0 , 0 }  } ; // Sb
+_piece Sa_piece     = {{  0, -1 }, {  1, -1 }, { 1,  0 }, { 0, 0 }} ; // Sa
+_piece Sb_piece     = {{ -1, -2 }, { -1, -1 }, { 0, -1 }, { 0, 0 }} ; // Sb
 
-_piece Ia_piece     = {  { -3 , 0  } , { -2 , 0  } , { -1 , 0  } , { 0 , 0 }  } ; // Ia
-_piece Ib_piece     = {  { 0  , -3 } , { 0  , -2 } , { 0  , -1 } , { 0 , 0 }  } ; // Ib
+_piece Ia_piece     = {{ -3, 0  }, { -2,  0 }, {-1,  0 }, { 0, 0 }} ; // Ia
+_piece Ib_piece     = {{  0, -3 }, {  0, -2 }, { 0, -1 }, { 0, 0 }} ; // Ib
 
-_piece Za_piece     = {  { -2 , -1 } , { -1 , -1 } , { -1 , 0  } , { 0 , 0 }  } ; // Za
-_piece Zb_piece     = {  { 1  , -2 } , { 0  , -1 } , { 1  , -1 } , { 0 , 0 }  } ; // Zb
+_piece Za_piece     = {{ -2, -1 }, { -1, -1 }, { 1,  0 }, { 0, 0 }} ; // Za
+_piece Zb_piece     = {{  1, -2 }, {  0, -1 }, { 1, -1 }, { 0, 0 }} ; // Zb
 
-_piece Square_piece = {  { -1 , -1 } , { 0  , -1 } , { -1 , 0  } , { 0 , 0 }  } ; // Square
-
-
-_piece NULL_piece = {{-1,  -1}, { 0,  -1}, { -1,  0}, { 0,   0}}; // Null piece, also a square
+_piece Square_piece = {{ -1, -1 }, {  0, -1 }, {-1,  0 }, { 0, 0 }} ; // Square
 
 int aggregate_height() {
     _bg_info *bg_info = get_bg_info_pointer();
@@ -61,7 +58,9 @@ int aggregate_height() {
 
     for (int i = 0; i < 10; ++i) {
         int last = 17;
-        for (int j = 0; j < 17; ++j) { if ( bg_info->data[i][j] == 1 ) { last = j;
+        for (int j = 0; j < 17; ++j) {
+            if ( bg_info->data[i][j] >= 1 ) {
+                last = j;
                 break;
             }
         }
@@ -102,7 +101,7 @@ int surface_smoothness() {
     for (int i = 0; i < 10; ++i) {
         h[i] = 0;
         for (int j = 0; j < 17; ++j) {
-            if ( bg_info->data[i][j] == 1 ) {
+            if ( bg_info->data[i][j] >= 1 ) {
                 h[i] = 17 - j;
                 break;
             }
@@ -124,7 +123,7 @@ int covered_cells() {
     for (int i = 0; i < 10; ++i) {
         int found = 0;
         for (int j = 0; j < 17; ++j) {
-            if ( bg_info->data[i][j] == 1 && !found ) {
+            if ( bg_info->data[i][j] >= 1 && !found ) {
                 found = 1;
             } else if ( bg_info->data[i][j] == 0 && found ) {
                 total++;
@@ -142,31 +141,90 @@ int well_cells(){
 
     for (int i = 1; i < 9; ++i) {
         for (int j = 0; j < 17; ++j) {
-            if ( bg_info->data[i][j] == 0 && bg_info->data[i-1][j] == 1 && bg_info->data[i+1][j] == 1  ) {
+            if ( bg_info->data[i][j] == 0 && bg_info->data[i-1][j] >= 1 && bg_info->data[i+1][j] >= 1  ) {
                 total += 1;
-            } else if ( bg_info->data[i][j] == 1 ) {
+            } else if ( bg_info->data[i][j] >= 1 ) {
                 break;
             }
         }
     }
 
     for (int j = 0; j < 17; ++j) {
-        if ( bg_info->data[9][j] == 0 && bg_info->data[8][j] == 1  ) {
+        if ( bg_info->data[9][j] == 0 && bg_info->data[8][j] >= 1  ) {
             total += 1;
-        } else if ( bg_info->data[9][j] == 1 ) {
+        } else if ( bg_info->data[9][j] >= 1 ) {
             break;
         }
     }
 
     for (int j = 0; j < 17; ++j) {
-        if ( bg_info->data[0][j] == 0 && bg_info->data[1][j] == 1  ) {
+        if ( bg_info->data[0][j] == 0 && bg_info->data[1][j] >= 1  ) {
             total += 1;
-        } else if ( bg_info->data[0][j] == 1 ) {
+        } else if ( bg_info->data[0][j] >= 1 ) {
             break;
         }
     }
 
     return total;
+}
+
+int is_inside_bounds(_piece piece, int dx, int dy){
+    int x = get_cpu_pointer()->mem_controller.memory[0xff92] - 8;
+    int y = get_cpu_pointer()->mem_controller.memory[0xff93] - 16;
+
+    int min_x =  999;
+    int max_x = -999;
+
+    min_x = min_x < piece.a.x ? min_x : piece.a.x;
+    min_x = min_x < piece.b.x ? min_x : piece.b.x;
+    min_x = min_x < piece.c.x ? min_x : piece.c.x;
+    min_x = min_x < piece.d.x ? min_x : piece.d.x;
+
+    max_x = max_x > piece.a.x ? max_x : piece.a.x;
+    max_x = max_x > piece.b.x ? max_x : piece.b.x;
+    max_x = max_x > piece.c.x ? max_x : piece.c.x;
+    max_x = max_x > piece.d.x ? max_x : piece.d.x;
+
+    min_x *= 8;
+    max_x *= 8;
+
+    /*int min_y =  999;*/
+    /*int max_y = -999;*/
+
+    /*min_y = min_y < piece.a.y ? min_y : piece.a.y;*/
+    /*min_y = min_y < piece.b.y ? min_y : piece.b.y;*/
+    /*min_y = min_y < piece.c.y ? min_y : piece.c.y;*/
+    /*min_y = min_y < piece.d.y ? min_y : piece.d.y;*/
+
+    /*max_y = max_y > piece.a.y ? max_y : piece.a.y;*/
+    /*max_y = max_y > piece.b.y ? max_y : piece.b.y;*/
+    /*max_y = max_y > piece.c.y ? max_y : piece.c.y;*/
+    /*max_y = max_y > piece.d.y ? max_y : piece.d.y;*/
+
+    /*min_y *= 8;*/
+    /*max_y *= 8;*/
+
+    /*printf("x: %3d   dx: %3d   min: %3d   max: %3d\n", x, dx, min_x, max_x);*/
+
+    if ( x + dx + min_x < 16 || x + dx + max_x > 88 ) {
+        return 0;
+    }
+
+    /*if ( y + dy - min_y < 24 || y + dy + max_y > 80 ) {*/
+        /*return 0;*/
+    /*}*/
+
+    return 1;
+}
+
+int can_fit(_piece piece, int dx, int dy) {
+    int x = get_cpu_pointer()->mem_controller.memory[0xff92] - 8;
+    int y = get_cpu_pointer()->mem_controller.memory[0xff93] - 16;
+    _bg_info bg = get_bg_info_pointer();
+
+    /*if ( x + dx +*/
+
+    return 1;
 }
 
 double get_cost(){
@@ -191,29 +249,23 @@ void initialize_weight (){
 
 _point get_best_move(){
     _point best = {0, 0};
-    _piece piece = get_piece_coord_from_id();
+    _piece_type piece_type = get_current_piece();
+    _piece piece = get_piece_coord_from_id(piece_type);
 
-    int min_x = 999;
-    int max_x = 0;
+    for (int dx = -80 ; dx < 96; dx += 8) {
+        if ( is_inside_bounds(piece, dx, 24)) {
+            /*printf("%d is inside\n", dx);*/
+        } else {
+            /*printf("%d is outside\n", dx);*/
+        }
+    }
 
-    min_x = min_x < piece.a.x ? min_x : piece.a.x;
-    min_x = min_x < piece.b.x ? min_x : piece.b.x;
-    min_x = min_x < piece.c.x ? min_x : piece.c.x;
-    min_x = min_x < piece.d.x ? min_x : piece.d.x;
-
-    max_x = max_x > piece.a.x ? min_x : piece.a.x;
-    max_x = max_x > piece.b.x ? min_x : piece.b.x;
-    max_x = max_x > piece.c.x ? min_x : piece.c.x;
-    max_x = max_x > piece.d.x ? min_x : piece.d.x;
-
-    printf("%3d %3d\n", min_x, max_x);
+    /*exit(0);*/
 
     return best;
 }
 
-_piece get_piece_coord_from_id() {
-    _piece_type piece_type = get_current_piece();
-
+_piece get_piece_coord_from_id( _piece_type piece_type ) {
     switch (piece_type) {
         case La:
         case Lb:
@@ -233,6 +285,10 @@ _piece get_piece_coord_from_id() {
         case Jd:
             return Ja_piece;
 
+        case Za:
+        case Zb:
+            return Za_piece;
+
         case Sa:
         case Sb:
             return Sa_piece;
@@ -242,13 +298,12 @@ _piece get_piece_coord_from_id() {
             return Ia_piece;
 
         case SQUARE:
-            return Ia_piece;
+            return Square_piece;
 
         default:
-            return NULL_piece;
+            fprintf(stderr, "Invalid piece\n");
+            exit(-1);
     }
-
-    return NULL_piece;
 }
 
 _piece_type get_current_piece(){

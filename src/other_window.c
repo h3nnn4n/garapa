@@ -153,10 +153,9 @@ void draw_falling_blocks() {
         int x = sprite_t_info.sprite_list[i].posx;
         int y = sprite_t_info.sprite_list[i].posy;
 
-        /*int x2 = get_cpu_pointer()->mem_controller.memory[0xff92] - 8;*/
-        /*int y2 = get_cpu_pointer()->mem_controller.memory[0xff93] - 16;*/
-
         if (  x >= 16 && x <= 88 ) {
+            /*int x2 = get_cpu_pointer()->mem_controller.memory[0xff92] - 8;*/
+            /*int y2 = get_cpu_pointer()->mem_controller.memory[0xff93] - 16;*/
             /*printf("x,y : %3d %3d\n", (x - x2) / 8, (y - y2) / 8);*/
             draw_rectangle(x, y, 0, 0, 0);
         }
@@ -370,11 +369,17 @@ void new_piece_on_screen_hook() {
     /*uint16_t y_pos = 0xffb2;*/
     uint16_t y_pos = 0xff93;
 
+    int x = get_cpu_pointer()->mem_controller.memory[0xff92] - 8;
+    int y = get_cpu_pointer()->mem_controller.memory[0xff93] - 16;
+
     if ( abs(cpu->mem_controller.memory[y_pos] - old_pos) > 8 ) {
         printf("New piece\n");
         evaluate_cost();
 
         best = get_best_move();
+        /*printf("%3d %3d\n", x, y);*/
+    } else if ( old_pos < cpu->mem_controller.memory[y_pos] ) {
+        /*printf("%3d %3d %3d %3d\n", x, y, old_pos, cpu->mem_controller.memory[y_pos]);*/
     }
 
     old_pos = cpu->mem_controller.memory[y_pos];
