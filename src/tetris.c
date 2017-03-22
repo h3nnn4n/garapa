@@ -175,6 +175,10 @@ int is_inside_bounds(_piece piece, int dx, int dy){
     int min_x =  999;
     int max_x = -999;
 
+    dy += y;
+
+    y = dy;
+
     min_x = min_x < piece.a.x ? min_x : piece.a.x;
     min_x = min_x < piece.b.x ? min_x : piece.b.x;
     min_x = min_x < piece.c.x ? min_x : piece.c.x;
@@ -217,12 +221,70 @@ int is_inside_bounds(_piece piece, int dx, int dy){
     return 1;
 }
 
+int add_piece(_piece piece, int dx, int dy) {
+    int x = get_cpu_pointer()->mem_controller.memory[0xff92] - 8;
+    int y = get_cpu_pointer()->mem_controller.memory[0xff93] - 16;
+    _bg_info *bg = get_bg_info_pointer();
+
+    int xx;
+    int yy;
+
+    xx = (x + dx + piece.a.x*8) / 8 - 2;
+    yy = (y + dy + piece.a.y*8) / 8 - 1;
+    bg->data[xx][yy] += 2;
+
+    xx = (x + dx + piece.b.x*8) / 8 - 2;
+    yy = (y + dy + piece.b.y*8) / 8 - 1;
+    bg->data[xx][yy] += 2;
+
+    xx = (x + dx + piece.c.x*8) / 8 - 2;
+    yy = (y + dy + piece.c.y*8) / 8 - 1;
+    bg->data[xx][yy] += 2;
+
+    xx = (x + dx + piece.d.x*8) / 8 - 2;
+    yy = (y + dy + piece.d.y*8) / 8 - 1;
+    bg->data[xx][yy] += 2;
+
+    /*printf("Called add_piece\n");*/
+
+    return 1;
+}
+
 int can_fit(_piece piece, int dx, int dy) {
     int x = get_cpu_pointer()->mem_controller.memory[0xff92] - 8;
     int y = get_cpu_pointer()->mem_controller.memory[0xff93] - 16;
-    _bg_info bg = get_bg_info_pointer();
+    _bg_info *bg = get_bg_info_pointer();
 
-    /*if ( x + dx +*/
+    /*printf("Called can_fit\n");*/
+
+    int xx ;
+    int yy ;
+
+    xx = (x + dx + piece.a.x*8) / 8 - 2;
+    yy = (y + dy + piece.a.y*8) / 8 - 1;
+    /*printf("Trying %3d %3d\n", xx, yy);*/
+
+    if ( bg->data[xx][yy] == 1 ) return 0;
+
+    xx = (x + dx + piece.b.x*8) / 8 - 2;
+    yy = (y + dy + piece.b.y*8) / 8 - 1;
+    /*printf("Trying %3d %3d\n", xx, yy);*/
+
+    if ( bg->data[xx][yy] == 1 ) return 0;
+
+    xx = (x + dx + piece.c.x*8) / 8 - 2;
+    yy = (y + dy + piece.c.y*8) / 8 - 1;
+    /*printf("Trying %3d %3d\n", xx, yy);*/
+
+    if ( bg->data[xx][yy] == 1 ) return 0;
+
+    xx = (x + dx + piece.d.x*8) / 8 - 2;
+    yy = (y + dy + piece.d.y*8) / 8 - 1;
+    /*printf("Trying %3d %3d\n", xx, yy);*/
+
+    if ( bg->data[xx][yy] == 1 ) return 0;
+
+    /*printf("it sits\n");*/
 
     return 1;
 }
@@ -248,12 +310,48 @@ void initialize_weight (){
 }
 
 _point get_best_move(){
+    double best_cost = 0;
     _point best = {0, 0};
     _piece_type piece_type = get_current_piece();
     _piece piece = get_piece_coord_from_id(piece_type);
 
+    int x = get_cpu_pointer()->mem_controller.memory[0xff92] - 8;
+    int y = get_cpu_pointer()->mem_controller.memory[0xff93] - 16;
+
+    printf("called get best\n");
+
     for (int dx = -80 ; dx < 96; dx += 8) {
         if ( is_inside_bounds(piece, dx, 24)) {
+            int first = 0;
+            for (int dy = 24; dy < 8*20; dy += 8 ) {
+                /*printf("%3d %3d\n", dx, dy);*/
+                if ( can_fit(piece, dx, dy )) {
+                    first = 1;
+                } else if ( first ) {
+                    add_piece(piece, dx, dy - 8);
+                    if ( best_cost < get_cost() ) {
+                        best_cost = get_cost();
+                        best.x = dx + x;
+                        best.y = dy + y;
+                    }
+                    /*for (int i = 0; i < 10; ++i) {*/
+                        /*for (int j = 0; j < 22; ++j) {*/
+                            /*printf("%2d", get_bg_info_pointer()->data[i][j]);*/
+                            /*[>if ( get_bg_info_pointer()->data[i][j] > 2 ) {<]*/
+                                /*[>[>printf("%d %d = %d \n", i, j, get_bg_info_pointer()->data[i][j]);<]<]*/
+                                /*[>get_bg_info_pointer()->data[i][j] = 0;<]*/
+                            /*[>}<]*/
+                        /*}*/
+                        /*printf("\n");*/
+                    /*}*/
+                    /*printf("break\n");*/
+                    /*printf("%3d %3d\n", dx, dy);*/
+                    /*goto there;*/
+                    break;
+                } else {
+                    break;
+                }
+            }
             /*printf("%d is inside\n", dx);*/
         } else {
             /*printf("%d is outside\n", dx);*/

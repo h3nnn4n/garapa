@@ -173,11 +173,16 @@ void draw_bg() {
     for (int i = 16; i <= 88; i += 8) {
         for (int j = 8; j <= 136; j += 8) {
             assert(i/8 * 10 + j/8 <= 10*22);
-            if ( bg_info.data[i/8 - 2][j/8 - 1] ) {
+            if ( bg_info.data[i/8 - 2][j/8 - 1] == 1 ) {
                 draw_rectangle(i, j, 255, 0, 0);
+            }
+            if ( bg_info.data[i/8 - 2][j/8 - 1] > 1 ) {
+                draw_rectangle(i, j, 0, 255, 0);
             }
         }
     }
+
+    draw_rectangle(best.x, best.y, 0, 0, 255);
 }
 
 void draw_text(char *text, int x, int y, int r, int g, int b) {
@@ -246,7 +251,7 @@ void mem_fiddling() {
         sprintf(text, "x: 0x%04x = %02d ", index, cpu_info->mem_controller.memory[index]);
         draw_text(text, 400, 80, 0x2a, 0x90, 0xf5);
 
-        sprintf(text, "best: %3x , %3d ", best.x, best.y);
+        sprintf(text, "best: %3d , %3d ", best.x, best.y);
         draw_text(text, 20, 150, 0xff, 0x00, 0x00);
     }
 }
@@ -369,8 +374,8 @@ void new_piece_on_screen_hook() {
     /*uint16_t y_pos = 0xffb2;*/
     uint16_t y_pos = 0xff93;
 
-    int x = get_cpu_pointer()->mem_controller.memory[0xff92] - 8;
-    int y = get_cpu_pointer()->mem_controller.memory[0xff93] - 16;
+    /*int x = get_cpu_pointer()->mem_controller.memory[0xff92] - 8;*/
+    /*int y = get_cpu_pointer()->mem_controller.memory[0xff93] - 16;*/
 
     if ( abs(cpu->mem_controller.memory[y_pos] - old_pos) > 8 ) {
         printf("New piece\n");
