@@ -395,7 +395,7 @@ void start_game_hook() {
     int atual = cpu_info->mem_controller.memory[0xffe1];
 
     if ( atual == 0x0000 && old != atual ) {
-        /*printf("HOOK\n");*/
+        printf("START HOOK\n");
         initialize_weight();
     }
 

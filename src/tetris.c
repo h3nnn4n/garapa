@@ -40,13 +40,13 @@ _piece Lb_piece     = {{ -1, -2 }, { -1, -1 }, { 1,  0 }, { 0, 0 }} ; // Lb
 _piece Lc_piece     = {{  0, -1 }, { -2, 0  }, { 1,  0 }, { 0, 0 }} ; // Lc
 _piece Ld_piece     = {{ -1, -2 }, {  0, -2 }, { 0, -1 }, { 0, 0 }} ; // Ld
 
-_piece Sa_piece     = {{  0, -1 }, {  1, -1 }, { 1,  0 }, { 0, 0 }} ; // Sa
+_piece Sa_piece     = {{  0, -1 }, {  1, -1 }, {-1,  0 }, { 0, 0 }} ; // Sa
 _piece Sb_piece     = {{ -1, -2 }, { -1, -1 }, { 0, -1 }, { 0, 0 }} ; // Sb
 
 _piece Ia_piece     = {{ -3, 0  }, { -2,  0 }, {-1,  0 }, { 0, 0 }} ; // Ia
 _piece Ib_piece     = {{  0, -3 }, {  0, -2 }, { 0, -1 }, { 0, 0 }} ; // Ib
 
-_piece Za_piece     = {{ -2, -1 }, { -1, -1 }, { 1,  0 }, { 0, 0 }} ; // Za
+_piece Za_piece     = {{ -2, -1 }, { -1, -1 }, {-1,  0 }, { 0, 0 }} ; // Za
 _piece Zb_piece     = {{  1, -2 }, {  0, -1 }, { 1, -1 }, { 0, 0 }} ; // Zb
 
 _piece Square_piece = {{ -1, -1 }, {  0, -1 }, {-1,  0 }, { 0, 0 }} ; // Square
@@ -303,20 +303,40 @@ void initialize_weight (){
     _obj_costs* obj = get_obj_cost_pointer();
 
     obj->aggregate_height_weight   = 5.0;
-    obj->complete_rows_weight      = 5.0;
-    obj->covered_cells_weight      = 5.0;
-    obj->surface_smoothness_weight = 5.0;
-    obj->well_cells_weight         = 5.0;
+    obj->complete_rows_weight      =-3.0;
+    obj->covered_cells_weight      =-7.0;
+    obj->surface_smoothness_weight =-1.0;
+    obj->well_cells_weight         =-1.0;
+}
+
+void restore_bg() {
+    for (int i = 0; i < 10; ++i) {
+        for (int j = 0; j < 22; ++j) {
+            if ( get_bg_info_pointer()->data[i][j] > 1 ) {
+                get_bg_info_pointer()->data[i][j] = 0;
+            }
+        }
+    }
+}
+
+void dump_bg() {
+    for (int j = 0; j < 18; ++j) {
+        for (int i = 0; i < 10; ++i) {
+            printf("%c ", get_bg_info_pointer()->data[i][j] > 0 ? 'X' : ' ' );
+        }
+        printf("\n");
+    }
+    printf("\n");
 }
 
 _point get_best_move(){
-    double best_cost = 0;
+    double best_cost = -999999;
     _point best = {0, 0};
     _piece_type piece_type = get_current_piece();
     _piece piece = get_piece_coord_from_id(piece_type);
 
     int x = get_cpu_pointer()->mem_controller.memory[0xff92] - 8;
-    int y = get_cpu_pointer()->mem_controller.memory[0xff93] - 16;
+    int y = get_cpu_pointer()->mem_controller.memory[0xff93] - 24;
 
     printf("called get best\n");
 
@@ -324,7 +344,6 @@ _point get_best_move(){
         if ( is_inside_bounds(piece, dx, 24)) {
             int first = 0;
             for (int dy = 24; dy < 8*20; dy += 8 ) {
-                /*printf("%3d %3d\n", dx, dy);*/
                 if ( can_fit(piece, dx, dy )) {
                     first = 1;
                 } else if ( first ) {
@@ -333,7 +352,12 @@ _point get_best_move(){
                         best_cost = get_cost();
                         best.x = dx + x;
                         best.y = dy + y;
+                        dump_bg();
+                        printf("new best: %3d %3d %3.3f\n", best.x, best.y, best_cost);
                     }
+
+                    /*dump_bg();*/
+                    restore_bg();
                     /*for (int i = 0; i < 10; ++i) {*/
                         /*for (int j = 0; j < 22; ++j) {*/
                             /*printf("%2d", get_bg_info_pointer()->data[i][j]);*/
