@@ -321,9 +321,10 @@ void dump_bg() {
     printf("\n");
 }
 
-_point get_best_move(){
+void get_best_move(){
     double best_cost = -999999;
-    _point best = {0, 0};
+    _best_piece *best_piece = get_best_piece_pointer();
+
     _piece_type piece_type = get_current_piece();
     _piece piece = get_piece_coord_from_id(piece_type);
 
@@ -332,36 +333,132 @@ _point get_best_move(){
 
     printf("called get best\n");
 
-    for (int dx = -80 ; dx < 96; dx += 8) {
-        if ( is_inside_bounds(piece, dx, 15)) {
-            int first = 0;
-            for (int dy = 24; dy < 8*20; dy += 8 ) {
-                if ( can_fit(piece, dx, dy )) {
-                    first = 1;
-                } else if ( first ) {
-                    add_piece(piece, dx, dy - 8);
-                    evaluate_cost();
-                    if ( best_cost < get_cost() ) {
-                        best_cost = get_cost();
-                        best.x = dx + x;
-                        best.y = dy + y;
-                        dump_bg();
-                        printf("new best: %3d %3d %3.3f\n", best.x, best.y, best_cost);
-                    }
+    for (int n_totation = 0; n_totation < get_piece_rotation(piece_type); ++n_totation) {
+        for (int dx = -80 ; dx < 96; dx += 8) {
+            if ( is_inside_bounds(piece, dx, 15)) {
+                int first = 0;
+                for (int dy = 24; dy < 8*20; dy += 8 ) {
+                    if ( can_fit(piece, dx, dy )) {
+                        first = 1;
+                    } else if ( first ) {
+                        add_piece(piece, dx, dy - 8);
+                        evaluate_cost();
+                        if ( best_cost < get_cost() ) {
+                            best_cost           = get_cost();
+                            best_piece->coord.x = dx + x;
+                            best_piece->coord.y = dy + y;
+                            best_piece->type    = piece_type;
+                            best_piece->blocks  = piece;
+                            dump_bg();
+                            printf("new best: %3d %3d %3.3f\n", best_piece->coord.x, best_piece->coord.y, best_cost);
+                        }
 
-                    restore_bg();
-                    break;
-                } else {
-                    break;
+                        restore_bg();
+                        break;
+                    } else {
+                        break;
+                    }
                 }
+                /*printf("%d is inside\n", dx);*/
+            } else {
+                /*printf("%d is outside\n", dx);*/
             }
-            /*printf("%d is inside\n", dx);*/
-        } else {
-            /*printf("%d is outside\n", dx);*/
         }
+
+        piece_type = rotate_piece ( piece_type );
     }
 
-    return best;
+    /*return best;*/
+}
+
+_piece_type rotate_piece (_piece_type piece_type ) {
+    switch (piece_type) {
+        case La:
+            return Lb;
+        case Lb:
+            return Lc;
+        case Lc:
+            return Ld;
+        case Ld:
+            return La;
+
+        case Ta:
+            return Tb;
+        case Tb:
+            return Tc;
+        case Tc:
+            return Td;
+        case Td:
+            return Ta;
+
+        case Ja:
+            return Jb;
+        case Jb:
+            return Jc;
+        case Jc:
+            return Jd;
+        case Jd:
+            return Ja;
+
+        case Za:
+            return Zb;
+        case Zb:
+            return Za;
+
+        case Sa:
+            return Sb;
+        case Sb:
+            return Sa;
+
+        case Ia:
+            return Ib;
+        case Ib:
+            return Ia;
+
+        case SQUARE:
+            return SQUARE;
+
+        default:
+            fprintf(stderr, "Invalid piece in rotate_piece\n");
+            abort();
+    }
+}
+
+int get_piece_rotation ( _piece_type piece_type ) {
+    switch (piece_type) {
+        case La:
+        case Lb:
+        case Lc:
+        case Ld:
+
+        case Ta:
+        case Tb:
+        case Tc:
+        case Td:
+
+        case Ja:
+        case Jb:
+        case Jc:
+        case Jd:
+            return 4;
+
+        case Za:
+        case Zb:
+
+        case Sa:
+        case Sb:
+
+        case Ia:
+        case Ib:
+            return 2;
+
+        case SQUARE:
+            return 1;
+
+        default:
+            fprintf(stderr, "Invalid piece on get_piece_rotation\n");
+            abort();
+    }
 }
 
 _piece get_piece_coord_from_id( _piece_type piece_type ) {
@@ -400,8 +497,8 @@ _piece get_piece_coord_from_id( _piece_type piece_type ) {
             return Square_piece;
 
         default:
-            fprintf(stderr, "Invalid piece\n");
-            exit(-1);
+            fprintf(stderr, "Invalid piece in get_piece_coord_from_id\n");
+            abort();
     }
 }
 
@@ -469,6 +566,8 @@ _piece_type get_current_piece(){
             return Td;
 
         default:
-            return Unknow;
+            /*return Unknow;*/
+            fprintf(stderr, "Invalid piece in get_current_piece\n");
+            abort();
     }
 }

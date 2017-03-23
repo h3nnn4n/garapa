@@ -60,7 +60,8 @@ static uint32_t *other_pixels;
 static int other_screenx = 160 * 4;
 static int other_screeny = 144 * 4;
 
-static _point best;
+/*static _point best;*/
+static _best_piece best_piece;
 
 _sprite_t_info sprite_t_info;
 _bg_info bg_info;
@@ -77,6 +78,10 @@ _obj_costs* get_obj_cost_pointer() {
 
 _cpu_info *get_cpu_pointer() {
     return cpu_info;
+}
+
+_best_piece *get_best_piece_pointer() {
+    return &best_piece;
 }
 
 /*#define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"*/
@@ -182,7 +187,7 @@ void draw_bg() {
         }
     }
 
-    draw_rectangle(best.x, best.y, 0, 0, 255);
+    draw_rectangle(best_piece.coord.x, best_piece.coord.y, 0, 0, 255);
 }
 
 void draw_text(char *text, int x, int y, int r, int g, int b) {
@@ -251,7 +256,7 @@ void mem_fiddling() {
         sprintf(text, "x: 0x%04x = %02d ", index, cpu_info->mem_controller.memory[index]);
         draw_text(text, 400, 80, 0x2a, 0x90, 0xf5);
 
-        sprintf(text, "best: %3d , %3d ", best.x, best.y);
+        sprintf(text, "best: %3d , %3d ", best_piece.coord.x, best_piece.coord.y);
         draw_text(text, 20, 150, 0xff, 0x00, 0x00);
     }
 }
@@ -381,7 +386,8 @@ void new_piece_on_screen_hook() {
         printf("New piece\n");
         evaluate_cost();
 
-        best = get_best_move();
+        get_best_move();
+        /*best = get_best_move();*/
         /*printf("%3d %3d\n", x, y);*/
     } else if ( old_pos < cpu->mem_controller.memory[y_pos] ) {
         /*printf("%3d %3d %3d %3d\n", x, y, old_pos, cpu->mem_controller.memory[y_pos]);*/

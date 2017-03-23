@@ -50,7 +50,7 @@ typedef enum {SQUARE, Ja, Jb, Jc, Jd, La, Lb, Lc, Ld, Ia, Ib, Sa, Sb, Za, Zb, Ta
 
 _piece get_piece_coord_from_id();
 
-_point get_best_move();
+void get_best_move();
 double get_cost();
 
 int aggregate_height();
@@ -61,6 +61,9 @@ int well_cells();
 int complete_rows();
 
 void initialize_weight ();
+
+int get_piece_rotation ( _piece_type piece_type ) ;
+_piece_type rotate_piece (_piece_type piece_type ) ;
 
 _piece_type get_current_piece();
 
