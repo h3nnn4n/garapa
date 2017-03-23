@@ -366,6 +366,7 @@ void get_best_move(){
         }
 
         piece_type = rotate_piece ( piece_type );
+        piece = get_piece_coord_from_id(piece_type);
     }
 
     /*return best;*/
