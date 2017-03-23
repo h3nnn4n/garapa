@@ -340,6 +340,7 @@ _point get_best_move(){
                     first = 1;
                 } else if ( first ) {
                     add_piece(piece, dx, dy - 8);
+                    evaluate_cost();
                     if ( best_cost < get_cost() ) {
                         best_cost = get_cost();
                         best.x = dx + x;
