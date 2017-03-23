@@ -333,7 +333,7 @@ _point get_best_move(){
     printf("called get best\n");
 
     for (int dx = -80 ; dx < 96; dx += 8) {
-        if ( is_inside_bounds(piece, dx, 16)) {
+        if ( is_inside_bounds(piece, dx, 15)) {
             int first = 0;
             for (int dy = 24; dy < 8*20; dy += 8 ) {
                 if ( can_fit(piece, dx, dy )) {
