@@ -255,36 +255,28 @@ int can_fit(_piece piece, int dx, int dy) {
     int y = get_cpu_pointer()->mem_controller.memory[0xff93] - 16;
     _bg_info *bg = get_bg_info_pointer();
 
-    /*printf("Called can_fit\n");*/
-
     int xx ;
     int yy ;
 
     xx = (x + dx + piece.a.x*8) / 8 - 2;
     yy = (y + dy + piece.a.y*8) / 8 - 1;
-    /*printf("Trying %3d %3d\n", xx, yy);*/
 
     if ( bg->data[xx][yy] == 1 ) return 0;
 
     xx = (x + dx + piece.b.x*8) / 8 - 2;
     yy = (y + dy + piece.b.y*8) / 8 - 1;
-    /*printf("Trying %3d %3d\n", xx, yy);*/
 
     if ( bg->data[xx][yy] == 1 ) return 0;
 
     xx = (x + dx + piece.c.x*8) / 8 - 2;
     yy = (y + dy + piece.c.y*8) / 8 - 1;
-    /*printf("Trying %3d %3d\n", xx, yy);*/
 
     if ( bg->data[xx][yy] == 1 ) return 0;
 
     xx = (x + dx + piece.d.x*8) / 8 - 2;
     yy = (y + dy + piece.d.y*8) / 8 - 1;
-    /*printf("Trying %3d %3d\n", xx, yy);*/
 
     if ( bg->data[xx][yy] == 1 ) return 0;
-
-    /*printf("it sits\n");*/
 
     return 1;
 }
@@ -302,8 +294,8 @@ double get_cost(){
 void initialize_weight (){
     _obj_costs* obj = get_obj_cost_pointer();
 
-    obj->aggregate_height_weight   = 5.0;
-    obj->complete_rows_weight      =-3.0;
+    obj->aggregate_height_weight   =-5.0;
+    obj->complete_rows_weight      = 3.0;
     obj->covered_cells_weight      =-7.0;
     obj->surface_smoothness_weight =-1.0;
     obj->well_cells_weight         =-1.0;
@@ -341,7 +333,7 @@ _point get_best_move(){
     printf("called get best\n");
 
     for (int dx = -80 ; dx < 96; dx += 8) {
-        if ( is_inside_bounds(piece, dx, 24)) {
+        if ( is_inside_bounds(piece, dx, 16)) {
             int first = 0;
             for (int dy = 24; dy < 8*20; dy += 8 ) {
                 if ( can_fit(piece, dx, dy )) {
@@ -356,21 +348,7 @@ _point get_best_move(){
                         printf("new best: %3d %3d %3.3f\n", best.x, best.y, best_cost);
                     }
 
-                    /*dump_bg();*/
                     restore_bg();
-                    /*for (int i = 0; i < 10; ++i) {*/
-                        /*for (int j = 0; j < 22; ++j) {*/
-                            /*printf("%2d", get_bg_info_pointer()->data[i][j]);*/
-                            /*[>if ( get_bg_info_pointer()->data[i][j] > 2 ) {<]*/
-                                /*[>[>printf("%d %d = %d \n", i, j, get_bg_info_pointer()->data[i][j]);<]<]*/
-                                /*[>get_bg_info_pointer()->data[i][j] = 0;<]*/
-                            /*[>}<]*/
-                        /*}*/
-                        /*printf("\n");*/
-                    /*}*/
-                    /*printf("break\n");*/
-                    /*printf("%3d %3d\n", dx, dy);*/
-                    /*goto there;*/
                     break;
                 } else {
                     break;
@@ -381,8 +359,6 @@ _point get_best_move(){
             /*printf("%d is outside\n", dx);*/
         }
     }
-
-    /*exit(0);*/
 
     return best;
 }
