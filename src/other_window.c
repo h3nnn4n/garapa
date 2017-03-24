@@ -345,23 +345,35 @@ void draw_text(char *text, int x, int y, int r, int g, int b) {
 void print_cost() {
     char text[256];
 
-    sprintf(text, "aggregate height: %d %4.4f", get_brain_pointer()->population[get_brain_pointer()->current].cost[4], get_brain_pointer()->population[get_brain_pointer()->current].weight[0]);
+    /*sprintf(text, "aggregate height: %4d %4.4f", get_brain_pointer()->population[get_brain_pointer()->current].cost[0], get_brain_pointer()->population[get_brain_pointer()->current].weight[0]);*/
+    sprintf(text, "%4d %4.4f", get_brain_pointer()->population[get_brain_pointer()->current].cost[0], get_brain_pointer()->population[get_brain_pointer()->current].weight[0]);
     draw_text(text, 100, 0, 0x2a, 0x7d, 0xd5);
+    /*printf("%s\n", text);*/
 
-    sprintf(text, "complete_rows: %d %4.4f", get_brain_pointer()->population[get_brain_pointer()->current].cost[4], get_brain_pointer()->population[get_brain_pointer()->current].weight[1]);
+    /*sprintf(text, "complete_rows: %4d %4.4f", get_brain_pointer()->population[get_brain_pointer()->current].cost[1], get_brain_pointer()->population[get_brain_pointer()->current].weight[1]);*/
+    sprintf(text, "%4d %4.4f", get_brain_pointer()->population[get_brain_pointer()->current].cost[1], get_brain_pointer()->population[get_brain_pointer()->current].weight[1]);
     draw_text(text, 100, 20, 0x2a, 0x7d, 0xd5);
+    /*printf("%s\n", text);*/
 
-    sprintf(text, "covered_cells: %d %4.4f", get_brain_pointer()->population[get_brain_pointer()->current].cost[4], get_brain_pointer()->population[get_brain_pointer()->current].weight[2]);
+    /*sprintf(text, "covered_cells: %4d %4.4f", get_brain_pointer()->population[get_brain_pointer()->current].cost[2], get_brain_pointer()->population[get_brain_pointer()->current].weight[2]);*/
+    sprintf(text, "%4d %4.4f", get_brain_pointer()->population[get_brain_pointer()->current].cost[2], get_brain_pointer()->population[get_brain_pointer()->current].weight[2]);
     draw_text(text, 100, 40, 0x2a, 0x7d, 0xd5);
+    /*printf("%s\n", text);*/
 
-    sprintf(text, "surface_smoothness: %d %4.4f", get_brain_pointer()->population[get_brain_pointer()->current].cost[4], get_brain_pointer()->population[get_brain_pointer()->current].weight[3]);
+    /*sprintf(text, "surface_smoothness: %4d %4.4f", get_brain_pointer()->population[get_brain_pointer()->current].cost[3], get_brain_pointer()->population[get_brain_pointer()->current].weight[3]);*/
+    sprintf(text, "%4d %4.4f", get_brain_pointer()->population[get_brain_pointer()->current].cost[3], get_brain_pointer()->population[get_brain_pointer()->current].weight[3]);
     draw_text(text, 100, 60, 0x2a, 0x7d, 0xd5);
+    /*printf("%s\n", text);*/
 
-    sprintf(text, "well_cells: %d %4.4f",  get_brain_pointer()->population[get_brain_pointer()->current].cost[4], get_brain_pointer()->population[get_brain_pointer()->current].weight[4]);
+    /*sprintf(text, "well_cells: %4d %4.4f",  get_brain_pointer()->population[get_brain_pointer()->current].cost[4], get_brain_pointer()->population[get_brain_pointer()->current].weight[4]);*/
+    sprintf(text, "%4d %4.4f",  get_brain_pointer()->population[get_brain_pointer()->current].cost[4], get_brain_pointer()->population[get_brain_pointer()->current].weight[4]);
     draw_text(text, 100, 80, 0x2a, 0x7d, 0xd5);
+    /*printf("%s\n", text);*/
 
     sprintf(text, "total: %f", get_cost() );
     draw_text(text, 100, 100, 0x2a, 0x7d, 0xd5);
+    /*printf("%s\n", text);*/
+    /*printf("\n");*/
 }
 
 void mem_fiddling() {
@@ -538,11 +550,10 @@ void game_over_hook() {
         /*initialize_weight();*/
 
         ai_state.game_state = GAMEOVER;
+        finished_evaluating_individual();
     }
 
     old = atual;
-
-    finished_evaluating_individual();
 }
 void start_game_hook() {
     static int old = -1;
