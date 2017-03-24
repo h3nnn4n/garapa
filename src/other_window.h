@@ -64,7 +64,7 @@ typedef struct {
 void sprite_info_add(int posx, int posy, int id);
 void sprite_info_reset();
 _bg_info* get_bg_info_pointer();
-_obj_costs* get_obj_cost_pointer();
+//_obj_costs* get_obj_cost_pointer();
 _best_piece *get_best_piece_pointer();
 
 void draw_text(char *text, int x, int y, int r, int g, int b) ;
@@ -73,8 +73,9 @@ void draw_rectangle(int x, int y, int r, int g, int b) ;
 void set_cpu_pointer(_cpu_info *cpu);
 _cpu_info *get_cpu_pointer();
 
-void evaluate_cost() ;
+//void evaluate_cost() ;
 void joystick_hook() ;
+void start_game_hook();
 
 void other_window_init ( ) ;
 void other_sdl_quit ( ) ;

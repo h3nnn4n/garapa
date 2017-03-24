@@ -23,6 +23,7 @@
 #include "other_window.h"
 #include "types.h"
 #include "tetris.h"
+#include "trainer.h"
 #include "graphics.h"
 
 _piece Ta_piece     = {{ -1, -1 }, {  0, -1 }, { 1, -1 }, { 0, 0 }} ; // Ta
@@ -307,25 +308,25 @@ int can_fit(_piece piece, int dx, int dy) {
     return 1;
 }
 
-double get_cost(){
-    _obj_costs* obj = get_obj_cost_pointer();
+/*double get_cost(){*/
+    /*_obj_costs* obj = get_obj_cost_pointer();*/
 
-    return (double)obj->aggregate_height_cost   * obj->aggregate_height_weight   +
-           (double)obj->complete_rows_cost      * obj->complete_rows_weight      +
-           (double)obj->covered_cells_cost      * obj->covered_cells_weight      +
-           (double)obj->surface_smoothness_cost * obj->surface_smoothness_weight +
-           (double)obj->well_cells_cost         * obj-> well_cells_weight        ;
-}
+    /*return (double)obj->aggregate_height_cost   * obj->aggregate_height_weight   +*/
+           /*(double)obj->complete_rows_cost      * obj->complete_rows_weight      +*/
+           /*(double)obj->covered_cells_cost      * obj->covered_cells_weight      +*/
+           /*(double)obj->surface_smoothness_cost * obj->surface_smoothness_weight +*/
+           /*(double)obj->well_cells_cost         * obj-> well_cells_weight        ;*/
+/*}*/
 
-void initialize_weight (){
-    _obj_costs* obj = get_obj_cost_pointer();
+/*void initialize_weight (){*/
+    /*_obj_costs* obj = get_obj_cost_pointer();*/
 
-    obj->aggregate_height_weight   =-5.0;
-    obj->complete_rows_weight      = 3.0;
-    obj->covered_cells_weight      =-700;
-    obj->surface_smoothness_weight =-8.0;
-    obj->well_cells_weight         =-3.0;
-}
+    /*obj->aggregate_height_weight   =-5.0;*/
+    /*obj->complete_rows_weight      = 3.0;*/
+    /*obj->covered_cells_weight      =-700;*/
+    /*obj->surface_smoothness_weight =-8.0;*/
+    /*obj->well_cells_weight         =-3.0;*/
+/*}*/
 
 void restore_bg() {
     for (int i = 0; i < 10; ++i) {

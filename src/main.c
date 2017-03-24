@@ -50,6 +50,9 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
+    srand48(time(NULL));
+    srand(time(NULL));
+
     test_control.test_enable = 0;
 
     init_cpu(&cpu);

@@ -21,20 +21,6 @@
 #define TETRIS_H
 
 typedef struct {
-    int aggregate_height_cost;
-    int complete_rows_cost;
-    int covered_cells_cost;
-    int surface_smoothness_cost;
-    int well_cells_cost;
-
-    double aggregate_height_weight;
-    double complete_rows_weight;
-    double covered_cells_weight;
-    double surface_smoothness_weight;
-    double well_cells_weight;
-} _obj_costs;
-
-typedef struct {
     int x;
     int y;
 } _point;
@@ -51,7 +37,7 @@ typedef enum {SQUARE, Ja, Jb, Jc, Jd, La, Lb, Lc, Ld, Ia, Ib, Sa, Sb, Za, Zb, Ta
 _piece get_piece_coord_from_id();
 
 void get_best_move();
-double get_cost();
+//double get_cost();
 
 int aggregate_height();
 int holes();

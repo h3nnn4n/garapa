@@ -29,6 +29,7 @@
 #include "other_window.h"
 
 #include "types.h"
+#include "trainer.h"
 #include "graphics.h"
 
 #include "tetris.h"
@@ -47,8 +48,6 @@
 /*#define __use_other_sdl*/
 
 /*#ifdef __use_other_sdl*/
-
-static _obj_costs obj_cost;
 
 static _cpu_info* cpu_info;
 
@@ -197,9 +196,9 @@ void joystick_hook () {
     }
 }
 
-_obj_costs* get_obj_cost_pointer() {
-    return &obj_cost;
-}
+/*_obj_costs* get_obj_cost_pointer() {*/
+    /*return &obj_cost;*/
+/*}*/
 
 _cpu_info *get_cpu_pointer() {
     return cpu_info;
@@ -264,7 +263,9 @@ void other_window_init ( ) {
 
     move_queue.ready         = 0;
     move_queue.wait_rotation = 0;
-    ai_state.game_state = BOOTING;
+    ai_state.game_state      = BOOTING;
+
+    boot_brain();
 }
 
 _bg_info* get_bg_info_pointer () {
@@ -341,30 +342,22 @@ void draw_text(char *text, int x, int y, int r, int g, int b) {
     SDL_FreeSurface(surface);
 }
 
-void evaluate_cost() {
-    obj_cost.aggregate_height_cost   = aggregate_height();
-    obj_cost.complete_rows_cost      = complete_rows();
-    obj_cost.covered_cells_cost      = covered_cells();
-    obj_cost.surface_smoothness_cost = surface_smoothness();
-    obj_cost.well_cells_cost         = well_cells();
-}
-
 void print_cost() {
     char text[256];
 
-    sprintf(text, "aggregate height: %d", obj_cost.aggregate_height_cost);
+    sprintf(text, "aggregate height: %d %4.4f", get_brain_pointer()->population[get_brain_pointer()->current].cost[4], get_brain_pointer()->population[get_brain_pointer()->current].weight[0]);
     draw_text(text, 100, 0, 0x2a, 0x7d, 0xd5);
 
-    sprintf(text, "complete_rows: %d", obj_cost.complete_rows_cost);
+    sprintf(text, "complete_rows: %d %4.4f", get_brain_pointer()->population[get_brain_pointer()->current].cost[4], get_brain_pointer()->population[get_brain_pointer()->current].weight[1]);
     draw_text(text, 100, 20, 0x2a, 0x7d, 0xd5);
 
-    sprintf(text, "covered_cells: %d", obj_cost.covered_cells_cost);
+    sprintf(text, "covered_cells: %d %4.4f", get_brain_pointer()->population[get_brain_pointer()->current].cost[4], get_brain_pointer()->population[get_brain_pointer()->current].weight[2]);
     draw_text(text, 100, 40, 0x2a, 0x7d, 0xd5);
 
-    sprintf(text, "surface_smoothness: %d", obj_cost.surface_smoothness_cost);
+    sprintf(text, "surface_smoothness: %d %4.4f", get_brain_pointer()->population[get_brain_pointer()->current].cost[4], get_brain_pointer()->population[get_brain_pointer()->current].weight[3]);
     draw_text(text, 100, 60, 0x2a, 0x7d, 0xd5);
 
-    sprintf(text, "well_cells: %d", obj_cost.well_cells_cost);
+    sprintf(text, "well_cells: %d %4.4f",  get_brain_pointer()->population[get_brain_pointer()->current].cost[4], get_brain_pointer()->population[get_brain_pointer()->current].weight[4]);
     draw_text(text, 100, 80, 0x2a, 0x7d, 0xd5);
 
     sprintf(text, "total: %f", get_cost() );
@@ -523,7 +516,7 @@ void new_piece_on_screen_hook() {
 
     if ( abs(cpu->mem_controller.memory[y_pos] - old_pos) > 8 ) {
         /*printf("New piece\n");*/
-        evaluate_cost();
+        /*evaluate_cost();*/
 
         get_best_move();
         /*best = get_best_move();*/
@@ -548,6 +541,8 @@ void game_over_hook() {
     }
 
     old = atual;
+
+    finished_evaluating_individual();
 }
 void start_game_hook() {
     static int old = -1;
@@ -556,7 +551,7 @@ void start_game_hook() {
     if ( atual == 0x0000 && old != atual ) {
         move_queue.ready = 0;
         /*printf("START HOOK\n");*/
-        initialize_weight();
+        /*initialize_weight();*/
 
         ai_state.game_state = INGAME;
     }
@@ -582,7 +577,6 @@ void other_flip_screen ( ) {
 
         print_cost();
 
-        /*mem_fiddling();*/
         print_current_piece();
     }
 

@@ -13,6 +13,7 @@ SOURCES=utils.c                      \
 		opt_to_str.c                 \
 		time_keeper.c                \
 		tetris.c                     \
+		trainer.c                    \
 		microcode.c                  \
 		memory.c                     \
 		cartridge.c                  \
