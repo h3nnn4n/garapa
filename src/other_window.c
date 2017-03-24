@@ -464,7 +464,7 @@ void print_screen_state(){
             break;
     }
 
-    sprintf(text, "screen: %02x %s", cpu_info->mem_controller.memory[index], screen);
+    sprintf(text, "screen: %02x %s", index, screen);
     draw_text(text, 400, 0, 0x2a, 0x90, 0xf5);
 }
 
