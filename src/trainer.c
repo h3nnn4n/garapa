@@ -88,8 +88,8 @@ void crossover ( _obj_costs *new_pop, _obj_costs *old_pop, int p1, int p2, int p
         }
     }
 
-    new_pop[pos + 0].fitness = a.fitness;
-    new_pop[pos + 1].fitness = a.fitness;
+    new_pop[pos + 0].fitness = -1;
+    new_pop[pos + 1].fitness = -1;
 }
 
 void mutation ( _obj_costs *individual ) {
@@ -117,9 +117,7 @@ _obj_costs get_best_individual() {
 }
 
 void selection(_obj_costs *old, _obj_costs *new) {
-    int c = 0;
-
-    do {
+    for (int c = 0; c < POP_SIZE; ++c) {
         int p1 = rand() % POP_SIZE;
         int p2 = rand() % POP_SIZE;
 
@@ -128,7 +126,7 @@ void selection(_obj_costs *old, _obj_costs *new) {
         } else {
             new[c] = old[p2];
         }
-    } while ( ++c < POP_SIZE );
+    }
 }
 
 void print_pop() {
@@ -146,6 +144,8 @@ void evolutionary_step(){
     _obj_costs new_pop[POP_SIZE];
     _obj_costs best = get_best_individual();
 
+    print_pop();
+
     for (int i = 0; i < POP_SIZE/2; ++i) {
         int p1 = rand() % POP_SIZE;
         int p2 = rand() % POP_SIZE;
@@ -153,15 +153,19 @@ void evolutionary_step(){
         crossover (new_pop, brain.population, p1, p2, i);
     }
 
+    /*print_pop();*/
+
     for (int i = 0; i < POP_SIZE; ++i) {
         mutation(&new_pop[i]);
     }
+
+    /*print_pop();*/
 
     selection(new_pop, brain.population);
 
     brain.population[0] = best;
 
-    print_pop();
+    /* print_pop();*/
 }
 
 void boot_brain() {
@@ -188,7 +192,7 @@ void update_fitness() {
 }
 
 void finished_evaluating_individual () {
-    printf("%3d has fitness = %4d\n", brain.current, brain.population[brain.current].fitness);
+    /*printf("%3d has fitness = %4d\n", brain.current, brain.population[brain.current].fitness);*/
     brain.current ++;
 
     if ( brain.current >= POP_SIZE ) {

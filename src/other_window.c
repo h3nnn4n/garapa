@@ -526,6 +526,15 @@ void print_screen_state(){
         case 0x12:
             sprintf(screen, "A-Game score");
             break;
+        case 0x2e:
+        case 0x2f:
+        case 0x30:
+        case 0x31:
+        case 0x32:
+        case 0x33:
+        case 0x34:
+            sprintf(screen, "Win screen");
+            break;
         default:
             sprintf(screen, "Unknow");
             printf("Unknow screen: %2x %3d\n", index, index);
