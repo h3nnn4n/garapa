@@ -65,6 +65,8 @@ static _best_piece best_piece;
 
 static _move_queue move_queue;
 
+static _ai_state ai_state;
+
 _sprite_t_info sprite_t_info;
 _bg_info bg_info;
 
@@ -115,44 +117,82 @@ void joystick_hook () {
 
     /*rotation_changed_hook();*/
 
+    /*printf("Joystick hook\n");*/
+
+    start_game_hook();
+
     if ( cpu->pc == 0x2a0e ) {
-        switch ( move_queue.ready ) {
-            case 0:
-                cpu->joystick.button_start  = 1;
-                cpu->joystick.button_select = 1;
-                cpu->joystick.button_b      = 1;
-                cpu->joystick.button_a      = 1;
-                cpu->joystick.button_down   = 1;
-                cpu->joystick.button_up     = 1;
-                cpu->joystick.button_left   = 1;
-                cpu->joystick.button_right  = 1;
+        switch ( ai_state.game_state ) {
+            case INGAME:
+                switch ( move_queue.ready ) {
+                    case 0:
+                        cpu->joystick.button_start  = 1;
+                        cpu->joystick.button_select = 1;
+                        cpu->joystick.button_b      = 1;
+                        cpu->joystick.button_a      = 1;
+                        cpu->joystick.button_down   = 1;
+                        cpu->joystick.button_up     = 1;
+                        cpu->joystick.button_left   = 1;
+                        cpu->joystick.button_right  = 1;
 
-                move_queue.ready = 1;
-                break;
-            case 1:
-                move_queue.ready = 0;
+                        move_queue.ready = 1;
+                        break;
+                    case 1:
+                        move_queue.ready = 0;
 
-                if ( best_piece.nrotations > 0 /*&& move_queue.wait_rotation == 0*/ ) {
-                    /*printf("Called rotation %2d\n", best_piece.nrotations);*/
-                    cpu->joystick.button_b   = 0;
-                    move_queue.wait_rotation = 1;
-                    best_piece.nrotations--;
-                } else
-                if ( best_piece.coord.x > x ) {
-                    cpu->joystick.button_right = 0;
-                } else
-                if ( best_piece.coord.x < x ) {
-                    cpu->joystick.button_left  = 0;
-                } else
-                if ( best_piece.coord.x == x ) {
-                    cpu->joystick.button_down  = 0;
+                        if ( best_piece.nrotations > 0 /*&& move_queue.wait_rotation == 0*/ ) {
+                            /*printf("Called rotation %2d\n", best_piece.nrotations);*/
+                            cpu->joystick.button_b   = 0;
+                            move_queue.wait_rotation = 1;
+                            best_piece.nrotations--;
+                        } else
+                        if ( best_piece.coord.x > x ) {
+                            cpu->joystick.button_right = 0;
+                        } else
+                        if ( best_piece.coord.x < x ) {
+                            cpu->joystick.button_left  = 0;
+                        } else
+                        if ( best_piece.coord.x == x ) {
+                            cpu->joystick.button_down  = 0;
+                        }
+                        break;
+                    case 2:
+                        break;
+                    default:
+                        fprintf(stderr, "Invalid ready status at joystick_hook\n");
+                        abort();
                 }
                 break;
-            case 2:
+            case BOOTING:
+            case GAMEOVER:
+                /*printf("BOOT/GAMEOVER button\n");*/
+                switch ( move_queue.ready ) {
+                    case 0:
+                        cpu->joystick.button_start  = 1;
+                        cpu->joystick.button_select = 1;
+                        cpu->joystick.button_b      = 1;
+                        cpu->joystick.button_a      = 1;
+                        cpu->joystick.button_down   = 1;
+                        cpu->joystick.button_up     = 1;
+                        cpu->joystick.button_left   = 1;
+                        cpu->joystick.button_right  = 1;
+
+                        move_queue.ready = 1;
+                        break;
+                    case 1:
+                        move_queue.ready = 0;
+
+                        cpu->joystick.button_start = 0;
+                        break;
+                    case 2:
+                        break;
+                    default:
+                        fprintf(stderr, "Invalid ready status at joystick_hook\n");
+                        abort();
+                }
                 break;
             default:
-                fprintf(stderr, "Invalid ready status at joystick_hook\n");
-                abort();
+                break;
         }
     }
 }
@@ -222,8 +262,9 @@ void other_window_init ( ) {
 
     font = TTF_OpenFont("inconsolata.ttf", 18);
 
-    move_queue.ready         = 2;
+    move_queue.ready         = 0;
     move_queue.wait_rotation = 0;
+    ai_state.game_state = BOOTING;
 }
 
 _bg_info* get_bg_info_pointer () {
@@ -494,6 +535,20 @@ void new_piece_on_screen_hook() {
     old_pos = cpu->mem_controller.memory[y_pos];
 }
 
+void game_over_hook() {
+    static int old = -1;
+    int atual = cpu_info->mem_controller.memory[0xffe1];
+
+    if ( atual == 0x000d && old != atual ) {
+        /*move_queue.ready = 0;*/
+        /*printf("GAMEOVER HOOK\n");*/
+        /*initialize_weight();*/
+
+        ai_state.game_state = GAMEOVER;
+    }
+
+    old = atual;
+}
 void start_game_hook() {
     static int old = -1;
     int atual = cpu_info->mem_controller.memory[0xffe1];
@@ -502,6 +557,8 @@ void start_game_hook() {
         move_queue.ready = 0;
         /*printf("START HOOK\n");*/
         initialize_weight();
+
+        ai_state.game_state = INGAME;
     }
 
     old = atual;
@@ -514,6 +571,7 @@ void other_flip_screen ( ) {
     print_screen_state();
 
     start_game_hook();
+    game_over_hook();
 
     if ( cpu_info->mem_controller.memory[0xffe1] == 0x0000 ) {
         draw_bg();
@@ -524,9 +582,11 @@ void other_flip_screen ( ) {
 
         print_cost();
 
-        mem_fiddling();
+        /*mem_fiddling();*/
         print_current_piece();
     }
+
+    mem_fiddling();
 
     SDL_UpdateTexture(other_bitmap, NULL, other_pixels, other_screenx * sizeof(uint32_t));
 

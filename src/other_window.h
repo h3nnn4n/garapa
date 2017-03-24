@@ -51,12 +51,15 @@ typedef struct {
 } _best_piece;
 
 typedef struct {
-    int n_moves;
     int ready;
-    int reading;
     int wait_rotation;
-    int moves[1000];
 } _move_queue;
+
+typedef enum {BOOTING, INGAME, GAMEOVER} _game_state;
+
+typedef struct {
+    _game_state game_state;
+} _ai_state;
 
 void sprite_info_add(int posx, int posy, int id);
 void sprite_info_reset();
