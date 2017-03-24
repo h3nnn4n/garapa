@@ -133,7 +133,7 @@ void joystick_hook () {
                 move_queue.ready = 0;
 
                 if ( best_piece.nrotations > 0 /*&& move_queue.wait_rotation == 0*/ ) {
-                    printf("Called rotation %2d\n", best_piece.nrotations);
+                    /*printf("Called rotation %2d\n", best_piece.nrotations);*/
                     cpu->joystick.button_b   = 0;
                     move_queue.wait_rotation = 1;
                     best_piece.nrotations--;
