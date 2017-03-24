@@ -70,6 +70,7 @@ void crossover ( _obj_costs *new_pop, _obj_costs *old_pop, int p1, int p2, int p
     _obj_costs b = old_pop[p2];
 
     if ( drand48() < brain.crossover_chance ) {
+        /*printf("crossover at %2d with %2d and %2d\n", pos, p1, p2);*/
         for (int i = 0; i < n; ++i) {
             new_pop[pos + 0].weight[i] = a.weight[i];
             new_pop[pos + 1].weight[i] = b.weight[i];
@@ -80,11 +81,15 @@ void crossover ( _obj_costs *new_pop, _obj_costs *old_pop, int p1, int p2, int p
             new_pop[pos + 1].weight[i] = a.weight[i];
         }
     } else {
+        /*printf("no crossover at %2d with %2d and %2d\n", pos, p1, p2);*/
         for (int i = 0; i < N_GENES; ++i) {
             new_pop[pos + 0].weight[i] = a.weight[i];
             new_pop[pos + 1].weight[i] = b.weight[i];
         }
     }
+
+    new_pop[pos + 0].fitness = a.fitness;
+    new_pop[pos + 1].fitness = a.fitness;
 }
 
 void mutation ( _obj_costs *individual ) {

@@ -583,7 +583,6 @@ void game_over_hook() {
         update_fitness();
         ai_state.game_state = GAMEOVER;
         finished_evaluating_individual();
-        bg_reset();
     }
 
     old = atual;
@@ -593,11 +592,10 @@ void start_game_hook() {
     int atual = cpu_info->mem_controller.memory[0xffe1];
 
     if ( atual == 0x0000 && old != atual ) {
+        bg_reset();
         move_queue.ready = 0;
         /*printf("START HOOK\n");*/
         /*initialize_weight();*/
-
-        bg_reset();
         ai_state.game_state = INGAME;
     }
 
