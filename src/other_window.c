@@ -552,6 +552,7 @@ void new_piece_on_screen_hook() {
         /*printf("New piece\n");*/
         /*evaluate_cost();*/
 
+        update_fitness();
         get_best_move();
         /*best = get_best_move();*/
         /*printf("%3d %3d\n", x, y);*/

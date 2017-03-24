@@ -1,7 +1,7 @@
 #ifndef TRAINER_H
 #define TRAINER_H
 
-#define POP_SIZE 10
+#define POP_SIZE 4
 #define N_GENES 5
 
 typedef struct {
@@ -19,6 +19,7 @@ typedef struct {
 
     int cost[N_GENES];
     double weight[N_GENES];
+    int fitness;
 } _obj_costs;
 
 typedef struct {
@@ -26,12 +27,16 @@ typedef struct {
     _obj_costs population[POP_SIZE];
     double mutation_chance;
     double crossover_chance;
+    int elapsed_generations;
+    int most_lines_cleared;
 } _brain;
 
-void boot_brain();
 double get_cost();
+void print_pop();
+void boot_brain();
 void evaluate_cost();
 void finished_evaluating_individual();
+void update_fitness();
 
 _brain* get_brain_pointer();
 
