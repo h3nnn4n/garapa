@@ -190,10 +190,10 @@ void draw_bg() {
 }
 
 void draw_best() {
-    draw_rectangle(best_piece.coord.x + best_piece.blocks.a.x * 8 , best_piece.coord.y + best_piece.blocks.a.y * 8, 0  , 0  , 255 );
+    draw_rectangle(best_piece.coord.x + best_piece.blocks.a.x * 8 , best_piece.coord.y + best_piece.blocks.a.y * 8, 60 , 100, 255 );
     draw_rectangle(best_piece.coord.x + best_piece.blocks.b.x * 8 , best_piece.coord.y + best_piece.blocks.b.y * 8, 60 , 100, 255 );
     draw_rectangle(best_piece.coord.x + best_piece.blocks.c.x * 8 , best_piece.coord.y + best_piece.blocks.c.y * 8, 60 , 100, 255 );
-    draw_rectangle(best_piece.coord.x + best_piece.blocks.d.x * 8 , best_piece.coord.y + best_piece.blocks.d.y * 8, 60 , 100, 255 );
+    draw_rectangle(best_piece.coord.x + best_piece.blocks.d.x * 8 , best_piece.coord.y + best_piece.blocks.d.y * 8,  0 ,  0, 255 );
 }
 
 void draw_text(char *text, int x, int y, int r, int g, int b) {
