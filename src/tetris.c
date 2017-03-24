@@ -32,12 +32,12 @@ _piece Td_piece     = {{  0, -2 }, { -1, -1 }, { 0, -1 }, { 0, 0 }} ; // Td
 
 _piece Ja_piece     = {{ -2, -1 }, { -1, -1 }, { 0, -1 }, { 0, 0 }} ; // Ja
 _piece Jb_piece     = {{  0, -2 }, {  1, -2 }, { 0, -1 }, { 0, 0 }} ; // Jb
-_piece Jc_piece     = {{ -2, -1 }, { -2,  0 }, { 1,  0 }, { 0, 0 }} ; // Jc
-_piece Jd_piece     = {{  0, -2 }, {  0, -1 }, { 1,  0 }, { 0, 0 }} ; // Jd
+_piece Jc_piece     = {{ -2, -1 }, { -2,  0 }, {-1,  0 }, { 0, 0 }} ; // Jc
+_piece Jd_piece     = {{  0, -2 }, {  0, -1 }, {-1,  0 }, { 0, 0 }} ; // Jd
 
 _piece La_piece     = {{  0, -1 }, {  1, -1 }, { 2, -1 }, { 0, 0 }} ; // La
-_piece Lb_piece     = {{ -1, -2 }, { -1, -1 }, { 1,  0 }, { 0, 0 }} ; // Lb
-_piece Lc_piece     = {{  0, -1 }, { -2,  0 }, { 1,  0 }, { 0, 0 }} ; // Lc
+_piece Lb_piece     = {{ -1, -2 }, { -1, -1 }, {-1,  0 }, { 0, 0 }} ; // Lb
+_piece Lc_piece     = {{  0, -1 }, { -2,  0 }, {-1,  0 }, { 0, 0 }} ; // Lc
 _piece Ld_piece     = {{ -1, -2 }, {  0, -2 }, { 0, -1 }, { 0, 0 }} ; // Ld
 
 _piece Sa_piece     = {{  0, -1 }, {  1, -1 }, {-1,  0 }, { 0, 0 }} ; // Sa
@@ -340,7 +340,19 @@ void restore_bg() {
 void dump_bg() {
     for (int j = 0; j < 18; ++j) {
         for (int i = 0; i < 10; ++i) {
-            printf("%c ", get_bg_info_pointer()->data[i][j] > 0 ? 'X' : ' ' );
+            switch ( get_bg_info_pointer()->data[i][j] ) {
+                case 0:
+                    printf("  ");
+                    break;
+                case 1:
+                    printf("X ");
+                    break;
+                case 2:
+                    printf("O ");
+                    break;
+                default:
+                    break;
+            }
         }
         printf("\n");
     }
@@ -421,46 +433,46 @@ void get_best_move(){
 _piece get_rotated_piece (_piece_type piece_type ) {
     switch (piece_type) {
         case La:
-            return Lb_piece;
-        case Lb:
-            return Lc_piece;
-        case Lc:
-            return Ld_piece;
-        case Ld:
             return La_piece;
+        case Lb:
+            return Lb_piece;
+        case Lc:
+            return Lc_piece;
+        case Ld:
+            return Ld_piece;
 
         case Ta:
-            return Tb_piece;
-        case Tb:
-            return Tc_piece;
-        case Tc:
-            return Td_piece;
-        case Td:
             return Ta_piece;
+        case Tb:
+            return Tb_piece;
+        case Tc:
+            return Tc_piece;
+        case Td:
+            return Td_piece;
 
         case Ja:
-            return Jb_piece;
-        case Jb:
-            return Jc_piece;
-        case Jc:
-            return Jd_piece;
-        case Jd:
             return Ja_piece;
+        case Jb:
+            return Jb_piece;
+        case Jc:
+            return Jc_piece;
+        case Jd:
+            return Jd_piece;
 
         case Za:
-            return Zb_piece;
-        case Zb:
             return Za_piece;
+        case Zb:
+            return Zb_piece;
 
         case Sa:
-            return Sb_piece;
-        case Sb:
             return Sa_piece;
+        case Sb:
+            return Sb_piece;
 
         case Ia:
-            return Ib_piece;
-        case Ib:
             return Ia_piece;
+        case Ib:
+            return Ib_piece;
 
         case SQUARE:
             return Square_piece;
