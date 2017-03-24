@@ -38,8 +38,8 @@ void evaluate_cost() {
 void initialize_pop (){
     for (int i = 0; i < POP_SIZE; ++i) {
         for (int j = 0; j < N_GENES; ++j) {
-            brain.population[i].weight[j] = 10;
-            /*brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 50.0;*/
+            /*brain.population[i].weight[j] = 10;*/
+            brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 50.0;
             brain.population[i].cost[j]   = 0;
         }
 
@@ -118,7 +118,7 @@ void selection(_obj_costs *old, _obj_costs *new) {
         int p1 = rand() % POP_SIZE;
         int p2 = rand() % POP_SIZE;
 
-        if ( old[p1].fitness < old[p2].fitness ) {
+        if ( old[p1].fitness > old[p2].fitness ) {
             new[c] = old[p1];
         } else {
             new[c] = old[p2];

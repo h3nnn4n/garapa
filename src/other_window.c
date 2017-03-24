@@ -552,7 +552,7 @@ void new_piece_on_screen_hook() {
         /*printf("New piece\n");*/
         /*evaluate_cost();*/
 
-        update_fitness();
+        /*update_fitness();*/
         get_best_move();
         /*best = get_best_move();*/
         /*printf("%3d %3d\n", x, y);*/
@@ -564,9 +564,9 @@ void new_piece_on_screen_hook() {
 }
 
 void bg_reset() {
-    for (int i = 16; i <= 88; i += 8) {
-        for (int j = 8; j <= 136; j += 8) {
-             bg_info.data[i/8 - 2][j/8 - 1] = 0;
+    for (int i = 0; i < 10; i++) {
+        for (int j = 0; j < 22; j++) {
+             bg_info.data[i][j] = 0;
         }
     }
 }
@@ -580,6 +580,7 @@ void game_over_hook() {
         /*printf("GAMEOVER HOOK\n");*/
         /*initialize_weight();*/
 
+        update_fitness();
         ai_state.game_state = GAMEOVER;
         finished_evaluating_individual();
         bg_reset();
@@ -596,6 +597,7 @@ void start_game_hook() {
         /*printf("START HOOK\n");*/
         /*initialize_weight();*/
 
+        bg_reset();
         ai_state.game_state = INGAME;
     }
 
