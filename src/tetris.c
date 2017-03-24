@@ -371,10 +371,10 @@ void get_best_move(){
     int x = get_cpu_pointer()->mem_controller.memory[0xff92] - 8;
     int y = get_cpu_pointer()->mem_controller.memory[0xff93] - 24;
 
-    printf("called get best\n");
+    /*printf("called get best\n");*/
 
     for (int n_totation = 0; n_totation < get_piece_rotation(piece_type); ++n_totation) {
-        printf("piece has %2d rotations, I am at %2d\n", get_piece_rotation(piece_type), n_totation);
+        /*printf("piece has %2d rotations, I am at %2d\n", get_piece_rotation(piece_type), n_totation);*/
         for (int dx = -80 ; dx < 96; dx += 8) {
             if ( is_inside_bounds(piece, dx, 16)) {
                 int first = 0;
@@ -391,8 +391,9 @@ void get_best_move(){
                             best_piece->type    = piece_type;
                             best_piece->blocks  = piece;
                             best_piece->set     = 1;
-                            dump_bg();
-                            printf("new best: %3d %3d %3.3f\n", best_piece->coord.x, best_piece->coord.y, best_cost);
+                            best_piece->nrotations = n_totation;
+                            /*dump_bg();*/
+                            /*printf("new best: %3d %3d %3.3f\n", best_piece->coord.x, best_piece->coord.y, best_cost);*/
                         }
                         /*dump_bg();*/
 
@@ -411,8 +412,9 @@ void get_best_move(){
                         best_piece->type    = piece_type;
                         best_piece->blocks  = piece;
                         best_piece->set     = 1;
-                        dump_bg();
-                        printf("new best: %3d %3d %3.3f\n", best_piece->coord.x, best_piece->coord.y, best_cost);
+                        best_piece->nrotations = n_totation;
+                        /*dump_bg();*/
+                        /*printf("new best: %3d %3d %3.3f\n", best_piece->coord.x, best_piece->coord.y, best_cost);*/
                         restore_bg();
                         break;
                     }

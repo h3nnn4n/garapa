@@ -47,7 +47,16 @@ typedef struct {
     _piece blocks;
     _piece_type type;
     int set;
+    int nrotations;
 } _best_piece;
+
+typedef struct {
+    int n_moves;
+    int ready;
+    int reading;
+    int wait_rotation;
+    int moves[1000];
+} _move_queue;
 
 void sprite_info_add(int posx, int posy, int id);
 void sprite_info_reset();
@@ -62,6 +71,7 @@ void set_cpu_pointer(_cpu_info *cpu);
 _cpu_info *get_cpu_pointer();
 
 void evaluate_cost() ;
+void joystick_hook() ;
 
 void other_window_init ( ) ;
 void other_sdl_quit ( ) ;

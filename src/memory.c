@@ -24,6 +24,7 @@
 #include "memory.h"
 #include "interrupts.h"
 #include "time_keeper.h"
+#include "other_window.h"
 #include "utils.h"
 #include "types.h"
 #include "graphics.h"
@@ -93,6 +94,8 @@ uint8_t _read_byte ( _cpu_info *cpu, uint16_t addr ) {
                           /*cpu->joystick.button_up     ,*/
                           /*cpu->joystick.button_left   ,*/
                           /*cpu->joystick.button_right  );*/
+
+                joystick_hook();
 
                 uint8_t input = 0;
                 if ( cpu->joystick.select_button == 0 ) {

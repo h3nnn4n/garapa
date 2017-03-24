@@ -63,6 +63,8 @@ static int other_screeny = 144 * 4;
 /*static _point best;*/
 static _best_piece best_piece;
 
+static _move_queue move_queue;
+
 _sprite_t_info sprite_t_info;
 _bg_info bg_info;
 
@@ -70,6 +72,89 @@ TTF_Font* font;
 
 void set_cpu_pointer(_cpu_info *cpu) {
     cpu_info = cpu;
+}
+
+int piece_moved () {
+    static int x = -1;
+    static int y = -1;
+
+    int ret = 0;
+
+    int x2 = get_cpu_pointer()->mem_controller.memory[0xff92] - 8;
+    int y2 = get_cpu_pointer()->mem_controller.memory[0xff93] - 16;
+
+    if ( x != x2 || y != y2 ) {
+        printf("Piece moved\n");
+        ret = 1;
+    }
+
+    x = x2;
+    y = y2;
+
+    return ret;
+}
+
+void rotation_changed_hook () {
+    static int rotation = -1; //get_cpu_pointer()->mem_controller.memory[0xc203];
+
+    if ( rotation != get_cpu_pointer()->mem_controller.memory[0xc203] ) {
+        if ( piece_moved () ) {
+            move_queue.wait_rotation = 0;
+            printf("rotation hook\n");
+            best_piece.nrotations--;
+        }
+    }
+
+    rotation = get_cpu_pointer()->mem_controller.memory[0xc203];
+}
+
+void joystick_hook () {
+    int x = get_cpu_pointer()->mem_controller.memory[0xff92] - 8;
+    /*int y = get_cpu_pointer()->mem_controller.memory[0xff93] - 16;*/
+    _cpu_info *cpu = get_cpu_pointer();
+
+    /*rotation_changed_hook();*/
+
+    if ( cpu->pc == 0x2a0e ) {
+        switch ( move_queue.ready ) {
+            case 0:
+                cpu->joystick.button_start  = 1;
+                cpu->joystick.button_select = 1;
+                cpu->joystick.button_b      = 1;
+                cpu->joystick.button_a      = 1;
+                cpu->joystick.button_down   = 1;
+                cpu->joystick.button_up     = 1;
+                cpu->joystick.button_left   = 1;
+                cpu->joystick.button_right  = 1;
+
+                move_queue.ready = 1;
+                break;
+            case 1:
+                move_queue.ready = 0;
+
+                if ( best_piece.nrotations > 0 /*&& move_queue.wait_rotation == 0*/ ) {
+                    printf("Called rotation %2d\n", best_piece.nrotations);
+                    cpu->joystick.button_b   = 0;
+                    move_queue.wait_rotation = 1;
+                    best_piece.nrotations--;
+                } else
+                if ( best_piece.coord.x > x ) {
+                    cpu->joystick.button_right = 0;
+                } else
+                if ( best_piece.coord.x < x ) {
+                    cpu->joystick.button_left  = 0;
+                } else
+                if ( best_piece.coord.x == x ) {
+                    cpu->joystick.button_down  = 0;
+                }
+                break;
+            case 2:
+                break;
+            default:
+                fprintf(stderr, "Invalid ready status at joystick_hook\n");
+                abort();
+        }
+    }
 }
 
 _obj_costs* get_obj_cost_pointer() {
@@ -136,6 +221,9 @@ void other_window_init ( ) {
     SDL_UpdateTexture(other_bitmap, NULL, other_pixels, other_screenx * sizeof(uint32_t));
 
     font = TTF_OpenFont("inconsolata.ttf", 18);
+
+    move_queue.ready         = 2;
+    move_queue.wait_rotation = 0;
 }
 
 _bg_info* get_bg_info_pointer () {
@@ -186,7 +274,6 @@ void draw_bg() {
             }
         }
     }
-
 }
 
 void draw_best() {
@@ -385,6 +472,8 @@ void new_piece_on_screen_hook() {
     /*uint16_t y_pos = 0xffb2;*/
     uint16_t y_pos = 0xff93;
 
+    piece_moved();
+
     /*int x = get_cpu_pointer()->mem_controller.memory[0xff92] - 8;*/
     /*int y = get_cpu_pointer()->mem_controller.memory[0xff93] - 16;*/
 
@@ -407,6 +496,7 @@ void start_game_hook() {
     int atual = cpu_info->mem_controller.memory[0xffe1];
 
     if ( atual == 0x0000 && old != atual ) {
+        move_queue.ready = 0;
         printf("START HOOK\n");
         initialize_weight();
     }
