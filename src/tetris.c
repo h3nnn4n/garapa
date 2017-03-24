@@ -168,6 +168,32 @@ int well_cells(){
     return total;
 }
 
+int piece_touched_the_ground (_piece piece, int dx, int dy){
+    int x = get_cpu_pointer()->mem_controller.memory[0xff92] - 8;
+    int y = get_cpu_pointer()->mem_controller.memory[0xff93] - 16;
+
+    int max_y = -999;
+
+    dx += x;
+
+    x = dx;
+
+    max_y = max_y > piece.a.y ? max_y : piece.a.y;
+    max_y = max_y > piece.b.y ? max_y : piece.b.y;
+    max_y = max_y > piece.c.y ? max_y : piece.c.y;
+    max_y = max_y > piece.d.y ? max_y : piece.d.y;
+
+    max_y *= 8;
+
+    /*printf("%d %d %d , %3d %3d %3d\n", x, dx, x + dx, y, dy, max_y);*/
+
+    if ( y + dy + max_y >= 142 ) {
+        return 1;
+    }
+
+    return 0;
+}
+
 int is_inside_bounds(_piece piece, int dx, int dy){
     int x = get_cpu_pointer()->mem_controller.memory[0xff92] - 8;
     int y = get_cpu_pointer()->mem_controller.memory[0xff93] - 16;
@@ -296,9 +322,9 @@ void initialize_weight (){
 
     obj->aggregate_height_weight   =-5.0;
     obj->complete_rows_weight      = 3.0;
-    obj->covered_cells_weight      =-7.0;
-    obj->surface_smoothness_weight =-1.0;
-    obj->well_cells_weight         =-1.0;
+    obj->covered_cells_weight      =-700;
+    obj->surface_smoothness_weight =-8.0;
+    obj->well_cells_weight         =-3.0;
 }
 
 void restore_bg() {
@@ -325,6 +351,8 @@ void get_best_move(){
     double best_cost = -999999;
     _best_piece *best_piece = get_best_piece_pointer();
 
+    best_piece->set = 0;
+
     _piece_type piece_type = get_current_piece();
     _piece piece = get_piece_coord_from_id(piece_type);
 
@@ -334,8 +362,9 @@ void get_best_move(){
     printf("called get best\n");
 
     for (int n_totation = 0; n_totation < get_piece_rotation(piece_type); ++n_totation) {
+        printf("piece has %2d rotations, I am at %2d\n", get_piece_rotation(piece_type), n_totation);
         for (int dx = -80 ; dx < 96; dx += 8) {
-            if ( is_inside_bounds(piece, dx, 15)) {
+            if ( is_inside_bounds(piece, dx, 16)) {
                 int first = 0;
                 for (int dy = 24; dy < 8*20; dy += 8 ) {
                     if ( can_fit(piece, dx, dy )) {
@@ -349,13 +378,30 @@ void get_best_move(){
                             best_piece->coord.y = dy + y;
                             best_piece->type    = piece_type;
                             best_piece->blocks  = piece;
+                            best_piece->set     = 1;
                             dump_bg();
                             printf("new best: %3d %3d %3.3f\n", best_piece->coord.x, best_piece->coord.y, best_cost);
                         }
+                        /*dump_bg();*/
 
                         restore_bg();
                         break;
                     } else {
+                        break;
+                    }
+
+                    if ( piece_touched_the_ground (piece, dx, dy) ) {
+                        add_piece(piece, dx, dy - 8);
+                        evaluate_cost();
+                        best_cost           = get_cost();
+                        best_piece->coord.x = dx + x;
+                        best_piece->coord.y = dy + y;
+                        best_piece->type    = piece_type;
+                        best_piece->blocks  = piece;
+                        best_piece->set     = 1;
+                        dump_bg();
+                        printf("new best: %3d %3d %3.3f\n", best_piece->coord.x, best_piece->coord.y, best_cost);
+                        restore_bg();
                         break;
                     }
                 }

@@ -46,6 +46,7 @@ typedef struct {
     _point coord;
     _piece blocks;
     _piece_type type;
+    int set;
 } _best_piece;
 
 void sprite_info_add(int posx, int posy, int id);
