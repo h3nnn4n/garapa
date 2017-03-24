@@ -398,6 +398,28 @@ void mem_fiddling() {
         sprintf(text, "x: 0x%04x = %02d ", index, cpu_info->mem_controller.memory[index]);
         draw_text(text, 400, 80, 0x2a, 0x90, 0xf5);
 
+        ////////////////////
+        index = 0xff9e;
+        sprintf(text, "x: 0x%04x = %02d %02x ", index, cpu_info->mem_controller.memory[index], cpu_info->mem_controller.memory[index]);
+        draw_text(text, 400, 200, 0x2a, 0x90, 0xf5);
+
+        index = 0xffe7;
+        sprintf(text, "x: 0x%04x = %02d %02x ", index, cpu_info->mem_controller.memory[index], cpu_info->mem_controller.memory[index]);
+        draw_text(text, 400, 220, 0x2a, 0x90, 0xf5);
+
+        index = 0x994f;
+        sprintf(text, "x: 0x%04x = %02d %02x ", index, cpu_info->mem_controller.memory[index], cpu_info->mem_controller.memory[index]);
+        draw_text(text, 400, 240, 0x2a, 0x90, 0xf5);
+
+        index = 0x9950;
+        sprintf(text, "x: 0x%04x = %02d %02x ", index, cpu_info->mem_controller.memory[index], cpu_info->mem_controller.memory[index]);
+        draw_text(text, 400, 260, 0x2a, 0x90, 0xf5);
+
+        index = 0x9951;
+        sprintf(text, "x: 0x%04x = %02d %02x ", index, cpu_info->mem_controller.memory[index], cpu_info->mem_controller.memory[index]);
+        draw_text(text, 400, 280, 0x2a, 0x90, 0xf5);
+        /////////////////////
+
         sprintf(text, "best: %3d , %3d ", best_piece.coord.x, best_piece.coord.y);
         draw_text(text, 20, 150, 0xff, 0x00, 0x00);
     }
@@ -540,6 +562,14 @@ void new_piece_on_screen_hook() {
     old_pos = cpu->mem_controller.memory[y_pos];
 }
 
+void bg_reset() {
+    for (int i = 16; i <= 88; i += 8) {
+        for (int j = 8; j <= 136; j += 8) {
+             bg_info.data[i/8 - 2][j/8 - 1] = 0;
+        }
+    }
+}
+
 void game_over_hook() {
     static int old = -1;
     int atual = cpu_info->mem_controller.memory[0xffe1];
@@ -551,6 +581,7 @@ void game_over_hook() {
 
         ai_state.game_state = GAMEOVER;
         finished_evaluating_individual();
+        bg_reset();
     }
 
     old = atual;
