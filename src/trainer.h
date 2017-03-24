@@ -24,6 +24,8 @@ typedef struct {
 typedef struct {
     int current;
     _obj_costs population[POP_SIZE];
+    double mutation_chance;
+    double crossover_chance;
 } _brain;
 
 void boot_brain();
