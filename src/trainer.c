@@ -38,7 +38,8 @@ void evaluate_cost() {
 void initialize_pop (){
     for (int i = 0; i < POP_SIZE; ++i) {
         for (int j = 0; j < N_GENES; ++j) {
-            brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 50.0;
+            brain.population[i].weight[j] = 10;
+            /*brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 50.0;*/
             brain.population[i].cost[j]   = 0;
         }
 
@@ -110,7 +111,7 @@ _obj_costs get_best_individual() {
     return brain.population[best_i];
 }
 
-void selection(_obj_costs *new,_obj_costs *old) {
+void selection(_obj_costs *old, _obj_costs *new) {
     int c = 0;
 
     do {
@@ -122,7 +123,7 @@ void selection(_obj_costs *new,_obj_costs *old) {
         } else {
             new[c] = old[p2];
         }
-    } while ( c++ < POP_SIZE );
+    } while ( ++c < POP_SIZE );
 }
 
 void print_pop() {
@@ -148,7 +149,7 @@ void evolutionary_step(){
     }
 
     for (int i = 0; i < POP_SIZE; ++i) {
-        mutation(&brain.population[i]);
+        mutation(&new_pop[i]);
     }
 
     selection(new_pop, brain.population);
