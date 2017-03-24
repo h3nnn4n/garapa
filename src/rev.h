@@ -38,6 +38,7 @@ void mem_find_reset() ;
 void mem_find_start() ;
 void mem_find_mark_diff() ;
 void mem_find_mark_equal() ;
+void mem_find_mark_exact() ;
 void mem_find_dump() ;
 
 #endif /* REV_H */

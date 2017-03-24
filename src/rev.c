@@ -90,6 +90,23 @@ void mem_find_start() {
     }
 }
 
+void mem_find_mark_exact() {
+    printf("mem_find_mark_exact\n");
+    _cpu_info* cpu = get_cpu_pointer();
+    int d;
+    scanf("%d", &d);
+    for (int i = 0; i < 0x10000; ++i) {
+        if ( d == cpu->mem_controller.memory[i] ) {
+            memory_1[i] = cpu->mem_controller.memory[i];
+            memory_2[i] = 1;
+        } else {
+            memory_1[i] = cpu->mem_controller.memory[i];
+        }
+    }
+
+    mem_find_dump();
+}
+
 void mem_find_mark_diff() {
     printf("mem_find_find\n");
     _cpu_info* cpu = get_cpu_pointer();
@@ -130,7 +147,7 @@ void mem_find_dump() {
 
     for (int i = 0; i < 0x10000; ++i) {
         if ( memory_2[i] == 0 ) {
-            fprintf(f, "%4x: %2x\n", i, memory_1[i]);
+            fprintf(f, "%4x: %2x %4d\n", i, memory_1[i], memory_1[i]);
         }
     }
 

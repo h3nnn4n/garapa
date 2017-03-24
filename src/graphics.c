@@ -102,6 +102,9 @@ void input_update ( _cpu_info *cpu ) {
                     case SDLK_u:
                         mem_find_mark_diff();
                         break;
+                    case SDLK_i:
+                        mem_find_mark_exact();
+                        break;
                     case SDLK_y:
                         mem_find_start();
                         break;
