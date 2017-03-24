@@ -54,5 +54,6 @@ void finished_evaluating_individual () {
 
     if ( brain.current >= POP_SIZE ) {
         evolutionary_step();
+        brain.current = 0;
     }
 }
