@@ -160,7 +160,9 @@ void evolutionary_step(){
 
 void boot_brain() {
     initialize_pop();
-    brain.current = 0;
+    brain.current          = 0;
+    brain.mutation_chance  = ( 1.0 / POP_SIZE * N_GENES ) * 4.0;
+    brain.crossover_chance = 0.85;
 }
 
 void update_fitness() {

@@ -41,6 +41,10 @@
 int main(int argc, char *argv[]) {
     _cpu_info cpu;
     sdl_init();
+
+    srand48(time(NULL));
+    srand(time(NULL));
+
     other_window_init();
     atexit(sdl_quit);
 
@@ -49,9 +53,6 @@ int main(int argc, char *argv[]) {
         test_run ();
         return 0;
     }
-
-    srand48(time(NULL));
-    srand(time(NULL));
 
     test_control.test_enable = 0;
 
