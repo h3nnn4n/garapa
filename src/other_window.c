@@ -84,7 +84,7 @@ int piece_moved () {
     int y2 = get_cpu_pointer()->mem_controller.memory[0xff93] - 16;
 
     if ( x != x2 || y != y2 ) {
-        printf("Piece moved\n");
+        /*printf("Piece moved\n");*/
         ret = 1;
     }
 
@@ -100,7 +100,7 @@ void rotation_changed_hook () {
     if ( rotation != get_cpu_pointer()->mem_controller.memory[0xc203] ) {
         if ( piece_moved () ) {
             move_queue.wait_rotation = 0;
-            printf("rotation hook\n");
+            /*printf("rotation hook\n");*/
             best_piece.nrotations--;
         }
     }
@@ -481,7 +481,7 @@ void new_piece_on_screen_hook() {
     /*int y = get_cpu_pointer()->mem_controller.memory[0xff93] - 16;*/
 
     if ( abs(cpu->mem_controller.memory[y_pos] - old_pos) > 8 ) {
-        printf("New piece\n");
+        /*printf("New piece\n");*/
         evaluate_cost();
 
         get_best_move();
@@ -500,7 +500,7 @@ void start_game_hook() {
 
     if ( atual == 0x0000 && old != atual ) {
         move_queue.ready = 0;
-        printf("START HOOK\n");
+        /*printf("START HOOK\n");*/
         initialize_weight();
     }
 
