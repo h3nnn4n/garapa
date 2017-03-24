@@ -412,10 +412,63 @@ void get_best_move(){
         }
 
         piece_type = rotate_piece ( piece_type );
-        piece = get_piece_coord_from_id(piece_type);
+        piece = get_rotated_piece ( piece_type );
     }
 
     /*return best;*/
+}
+
+_piece get_rotated_piece (_piece_type piece_type ) {
+    switch (piece_type) {
+        case La:
+            return Lb_piece;
+        case Lb:
+            return Lc_piece;
+        case Lc:
+            return Ld_piece;
+        case Ld:
+            return La_piece;
+
+        case Ta:
+            return Tb_piece;
+        case Tb:
+            return Tc_piece;
+        case Tc:
+            return Td_piece;
+        case Td:
+            return Ta_piece;
+
+        case Ja:
+            return Jb_piece;
+        case Jb:
+            return Jc_piece;
+        case Jc:
+            return Jd_piece;
+        case Jd:
+            return Ja_piece;
+
+        case Za:
+            return Zb_piece;
+        case Zb:
+            return Za_piece;
+
+        case Sa:
+            return Sb_piece;
+        case Sb:
+            return Sa_piece;
+
+        case Ia:
+            return Ib_piece;
+        case Ib:
+            return Ia_piece;
+
+        case SQUARE:
+            return Square_piece;
+
+        default:
+            fprintf(stderr, "Invalid piece in rotate_piece\n");
+            abort();
+    }
 }
 
 _piece_type rotate_piece (_piece_type piece_type ) {

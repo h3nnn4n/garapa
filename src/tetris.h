@@ -64,6 +64,7 @@ void initialize_weight ();
 
 int get_piece_rotation ( _piece_type piece_type ) ;
 _piece_type rotate_piece (_piece_type piece_type ) ;
+_piece get_rotated_piece (_piece_type piece_type ) ;
 
 _piece_type get_current_piece();
 
