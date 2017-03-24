@@ -295,6 +295,9 @@ void draw_text(char *text, int x, int y, int r, int g, int b) {
     SDL_Rect dstrect = { x, y, texW, texH };
 
     SDL_RenderCopy(other_renderer, texture, NULL, &dstrect);
+
+    SDL_DestroyTexture(texture);
+    SDL_FreeSurface(surface);
 }
 
 void evaluate_cost() {
