@@ -94,7 +94,7 @@ void mem_find_mark_exact() {
     printf("mem_find_mark_exact\n");
     _cpu_info* cpu = get_cpu_pointer();
     int d;
-    scanf("%d", &d);
+    if ( !scanf("%d", &d) ) abort();
     for (int i = 0; i < 0x10000; ++i) {
         if ( d == cpu->mem_controller.memory[i] ) {
             memory_1[i] = cpu->mem_controller.memory[i];

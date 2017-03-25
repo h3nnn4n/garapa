@@ -20,7 +20,7 @@
 #ifndef TRAINER_H
 #define TRAINER_H
 
-#define POP_SIZE 4
+#define POP_SIZE 50
 #define N_GENES 5
 
 typedef struct {

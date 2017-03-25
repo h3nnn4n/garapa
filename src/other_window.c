@@ -399,13 +399,13 @@ void mem_fiddling() {
         draw_text(text, 400, 80, 0x2a, 0x90, 0xf5);
 
         ////////////////////
-        index = 0xff9e;
-        sprintf(text, "x: 0x%04x = %02d %02x ", index, cpu_info->mem_controller.memory[index], cpu_info->mem_controller.memory[index]);
-        draw_text(text, 400, 200, 0x2a, 0x90, 0xf5);
+        /*index = 0xff9e;*/
+        /*sprintf(text, "x: 0x%04x = %02d %02x ", index, cpu_info->mem_controller.memory[index], cpu_info->mem_controller.memory[index]);*/
+        /*draw_text(text, 400, 200, 0x2a, 0x90, 0xf5);*/
 
-        index = 0xffe7;
-        sprintf(text, "x: 0x%04x = %02d %02x ", index, cpu_info->mem_controller.memory[index], cpu_info->mem_controller.memory[index]);
-        draw_text(text, 400, 220, 0x2a, 0x90, 0xf5);
+        /*index = 0xffe7;*/
+        /*sprintf(text, "x: 0x%04x = %02d %02x ", index, cpu_info->mem_controller.memory[index], cpu_info->mem_controller.memory[index]);*/
+        /*draw_text(text, 400, 220, 0x2a, 0x90, 0xf5);*/
 
         index = 0x994f;
         sprintf(text, "x: 0x%04x = %02d %02x ", index, cpu_info->mem_controller.memory[index], cpu_info->mem_controller.memory[index]);
@@ -565,6 +565,7 @@ void new_piece_on_screen_hook() {
         get_best_move();
         /*best = get_best_move();*/
         /*printf("%3d %3d\n", x, y);*/
+        screen_update();
     } else if ( old_pos < cpu->mem_controller.memory[y_pos] ) {
         /*printf("%3d %3d %3d %3d\n", x, y, old_pos, cpu->mem_controller.memory[y_pos]);*/
     }
@@ -611,21 +612,25 @@ void start_game_hook() {
     old = atual;
 }
 
-void other_flip_screen ( ) {
+void logic_update() {
+    start_game_hook();
+    game_over_hook();
+
+    if ( cpu_info->mem_controller.memory[0xffe1] == 0x0000 ) {
+        new_piece_on_screen_hook();
+    }
+}
+
+void screen_update() {
     SDL_RenderClear(other_renderer);
     SDL_RenderCopy(other_renderer, other_bitmap, NULL, NULL);
 
     print_screen_state();
 
-    start_game_hook();
-    game_over_hook();
-
     if ( cpu_info->mem_controller.memory[0xffe1] == 0x0000 ) {
         draw_bg();
-        draw_falling_blocks();
+        /*draw_falling_blocks();*/
         draw_best();
-
-        new_piece_on_screen_hook();
 
         print_cost();
 
@@ -637,6 +642,11 @@ void other_flip_screen ( ) {
     SDL_UpdateTexture(other_bitmap, NULL, other_pixels, other_screenx * sizeof(uint32_t));
 
     SDL_RenderPresent(other_renderer);
+}
+
+void other_flip_screen ( ) {
+    logic_update();
+    /*screen_update();*/
 }
 
 void other_sdl_quit ( ) {

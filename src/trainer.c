@@ -18,6 +18,7 @@
  * 3. This notice may not be removed or altered from any source distribution. *
  ******************************************************************************/
 #include <stdio.h>
+#include <math.h>
 #include <stdlib.h>
 
 #include "other_window.h"
@@ -64,24 +65,22 @@ _brain* get_brain_pointer() {
 }
 
 void crossover ( _obj_costs *new_pop, _obj_costs *old_pop, int p1, int p2, int pos) {
-    int n = rand() % N_GENES;
+    /*int n = rand() % ( N_GENES - 2 ) + 1;*/
 
     _obj_costs a = old_pop[p1];
     _obj_costs b = old_pop[p2];
 
     if ( drand48() < brain.crossover_chance ) {
-        /*printf("crossover at %2d with %2d and %2d\n", pos, p1, p2);*/
-        for (int i = 0; i < n; ++i) {
-            new_pop[pos + 0].weight[i] = a.weight[i];
-            new_pop[pos + 1].weight[i] = b.weight[i];
-        }
-
-        for (int i = n; i < N_GENES; ++i) {
-            new_pop[pos + 0].weight[i] = b.weight[i];
-            new_pop[pos + 1].weight[i] = a.weight[i];
+        for (int i = 0; i < N_GENES; ++i) {
+            if ( drand48() < .5 ) {
+                new_pop[pos + 0].weight[i] = a.weight[i];
+                new_pop[pos + 1].weight[i] = b.weight[i];
+            } else {
+                new_pop[pos + 0].weight[i] = b.weight[i];
+                new_pop[pos + 1].weight[i] = a.weight[i];
+            }
         }
     } else {
-        /*printf("no crossover at %2d with %2d and %2d\n", pos, p1, p2);*/
         for (int i = 0; i < N_GENES; ++i) {
             new_pop[pos + 0].weight[i] = a.weight[i];
             new_pop[pos + 1].weight[i] = b.weight[i];
@@ -92,12 +91,14 @@ void crossover ( _obj_costs *new_pop, _obj_costs *old_pop, int p1, int p2, int p
     new_pop[pos + 1].fitness = -1;
 }
 
+double random_normal() {
+      return sqrt(-2*log(drand48())) * cos(2*M_PI*drand48());
+}
+
 void mutation ( _obj_costs *individual ) {
     for (int i = 0; i < N_GENES; ++i) {
         if ( drand48() < brain.mutation_chance ) {
-            double p = drand48() * 2.0 - 1.0;
-
-            individual->weight[i] += p;
+            individual->weight[i] += random_normal() * 5.0;
         }
     }
 }
@@ -116,19 +117,6 @@ _obj_costs get_best_individual() {
     return brain.population[best_i];
 }
 
-void selection(_obj_costs *old, _obj_costs *new) {
-    for (int c = 0; c < POP_SIZE; ++c) {
-        int p1 = rand() % POP_SIZE;
-        int p2 = rand() % POP_SIZE;
-
-        if ( old[p1].fitness > old[p2].fitness ) {
-            new[c] = old[p1];
-        } else {
-            new[c] = old[p2];
-        }
-    }
-}
-
 void print_pop() {
     for (int i = 0; i < POP_SIZE; ++i) {
         for (int j = 0; j < N_GENES; ++j) {
@@ -140,39 +128,96 @@ void print_pop() {
     printf("\n");
 }
 
+void selection(_obj_costs *old, _obj_costs *new) {
+    /*for (int c = 0; c < POP_SIZE; c++) {*/
+        /*new[c] = old[c];*/
+    /*}*/
+
+    /*return;*/
+
+    for (int c = 0; c < POP_SIZE; c++) {
+        int p1 = rand() % POP_SIZE;
+        int p2 = rand() % POP_SIZE;
+
+        do {
+            p1 = rand() % POP_SIZE;
+            p2 = rand() % POP_SIZE;
+        } while ( p1 == p2 );
+
+        if ( old[p1].fitness > old[p2].fitness ) {
+            for (int i = 0; i < N_GENES; ++i) {
+                new[c].weight[i] = old[p1].weight[i];
+                new[c].cost[i]   = 0;
+                new[c].fitness   = old[p1].fitness;
+                /*printf(" p1: %2d %2d %2d %2d\n", p1, p2, c, i);*/
+            }
+        } else {
+            for (int i = 0; i < N_GENES; ++i) {
+                new[c].weight[i] = old[p2].weight[i];
+                new[c].cost[i]   = 0;
+                new[c].fitness   = old[p2].fitness;
+                /*printf(" p2: %2d %2d %2d %2d\n", p1, p2, c, i);*/
+            }
+        }
+    }
+
+    /*print_pop();*/
+}
+
 void evolutionary_step(){
+    static int gens = 0;
     _obj_costs new_pop[POP_SIZE];
     _obj_costs best = get_best_individual();
 
     print_pop();
 
+    /*printf("\n- BEGIN -\n");*/
+
+    /*print_pop();*/
+
+    /*selection(new_pop, brain.population);*/
+    selection(brain.population, new_pop);
+
     for (int i = 0; i < POP_SIZE/2; ++i) {
         int p1 = rand() % POP_SIZE;
         int p2 = rand() % POP_SIZE;
 
-        crossover (new_pop, brain.population, p1, p2, i);
+        crossover (brain.population, new_pop, p1, p2, i*2);
     }
 
-    /*print_pop();*/
+    /*for (int i = 0; i < POP_SIZE; ++i) {*/
+        /*for (int j = 0; j < N_GENES; ++j) {*/
+            /*printf("%6.2f ", new_pop[i].weight[j]);*/
+        /*}*/
+        /*printf("= %4d\n", new_pop[i].fitness);*/
+    /*}*/
+
+    /*printf("\n");*/
 
     for (int i = 0; i < POP_SIZE; ++i) {
-        mutation(&new_pop[i]);
+        mutation(&brain.population[i]);
     }
 
-    /*print_pop();*/
+    /*for (int i = 0; i < POP_SIZE; ++i) {*/
+        /*for (int j = 0; j < N_GENES; ++j) {*/
+            /*printf("%6.2f ", new_pop[i].weight[j]);*/
+        /*}*/
+        /*printf("= %4d\n", new_pop[i].fitness);*/
+    /*}*/
 
-    selection(new_pop, brain.population);
+    /*printf("\n");*/
 
     brain.population[0] = best;
 
-    /* print_pop();*/
+    /*printf("\n- END -\n");*/
+    /*fprintf(stderr, "Generation: %6d        best fitness = %6d\n\n", ++gens, best.fitness);*/
 }
 
 void boot_brain() {
     initialize_pop();
     brain.current          = 0;
-    brain.mutation_chance  = ( 1.0 / POP_SIZE * N_GENES ) * 4.0;
-    brain.crossover_chance = 0.85;
+    brain.mutation_chance  = 0.2;
+    brain.crossover_chance = 0.8;
 }
 
 void update_fitness() {

@@ -30,7 +30,7 @@
 #include "other_window.h"
 #include "rev.h"
 
-#define __use_sdl
+/*#define __use_sdl*/
 
 #ifdef __use_sdl
 
