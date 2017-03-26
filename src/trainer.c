@@ -118,7 +118,6 @@ _obj_costs get_best_individual() {
         }
     }
 
-    brain.most_lines_cleared = best;
     return brain.population[best_i];
 }
 
