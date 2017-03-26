@@ -30,8 +30,8 @@ static _brain brain;
 
 void evaluate_cost() {
     brain.population[brain.current].cost[0] = aggregate_height();
-    brain.population[brain.current].cost[1] = complete_rows();
-    brain.population[brain.current].cost[2] = covered_cells();
+    brain.population[brain.current].cost[1] = covered_cells();
+    brain.population[brain.current].cost[2] = complete_rows();
     brain.population[brain.current].cost[3] = surface_smoothness();
     brain.population[brain.current].cost[4] = well_cells();
 }
@@ -54,10 +54,14 @@ double get_cost(){
     double result = 0;
 
     for (int i = 0; i < N_GENES; i += 3) {
-        double x = obj->cost[i];
-        result += pow(x, 2) * obj->weight[ i + 0 ] +
-                          x * obj->weight[ i + 1 ] +
-                              obj->weight[ i + 2 ] ;
+        double x = obj->cost[(int)floor(i/3)];
+        if ( i < 2 ) {
+            result += x;
+        } else {
+            result += pow(x, 2) * obj->weight[ i + 0 ] +
+                              x * obj->weight[ i + 1 ] +
+                                  obj->weight[ i + 2 ] ;
+        }
     }
 
     return result;
@@ -99,7 +103,7 @@ double random_normal() {
 void mutation ( _obj_costs *individual ) {
     for (int i = 0; i < N_GENES; ++i) {
         if ( drand48() < brain.mutation_chance ) {
-            individual->weight[i] += random_normal() *1.0;
+            individual->weight[i] += random_normal() * 0.3;
         }
     }
 }
@@ -202,7 +206,12 @@ void update_fitness() {
     c = c == 0x2f ? 0 : c;
     d = d == 0x2f ? 0 : d;
 
-    brain.population[brain.current].fitness = a + b * 10 + c * 100 + d * 1000;
+    int best = a + b * 10 + c * 100 + d * 1000;
+
+    brain.population[brain.current].fitness = best;
+
+    brain.most_lines_cleared = best > brain.most_lines_cleared ?
+                               best : brain.most_lines_cleared ;
 }
 
 void finished_evaluating_individual () {

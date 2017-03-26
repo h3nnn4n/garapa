@@ -369,6 +369,7 @@ void mem_fiddling() {
     if ( cpu_info->mem_controller.memory[0xffe1] == 0x0000 ) {
         char text[256];
         int index;
+        int pos = 140;
 
         sprintf(text, "0xff80 = %04x "BYTE_TO_BINARY_PATTERN, cpu_info->mem_controller.memory[0xff80], BYTE_TO_BINARY(cpu_info->mem_controller.memory[0xff80]));
         draw_text(text, 400, 20, 0x2a, 0x90, 0xf5);
@@ -385,6 +386,11 @@ void mem_fiddling() {
         draw_text(text, 400, 80, 0x2a, 0x90, 0xf5);
 
         ////////////////////
+
+        sprintf(text,"Most Cleared: %5d", get_brain_pointer()->most_lines_cleared);
+        draw_text(text, 400, pos, 0x2a, 0x90, 0xf5);
+        pos += 20;
+
         int a = get_cpu_pointer()->mem_controller.memory[0x9951];
         int b = get_cpu_pointer()->mem_controller.memory[0x9950];
         int c = get_cpu_pointer()->mem_controller.memory[0x994f];
@@ -399,19 +405,22 @@ void mem_fiddling() {
                                            b  * 10   +
                                            c  * 100  +
                                            d  * 1000);
-        draw_text(text, 400, 140, 0x2a, 0x90, 0xf5);
+        draw_text(text, 400, pos, 0x2a, 0x90, 0xf5);
+        pos += 20;
 
         index = 0x994f;
         sprintf(text, "x: 0x%04x = %02d %02x ", index, cpu_info->mem_controller.memory[index], cpu_info->mem_controller.memory[index]);
-        draw_text(text, 400, 160, 0x2a, 0x90, 0xf5);
+        draw_text(text, 400, pos, 0x2a, 0x90, 0xf5);
+        pos += 20;
 
         index = 0x9950;
         sprintf(text, "x: 0x%04x = %02d %02x ", index, cpu_info->mem_controller.memory[index], cpu_info->mem_controller.memory[index]);
-        draw_text(text, 400, 180, 0x2a, 0x90, 0xf5);
+        draw_text(text, 400, pos, 0x2a, 0x90, 0xf5);
+        pos += 20;
 
         index = 0x9951;
         sprintf(text, "x: 0x%04x = %02d %02x ", index, cpu_info->mem_controller.memory[index], cpu_info->mem_controller.memory[index]);
-        draw_text(text, 400, 200, 0x2a, 0x90, 0xf5);
+        draw_text(text, 400, pos, 0x2a, 0x90, 0xf5);
 
         /////////////////////
 
@@ -565,7 +574,7 @@ void new_piece_on_screen_hook() {
         /*printf("New piece\n");*/
         /*evaluate_cost();*/
 
-        /*update_fitness();*/
+        update_fitness();
         get_best_move();
         /*best = get_best_move();*/
         /*printf("%3d %3d\n", x, y);*/

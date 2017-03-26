@@ -17,6 +17,7 @@
  *    misrepresented as being the original software.                          *
  * 3. This notice may not be removed or altered from any source distribution. *
  ******************************************************************************/
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -54,11 +55,13 @@ _piece Square_piece = {{ -1, -1 }, {  0, -1 }, {-1,  0 }, { 0, 0 }} ; // Square
 
 int aggregate_height() {
     _bg_info *bg_info = get_bg_info_pointer();
+    _brain* brain     = get_brain_pointer();
 
     int total = 0;
 
     for (int i = 0; i < 10; ++i) {
         int last = 17;
+        int x    = 0;
         for (int j = 0; j < 17; ++j) {
             if ( bg_info->data[i][j] >= 1 ) {
                 last = j;
@@ -66,7 +69,13 @@ int aggregate_height() {
             }
         }
 
-        total += 17 - last;
+        x = 17 - last;
+
+        x = brain->population[brain->current].weight[0] * pow(x, 2) +
+            brain->population[brain->current].weight[1] *     x     +
+            brain->population[brain->current].weight[2] *     x     ;
+
+        total += x;
     }
 
     return total;
@@ -118,16 +127,22 @@ int surface_smoothness() {
 
 int covered_cells() {
     _bg_info *bg_info = get_bg_info_pointer();
+    _brain* brain     = get_brain_pointer();
 
     int total = 0;
 
     for (int i = 0; i < 10; ++i) {
         int found = 0;
         for (int j = 0; j < 17; ++j) {
+            int x    = 0;
             if ( bg_info->data[i][j] >= 1 && !found ) {
                 found = 1;
             } else if ( bg_info->data[i][j] == 0 && found ) {
-                total++;
+                x = 17 - j;
+                x = brain->population[brain->current].weight[0] * pow(x, 2) +
+                    brain->population[brain->current].weight[1] *     x     +
+                    brain->population[brain->current].weight[2] *     x     ;
+                total += x;
             }
         }
     }
