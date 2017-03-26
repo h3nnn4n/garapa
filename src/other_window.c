@@ -586,10 +586,6 @@ void game_over_hook() {
     int atual = cpu_info->mem_controller.memory[0xffe1];
 
     if ( atual == 0x000d && old != atual ) {
-        /*move_queue.ready = 0;*/
-        /*printf("GAMEOVER HOOK\n");*/
-        /*initialize_weight();*/
-
         update_fitness();
         ai_state.game_state = GAMEOVER;
         finished_evaluating_individual();
@@ -604,8 +600,6 @@ void start_game_hook() {
     if ( atual == 0x0000 && old != atual ) {
         bg_reset();
         move_queue.ready = 0;
-        /*printf("START HOOK\n");*/
-        /*initialize_weight();*/
         ai_state.game_state = INGAME;
     }
 

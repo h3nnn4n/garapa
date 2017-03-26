@@ -20,7 +20,7 @@
 #ifndef TRAINER_H
 #define TRAINER_H
 
-#define POP_SIZE 50
+#define POP_SIZE 5
 #define N_GENES 5
 
 typedef struct {
@@ -50,6 +50,7 @@ typedef struct {
     int most_lines_cleared;
 } _brain;
 
+void mutation ( _obj_costs *individual );
 double get_cost();
 void print_pop();
 void boot_brain();

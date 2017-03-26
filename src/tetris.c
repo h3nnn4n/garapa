@@ -186,11 +186,8 @@ int piece_touched_the_ground (_piece piece, int dx, int dy){
 
     max_y *= 8;
 
-    /*printf("%d %d %d , %3d %3d %3d\n", x, dx, x + dx, y, dy, max_y);*/
-
-    if ( y + dy + max_y >= 142 ) {
+    if ( y + dy + max_y >= 142 )
         return 1;
-    }
 
     return 0;
 }
@@ -219,31 +216,9 @@ int is_inside_bounds(_piece piece, int dx, int dy){
     min_x *= 8;
     max_x *= 8;
 
-    /*int min_y =  999;*/
-    /*int max_y = -999;*/
-
-    /*min_y = min_y < piece.a.y ? min_y : piece.a.y;*/
-    /*min_y = min_y < piece.b.y ? min_y : piece.b.y;*/
-    /*min_y = min_y < piece.c.y ? min_y : piece.c.y;*/
-    /*min_y = min_y < piece.d.y ? min_y : piece.d.y;*/
-
-    /*max_y = max_y > piece.a.y ? max_y : piece.a.y;*/
-    /*max_y = max_y > piece.b.y ? max_y : piece.b.y;*/
-    /*max_y = max_y > piece.c.y ? max_y : piece.c.y;*/
-    /*max_y = max_y > piece.d.y ? max_y : piece.d.y;*/
-
-    /*min_y *= 8;*/
-    /*max_y *= 8;*/
-
-    /*printf("x: %3d   dx: %3d   min: %3d   max: %3d\n", x, dx, min_x, max_x);*/
-
     if ( x + dx + min_x < 16 || x + dx + max_x > 88 ) {
         return 0;
     }
-
-    /*if ( y + dy - min_y < 24 || y + dy + max_y > 80 ) {*/
-        /*return 0;*/
-    /*}*/
 
     return 1;
 }
@@ -271,8 +246,6 @@ int add_piece(_piece piece, int dx, int dy) {
     xx = (x + dx + piece.d.x*8) / 8 - 2;
     yy = (y + dy + piece.d.y*8) / 8 - 1;
     bg->data[xx][yy] += 2;
-
-    /*printf("Called add_piece\n");*/
 
     return 1;
 }
@@ -308,26 +281,6 @@ int can_fit(_piece piece, int dx, int dy) {
     return 1;
 }
 
-/*double get_cost(){*/
-    /*_obj_costs* obj = get_obj_cost_pointer();*/
-
-    /*return (double)obj->aggregate_height_cost   * obj->aggregate_height_weight   +*/
-           /*(double)obj->complete_rows_cost      * obj->complete_rows_weight      +*/
-           /*(double)obj->covered_cells_cost      * obj->covered_cells_weight      +*/
-           /*(double)obj->surface_smoothness_cost * obj->surface_smoothness_weight +*/
-           /*(double)obj->well_cells_cost         * obj-> well_cells_weight        ;*/
-/*}*/
-
-/*void initialize_weight (){*/
-    /*_obj_costs* obj = get_obj_cost_pointer();*/
-
-    /*obj->aggregate_height_weight   =-5.0;*/
-    /*obj->complete_rows_weight      = 3.0;*/
-    /*obj->covered_cells_weight      =-700;*/
-    /*obj->surface_smoothness_weight =-8.0;*/
-    /*obj->well_cells_weight         =-3.0;*/
-/*}*/
-
 void restore_bg() {
     for (int i = 0; i < 10; ++i) {
         for (int j = 0; j < 22; ++j) {
@@ -359,7 +312,6 @@ void dump_bg() {
     }
     printf("\n");
 }
-
 void get_best_move(){
     double best_cost = -999999;
     _best_piece *best_piece = get_best_piece_pointer();
@@ -372,10 +324,7 @@ void get_best_move(){
     int x = get_cpu_pointer()->mem_controller.memory[0xff92] - 8;
     int y = get_cpu_pointer()->mem_controller.memory[0xff93] - 24;
 
-    /*printf("called get best\n");*/
-
     for (int n_totation = 0; n_totation < get_piece_rotation(piece_type); ++n_totation) {
-        /*printf("piece has %2d rotations, I am at %2d\n", get_piece_rotation(piece_type), n_totation);*/
         for (int dx = -80 ; dx < 96; dx += 8) {
             if ( is_inside_bounds(piece, dx, 16)) {
                 int first = 0;
@@ -393,10 +342,7 @@ void get_best_move(){
                             best_piece->blocks  = piece;
                             best_piece->set     = 1;
                             best_piece->nrotations = n_totation;
-                            /*dump_bg();*/
-                            /*printf("new best: %3d %3d %3.3f\n", best_piece->coord.x, best_piece->coord.y, best_cost);*/
                         }
-                        /*dump_bg();*/
 
                         restore_bg();
                         break;
@@ -414,23 +360,16 @@ void get_best_move(){
                         best_piece->blocks  = piece;
                         best_piece->set     = 1;
                         best_piece->nrotations = n_totation;
-                        /*dump_bg();*/
-                        /*printf("new best: %3d %3d %3.3f\n", best_piece->coord.x, best_piece->coord.y, best_cost);*/
                         restore_bg();
                         break;
                     }
                 }
-                /*printf("%d is inside\n", dx);*/
-            } else {
-                /*printf("%d is outside\n", dx);*/
             }
         }
 
         piece_type = rotate_piece ( piece_type );
         piece = get_rotated_piece ( piece_type );
     }
-
-    /*return best;*/
 }
 
 _piece get_rotated_piece (_piece_type piece_type ) {
@@ -681,7 +620,6 @@ _piece_type get_current_piece(){
             return Td;
 
         default:
-            /*return Unknow;*/
             fprintf(stderr, "Invalid piece in get_current_piece\n");
             abort();
     }
