@@ -20,8 +20,8 @@
 #ifndef TRAINER_H
 #define TRAINER_H
 
-#define POP_SIZE 5
-#define N_GENES 5
+#define POP_SIZE 30
+#define N_GENES (5*3)
 
 typedef struct {
     //int aggregate_height_cost;
@@ -46,6 +46,7 @@ typedef struct {
     _obj_costs population[POP_SIZE];
     double mutation_chance;
     double crossover_chance;
+
     int elapsed_generations;
     int most_lines_cleared;
 } _brain;

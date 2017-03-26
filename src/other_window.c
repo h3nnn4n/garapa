@@ -345,35 +345,24 @@ void draw_text(char *text, int x, int y, int r, int g, int b) {
 void print_cost() {
     char text[256];
 
-    /*sprintf(text, "aggregate height: %4d %4.4f", get_brain_pointer()->population[get_brain_pointer()->current].cost[0], get_brain_pointer()->population[get_brain_pointer()->current].weight[0]);*/
-    sprintf(text, "%4d %4.4f", get_brain_pointer()->population[get_brain_pointer()->current].cost[0], get_brain_pointer()->population[get_brain_pointer()->current].weight[0]);
-    draw_text(text, 100, 0, 0x2a, 0x7d, 0xd5);
-    /*printf("%s\n", text);*/
-
-    /*sprintf(text, "complete_rows: %4d %4.4f", get_brain_pointer()->population[get_brain_pointer()->current].cost[1], get_brain_pointer()->population[get_brain_pointer()->current].weight[1]);*/
-    sprintf(text, "%4d %4.4f", get_brain_pointer()->population[get_brain_pointer()->current].cost[1], get_brain_pointer()->population[get_brain_pointer()->current].weight[1]);
-    draw_text(text, 100, 20, 0x2a, 0x7d, 0xd5);
-    /*printf("%s\n", text);*/
-
-    /*sprintf(text, "covered_cells: %4d %4.4f", get_brain_pointer()->population[get_brain_pointer()->current].cost[2], get_brain_pointer()->population[get_brain_pointer()->current].weight[2]);*/
-    sprintf(text, "%4d %4.4f", get_brain_pointer()->population[get_brain_pointer()->current].cost[2], get_brain_pointer()->population[get_brain_pointer()->current].weight[2]);
-    draw_text(text, 100, 40, 0x2a, 0x7d, 0xd5);
-    /*printf("%s\n", text);*/
-
-    /*sprintf(text, "surface_smoothness: %4d %4.4f", get_brain_pointer()->population[get_brain_pointer()->current].cost[3], get_brain_pointer()->population[get_brain_pointer()->current].weight[3]);*/
-    sprintf(text, "%4d %4.4f", get_brain_pointer()->population[get_brain_pointer()->current].cost[3], get_brain_pointer()->population[get_brain_pointer()->current].weight[3]);
-    draw_text(text, 100, 60, 0x2a, 0x7d, 0xd5);
-    /*printf("%s\n", text);*/
-
-    /*sprintf(text, "well_cells: %4d %4.4f",  get_brain_pointer()->population[get_brain_pointer()->current].cost[4], get_brain_pointer()->population[get_brain_pointer()->current].weight[4]);*/
-    sprintf(text, "%4d %4.4f",  get_brain_pointer()->population[get_brain_pointer()->current].cost[4], get_brain_pointer()->population[get_brain_pointer()->current].weight[4]);
-    draw_text(text, 100, 80, 0x2a, 0x7d, 0xd5);
-    /*printf("%s\n", text);*/
+    int pos = 180;
 
     sprintf(text, "total: %f", get_cost() );
-    draw_text(text, 100, 100, 0x2a, 0x7d, 0xd5);
-    /*printf("%s\n", text);*/
-    /*printf("\n");*/
+    draw_text(text, 10, pos, 0x2a, 0x7d, 0xd5);
+
+    for (int i = 0; i < N_GENES; i += 3) {
+        pos += 20;
+
+        sprintf(text, "%4d %6.2f %6.2f %6.2f = %6.2f",
+                get_brain_pointer()->population[get_brain_pointer()->current].cost[(int)floor(i/3)],
+                get_brain_pointer()->population[get_brain_pointer()->current].weight[i+0],
+                get_brain_pointer()->population[get_brain_pointer()->current].weight[i+1],
+                get_brain_pointer()->population[get_brain_pointer()->current].weight[i+2],
+                get_brain_pointer()->population[get_brain_pointer()->current].weight[i+0] * pow( get_brain_pointer()->population[get_brain_pointer()->current].cost[(int)floor(i/3)], 2 ) +
+                get_brain_pointer()->population[get_brain_pointer()->current].weight[i+1] *      get_brain_pointer()->population[get_brain_pointer()->current].cost[(int)floor(i/3)] +
+                get_brain_pointer()->population[get_brain_pointer()->current].weight[i+2] );
+        draw_text(text, 10, pos, 0x2a, 0x7d, 0xd5);
+    }
 }
 
 void mem_fiddling() {
@@ -387,9 +376,6 @@ void mem_fiddling() {
         sprintf(text, "0xff81 = %04x "BYTE_TO_BINARY_PATTERN, cpu_info->mem_controller.memory[0xff81], BYTE_TO_BINARY(cpu_info->mem_controller.memory[0xff81]));
         draw_text(text, 400, 40, 0x2a, 0x90, 0xf5);
 
-        /*sprintf(text, "0xffe1 = %04x "BYTE_TO_BINARY_PATTERN, cpu_info->mem_controller.memory[0xffe1], BYTE_TO_BINARY(cpu_info->mem_controller.memory[0xffe1]));*/
-        /*draw_text(text, 400, 60, 0x2a, 0x90, 0xf5);*/
-
         index = 0xff93;
         sprintf(text, "y: 0x%04x = %02d ", index, cpu_info->mem_controller.memory[index]);
         draw_text(text, 400, 60, 0x2a, 0x90, 0xf5);
@@ -399,29 +385,47 @@ void mem_fiddling() {
         draw_text(text, 400, 80, 0x2a, 0x90, 0xf5);
 
         ////////////////////
-        /*index = 0xff9e;*/
-        /*sprintf(text, "x: 0x%04x = %02d %02x ", index, cpu_info->mem_controller.memory[index], cpu_info->mem_controller.memory[index]);*/
-        /*draw_text(text, 400, 200, 0x2a, 0x90, 0xf5);*/
+        int a = get_cpu_pointer()->mem_controller.memory[0x9951];
+        int b = get_cpu_pointer()->mem_controller.memory[0x9950];
+        int c = get_cpu_pointer()->mem_controller.memory[0x994f];
+        int d = get_cpu_pointer()->mem_controller.memory[0x994e];
 
-        /*index = 0xffe7;*/
-        /*sprintf(text, "x: 0x%04x = %02d %02x ", index, cpu_info->mem_controller.memory[index], cpu_info->mem_controller.memory[index]);*/
-        /*draw_text(text, 400, 220, 0x2a, 0x90, 0xf5);*/
+        a = a == 0x2f ? 0 : a;
+        b = b == 0x2f ? 0 : b;
+        c = c == 0x2f ? 0 : c;
+        d = d == 0x2f ? 0 : d;
+
+        sprintf(text,"Lines Cleared: %4d", a  * 1    +
+                                           b  * 10   +
+                                           c  * 100  +
+                                           d  * 1000);
+        draw_text(text, 400, 140, 0x2a, 0x90, 0xf5);
 
         index = 0x994f;
         sprintf(text, "x: 0x%04x = %02d %02x ", index, cpu_info->mem_controller.memory[index], cpu_info->mem_controller.memory[index]);
-        draw_text(text, 400, 240, 0x2a, 0x90, 0xf5);
+        draw_text(text, 400, 160, 0x2a, 0x90, 0xf5);
 
         index = 0x9950;
         sprintf(text, "x: 0x%04x = %02d %02x ", index, cpu_info->mem_controller.memory[index], cpu_info->mem_controller.memory[index]);
-        draw_text(text, 400, 260, 0x2a, 0x90, 0xf5);
+        draw_text(text, 400, 180, 0x2a, 0x90, 0xf5);
 
         index = 0x9951;
         sprintf(text, "x: 0x%04x = %02d %02x ", index, cpu_info->mem_controller.memory[index], cpu_info->mem_controller.memory[index]);
-        draw_text(text, 400, 280, 0x2a, 0x90, 0xf5);
+        draw_text(text, 400, 200, 0x2a, 0x90, 0xf5);
+
         /////////////////////
 
         sprintf(text, "best: %3d , %3d ", best_piece.coord.x, best_piece.coord.y);
         draw_text(text, 20, 150, 0xff, 0x00, 0x00);
+        ////////////////////
+
+        sprintf(text, "generations: %3d", get_brain_pointer()->elapsed_generations);
+        draw_text(text, 110, 0, 0x2a, 0x90, 0xf5);
+
+        sprintf(text, "current:     %3d", get_brain_pointer()->current);
+        draw_text(text, 110, 20, 0x2a, 0x90, 0xf5);
+
+        ////////////////////
     }
 }
 

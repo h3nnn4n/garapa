@@ -39,7 +39,7 @@ void evaluate_cost() {
 void initialize_pop (){
     for (int i = 0; i < POP_SIZE; ++i) {
         for (int j = 0; j < N_GENES; ++j) {
-            brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 50.0;
+            brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 5.0;
             brain.population[i].cost[j]   = 0;
         }
 
@@ -51,11 +51,16 @@ void initialize_pop (){
 double get_cost(){
     _obj_costs* obj = &brain.population[brain.current];
 
-    return (double)obj->cost[0] * obj->weight[0] +
-           (double)obj->cost[1] * obj->weight[1] +
-           (double)obj->cost[2] * obj->weight[2] +
-           (double)obj->cost[3] * obj->weight[3] +
-           (double)obj->cost[4] * obj->weight[4] ;
+    double result = 0;
+
+    for (int i = 0; i < N_GENES; i += 3) {
+        double x = obj->cost[i];
+        result += pow(x, 2) * obj->weight[ i + 0 ] +
+                          x * obj->weight[ i + 1 ] +
+                              obj->weight[ i + 2 ] ;
+    }
+
+    return result;
 }
 
 _brain* get_brain_pointer() {
@@ -94,7 +99,7 @@ double random_normal() {
 void mutation ( _obj_costs *individual ) {
     for (int i = 0; i < N_GENES; ++i) {
         if ( drand48() < brain.mutation_chance ) {
-            individual->weight[i] += random_normal() * 2.5;
+            individual->weight[i] += random_normal() *1.0;
         }
     }
 }
@@ -172,14 +177,18 @@ void evolutionary_step(){
     }
 
     brain.population[0] = best;
+
+    brain.most_lines_cleared = best.fitness > brain.most_lines_cleared ?
+                               best.fitness : brain.most_lines_cleared ;
+
+    brain.elapsed_generations += 1;
 }
 
 void boot_brain() {
     brain.current          = 0;
-    brain.mutation_chance  = 0.3;
+    brain.mutation_chance  = 0.2;
     brain.crossover_chance = 0.8;
     initialize_pop();
-    print_pop();
 }
 
 void update_fitness() {
