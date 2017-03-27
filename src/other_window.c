@@ -353,15 +353,25 @@ void print_cost() {
     for (int i = 0; i < N_GENES; i += 3) {
         pos += 20;
 
-        sprintf(text, "%4d %6.2f %6.2f %6.2f = %6.2f",
-                get_brain_pointer()->population[get_brain_pointer()->current].cost[(int)floor(i/3)],
-                get_brain_pointer()->population[get_brain_pointer()->current].weight[i+0],
-                get_brain_pointer()->population[get_brain_pointer()->current].weight[i+1],
-                get_brain_pointer()->population[get_brain_pointer()->current].weight[i+2],
-                get_brain_pointer()->population[get_brain_pointer()->current].weight[i+0] * pow( get_brain_pointer()->population[get_brain_pointer()->current].cost[(int)floor(i/3)], 2 ) +
-                get_brain_pointer()->population[get_brain_pointer()->current].weight[i+1] *      get_brain_pointer()->population[get_brain_pointer()->current].cost[(int)floor(i/3)] +
-                get_brain_pointer()->population[get_brain_pointer()->current].weight[i+2] );
+        if ( i > 3 ) {
+            sprintf(text, "%6d %5.2f %5.2f %5.2f = %8.2f",
+                    get_brain_pointer()->population[get_brain_pointer()->current].cost[(int)floor(i/3)],
+                    get_brain_pointer()->population[get_brain_pointer()->current].weight[i+0],
+                    get_brain_pointer()->population[get_brain_pointer()->current].weight[i+1],
+                    get_brain_pointer()->population[get_brain_pointer()->current].weight[i+2],
+                    get_brain_pointer()->population[get_brain_pointer()->current].weight[i+0] * pow( get_brain_pointer()->population[get_brain_pointer()->current].cost[(int)floor(i/3)], 2 ) +
+                    get_brain_pointer()->population[get_brain_pointer()->current].weight[i+1] *      get_brain_pointer()->population[get_brain_pointer()->current].cost[(int)floor(i/3)] +
+                    get_brain_pointer()->population[get_brain_pointer()->current].weight[i+2] );
+        } else {
+            sprintf(text, "%6d %5.2f %5.2f %5.2f = %8.2f",
+                    get_brain_pointer()->population[get_brain_pointer()->current].cost[(int)floor(i/3)],
+                    get_brain_pointer()->population[get_brain_pointer()->current].weight[i+0],
+                    get_brain_pointer()->population[get_brain_pointer()->current].weight[i+1],
+                    get_brain_pointer()->population[get_brain_pointer()->current].weight[i+2],
+            (double)get_brain_pointer()->population[get_brain_pointer()->current].cost[(int)floor(i/3)]);
+        }
         draw_text(text, 10, pos, 0x2a, 0x7d, 0xd5);
+
     }
 }
 

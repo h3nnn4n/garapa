@@ -73,7 +73,7 @@ int aggregate_height() {
 
         x = brain->population[brain->current].weight[0] * pow(x, 2) +
             brain->population[brain->current].weight[1] *     x     +
-            brain->population[brain->current].weight[2] *     x     ;
+            brain->population[brain->current].weight[2]             ;
 
         total += x;
     }
@@ -141,7 +141,7 @@ int covered_cells() {
                 x = 17 - j;
                 x = brain->population[brain->current].weight[0] * pow(x, 2) +
                     brain->population[brain->current].weight[1] *     x     +
-                    brain->population[brain->current].weight[2] *     x     ;
+                    brain->population[brain->current].weight[2]             ;
                 total += x;
             }
         }
