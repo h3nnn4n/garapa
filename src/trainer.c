@@ -55,7 +55,7 @@ double get_cost(){
 
     for (int i = 0; i < N_GENES; i += 3) {
         double x = obj->cost[(int)floor(i/3)];
-        if ( i < 2 ) {
+        if ( i <= 3 ) {
             result += x;
         } else {
             result += pow(x, 2) * obj->weight[ i + 0 ] +
