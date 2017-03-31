@@ -71,9 +71,9 @@ int aggregate_height() {
 
         x = 17 - last;
 
-        x = brain->population[brain->current].weight[0] * pow(x, 2) +
-            brain->population[brain->current].weight[1] *     x     +
-            brain->population[brain->current].weight[2]             ;
+        /*x = brain->population[brain->current].weight[0] * pow(x, 2) +*/
+            /*brain->population[brain->current].weight[1] *     x     +*/
+            /*brain->population[brain->current].weight[2]             ;*/
 
         total += x;
     }
@@ -139,10 +139,10 @@ int covered_cells() {
                 found = 1;
             } else if ( bg_info->data[i][j] == 0 && found ) {
                 x = 17 - j;
-                x = brain->population[brain->current].weight[0] * pow(x, 2) +
-                    brain->population[brain->current].weight[1] *     x     +
-                    brain->population[brain->current].weight[2]             ;
-                total += x;
+                /*x = brain->population[brain->current].weight[0] * pow(x, 2) +*/
+                    /*brain->population[brain->current].weight[1] *     x     +*/
+                    /*brain->population[brain->current].weight[2]             ;*/
+                total += x * x;
             }
         }
     }
@@ -158,7 +158,7 @@ int well_cells(){
     for (int i = 1; i < 9; ++i) {
         for (int j = 0; j < 17; ++j) {
             if ( bg_info->data[i][j] == 0 && bg_info->data[i-1][j] >= 1 && bg_info->data[i+1][j] >= 1  ) {
-                total += 1;
+                total += (17 - j) * (17 - j);
             } else if ( bg_info->data[i][j] >= 1 ) {
                 break;
             }
@@ -175,7 +175,7 @@ int well_cells(){
 
     for (int j = 0; j < 17; ++j) {
         if ( bg_info->data[0][j] == 0 && bg_info->data[1][j] >= 1  ) {
-            total += 1;
+            total += (17 - j) * (17 - j);
         } else if ( bg_info->data[0][j] >= 1 ) {
             break;
         }

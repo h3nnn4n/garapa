@@ -42,7 +42,12 @@ typedef struct {
 } _obj_costs;
 
 typedef struct {
+    int min[N_GENES];
+    int max[N_GENES];
+
     int current;
+    int runs;
+    int max_runs;
     _obj_costs population[POP_SIZE];
     double mutation_chance;
     double crossover_chance;

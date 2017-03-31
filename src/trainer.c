@@ -34,6 +34,16 @@ void evaluate_cost() {
     brain.population[brain.current].cost[2] = complete_rows();
     brain.population[brain.current].cost[3] = surface_smoothness();
     brain.population[brain.current].cost[4] = well_cells();
+
+    /*for (int i = 0; i < 5; ++i) {*/
+        /*brain.min[i] = brain.min[i] < brain.population[brain.current].cost[i] ? brain.min[i] : brain.population[brain.current].cost[i];*/
+        /*brain.max[i] = brain.max[i] > brain.population[brain.current].cost[i] ? brain.max[i] : brain.population[brain.current].cost[i];*/
+
+        /*brain.population[brain.current].cost[i] -= brain.min[i];*/
+
+        /*if ( brain.max[i] - brain.min[i] != 0 )*/
+            /*brain.population[brain.current].cost[i] /= brain.max[i] - brain.min[i];*/
+    /*}*/
 }
 
 void initialize_pop (){
@@ -54,14 +64,14 @@ double get_cost(){
     double result = 0;
 
     for (int i = 0; i < N_GENES; i += 3) {
-        double x = obj->cost[(int)floor(i/3)];
-        if ( i <= 3 ) {
-            result += x;
-        } else {
-            result += pow(x, 2) * obj->weight[ i + 0 ] +
-                              x * obj->weight[ i + 1 ] +
-                                  obj->weight[ i + 2 ] ;
-        }
+        double x = obj->cost[(int)(i/3)];
+        /*if ( i <= 3 ) {*/
+            /*result += x;*/
+        /*} else {*/
+        result += pow(x, 2) * obj->weight[ i + 0 ] +
+                          x * obj->weight[ i + 1 ] +
+                              obj->weight[ i + 2 ] ;
+        /*}*/
     }
 
     return result;
@@ -191,6 +201,8 @@ void boot_brain() {
     brain.current          = 0;
     brain.mutation_chance  = 0.2;
     brain.crossover_chance = 0.8;
+    brain.max_runs         = 5;
+    brain.runs             = 0;
     initialize_pop();
 }
 
@@ -207,17 +219,26 @@ void update_fitness() {
 
     int best = a + b * 10 + c * 100 + d * 1000;
 
-    brain.population[brain.current].fitness = best;
+    if ( best < brain.population[brain.current].fitness || brain.runs == 0 ) {
+        brain.population[brain.current].fitness = best;
+    } else {
+
+    }
 
     brain.most_lines_cleared = best > brain.most_lines_cleared ?
                                best : brain.most_lines_cleared ;
 }
 
 void finished_evaluating_individual () {
-    brain.current ++;
+    if ( brain.runs == brain.max_runs ) {
+        brain.runs = 0;
+        brain.current ++;
 
-    if ( brain.current >= POP_SIZE ) {
-        evolutionary_step();
-        brain.current = 0;
+        if ( brain.current >= POP_SIZE ) {
+            evolutionary_step();
+            brain.current = 0;
+        }
+    } else {
+        brain.runs++;
     }
 }
