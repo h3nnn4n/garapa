@@ -448,7 +448,7 @@ void mem_fiddling() {
         sprintf(text, "generations: %3d", get_brain_pointer()->elapsed_generations);
         draw_text(text, 110, 0, 0x2a, 0x90, 0xf5);
 
-        sprintf(text, "current:     %3d", get_brain_pointer()->current);
+        sprintf(text, "current:     %3d/%d", get_brain_pointer()->current, POP_SIZE);
         draw_text(text, 110, 20, 0x2a, 0x90, 0xf5);
 
         sprintf(text, "runs:        %3d/%d", get_brain_pointer()->runs, get_brain_pointer()->max_runs);
