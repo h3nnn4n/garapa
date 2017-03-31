@@ -39,6 +39,7 @@ typedef struct {
     int cost[N_GENES];
     double weight[N_GENES];
     int fitness;
+    int worst;
 } _obj_costs;
 
 typedef struct {
@@ -54,6 +55,7 @@ typedef struct {
 
     int elapsed_generations;
     int most_lines_cleared;
+    int worst_lines_cleared;
 } _brain;
 
 void mutation ( _obj_costs *individual );

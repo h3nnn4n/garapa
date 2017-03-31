@@ -55,7 +55,7 @@ _piece Square_piece = {{ -1, -1 }, {  0, -1 }, {-1,  0 }, { 0, 0 }} ; // Square
 
 int aggregate_height() {
     _bg_info *bg_info = get_bg_info_pointer();
-    _brain* brain     = get_brain_pointer();
+    /*_brain* brain     = get_brain_pointer();*/
 
     int total = 0;
 
@@ -127,7 +127,7 @@ int surface_smoothness() {
 
 int covered_cells() {
     _bg_info *bg_info = get_bg_info_pointer();
-    _brain* brain     = get_brain_pointer();
+    /*_brain* brain     = get_brain_pointer();*/
 
     int total = 0;
 

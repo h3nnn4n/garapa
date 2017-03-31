@@ -401,6 +401,10 @@ void mem_fiddling() {
         draw_text(text, 400, pos, 0x2a, 0x90, 0xf5);
         pos += 20;
 
+        sprintf(text,"Worst Cleared: %4d", get_brain_pointer()->worst_lines_cleared);
+        draw_text(text, 400, pos, 0x2a, 0x90, 0xf5);
+        pos += 20;
+
         int a = get_cpu_pointer()->mem_controller.memory[0x9951];
         int b = get_cpu_pointer()->mem_controller.memory[0x9950];
         int c = get_cpu_pointer()->mem_controller.memory[0x994f];
@@ -422,7 +426,7 @@ void mem_fiddling() {
         draw_text(text, 400, pos, 0x2a, 0x90, 0xf5);
         pos += 20;
 
-        sprintf(text, "Current Worst:  %3d", get_brain_pointer()->population[get_brain_pointer()->current].fitness);
+        sprintf(text,"Least Cleared: %4d", get_brain_pointer()->population[get_brain_pointer()->current].worst);
         draw_text(text, 400, pos, 0x2a, 0x90, 0xf5);
         pos += 20;
 

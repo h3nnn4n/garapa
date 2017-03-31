@@ -198,11 +198,13 @@ void evolutionary_step(){
 }
 
 void boot_brain() {
-    brain.current          = 0;
-    brain.mutation_chance  = 0.2;
-    brain.crossover_chance = 0.8;
-    brain.max_runs         = 5;
-    brain.runs             = 0;
+    brain.current             = 0;
+    brain.mutation_chance     = 0.2;
+    brain.crossover_chance    = 0.8;
+    brain.max_runs            = 5;
+    brain.runs                = 0;
+    brain.worst_lines_cleared = 0;
+    brain.most_lines_cleared  = 0;
     initialize_pop();
 }
 
@@ -219,26 +221,33 @@ void update_fitness() {
 
     int best = a + b * 10 + c * 100 + d * 1000;
 
-    if ( best < brain.population[brain.current].fitness || brain.runs == 0 ) {
-        brain.population[brain.current].fitness = best;
-    } else {
-
-    }
+    brain.population[brain.current].fitness = best;
 
     brain.most_lines_cleared = best > brain.most_lines_cleared ?
                                best : brain.most_lines_cleared ;
 }
 
 void finished_evaluating_individual () {
-    if ( brain.runs == brain.max_runs ) {
+    if ( brain.population[brain.current].fitness < brain.population[brain.current].worst || brain.runs == 0 ) {
+        brain.population[brain.current].worst = brain.population[brain.current].fitness;
+    }
+
+    brain.runs++;
+
+    if ( brain.runs == brain.max_runs || brain.population[brain.current].fitness == 0 ) {
         brain.runs = 0;
+
+        if ( brain.population[brain.current].worst > brain.worst_lines_cleared ) {
+            brain.worst_lines_cleared = brain.population[brain.current].worst;
+        }
+
+        brain.population[brain.current].fitness = brain.population[brain.current].worst;
+
         brain.current ++;
 
         if ( brain.current >= POP_SIZE ) {
             evolutionary_step();
             brain.current = 0;
         }
-    } else {
-        brain.runs++;
     }
 }
