@@ -22,7 +22,7 @@
 
 #define POP_SIZE 20
 #define GEN_P_FUNCTION 3
-#define N_FUNCTION     5
+#define N_FUNCTION     8
 #define N_GENES (N_FUNCTION * GEN_P_FUNCTION)
 
 typedef struct {

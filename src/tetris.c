@@ -206,6 +206,105 @@ double well_cells(){
     return total * base[2];
 }
 
+// Function n 6
+double covered_cells_after_clear(){
+    _bg_info *bg_info = get_bg_info_pointer();
+    int fid           = 5;
+    _brain* brain     = get_brain_pointer();
+    double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
+
+    double total = 0;
+    double found_complete = 0;
+
+    for (int j = 0; j < 17; ++j) {
+        int ok = 1;
+        for (int i = 0; i < 10; ++i) {
+            if ( bg_info->data[i][j] == 0 ) {
+                ok = 0;
+                break;
+            }
+        }
+
+        if ( ok ) {
+            found_complete = j;
+            break;
+        }
+    }
+
+    if ( found_complete ) {
+        for (int i = 0; i < 10; ++i) {
+            int found = 0;
+            for (int j = 0; j < found_complete; ++j) {
+                int x    = 0;
+                if ( bg_info->data[i][j] >= 1 && !found ) {
+                    found = 1;
+                } else if ( bg_info->data[i][j] == 0 && found ) {
+
+                    x = base[0] * x + base[1];
+
+                    x = 17 - j;
+
+                    x = x * base[0] + base[1];
+                    total += x;
+                }
+            }
+        }
+    }
+
+    return total * base[2];
+}
+
+// Function n 7
+double lock_heigth(){
+    _bg_info *bg_info = get_bg_info_pointer();
+    int fid           = 6;
+    _brain* brain     = get_brain_pointer();
+    double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
+
+    double total = 0;
+
+    for (int i = 0; i < 10; ++i) {
+        for (int j = 0; j < 17; ++j) {
+            if ( bg_info->data[i][j] > 1 ) {
+                total += base[0] * (17 -j) + base[1];
+            }
+        }
+    }
+
+    return total * base[2];
+}
+
+
+// Function n 8
+double burried_cells() {
+    _bg_info *bg_info = get_bg_info_pointer();
+    int fid           = 7;
+    _brain* brain     = get_brain_pointer();
+    double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
+
+    int total = 0;
+
+    for (int i = 0; i < 10; ++i) {
+        int found = 0;
+        for (int j = 0; j < 17; ++j) {
+            int x    = 0;
+            if ( bg_info->data[i][j] > 1 && !found ) {
+                found = 1;
+            } else if ( bg_info->data[i][j] == 0 && found ) {
+
+                x = base[0] * x + base[1];
+
+                x = 17 - j;
+
+                x = x * base[0] + base[1];
+                total += x;
+            }
+        }
+    }
+
+    return total * base[2];
+}
+
 int piece_touched_the_ground (_piece piece, int dx, int dy){
     int x = get_cpu_pointer()->mem_controller.memory[0xff92] - 8;
     int y = get_cpu_pointer()->mem_controller.memory[0xff93] - 16;

@@ -34,16 +34,9 @@ void evaluate_cost() {
     brain.population[brain.current].cost[2] = complete_rows();
     brain.population[brain.current].cost[3] = surface_smoothness();
     brain.population[brain.current].cost[4] = well_cells();
-
-    /*for (int i = 0; i < 5; ++i) {*/
-        /*brain.min[i] = brain.min[i] < brain.population[brain.current].cost[i] ? brain.min[i] : brain.population[brain.current].cost[i];*/
-        /*brain.max[i] = brain.max[i] > brain.population[brain.current].cost[i] ? brain.max[i] : brain.population[brain.current].cost[i];*/
-
-        /*brain.population[brain.current].cost[i] -= brain.min[i];*/
-
-        /*if ( brain.max[i] - brain.min[i] != 0 )*/
-            /*brain.population[brain.current].cost[i] /= brain.max[i] - brain.min[i];*/
-    /*}*/
+    brain.population[brain.current].cost[5] = covered_cells_after_clear();
+    brain.population[brain.current].cost[6] = lock_heigth();
+    brain.population[brain.current].cost[7] = burried_cells();
 }
 
 void initialize_pop (){
@@ -198,8 +191,7 @@ void evolutionary_step(){
         for (int j = 0; j < POP_SIZE; ++j) {
             double d = 0;
             for (int k = 0; k < N_GENES; ++k) {
-                d += sqrt ( brain.population[i].weight[k] * brain.population[i].weight[k] +
-                            brain.population[j].weight[k] * brain.population[j].weight[k] );
+                d += sqrt ( pow(brain.population[i].weight[k] - brain.population[j].weight[k], 2) );
             }
             brain.diversity += d / ( POP_SIZE * POP_SIZE );
         }
