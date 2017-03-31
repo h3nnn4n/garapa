@@ -353,23 +353,12 @@ void print_cost() {
     for (int i = 0; i < N_GENES; i += 3) {
         pos += 20;
 
-        /*if ( i > 3 ) {*/
-        sprintf(text, "%6d %5.2f %5.2f %5.2f = %8.2f",
-            get_brain_pointer()->population[get_brain_pointer()->current].cost[(int)(i/3)],
+        sprintf(text, "%7.2f %7.2f %7.2f = %10.2f",
             get_brain_pointer()->population[get_brain_pointer()->current].weight[i+0],
             get_brain_pointer()->population[get_brain_pointer()->current].weight[i+1],
             get_brain_pointer()->population[get_brain_pointer()->current].weight[i+2],
-            get_brain_pointer()->population[get_brain_pointer()->current].weight[i+0] * pow( get_brain_pointer()->population[get_brain_pointer()->current].cost[(int)(i/3)], 2 ) +
-            get_brain_pointer()->population[get_brain_pointer()->current].weight[i+1] *      get_brain_pointer()->population[get_brain_pointer()->current].cost[(int)(i/3)] +
-            get_brain_pointer()->population[get_brain_pointer()->current].weight[i+2] );
-        /*} else {*/
-            /*sprintf(text, "%6d %5.2f %5.2f %5.2f = %8.2f",*/
-                    /*get_brain_pointer()->population[get_brain_pointer()->current].cost[(int)floor(i/3)],*/
-                    /*get_brain_pointer()->population[get_brain_pointer()->current].weight[i+0],*/
-                    /*get_brain_pointer()->population[get_brain_pointer()->current].weight[i+1],*/
-                    /*get_brain_pointer()->population[get_brain_pointer()->current].weight[i+2],*/
-            /*(double)get_brain_pointer()->population[get_brain_pointer()->current].cost[(int)floor(i/3)]);*/
-        /*}*/
+            get_brain_pointer()->population[get_brain_pointer()->current].cost[(int)i/3]);
+
         draw_text(text, 10, pos, 0x2a, 0x7d, 0xd5);
 
     }
@@ -449,14 +438,23 @@ void mem_fiddling() {
         /*draw_text(text, 20, pos, 0xff, 0x00, 0x00);*/
         ////////////////////
 
+        pos = 0;
+
+        sprintf(text, "diversity:   %f", get_brain_pointer()->diversity);
+        draw_text(text, 110, pos, 0x2a, 0x90, 0xf5);
+        pos += 20;
+
         sprintf(text, "generations: %3d", get_brain_pointer()->elapsed_generations);
-        draw_text(text, 110, 0, 0x2a, 0x90, 0xf5);
+        draw_text(text, 110, pos, 0x2a, 0x90, 0xf5);
+        pos += 20;
 
         sprintf(text, "current:     %3d/%d", get_brain_pointer()->current, POP_SIZE);
-        draw_text(text, 110, 20, 0x2a, 0x90, 0xf5);
+        draw_text(text, 110, pos, 0x2a, 0x90, 0xf5);
+        pos += 20;
 
         sprintf(text, "runs:        %3d/%d", get_brain_pointer()->runs, get_brain_pointer()->max_runs);
-        draw_text(text, 110, 40, 0x2a, 0x90, 0xf5);
+        draw_text(text, 110, pos, 0x2a, 0x90, 0xf5);
+        pos += 20;
 
         ////////////////////
     }

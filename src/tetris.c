@@ -53,11 +53,14 @@ _piece Zb_piece     = {{  1, -2 }, {  0, -1 }, { 1, -1 }, { 0, 0 }} ; // Zb
 
 _piece Square_piece = {{ -1, -1 }, {  0, -1 }, {-1,  0 }, { 0, 0 }} ; // Square
 
-int aggregate_height() {
+// Function n 1
+double aggregate_height() {
     _bg_info *bg_info = get_bg_info_pointer();
-    /*_brain* brain     = get_brain_pointer();*/
+    int fid           = 0;
+    _brain* brain     = get_brain_pointer();
+    double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
-    int total = 0;
+    double total = 0;
 
     for (int i = 0; i < 10; ++i) {
         int last = 17;
@@ -71,20 +74,22 @@ int aggregate_height() {
 
         x = 17 - last;
 
-        /*x = brain->population[brain->current].weight[0] * pow(x, 2) +*/
-            /*brain->population[brain->current].weight[1] *     x     +*/
-            /*brain->population[brain->current].weight[2]             ;*/
+        x = base[0] * x + base[1];
 
         total += x;
     }
 
-    return total;
+    return total * base[2];
 }
 
-int complete_rows(){
+// Function n 2
+double complete_rows(){
     _bg_info *bg_info = get_bg_info_pointer();
+    int fid           = 1;
+    _brain* brain     = get_brain_pointer();
+    double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
-    int total = 0;
+    double total = 0;
 
     for (int j = 0; j < 17; ++j) {
         int ok = 1;
@@ -98,13 +103,17 @@ int complete_rows(){
         total += ok;
     }
 
-    return total;
+    return total * base[2];
 }
 
-int surface_smoothness() {
+// Function n 3
+double surface_smoothness() {
     _bg_info *bg_info = get_bg_info_pointer();
+    int fid           = 2;
+    _brain* brain     = get_brain_pointer();
+    double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
-    int total = 0;
+    double total = 0;
 
     int h[10];
 
@@ -119,15 +128,19 @@ int surface_smoothness() {
     }
 
     for (int i = 0; i < 9; ++i) {
-        total += abs(h[i] - h[i+1]);
+        double x = abs(h[i] - h[i+1]);
+        total += x * base[0] + base[1];
     }
 
-    return total;
+    return total * base[2];
 }
 
-int covered_cells() {
+// Function n 4
+double covered_cells() {
     _bg_info *bg_info = get_bg_info_pointer();
-    /*_brain* brain     = get_brain_pointer();*/
+    int fid           = 3;
+    _brain* brain     = get_brain_pointer();
+    double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
     int total = 0;
 
@@ -138,27 +151,34 @@ int covered_cells() {
             if ( bg_info->data[i][j] >= 1 && !found ) {
                 found = 1;
             } else if ( bg_info->data[i][j] == 0 && found ) {
+
+                x = base[0] * x + base[1];
+
                 x = 17 - j;
-                /*x = brain->population[brain->current].weight[0] * pow(x, 2) +*/
-                    /*brain->population[brain->current].weight[1] *     x     +*/
-                    /*brain->population[brain->current].weight[2]             ;*/
-                total += x * x;
+
+                x = x * base[0] + base[1];
+                total += x;
             }
         }
     }
 
-    return total;
+    return total * base[2];
 }
 
-int well_cells(){
+// Function n 5
+double well_cells(){
     _bg_info *bg_info = get_bg_info_pointer();
+    int fid           = 4;
+    _brain* brain     = get_brain_pointer();
+    double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
-    int total = 0;
+    double total = 0;
 
     for (int i = 1; i < 9; ++i) {
         for (int j = 0; j < 17; ++j) {
             if ( bg_info->data[i][j] == 0 && bg_info->data[i-1][j] >= 1 && bg_info->data[i+1][j] >= 1  ) {
-                total += (17 - j) * (17 - j);
+                double x = (17 - j);
+                total += x * base[0] + base[1];
             } else if ( bg_info->data[i][j] >= 1 ) {
                 break;
             }
@@ -167,7 +187,8 @@ int well_cells(){
 
     for (int j = 0; j < 17; ++j) {
         if ( bg_info->data[9][j] == 0 && bg_info->data[8][j] >= 1  ) {
-            total += 1;
+            double x = (17 - j);
+            total += x * base[0] + base[1];
         } else if ( bg_info->data[9][j] >= 1 ) {
             break;
         }
@@ -175,13 +196,14 @@ int well_cells(){
 
     for (int j = 0; j < 17; ++j) {
         if ( bg_info->data[0][j] == 0 && bg_info->data[1][j] >= 1  ) {
-            total += (17 - j) * (17 - j);
+            double x = (17 - j);
+            total += x * base[0] + base[1];
         } else if ( bg_info->data[0][j] >= 1 ) {
             break;
         }
     }
 
-    return total;
+    return total * base[2];
 }
 
 int piece_touched_the_ground (_piece piece, int dx, int dy){

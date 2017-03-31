@@ -49,8 +49,11 @@ void evaluate_cost() {
 void initialize_pop (){
     for (int i = 0; i < POP_SIZE; ++i) {
         for (int j = 0; j < N_GENES; ++j) {
-            brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 5.0;
+            /*brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 5.0;*/
+            brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 50.0;
             brain.population[i].cost[j]   = 0;
+            brain.population[i].fitness   = 0;
+            brain.population[i].worst     = 0;
         }
 
         brain.population[i].fitness = 0;
@@ -63,15 +66,8 @@ double get_cost(){
 
     double result = 0;
 
-    for (int i = 0; i < N_GENES; i += 3) {
-        double x = obj->cost[(int)(i/3)];
-        /*if ( i <= 3 ) {*/
-            /*result += x;*/
-        /*} else {*/
-        result += pow(x, 2) * obj->weight[ i + 0 ] +
-                          x * obj->weight[ i + 1 ] +
-                              obj->weight[ i + 2 ] ;
-        /*}*/
+    for (int i = 0; i < N_FUNCTION; i ++ ) {
+        result += obj->cost[i];
     }
 
     return result;
@@ -195,16 +191,30 @@ void evolutionary_step(){
                                best.fitness : brain.most_lines_cleared ;
 
     brain.elapsed_generations += 1;
+
+    brain.diversity = 0;
+
+    for (int i = 0; i < POP_SIZE; ++i) {
+        for (int j = 0; j < POP_SIZE; ++j) {
+            double d = 0;
+            for (int k = 0; k < N_GENES; ++k) {
+                d += sqrt ( brain.population[i].weight[k] * brain.population[i].weight[k] +
+                            brain.population[j].weight[k] * brain.population[j].weight[k] );
+            }
+            brain.diversity += d / ( POP_SIZE * POP_SIZE );
+        }
+    }
 }
 
 void boot_brain() {
     brain.current             = 0;
-    brain.mutation_chance     = 0.2;
+    brain.mutation_chance     = 0.1;
     brain.crossover_chance    = 0.8;
     brain.max_runs            = 5;
     brain.runs                = 0;
     brain.worst_lines_cleared = 0;
     brain.most_lines_cleared  = 0;
+    brain.diversity           =-1;
     initialize_pop();
 }
 

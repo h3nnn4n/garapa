@@ -21,7 +21,9 @@
 #define TRAINER_H
 
 #define POP_SIZE 20
-#define N_GENES (5*3)
+#define GEN_P_FUNCTION 3
+#define N_FUNCTION     5
+#define N_GENES (N_FUNCTION * GEN_P_FUNCTION)
 
 typedef struct {
     //int aggregate_height_cost;
@@ -36,7 +38,7 @@ typedef struct {
     //double surface_smoothness_weight;
     //double well_cells_weight;
 
-    int cost[N_GENES];
+    double cost[N_GENES];
     double weight[N_GENES];
     int fitness;
     int worst;
@@ -56,6 +58,8 @@ typedef struct {
     int elapsed_generations;
     int most_lines_cleared;
     int worst_lines_cleared;
+
+    double diversity;
 } _brain;
 
 void mutation ( _obj_costs *individual );

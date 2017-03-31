@@ -39,12 +39,11 @@ _piece get_piece_coord_from_id();
 void get_best_move();
 //double get_cost();
 
-int aggregate_height();
-int holes();
-int covered_cells();
-int surface_smoothness();
-int well_cells();
-int complete_rows();
+double aggregate_height();   // f1
+double complete_rows();      // f2
+double surface_smoothness(); // f3
+double covered_cells();      // f4
+double well_cells();         // f5
 
 void initialize_weight ();
 
