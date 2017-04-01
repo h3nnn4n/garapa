@@ -36,6 +36,7 @@
 #include "display.h"
 #include "disassembler.h"
 #include "time_keeper.h"
+#include "file_control.h"
 #include "automated_tests.h"
 
 int main(int argc, char *argv[]) {
@@ -57,6 +58,7 @@ int main(int argc, char *argv[]) {
     test_control.test_enable = 0;
 
     init_cpu(&cpu);
+    init_file_control();
 
     load_rom ( &cpu, argv[1], 0x0000 );
 

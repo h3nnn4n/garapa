@@ -18,6 +18,7 @@ SOURCES=utils.c                      \
 		memory.c                     \
 		cartridge.c                  \
 		display.c                    \
+		file_control.c               \
 		instructions_branch.c        \
 		instructions_data_transfer.c \
 		instructions_logical.c       \

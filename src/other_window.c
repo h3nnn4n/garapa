@@ -31,6 +31,7 @@
 #include "types.h"
 #include "trainer.h"
 #include "graphics.h"
+#include "file_control.h"
 
 #include "tetris.h"
 
@@ -627,9 +628,11 @@ void game_over_hook() {
     int atual = cpu_info->mem_controller.memory[0xffe1];
 
     if ( atual == 0x000d && old != atual ) {
+        check_stop_condition();
         update_fitness();
         ai_state.game_state = GAMEOVER;
         finished_evaluating_individual();
+        reset_file_control();
     }
 
     old = atual;
@@ -642,6 +645,7 @@ void start_game_hook() {
         bg_reset();
         move_queue.ready = 0;
         ai_state.game_state = INGAME;
+        set_can_write_file_control();
     }
 
     old = atual;

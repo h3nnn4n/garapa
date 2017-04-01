@@ -28,13 +28,20 @@
 #include "graphics.h"
 
 #include "other_window.h"
+#include "file_control.h"
 #include "rev.h"
 
-/*#define __use_sdl*/
+#define __use_sdl
+
+#define __save_frames
+/*#define __render_window*/
 
 #ifdef __use_sdl
 
+#ifdef __render_window
 static SDL_Window   *window;
+#endif
+
 static SDL_Renderer *renderer;
 static SDL_Texture  *bitmap;
 static uint32_t *pixels;
@@ -59,6 +66,7 @@ uint32_t *get_frame_buffer () {
 void sdl_init ( ) {
     SDL_Init(SDL_INIT_VIDEO);
 
+#ifdef __render_window
     window = SDL_CreateWindow("here comes dat gameboi - LELmark edition",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
@@ -67,6 +75,8 @@ void sdl_init ( ) {
         0);
 
     renderer = SDL_CreateRenderer(window, -1, 0);
+#endif
+
     bitmap   = SDL_CreateTexture (renderer,
                SDL_PIXELFORMAT_RGB888,
                SDL_TEXTUREACCESS_STREAMING,
@@ -81,11 +91,32 @@ void sdl_init ( ) {
 }
 
 void flip_screen ( ) {
+#ifdef __save_frames
+    if ( can_write_file_control() ) {
+        char name[256];
+        sprintf(name, "frame_%016d_%016d.bmp", get_seed_file_control(), get_frame_number_file_control() );
+
+        bump_file_control();
+
+        SDL_Surface *surf = SDL_CreateRGBSurfaceFrom(pixels, screenx, screeny, 32, screenx * sizeof(uint32_t), 0,0,0,0);
+        if ( surf == NULL ) {
+            fprintf(stderr, "Null pointer at SDL_Surface\n");
+            exit(-1);
+        }
+
+        SDL_SaveBMP(surf, name);
+
+        SDL_FreeSurface(surf);
+    }
+#endif
+
+#if __render_window
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, bitmap, NULL, NULL);
     SDL_RenderPresent(renderer);
 
     SDL_UpdateTexture(bitmap, NULL, pixels, screenx * sizeof(uint32_t));
+#endif
 }
 
 void input_update ( _cpu_info *cpu ) {
