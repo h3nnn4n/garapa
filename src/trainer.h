@@ -48,6 +48,8 @@ typedef struct {
     int worst_lines_cleared;
 
     double diversity;
+
+    int rng;
 } _brain;
 
 void mutation ( _obj_costs *individual );

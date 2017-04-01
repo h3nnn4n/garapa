@@ -186,10 +186,17 @@ void joystick_hook () {
                         move_queue.ready = 1;
                         break;
                     case 1:
-                        move_queue.ready = 0;
+                        if ( get_brain_pointer()->rng && drand48 () < .25 ) {
+                            move_queue.ready = 0;
 
-                        cpu->joystick.button_start = 0;
-                        break;
+                            cpu->joystick.button_start = 0;
+                            break;
+                        } else if ( get_brain_pointer()->rng == 0 ) {
+                            move_queue.ready = 0;
+
+                            cpu->joystick.button_start = 0;
+                            break;
+                        }
                     case 2:
                         break;
                     default:
@@ -660,6 +667,7 @@ void start_game_hook() {
     int atual = cpu_info->mem_controller.memory[0xffe1];
 
     if ( atual == 0x0000 && old != atual ) {
+        get_brain_pointer()->rng = 0;
         bg_reset();
         move_queue.ready = 0;
         ai_state.game_state = INGAME;

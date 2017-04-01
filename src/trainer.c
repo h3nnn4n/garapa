@@ -59,7 +59,7 @@ void initialize_pop (){
 
 
         brain.population[i].fitness = 0;
-        /*mutation(&brain.population[i]);*/
+        mutation(&brain.population[i]);
     }
 }
 
@@ -219,6 +219,7 @@ void boot_brain() {
     brain.worst_lines_cleared = 0;
     brain.most_lines_cleared  = 0;
     brain.diversity           =-1;
+    brain.rng                 = 1;
     initialize_pop();
 }
 
