@@ -428,7 +428,9 @@ void restore_bg() {
 }
 
 void dump_bg() {
-    for (int j = 0; j < 18; ++j) {
+    printf("    +---------------------+\n");
+    for (int j = 0; j < 17; ++j) {
+        printf("%3d | ", j);
         for (int i = 0; i < 10; ++i) {
             switch ( get_bg_info_pointer()->data[i][j] ) {
                 case 0:
@@ -444,9 +446,9 @@ void dump_bg() {
                     break;
             }
         }
-        printf("\n");
+        printf("|\n");
     }
-    printf("\n");
+    printf("    +---------------------+\n\n");
 }
 void get_best_move(){
     double best_cost = -999999;
