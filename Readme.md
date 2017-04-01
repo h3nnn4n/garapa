@@ -1,25 +1,22 @@
 Here comes dat gameboi
 ======================
-LELmark edition
---------------
+LELmark
+-------
 
-LELmark is a fork (right now a branch) of Here comes dat gameboi that plays (not yet) games byt itself. So far the plan is to make a couple of Game specific AI to play some games.
+LELmark is a fork (right now a branch) of Here comes dat gameboi that plays Tetris by itself. So far the plan is to make a couple of Game specific AI to play some games.
 
-TODO list
-=========
+Features
+========
 
- - [ ] Savestates
- - [ ] Figure out how the read from the game what piece is falling and which one is the next
- - [ ] Read from the game the actual position of the piece instead of reading from the OAM
- - [ ] ???
-
-What is working
-===============
-
- - Reading the placed blocks
- - Reading of the faling pieces
-  - Just 4 small blocks, not the piece as a whole
- - 5 different metrics to evaluate where the piece will go
+ - Reading the placed blocks from OAM
+ - Reading the falling piece from OAM
+ - Identifying the falling piece directly from the game memory
+ - Identifying the current game screen directly from the game memory
+ - 8 different metrics to evaluate where the piece will go
+ - Genetic algorithm to weight the different placement criteria
+ - Fitness based on the number of cleared lines
+ - Autonomous training system
+ - For each individual, the game is played 5 times and the worst run is used as fitness, to ensure consistency.
 
 License
 =======
