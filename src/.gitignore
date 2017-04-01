@@ -1,0 +1,13 @@
+*.o
+*.swp
+core
+main
+emulator
+roms
+i8080-core
+*.cc
+gameboy2
+main.c
+*.txt
+*.log
+*.dat
