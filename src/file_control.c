@@ -70,7 +70,7 @@ void check_stop_condition() {
 
     printf("Finished game with %4d lines cleared\n", best);
 
-    if ( best > 411 ) {
+    if ( best > 441 ) {
         exit(0);
     }
 }
