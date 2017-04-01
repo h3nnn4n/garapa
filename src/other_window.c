@@ -271,6 +271,11 @@ void other_window_init ( ) {
 _bg_info* get_bg_info_pointer () {
     return &bg_info;
 }
+void draw_rectangle(int x, int y, int x2, int y2, int r, int g, int b) {
+    SDL_SetRenderDrawColor(other_renderer, r, g, b, 0);
+    SDL_Rect dstrect = { x, y, x2, y2 };
+    SDL_RenderFillRect(other_renderer, &dstrect);
+}
 
 void draw_square(int x, int y, int r, int g, int b) {
     int size = 1;
@@ -305,6 +310,7 @@ void draw_falling_blocks() {
 }
 
 void draw_bg() {
+    draw_rectangle(16, 8, 80, 136, 0x80, 0x80, 0x80);
     for (int i = 16; i <= 88; i += 8) {
         for (int j = 8; j <= 136; j += 8) {
             assert(i/8 * __X_SIZE + j/8 <= __X_SIZE * __Y_SIZE);
