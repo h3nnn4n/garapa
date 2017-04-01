@@ -35,6 +35,8 @@
 
 #include "tetris.h"
 
+/*#define __draw_other_window*/
+
 #define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
 #define BYTE_TO_BINARY(byte)  \
       (byte & 0x80 ? '1' : '0'), \
@@ -52,10 +54,14 @@
 
 static _cpu_info* cpu_info;
 
+#ifdef __draw_other_window
+
 static SDL_Window   *other_window;
 static SDL_Renderer *other_renderer;
 static SDL_Texture  *other_bitmap;
 static uint32_t *other_pixels;
+
+#endif
 
 static int other_screenx = 160 * 4;
 static int other_screeny = 144 * 4;
@@ -221,7 +227,11 @@ _best_piece *get_best_piece_pointer() {
   /*(byte & 0x01 ? '1' : '0')*/
 
 uint32_t *other_get_frame_buffer () {
+#ifdef __draw_other_window
     return other_pixels;
+#else
+    return NULL;
+#endif
 }
 
 void sprite_info_reset() {
@@ -237,6 +247,7 @@ void sprite_info_add(int posx, int posy, int id) {
 }
 
 void other_window_init ( ) {
+#ifdef __draw_other_window
     SDL_Init(SDL_INIT_VIDEO);
     TTF_Init();
 
@@ -261,6 +272,7 @@ void other_window_init ( ) {
     SDL_UpdateTexture(other_bitmap, NULL, other_pixels, other_screenx * sizeof(uint32_t));
 
     font = TTF_OpenFont("inconsolata.ttf", 18);
+#endif
 
     move_queue.ready         = 0;
     move_queue.wait_rotation = 0;
@@ -273,12 +285,15 @@ _bg_info* get_bg_info_pointer () {
     return &bg_info;
 }
 void draw_rectangle(int x, int y, int x2, int y2, int r, int g, int b) {
+#ifdef __draw_other_window
     SDL_SetRenderDrawColor(other_renderer, r, g, b, 0);
     SDL_Rect dstrect = { x, y, x2, y2 };
     SDL_RenderFillRect(other_renderer, &dstrect);
+#endif
 }
 
 void draw_square(int x, int y, int r, int g, int b) {
+#ifdef __draw_other_window
     int size = 1;
     int x2 = x / size;
     int y2 = y / size;
@@ -286,6 +301,7 @@ void draw_square(int x, int y, int r, int g, int b) {
     SDL_SetRenderDrawColor(other_renderer, r, g, b, 0);
     SDL_Rect dstrect = { x2, y2, w2, w2 };
     SDL_RenderFillRect(other_renderer, &dstrect);
+#endif
 }
 
 void draw_falling_blocks() {
@@ -333,6 +349,7 @@ void draw_best() {
 }
 
 void draw_text(char *text, int x, int y, int r, int g, int b) {
+#ifdef __draw_other_window
     int texW = 0;
     int texH = 0;
 
@@ -347,6 +364,7 @@ void draw_text(char *text, int x, int y, int r, int g, int b) {
 
     SDL_DestroyTexture(texture);
     SDL_FreeSurface(surface);
+#endif
 }
 
 void print_cost() {
@@ -661,6 +679,7 @@ void logic_update() {
 }
 
 void screen_update() {
+#ifdef __draw_other_window
     SDL_RenderClear(other_renderer);
     SDL_RenderCopy(other_renderer, other_bitmap, NULL, NULL);
 
@@ -681,6 +700,7 @@ void screen_update() {
     SDL_UpdateTexture(other_bitmap, NULL, other_pixels, other_screenx * sizeof(uint32_t));
 
     SDL_RenderPresent(other_renderer);
+#endif
 }
 
 void other_flip_screen ( ) {

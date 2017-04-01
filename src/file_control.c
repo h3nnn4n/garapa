@@ -14,7 +14,7 @@ static void clear_files() {
     char name[256];
     for (int i = 0; i < get_frame_number_file_control(); ++i) {
         sprintf(name, "frame_%016d_%016d.bmp", get_seed_file_control(), i);
-        printf("Deleting %s\n", name);
+        /*printf("Deleting %s\n", name);*/
         unlink(name);
     }
 }
@@ -68,7 +68,9 @@ void check_stop_condition() {
 
     int best =  a  * 1 + b * 10 + c * 100 + d * 1000;
 
-    if ( best > 10 ) {
+    printf("Finished game with %4d lines cleared\n", best);
+
+    if ( best > 411 ) {
         exit(0);
     }
 }

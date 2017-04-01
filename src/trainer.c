@@ -59,7 +59,7 @@ void initialize_pop (){
 
 
         brain.population[i].fitness = 0;
-        mutation(&brain.population[i]);
+        /*mutation(&brain.population[i]);*/
     }
 }
 
@@ -169,10 +169,13 @@ void selection(_obj_costs *old, _obj_costs *new) {
 }
 
 void evolutionary_step(){
+    print_pop();
+
+    if ( POP_SIZE == 1 )
+        return;
+
     _obj_costs new_pop[POP_SIZE];
     _obj_costs best = get_best_individual();
-
-    print_pop();
 
     selection(brain.population, new_pop);
 
@@ -231,6 +234,8 @@ void update_fitness() {
     d = d == 0x2f ? 0 : d;
 
     int best = a + b * 10 + c * 100 + d * 1000;
+
+    /*printf("%d\n", best);*/
 
     brain.population[brain.current].fitness = best;
 
