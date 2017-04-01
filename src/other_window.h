@@ -25,7 +25,7 @@
 
 #define MAX_SPRITE 1000
 #define __X_SIZE 10
-#define __Y_SIZE 22
+#define __Y_SIZE 17
 
 typedef struct {
     int posx;

@@ -26,18 +26,6 @@
 #define N_GENES (N_FUNCTION * GEN_P_FUNCTION)
 
 typedef struct {
-    //int aggregate_height_cost;
-    //int complete_rows_cost;
-    //int covered_cells_cost;
-    //int surface_smoothness_cost;
-    //int well_cells_cost;
-
-    //double aggregate_height_weight;
-    //double complete_rows_weight;
-    //double covered_cells_weight;
-    //double surface_smoothness_weight;
-    //double well_cells_weight;
-
     double cost[N_GENES];
     double weight[N_GENES];
     int fitness;

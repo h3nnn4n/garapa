@@ -307,7 +307,7 @@ void draw_falling_blocks() {
 void draw_bg() {
     for (int i = 16; i <= 88; i += 8) {
         for (int j = 8; j <= 136; j += 8) {
-            assert(i/8 * 10 + j/8 <= 10*22);
+            assert(i/8 * __X_SIZE + j/8 <= __X_SIZE * __Y_SIZE);
             if ( bg_info.data[i/8 - 2][j/8 - 1] == 1 ) {
                 draw_rectangle(i, j, 255, 0, 0);
             }
@@ -609,8 +609,8 @@ void new_piece_on_screen_hook() {
 }
 
 void bg_reset() {
-    for (int i = 0; i < 10; i++) {
-        for (int j = 0; j < 22; j++) {
+    for (int i = 0; i < __X_SIZE; i++) {
+        for (int j = 0; j < __Y_SIZE; j++) {
              bg_info.data[i][j] = 0;
         }
     }

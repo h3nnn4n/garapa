@@ -62,17 +62,17 @@ double aggregate_height() {
 
     double total = 0;
 
-    for (int i = 0; i < 10; ++i) {
-        int last = 17;
+    for (int i = 0; i < __X_SIZE; ++i) {
+        int last = __Y_SIZE;
         int x    = 0;
-        for (int j = 0; j < 17; ++j) {
+        for (int j = 0; j < __Y_SIZE; ++j) {
             if ( bg_info->data[i][j] >= 1 ) {
                 last = j;
                 break;
             }
         }
 
-        x = 17 - last;
+        x = __Y_SIZE - last;
 
         x = base[0] * x + base[1];
 
@@ -91,9 +91,9 @@ double complete_rows(){
 
     double total = 0;
 
-    for (int j = 0; j < 17; ++j) {
+    for (int j = 0; j < __Y_SIZE; ++j) {
         int ok = 1;
-        for (int i = 0; i < 10; ++i) {
+        for (int i = 0; i < __X_SIZE; ++i) {
             if ( bg_info->data[i][j] == 0 ) {
                 ok = 0;
                 break;
@@ -115,13 +115,13 @@ double surface_smoothness() {
 
     double total = 0;
 
-    int h[10];
+    int h[__X_SIZE];
 
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < __X_SIZE; ++i) {
         h[i] = 0;
-        for (int j = 0; j < 17; ++j) {
+        for (int j = 0; j < __Y_SIZE; ++j) {
             if ( bg_info->data[i][j] >= 1 ) {
-                h[i] = 17 - j;
+                h[i] = __Y_SIZE - j;
                 break;
             }
         }
@@ -144,9 +144,9 @@ double covered_cells() {
 
     int total = 0;
 
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < __X_SIZE; ++i) {
         int found = 0;
-        for (int j = 0; j < 17; ++j) {
+        for (int j = 0; j < __Y_SIZE; ++j) {
             int x    = 0;
             if ( bg_info->data[i][j] >= 1 && !found ) {
                 found = 1;
@@ -154,7 +154,7 @@ double covered_cells() {
 
                 x = base[0] * x + base[1];
 
-                x = 17 - j;
+                x = __Y_SIZE - j;
 
                 x = x * base[0] + base[1];
                 total += x;
@@ -175,9 +175,9 @@ double well_cells(){
     double total = 0;
 
     for (int i = 1; i < 9; ++i) {
-        for (int j = 0; j < 17; ++j) {
+        for (int j = 0; j < __Y_SIZE; ++j) {
             if ( bg_info->data[i][j] == 0 && bg_info->data[i-1][j] >= 1 && bg_info->data[i+1][j] >= 1  ) {
-                double x = (17 - j);
+                double x = (__Y_SIZE - j);
                 total += x * base[0] + base[1];
             } else if ( bg_info->data[i][j] >= 1 ) {
                 break;
@@ -185,18 +185,18 @@ double well_cells(){
         }
     }
 
-    for (int j = 0; j < 17; ++j) {
+    for (int j = 0; j < __Y_SIZE; ++j) {
         if ( bg_info->data[9][j] == 0 && bg_info->data[8][j] >= 1  ) {
-            double x = (17 - j);
+            double x = (__Y_SIZE - j);
             total += x * base[0] + base[1];
         } else if ( bg_info->data[9][j] >= 1 ) {
             break;
         }
     }
 
-    for (int j = 0; j < 17; ++j) {
+    for (int j = 0; j < __Y_SIZE; ++j) {
         if ( bg_info->data[0][j] == 0 && bg_info->data[1][j] >= 1  ) {
-            double x = (17 - j);
+            double x = (__Y_SIZE - j);
             total += x * base[0] + base[1];
         } else if ( bg_info->data[0][j] >= 1 ) {
             break;
@@ -216,9 +216,9 @@ double covered_cells_after_clear(){
     double total = 0;
     double found_complete = 0;
 
-    for (int j = 0; j < 17; ++j) {
+    for (int j = 0; j < __Y_SIZE; ++j) {
         int ok = 1;
-        for (int i = 0; i < 10; ++i) {
+        for (int i = 0; i < __X_SIZE; ++i) {
             if ( bg_info->data[i][j] == 0 ) {
                 ok = 0;
                 break;
@@ -232,7 +232,7 @@ double covered_cells_after_clear(){
     }
 
     if ( found_complete ) {
-        for (int i = 0; i < 10; ++i) {
+        for (int i = 0; i < __X_SIZE; ++i) {
             int found = 0;
             for (int j = 0; j < found_complete; ++j) {
                 int x    = 0;
@@ -242,7 +242,7 @@ double covered_cells_after_clear(){
 
                     x = base[0] * x + base[1];
 
-                    x = 17 - j;
+                    x = __Y_SIZE - j;
 
                     x = x * base[0] + base[1];
                     total += x;
@@ -263,10 +263,10 @@ double lock_heigth(){
 
     double total = 0;
 
-    for (int i = 0; i < 10; ++i) {
-        for (int j = 0; j < 17; ++j) {
+    for (int i = 0; i < __X_SIZE; ++i) {
+        for (int j = 0; j < __Y_SIZE; ++j) {
             if ( bg_info->data[i][j] > 1 ) {
-                total += base[0] * (17 -j) + base[1];
+                total += base[0] * (__Y_SIZE -j) + base[1];
             }
         }
     }
@@ -284,9 +284,9 @@ double burried_cells() {
 
     int total = 0;
 
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < __X_SIZE; ++i) {
         int found = 0;
-        for (int j = 0; j < 17; ++j) {
+        for (int j = 0; j < __Y_SIZE; ++j) {
             int x    = 0;
             if ( bg_info->data[i][j] > 1 && !found ) {
                 found = 1;
@@ -294,7 +294,7 @@ double burried_cells() {
 
                 x = base[0] * x + base[1];
 
-                x = 17 - j;
+                x = __Y_SIZE - j;
 
                 x = x * base[0] + base[1];
                 total += x;
@@ -418,8 +418,8 @@ int can_fit(_piece piece, int dx, int dy) {
 }
 
 void restore_bg() {
-    for (int i = 0; i < 10; ++i) {
-        for (int j = 0; j < 22; ++j) {
+    for (int i = 0; i < __X_SIZE; ++i) {
+        for (int j = 0; j < __Y_SIZE; ++j) {
             if ( get_bg_info_pointer()->data[i][j] > 1 ) {
                 get_bg_info_pointer()->data[i][j] = 0;
             }
@@ -429,9 +429,9 @@ void restore_bg() {
 
 void dump_bg() {
     printf("    +---------------------+\n");
-    for (int j = 0; j < 17; ++j) {
+    for (int j = 0; j < __Y_SIZE; ++j) {
         printf("%3d | ", j);
-        for (int i = 0; i < 10; ++i) {
+        for (int i = 0; i < __X_SIZE; ++i) {
             switch ( get_bg_info_pointer()->data[i][j] ) {
                 case 0:
                     printf("  ");
