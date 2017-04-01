@@ -20,7 +20,7 @@
 #ifndef TRAINER_H
 #define TRAINER_H
 
-#define POP_SIZE 20
+#define POP_SIZE 1
 #define GEN_P_FUNCTION 3
 #define N_FUNCTION     14
 #define N_GENES (N_FUNCTION * GEN_P_FUNCTION)

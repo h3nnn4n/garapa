@@ -25,6 +25,7 @@
 #include "trainer.h"
 #include "tetris.h"
 #include "types.h"
+#include "ia.h"
 
 static _brain brain;
 
@@ -49,11 +50,13 @@ void initialize_pop (){
     for (int i = 0; i < POP_SIZE; ++i) {
         for (int j = 0; j < N_GENES; ++j) {
             /*brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 5.0;*/
-            brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 15.0;
+            /*brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 15.0;*/
+            brain.population[i].weight[j] = ia[j];
             brain.population[i].cost[j]   = 0;
             brain.population[i].fitness   = 0;
             brain.population[i].worst     = 0;
         }
+
 
         brain.population[i].fitness = 0;
         mutation(&brain.population[i]);
@@ -206,8 +209,8 @@ void evolutionary_step(){
 
 void boot_brain() {
     brain.current             = 0;
-    brain.mutation_chance     = 0.1;
-    brain.crossover_chance    = 0.8;
+    brain.mutation_chance     = 0.0;
+    brain.crossover_chance    = 0.0;
     brain.max_runs            = 5;
     brain.runs                = 0;
     brain.worst_lines_cleared = 0;
