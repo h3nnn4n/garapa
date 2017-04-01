@@ -39,14 +39,20 @@ _piece get_piece_coord_from_id();
 void get_best_move();
 //double get_cost();
 
-double aggregate_height();          // f1
-double complete_rows();             // f2
-double surface_smoothness();        // f3
-double covered_cells();             // f4
-double well_cells();                // f5
-double covered_cells_after_clear(); // f6
-double lock_heigth();               // f7
-double burried_cells();             // f8
+double aggregate_height();          // f0
+double complete_rows();             // f1
+double surface_variance();          // f2
+double covered_cells();             // f3
+double well_cells();                // f4
+double covered_cells_after_clear(); // f5
+double lock_heigth();               // f6
+double burried_cells();             // f7
+double highest_cell();              // f8
+double height_delta();              // f9
+double vertical_roughness();        // f10
+double horizontal_roughness();      // f11
+double vertical_roughness_w();      // f12
+double horizontal_roughness_w();    // f13
 
 void initialize_weight ();
 

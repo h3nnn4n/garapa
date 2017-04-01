@@ -29,21 +29,27 @@
 static _brain brain;
 
 void evaluate_cost() {
-    brain.population[brain.current].cost[0] = aggregate_height();
-    brain.population[brain.current].cost[1] = covered_cells();
-    brain.population[brain.current].cost[2] = complete_rows();
-    brain.population[brain.current].cost[3] = surface_smoothness();
-    brain.population[brain.current].cost[4] = well_cells();
-    brain.population[brain.current].cost[5] = covered_cells_after_clear();
-    brain.population[brain.current].cost[6] = lock_heigth();
-    brain.population[brain.current].cost[7] = burried_cells();
+    brain.population[brain.current].cost[0]  = aggregate_height();
+    brain.population[brain.current].cost[1]  = covered_cells();
+    brain.population[brain.current].cost[2]  = complete_rows();
+    brain.population[brain.current].cost[3]  = surface_variance();
+    brain.population[brain.current].cost[4]  = well_cells();
+    brain.population[brain.current].cost[5]  = covered_cells_after_clear();
+    brain.population[brain.current].cost[6]  = lock_heigth();
+    brain.population[brain.current].cost[7]  = burried_cells();
+    brain.population[brain.current].cost[8]  = highest_cell();
+    brain.population[brain.current].cost[9]  = height_delta();
+    brain.population[brain.current].cost[10] = vertical_roughness();
+    brain.population[brain.current].cost[11] = horizontal_roughness();
+    brain.population[brain.current].cost[12] = vertical_roughness_w();
+    brain.population[brain.current].cost[13] = horizontal_roughness_w();
 }
 
 void initialize_pop (){
     for (int i = 0; i < POP_SIZE; ++i) {
         for (int j = 0; j < N_GENES; ++j) {
             /*brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 5.0;*/
-            brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 50.0;
+            brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 15.0;
             brain.population[i].cost[j]   = 0;
             brain.population[i].fitness   = 0;
             brain.population[i].worst     = 0;

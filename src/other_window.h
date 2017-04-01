@@ -67,7 +67,7 @@ _bg_info* get_bg_info_pointer();
 _best_piece *get_best_piece_pointer();
 
 void draw_text(char *text, int x, int y, int r, int g, int b) ;
-void draw_rectangle(int x, int y, int r, int g, int b) ;
+void draw_square(int x, int y, int r, int g, int b) ;
 
 void set_cpu_pointer(_cpu_info *cpu);
 _cpu_info *get_cpu_pointer();

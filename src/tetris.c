@@ -53,7 +53,7 @@ _piece Zb_piece     = {{  1, -2 }, {  0, -1 }, { 1, -1 }, { 0, 0 }} ; // Zb
 
 _piece Square_piece = {{ -1, -1 }, {  0, -1 }, {-1,  0 }, { 0, 0 }} ; // Square
 
-// Function n 1
+// Function n 0
 double aggregate_height() {
     _bg_info *bg_info = get_bg_info_pointer();
     int fid           = 0;
@@ -82,7 +82,7 @@ double aggregate_height() {
     return total * base[2];
 }
 
-// Function n 2
+// Function n 1
 double complete_rows(){
     _bg_info *bg_info = get_bg_info_pointer();
     int fid           = 1;
@@ -106,8 +106,8 @@ double complete_rows(){
     return total * base[2];
 }
 
-// Function n 3
-double surface_smoothness() {
+// Function n 2
+double surface_variance() {
     _bg_info *bg_info = get_bg_info_pointer();
     int fid           = 2;
     _brain* brain     = get_brain_pointer();
@@ -135,7 +135,7 @@ double surface_smoothness() {
     return total * base[2];
 }
 
-// Function n 4
+// Function n 3
 double covered_cells() {
     _bg_info *bg_info = get_bg_info_pointer();
     int fid           = 3;
@@ -165,7 +165,7 @@ double covered_cells() {
     return total * base[2];
 }
 
-// Function n 5
+// Function n 4
 double well_cells(){
     _bg_info *bg_info = get_bg_info_pointer();
     int fid           = 4;
@@ -206,7 +206,7 @@ double well_cells(){
     return total * base[2];
 }
 
-// Function n 6
+// Function n 5
 double covered_cells_after_clear(){
     _bg_info *bg_info = get_bg_info_pointer();
     int fid           = 5;
@@ -254,7 +254,7 @@ double covered_cells_after_clear(){
     return total * base[2];
 }
 
-// Function n 7
+// Function n 6
 double lock_heigth(){
     _bg_info *bg_info = get_bg_info_pointer();
     int fid           = 6;
@@ -275,7 +275,7 @@ double lock_heigth(){
 }
 
 
-// Function n 8
+// Function n 7
 double burried_cells() {
     _bg_info *bg_info = get_bg_info_pointer();
     int fid           = 7;
@@ -304,6 +304,146 @@ double burried_cells() {
 
     return total * base[2];
 }
+
+// Function n 8
+double highest_cell() {
+    _bg_info *bg_info = get_bg_info_pointer();
+    int fid           = 8;
+    _brain* brain     = get_brain_pointer();
+    double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
+
+    double total = 0;
+
+    for (int i = 0; i < __X_SIZE; ++i) {
+        int last = __Y_SIZE;
+        int x    = 0;
+        for (int j = 0; j < __Y_SIZE; ++j) {
+            if ( bg_info->data[i][j] >= 1 ) {
+                last = j;
+                break;
+            }
+        }
+
+        x = __Y_SIZE - last;
+
+        if ( x > total ) {
+            total = x;
+        }
+    }
+
+    return (total * base[0] + base[1] ) * base[2];
+}
+
+// Function n 9
+double height_delta() {
+    _bg_info *bg_info = get_bg_info_pointer();
+    int fid           = 9;
+    _brain* brain     = get_brain_pointer();
+    double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
+
+    double min = 10000;
+    double max =-10000;
+
+    for (int i = 0; i < __X_SIZE; ++i) {
+        int last = __Y_SIZE;
+        int x    = 0;
+        for (int j = 0; j < __Y_SIZE; ++j) {
+            if ( bg_info->data[i][j] >= 1 ) {
+                last = j;
+                break;
+            }
+        }
+
+        x = __Y_SIZE - last;
+
+        max = max > x ? max : x;
+        min = min < x ? min : x;
+    }
+
+    return ((max - min) * base[0] + base[1] ) * base[2];
+}
+
+// Function n 10
+double vertical_roughness() {
+    _bg_info *bg_info = get_bg_info_pointer();
+    int fid           = 10;
+    _brain* brain     = get_brain_pointer();
+    double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
+
+    double total = 0;
+
+    for (int i = 0; i < __X_SIZE; ++i) {
+        for (int j = 1; j < __Y_SIZE; ++j) {
+            if ( bg_info->data[i][j] != bg_info->data[i][j - 1] ) {
+                total += base[0] * (1) + base[1];
+            }
+        }
+    }
+
+    return total * base[2];
+}
+
+// Function n 11
+double horizontal_roughness() {
+    _bg_info *bg_info = get_bg_info_pointer();
+    int fid           = 11;
+    _brain* brain     = get_brain_pointer();
+    double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
+
+    double total = 0;
+
+    for (int i = 1; i < __X_SIZE; ++i) {
+        for (int j = 0; j < __Y_SIZE; ++j) {
+            if ( bg_info->data[i][j] != bg_info->data[i - 1][j] ) {
+                total += base[0] * (1) + base[1];
+            }
+        }
+    }
+
+    return total * base[2];
+}
+
+// Function n 12
+double vertical_roughness_w() {
+    _bg_info *bg_info = get_bg_info_pointer();
+    int fid           = 10;
+    _brain* brain     = get_brain_pointer();
+    double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
+
+    double total = 0;
+
+    for (int i = 0; i < __X_SIZE; ++i) {
+        for (int j = 1; j < __Y_SIZE; ++j) {
+            if ( bg_info->data[i][j] != bg_info->data[i][j - 1] ) {
+                total += base[0] * (17 - j) + base[1];
+            }
+        }
+    }
+
+    return total * base[2];
+}
+
+// Function n 13
+double horizontal_roughness_w() {
+    _bg_info *bg_info = get_bg_info_pointer();
+    int fid           = 13;
+    _brain* brain     = get_brain_pointer();
+    double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
+
+    double total = 0;
+
+    for (int i = 1; i < __X_SIZE; ++i) {
+        for (int j = 0; j < __Y_SIZE; ++j) {
+            if ( bg_info->data[i][j] != bg_info->data[i - 1][j] ) {
+                total += base[0] * (17 - j) + base[1];
+            }
+        }
+    }
+
+    return total * base[2];
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 int piece_touched_the_ground (_piece piece, int dx, int dy){
     int x = get_cpu_pointer()->mem_controller.memory[0xff92] - 8;

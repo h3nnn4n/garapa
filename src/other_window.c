@@ -272,7 +272,7 @@ _bg_info* get_bg_info_pointer () {
     return &bg_info;
 }
 
-void draw_rectangle(int x, int y, int r, int g, int b) {
+void draw_square(int x, int y, int r, int g, int b) {
     int size = 1;
     int x2 = x / size;
     int y2 = y / size;
@@ -292,14 +292,14 @@ void draw_falling_blocks() {
             /*int x2 = get_cpu_pointer()->mem_controller.memory[0xff92] - 8;*/
             /*int y2 = get_cpu_pointer()->mem_controller.memory[0xff93] - 16;*/
             /*printf("x,y : %3d %3d\n", (x - x2) / 8, (y - y2) / 8);*/
-            draw_rectangle(x, y, 0, 0, 0);
+            draw_square(x, y, 0, 0, 0);
         }
     }
 
     int x = get_cpu_pointer()->mem_controller.memory[0xff92] - 8;
     int y = get_cpu_pointer()->mem_controller.memory[0xff93] - 16;
 
-    draw_rectangle(x, y, 0, 127, 127);
+    draw_square(x, y, 0, 127, 127);
 
     /*printf("\n");*/
 }
@@ -309,20 +309,20 @@ void draw_bg() {
         for (int j = 8; j <= 136; j += 8) {
             assert(i/8 * __X_SIZE + j/8 <= __X_SIZE * __Y_SIZE);
             if ( bg_info.data[i/8 - 2][j/8 - 1] == 1 ) {
-                draw_rectangle(i, j, 255, 0, 0);
+                draw_square(i, j, 255, 0, 0);
             }
             if ( bg_info.data[i/8 - 2][j/8 - 1] > 1 ) {
-                draw_rectangle(i, j, 0, 255, 0);
+                draw_square(i, j, 0, 255, 0);
             }
         }
     }
 }
 
 void draw_best() {
-    draw_rectangle(best_piece.coord.x + best_piece.blocks.a.x * 8 , best_piece.coord.y + best_piece.blocks.a.y * 8, 60 , 100, 255 );
-    draw_rectangle(best_piece.coord.x + best_piece.blocks.b.x * 8 , best_piece.coord.y + best_piece.blocks.b.y * 8, 60 , 100, 255 );
-    draw_rectangle(best_piece.coord.x + best_piece.blocks.c.x * 8 , best_piece.coord.y + best_piece.blocks.c.y * 8, 60 , 100, 255 );
-    draw_rectangle(best_piece.coord.x + best_piece.blocks.d.x * 8 , best_piece.coord.y + best_piece.blocks.d.y * 8,  0 ,  0, 255 );
+    draw_square(best_piece.coord.x + best_piece.blocks.a.x * 8 , best_piece.coord.y + best_piece.blocks.a.y * 8, 60 , 100, 255 );
+    draw_square(best_piece.coord.x + best_piece.blocks.b.x * 8 , best_piece.coord.y + best_piece.blocks.b.y * 8, 60 , 100, 255 );
+    draw_square(best_piece.coord.x + best_piece.blocks.c.x * 8 , best_piece.coord.y + best_piece.blocks.c.y * 8, 60 , 100, 255 );
+    draw_square(best_piece.coord.x + best_piece.blocks.d.x * 8 , best_piece.coord.y + best_piece.blocks.d.y * 8,  0 ,  0, 255 );
 }
 
 void draw_text(char *text, int x, int y, int r, int g, int b) {
