@@ -31,9 +31,9 @@
 #include "file_control.h"
 #include "rev.h"
 
-#define __use_sdl
+/*#define __use_sdl*/
 
-#define __save_frames
+/*#define __save_frames*/
 /*#define __render_window*/
 
 #ifdef __use_sdl

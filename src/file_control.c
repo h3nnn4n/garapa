@@ -31,7 +31,8 @@ void reset_file_control() {
 }
 
 void set_can_write_file_control(){
-    file_control.can_write = 1;
+    /*file_control.can_write = 1;*/
+    file_control.can_write = 0;
 }
 
 int can_write_file_control(){
@@ -68,9 +69,11 @@ void check_stop_condition() {
 
     int best =  a  * 1 + b * 10 + c * 100 + d * 1000;
 
-    printf("Finished game with %4d lines cleared\n", best);
+    if ( file_control.can_write == 1 ) {
+        printf("Finished game with %4d lines cleared\n", best);
 
-    if ( best > 441 ) {
-        exit(0);
+        if ( best > 441 ) {
+            exit(0);
+        }
     }
 }

@@ -35,7 +35,6 @@
 
 #include "tetris.h"
 
-/*#define __draw_other_window*/
 
 #define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
 #define BYTE_TO_BINARY(byte)  \
@@ -48,23 +47,24 @@
   (byte & 0x02 ? '1' : '0'), \
   (byte & 0x01 ? '1' : '0')
 
-/*#define __use_other_sdl*/
-
-/*#ifdef __use_other_sdl*/
+#define __use_other_sdl
+#define __draw_other_window
 
 static _cpu_info* cpu_info;
 
-#ifdef __draw_other_window
+#if defined(__draw_other_window) && defined(__use_other_sdl)
 
 static SDL_Window   *other_window;
 static SDL_Renderer *other_renderer;
 static SDL_Texture  *other_bitmap;
 static uint32_t *other_pixels;
 
-#endif
+TTF_Font* font;
 
 static int other_screenx = 160 * 4;
 static int other_screeny = 144 * 4;
+
+#endif
 
 /*static _point best;*/
 static _best_piece best_piece;
@@ -75,8 +75,6 @@ static _ai_state ai_state;
 
 _sprite_t_info sprite_t_info;
 _bg_info bg_info;
-
-TTF_Font* font;
 
 void set_cpu_pointer(_cpu_info *cpu) {
     cpu_info = cpu;
@@ -687,7 +685,7 @@ void logic_update() {
 }
 
 void screen_update() {
-#ifdef __draw_other_window
+#if defined(__draw_other_window) && defined(__use_other_sdl)
     SDL_RenderClear(other_renderer);
     SDL_RenderCopy(other_renderer, other_bitmap, NULL, NULL);
 

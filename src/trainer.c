@@ -49,9 +49,12 @@ void evaluate_cost() {
 void initialize_pop (){
     for (int i = 0; i < POP_SIZE; ++i) {
         for (int j = 0; j < N_GENES; ++j) {
-            /*brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 5.0;*/
-            /*brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 15.0;*/
+#ifdef TRAIN
+            brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 15.0;
+#else
             brain.population[i].weight[j] = ia[j];
+#endif
+
             brain.population[i].cost[j]   = 0;
             brain.population[i].fitness   = 0;
             brain.population[i].worst     = 0;
@@ -59,7 +62,7 @@ void initialize_pop (){
 
 
         brain.population[i].fitness = 0;
-        mutation(&brain.population[i]);
+        /*mutation(&brain.population[i]);*/
     }
 }
 
@@ -137,6 +140,8 @@ void print_pop() {
         printf("= %4d\n", brain.population[i].fitness);
     }
 
+    printf("best: %4d / %4d - %12.4f\n", brain.most_lines_cleared, brain.worst_lines_cleared, brain.diversity);
+
     printf("\n");
     fflush(stdout);
     fflush(stderr);
@@ -212,8 +217,13 @@ void evolutionary_step(){
 
 void boot_brain() {
     brain.current             = 0;
+#ifdef TRAIN
+    brain.mutation_chance     = 0.1;
+    brain.crossover_chance    = 0.6;
+#else
     brain.mutation_chance     = 0.0;
     brain.crossover_chance    = 0.0;
+#endif
     brain.max_runs            = 5;
     brain.runs                = 0;
     brain.worst_lines_cleared = 0;
