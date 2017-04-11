@@ -19,6 +19,7 @@
  ******************************************************************************/
 #include <math.h>
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 
 #include "other_window.h"
@@ -52,6 +53,26 @@ _piece Za_piece     = {{ -2, -1 }, { -1, -1 }, {-1,  0 }, { 0, 0 }} ; // Za
 _piece Zb_piece     = {{  1, -2 }, {  0, -1 }, { 1, -1 }, { 0, 0 }} ; // Zb
 
 _piece Square_piece = {{ -1, -1 }, {  0, -1 }, {-1,  0 }, { 0, 0 }} ; // Square
+
+int cleaned_any_row() {
+    _bg_info *bg_info = get_bg_info_pointer();
+
+    for (int j = 0; j < __Y_SIZE; ++j) {
+        int ok = 1;
+        for (int i = 0; i < __X_SIZE; ++i) {
+            if ( bg_info->data[i][j] == 0 ) {
+                ok = 0;
+                break;
+            }
+        }
+
+        if ( ok ) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
 
 // Function n 0
 double aggregate_height() {
@@ -551,14 +572,58 @@ int can_fit(_piece piece, int dx, int dy) {
     return 1;
 }
 
-void restore_bg() {
-    for (int i = 0; i < __X_SIZE; ++i) {
-        for (int j = 0; j < __Y_SIZE; ++j) {
-            if ( get_bg_info_pointer()->data[i][j] > 1 ) {
-                get_bg_info_pointer()->data[i][j] = 0;
+void clear_lines() {
+    _bg_info *bg_info = get_bg_info_pointer();
+
+    for (int j = 0; j < __Y_SIZE; ++j) {
+        int ok = 1;
+        for (int i = 0; i < __X_SIZE; ++i) {
+            if ( bg_info->data[i][j] == 0 ) {
+                ok = 0;
+                break;
+            }
+        }
+
+        if ( ok ) {
+            for (int i = 0; i < __X_SIZE; ++i) {
+                bg_info->data[i][j] = 5;
             }
         }
     }
+
+    int changed;
+
+    /*printf("\n*****************************\n\nCleared line\n");*/
+
+    do {
+        /*dump_bg();*/
+        changed = 0;
+        for (int j = 0; j < __Y_SIZE; ++j) {
+            if ( bg_info->data[0][j] == 5 ) {
+                for (int i = j; i > 0; i--) {
+                    for (int k = 0; k < __X_SIZE; k++) {
+                        bg_info->data[k][i] = bg_info->data[k][i-1];
+                        changed = 1;
+                    }
+                }
+            }
+        }
+    } while ( changed );
+    /*dump_bg();*/
+}
+
+void save_bg() {
+    _bg_info *bg_bkp = &(get_brain_pointer()->bg_info_copy);
+    _bg_info *bg = get_bg_info_pointer();
+
+    memcpy(bg_bkp, bg, sizeof(_bg_info));
+}
+
+void restore_bg() {
+    _bg_info *bg_bkp = &(get_brain_pointer()->bg_info_copy);
+    _bg_info *bg = get_bg_info_pointer();
+
+    memcpy(bg, bg_bkp, sizeof(_bg_info));
 }
 
 void dump_bg() {
@@ -576,7 +641,11 @@ void dump_bg() {
                 case 2:
                     printf("O ");
                     break;
+                case 5:
+                    printf("%% ");
+                    break;
                 default:
+                    printf("? ");
                     break;
             }
         }
@@ -604,6 +673,7 @@ void get_best_move(){
                     if ( can_fit(piece, dx, dy )) {
                         first = 1;
                     } else if ( first ) {
+                        save_bg();
                         add_piece(piece, dx, dy - 8);
                         evaluate_cost();
                         if ( best_cost < get_cost() ) {
@@ -623,6 +693,7 @@ void get_best_move(){
                     }
 
                     if ( piece_touched_the_ground (piece, dx, dy) ) {
+                        save_bg();
                         add_piece(piece, dx, dy - 8);
                         evaluate_cost();
                         best_cost           = get_cost();

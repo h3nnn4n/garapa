@@ -52,10 +52,14 @@ typedef struct {
     double diversity;
 
     int rng;
+
+    int round_has_cleaned_lines;
+    _bg_info bg_info_copy;
 } _brain;
 
-void mutation ( _obj_costs *individual );
 double get_cost();
+
+void mutation ( _obj_costs *individual );
 void print_pop();
 void boot_brain();
 void evaluate_cost();

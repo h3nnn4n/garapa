@@ -30,6 +30,13 @@
 static _brain brain;
 
 void evaluate_cost() {
+    // Tests if any row was cleaned
+    get_brain_pointer()->round_has_cleaned_lines = cleaned_any_row() ? 1 : 0;
+
+    if ( cleaned_any_row() ) {
+        clear_lines();
+    }
+
     brain.population[brain.current].cost[0]  = aggregate_height();
     brain.population[brain.current].cost[1]  = covered_cells();
     brain.population[brain.current].cost[2]  = complete_rows();

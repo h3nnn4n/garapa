@@ -37,7 +37,12 @@ typedef enum {SQUARE, Ja, Jb, Jc, Jd, La, Lb, Lc, Ld, Ia, Ib, Sa, Sb, Za, Zb, Ta
 _piece get_piece_coord_from_id();
 
 void get_best_move();
-//double get_cost();
+
+int cleaned_any_row();
+void clear_lines();
+void restore_bg();
+void save_bg();
+void dump_bg();
 
 double aggregate_height();          // f0
 double complete_rows();             // f1
