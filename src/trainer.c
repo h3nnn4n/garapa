@@ -73,6 +73,21 @@ void initialize_pop (){
     }
 }
 
+void update_diversity() {
+    brain.diversity = 0;
+
+    for (int i = 0; i < POP_SIZE; ++i) {
+        for (int j = 0; j < POP_SIZE; ++j) {
+            double d = 0;
+            for (int k = 0; k < N_GENES; ++k) {
+                d += sqrt ( pow(brain.population[i].weight[k] - brain.population[j].weight[k], 2) );
+            }
+            brain.diversity += d / ( POP_SIZE * POP_SIZE );
+        }
+    }
+
+}
+
 double get_cost(){
     _obj_costs* obj = &brain.population[brain.current];
 
@@ -209,17 +224,7 @@ void evolutionary_step(){
 
     brain.elapsed_generations += 1;
 
-    brain.diversity = 0;
-
-    for (int i = 0; i < POP_SIZE; ++i) {
-        for (int j = 0; j < POP_SIZE; ++j) {
-            double d = 0;
-            for (int k = 0; k < N_GENES; ++k) {
-                d += sqrt ( pow(brain.population[i].weight[k] - brain.population[j].weight[k], 2) );
-            }
-            brain.diversity += d / ( POP_SIZE * POP_SIZE );
-        }
-    }
+    update_diversity();
 }
 
 void boot_brain() {
@@ -237,7 +242,9 @@ void boot_brain() {
     brain.most_lines_cleared  = 0;
     brain.diversity           =-1;
     brain.rng                 = 1;
+
     initialize_pop();
+    update_diversity();
 }
 
 void update_fitness() {

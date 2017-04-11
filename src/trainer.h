@@ -22,7 +22,7 @@
 
 #define TRAIN
 
-#define POP_SIZE 40
+#define POP_SIZE 20
 #define GEN_P_FUNCTION 3
 #define N_FUNCTION     14
 #define N_GENES (N_FUNCTION * GEN_P_FUNCTION)
@@ -65,6 +65,7 @@ void boot_brain();
 void evaluate_cost();
 void finished_evaluating_individual();
 void update_fitness();
+void update_diversity();
 
 _brain* get_brain_pointer();
 
