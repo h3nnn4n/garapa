@@ -151,9 +151,6 @@ double covered_cells() {
             if ( bg_info->data[i][j] >= 1 && !found ) {
                 found = 1;
             } else if ( bg_info->data[i][j] == 0 && found ) {
-
-                x = base[0] * x + base[1];
-
                 x = __Y_SIZE - j;
 
                 x = x * base[0] + base[1];
@@ -291,9 +288,6 @@ double burried_cells() {
             if ( bg_info->data[i][j] > 1 && !found ) {
                 found = 1;
             } else if ( bg_info->data[i][j] == 0 && found ) {
-
-                x = base[0] * x + base[1];
-
                 x = __Y_SIZE - j;
 
                 x = x * base[0] + base[1];
