@@ -49,14 +49,6 @@ int main(int argc, char *argv[]) {
     other_window_init();
     atexit(sdl_quit);
 
-    if ( argc == 1 ) {
-        test_control.test_enable = 1;
-        test_run ();
-        return 0;
-    }
-
-    test_control.test_enable = 0;
-
     init_cpu(&cpu);
     init_file_control();
 
