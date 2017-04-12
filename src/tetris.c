@@ -100,7 +100,7 @@ double aggregate_height() {
         total += x;
     }
 
-    return total * base[2];
+    return total;
 }
 
 // Function n 1
@@ -124,7 +124,7 @@ double complete_rows(){
         total += ok;
     }
 
-    return total * base[2];
+    return (base[0] * total + base[1]);
 }
 
 // Function n 2
@@ -148,12 +148,12 @@ double surface_variance() {
         }
     }
 
-    for (int i = 0; i < 9; ++i) {
+    for (int i = 0; i < __X_SIZE - 1; ++i) {
         double x = abs(h[i] - h[i+1]);
         total += x * base[0] + base[1];
     }
 
-    return total * base[2];
+    return total;
 }
 
 // Function n 3
@@ -180,7 +180,7 @@ double covered_cells() {
         }
     }
 
-    return total * base[2];
+    return total;
 }
 
 // Function n 4
@@ -221,7 +221,7 @@ double well_cells(){
         }
     }
 
-    return total * base[2];
+    return total;
 }
 
 // Function n 5
@@ -232,7 +232,6 @@ double covered_cells_after_clear(){
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
     double total = 0;
-    double found_complete = 0;
 
     for (int j = 0; j < __Y_SIZE; ++j) {
         int ok = 1;
@@ -244,32 +243,11 @@ double covered_cells_after_clear(){
         }
 
         if ( ok ) {
-            found_complete = j;
-            break;
+            total += 17 - j;
         }
     }
 
-    if ( found_complete ) {
-        for (int i = 0; i < __X_SIZE; ++i) {
-            int found = 0;
-            for (int j = 0; j < found_complete; ++j) {
-                int x    = 0;
-                if ( bg_info->data[i][j] >= 1 && !found ) {
-                    found = 1;
-                } else if ( bg_info->data[i][j] == 0 && found ) {
-
-                    x = base[0] * x + base[1];
-
-                    x = __Y_SIZE - j;
-
-                    x = x * base[0] + base[1];
-                    total += x;
-                }
-            }
-        }
-    }
-
-    return total * base[2];
+    return (base[0] * total + base[1]);
 }
 
 // Function n 6
@@ -289,7 +267,7 @@ double lock_heigth(){
         }
     }
 
-    return total * base[2];
+    return total;
 }
 
 
@@ -317,7 +295,7 @@ double burried_cells() {
         }
     }
 
-    return total * base[2];
+    return total;
 }
 
 // Function n 8
@@ -346,7 +324,7 @@ double highest_cell() {
         }
     }
 
-    return (total * base[0] + base[1] ) * base[2];
+    return (total * base[0] + base[1] );
 }
 
 // Function n 9
@@ -375,7 +353,7 @@ double height_delta() {
         min = min < x ? min : x;
     }
 
-    return ((max - min) * base[0] + base[1] ) * base[2];
+    return ((max - min) * base[0] + base[1] );
 }
 
 // Function n 10
@@ -395,7 +373,7 @@ double vertical_roughness() {
         }
     }
 
-    return total * base[2];
+    return total;
 }
 
 // Function n 11
@@ -415,7 +393,7 @@ double horizontal_roughness() {
         }
     }
 
-    return total * base[2];
+    return total;
 }
 
 // Function n 12
@@ -435,7 +413,7 @@ double vertical_roughness_w() {
         }
     }
 
-    return total * base[2];
+    return total;
 }
 
 // Function n 13
@@ -455,7 +433,7 @@ double horizontal_roughness_w() {
         }
     }
 
-    return total * base[2];
+    return total;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////

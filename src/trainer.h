@@ -22,7 +22,7 @@
 
 #define TRAIN
 
-#define POP_SIZE 20
+#define POP_SIZE 50
 #define GEN_P_FUNCTION 3
 #define N_FUNCTION     14
 #define N_GENES (N_FUNCTION * GEN_P_FUNCTION)
@@ -32,11 +32,14 @@ typedef struct {
     double weight[N_GENES];
     int fitness;
     int worst;
+
+    double min[N_GENES];
+    double max[N_GENES];
 } _obj_costs;
 
 typedef struct {
-    int min[N_GENES];
-    int max[N_GENES];
+    double min[N_GENES];
+    double max[N_GENES];
 
     int current;
     int runs;

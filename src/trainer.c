@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+#include <float.h>
 
 #include "other_window.h"
 #include "trainer.h"
@@ -28,6 +29,35 @@
 #include "ia.h"
 
 static _brain brain;
+
+void normalizer() {
+    for (int i = 0; i < N_FUNCTION; ++i) {
+        if ( brain.population[brain.current].cost[i] < brain.population[brain.current].min[i] ) {
+            /*printf("new min %f %f\n", brain.population[brain.current].cost[i], brain.population[brain.current].min[i] );*/
+            brain.population[brain.current].min[i] = brain.population[brain.current].cost[i];
+        }
+
+        if ( brain.population[brain.current].cost[i] > brain.population[brain.current].max[i] ) {
+            /*printf("new max %f %f\n", brain.population[brain.current].cost[i], brain.population[brain.current].max[i] );*/
+            brain.population[brain.current].max[i] = brain.population[brain.current].cost[i];
+        }
+
+        if ( brain.population[brain.current].min[i] != brain.population[brain.current].max[i] ) {
+            double cost = brain.population[brain.current].cost[i] - brain.population[brain.current].min[i];
+            cost /= brain.population[brain.current].max[i] - brain.population[brain.current].min[i];
+
+            brain.population[brain.current].cost[i] = cost;
+        } else {
+            brain.population[brain.current].cost[i] = 0;
+        }
+    }
+}
+
+void scaler() {
+    for (int i = 0; i < N_FUNCTION; ++i) {
+        brain.population[brain.current].cost[i] *= brain.population[brain.current].weight[ (i * GEN_P_FUNCTION) + 2 ];
+    }
+}
 
 void evaluate_cost() {
     // Tests if any row was cleaned
@@ -51,17 +81,23 @@ void evaluate_cost() {
     brain.population[brain.current].cost[11] = horizontal_roughness();
     brain.population[brain.current].cost[12] = vertical_roughness_w();
     brain.population[brain.current].cost[13] = horizontal_roughness_w();
+
+    normalizer();
+
+    scaler();
 }
 
 void initialize_pop (){
     for (int i = 0; i < POP_SIZE; ++i) {
         for (int j = 0; j < N_GENES; ++j) {
 #ifdef TRAIN
-            brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 15.0;
+            brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 75.0;
 #else
             brain.population[i].weight[j] = ia[j];
 #endif
 
+            brain.population[i].min[j]    = DBL_MAX;
+            brain.population[i].max[j]    =-DBL_MAX;
             brain.population[i].cost[j]   = 0;
             brain.population[i].fitness   = 0;
             brain.population[i].worst     = 0;
@@ -236,7 +272,7 @@ void boot_brain() {
     brain.mutation_chance     = 0.0;
     brain.crossover_chance    = 0.0;
 #endif
-    brain.max_runs            = 5;
+    brain.max_runs            = 7;
     brain.runs                = 0;
     brain.worst_lines_cleared = 0;
     brain.most_lines_cleared  = 0;
