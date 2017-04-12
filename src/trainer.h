@@ -20,6 +20,10 @@
 #ifndef TRAINER_H
 #define TRAINER_H
 
+#include "types.h"
+#include "tetris.h"
+#include "other_window.h"
+
 #define TRAIN
 
 #define POP_SIZE 50
@@ -59,6 +63,15 @@ typedef struct {
     int round_has_cleaned_lines;
     _bg_info bg_info_copy;
 } _brain;
+
+typedef struct {
+    _point coord;
+    _piece blocks;
+    _piece_type type;
+    int set;
+    int nrotations;
+    _obj_costs parameters;
+} _best_piece;
 
 double get_cost();
 

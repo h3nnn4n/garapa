@@ -673,6 +673,7 @@ void get_best_move(){
                             best_piece->blocks  = piece;
                             best_piece->set     = 1;
                             best_piece->nrotations = n_totation;
+                            best_piece->parameters = get_brain_pointer()->population[get_brain_pointer()->current];
                         }
 
                         restore_bg();
@@ -692,6 +693,7 @@ void get_best_move(){
                         best_piece->blocks  = piece;
                         best_piece->set     = 1;
                         best_piece->nrotations = n_totation;
+                        best_piece->parameters = get_brain_pointer()->population[get_brain_pointer()->current];
                         restore_bg();
                         break;
                     }

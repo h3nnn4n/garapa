@@ -383,19 +383,31 @@ void print_cost() {
     for (int i = 0; i < N_GENES; i += 3) {
         pos += 20;
 
+        /*sprintf(text, "%2d %7.2f %7.2f %7.2f = %10.2f",*/
+            /*(int)i/3,*/
+            /*get_brain_pointer()->population[get_brain_pointer()->current].weight[i+0],*/
+            /*get_brain_pointer()->population[get_brain_pointer()->current].weight[i+1],*/
+            /*get_brain_pointer()->population[get_brain_pointer()->current].weight[i+2],*/
+            /*get_brain_pointer()->population[get_brain_pointer()->current].cost[(int)i/3]);*/
+
+        /*if ( get_brain_pointer()->population[get_brain_pointer()->current].cost[(int)i/3] < 0 ) {*/
+            /*draw_text(text, 10, pos, 0xff, 0x45, 0x00);*/
+        /*} else {*/
+            /*draw_text(text, 10, pos, 0x2a, 0x7d, 0xd5);*/
+        /*}*/
+
         sprintf(text, "%2d %7.2f %7.2f %7.2f = %10.2f",
             (int)i/3,
-            get_brain_pointer()->population[get_brain_pointer()->current].weight[i+0],
-            get_brain_pointer()->population[get_brain_pointer()->current].weight[i+1],
-            get_brain_pointer()->population[get_brain_pointer()->current].weight[i+2],
-            get_brain_pointer()->population[get_brain_pointer()->current].cost[(int)i/3]);
+            best_piece.parameters.weight[i+0],
+            best_piece.parameters.weight[i+1],
+            best_piece.parameters.weight[i+2],
+            best_piece.parameters.cost[(int)i/3]);
 
-        if ( get_brain_pointer()->population[get_brain_pointer()->current].cost[(int)i/3] < 0 ) {
+        if ( best_piece.parameters.cost[(int)i/3] < 0 ) {
             draw_text(text, 10, pos, 0xff, 0x45, 0x00);
         } else {
             draw_text(text, 10, pos, 0x2a, 0x7d, 0xd5);
         }
-
     }
 }
 

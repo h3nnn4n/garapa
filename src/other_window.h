@@ -22,6 +22,7 @@
 
 #include "types.h"
 #include "tetris.h"
+#include "trainer.h"
 
 #define MAX_SPRITE 1000
 #define __X_SIZE 10
@@ -41,14 +42,6 @@ typedef struct {
 typedef struct {
     int data[__X_SIZE][__Y_SIZE];
 } _bg_info;
-
-typedef struct {
-    _point coord;
-    _piece blocks;
-    _piece_type type;
-    int set;
-    int nrotations;
-} _best_piece;
 
 typedef struct {
     int ready;
