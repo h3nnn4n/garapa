@@ -43,6 +43,7 @@ void clear_lines();
 void restore_bg();
 void save_bg();
 void dump_bg();
+void reset_bg();
 
 double aggregate_height();          // f0
 double complete_rows();             // f1

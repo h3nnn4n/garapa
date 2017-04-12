@@ -643,19 +643,12 @@ void new_piece_on_screen_hook() {
     old_pos = cpu->mem_controller.memory[y_pos];
 }
 
-void bg_reset() {
-    for (int i = 0; i < __X_SIZE; i++) {
-        for (int j = 0; j < __Y_SIZE; j++) {
-             bg_info.data[i][j] = 0;
-        }
-    }
-}
-
 void game_over_hook() {
     static int old = -1;
     int atual = cpu_info->mem_controller.memory[0xffe1];
 
     if ( atual == 0x000d && old != atual ) {
+        reset_bg();
         check_stop_condition();
         update_fitness();
         ai_state.game_state = GAMEOVER;
@@ -670,8 +663,8 @@ void start_game_hook() {
     int atual = cpu_info->mem_controller.memory[0xffe1];
 
     if ( atual == 0x0000 && old != atual ) {
+        get_best_move();
         get_brain_pointer()->rng = 0;
-        bg_reset();
         move_queue.ready = 0;
         ai_state.game_state = INGAME;
         set_can_write_file_control();

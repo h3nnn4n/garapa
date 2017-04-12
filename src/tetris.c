@@ -631,6 +631,17 @@ void dump_bg() {
     }
     printf("    +---------------------+\n\n");
 }
+
+void reset_bg() {
+    _bg_info *bg_info = get_bg_info_pointer();
+
+    for (int i = 0; i < __X_SIZE; i++) {
+        for (int j = 0; j < __Y_SIZE; j++) {
+             bg_info->data[i][j] = 0;
+        }
+    }
+}
+
 void get_best_move(){
     double best_cost = -999999;
     _best_piece *best_piece = get_best_piece_pointer();
