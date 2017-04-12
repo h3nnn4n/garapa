@@ -34,6 +34,7 @@ void            print_registers ( _cpu_info     *cpu                            
 void                   init_cpu ( _cpu_info     *cpu                            ) ;
 void       unimplemented_opcode ( _cpu_info     *cpu                            ) ;
 void                print_state ( _cpu_info *cpu                                ) ;
+unsigned long               mix (unsigned long a, unsigned long b, unsigned long c) ;
 void                   load_rom ( _cpu_info     *cpu      , const char* fname, uint16_t offset ) ;
 
 #endif /* UTILS_H */

@@ -43,8 +43,8 @@ int main(int argc, char *argv[]) {
     _cpu_info cpu;
     sdl_init();
 
-    srand48(time(NULL));
-    srand(time(NULL));
+    srand48(mix(clock(), time(NULL), getpid()));
+    srand(mix(clock(), time(NULL), getpid()));
 
     other_window_init();
     atexit(sdl_quit);
