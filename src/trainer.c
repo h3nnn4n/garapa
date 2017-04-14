@@ -63,16 +63,19 @@ void evaluate_cost() {
     // Tests if any row was cleaned
     get_brain_pointer()->round_has_cleaned_lines = cleaned_any_row() ? 1 : 0;
 
+    brain.population[brain.current].cost[2]  = complete_rows();
+    brain.population[brain.current].cost[5]  = covered_cells_after_clear();
+
     if ( cleaned_any_row() ) {
         clear_lines();
     }
 
     brain.population[brain.current].cost[0]  = aggregate_height();
     brain.population[brain.current].cost[1]  = covered_cells();
-    brain.population[brain.current].cost[2]  = complete_rows();
+    /*brain.population[brain.current].cost[2]  = complete_rows();*/
     brain.population[brain.current].cost[3]  = surface_variance();
     brain.population[brain.current].cost[4]  = well_cells();
-    brain.population[brain.current].cost[5]  = covered_cells_after_clear();
+    /*brain.population[brain.current].cost[5]  = covered_cells_after_clear();*/
     brain.population[brain.current].cost[6]  = lock_heigth();
     brain.population[brain.current].cost[7]  = burried_cells();
     brain.population[brain.current].cost[8]  = highest_cell();
