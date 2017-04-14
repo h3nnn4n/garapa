@@ -25,6 +25,7 @@
 #include "other_window.h"
 #include "types.h"
 #include "tetris.h"
+#include "lelmark.h"
 #include "trainer.h"
 #include "graphics.h"
 

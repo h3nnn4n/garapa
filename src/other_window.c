@@ -30,6 +30,7 @@
 
 #include "types.h"
 #include "trainer.h"
+#include "lelmark.h"
 #include "graphics.h"
 #include "file_control.h"
 

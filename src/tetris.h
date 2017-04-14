@@ -20,19 +20,7 @@
 #ifndef TETRIS_H
 #define TETRIS_H
 
-typedef struct {
-    int x;
-    int y;
-} _point;
-
-typedef struct {
-    _point a;
-    _point b;
-    _point c;
-    _point d;
-} _piece;
-
-typedef enum {SQUARE, Ja, Jb, Jc, Jd, La, Lb, Lc, Ld, Ia, Ib, Sa, Sb, Za, Zb, Ta, Tb, Tc, Td, Unknow} _piece_type;
+#include "lelmark.h"
 
 _piece get_piece_coord_from_id();
 

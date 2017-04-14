@@ -22,37 +22,8 @@
 
 #include "types.h"
 #include "tetris.h"
+#include "lelmark.h"
 #include "trainer.h"
-
-#define MAX_SPRITE 1000
-#define __X_SIZE 10
-#define __Y_SIZE 17
-
-typedef struct {
-    int posx;
-    int posy;
-    int id;
-} _sprite_list;
-
-typedef struct {
-    _sprite_list sprite_list[MAX_SPRITE];
-    int used_sprites;
-} _sprite_t_info;
-
-typedef struct {
-    int data[__X_SIZE][__Y_SIZE];
-} _bg_info;
-
-typedef struct {
-    int ready;
-    int wait_rotation;
-} _move_queue;
-
-typedef enum {BOOTING, INGAME, GAMEOVER} _game_state;
-
-typedef struct {
-    _game_state game_state;
-} _ai_state;
 
 void sprite_info_add(int posx, int posy, int id);
 void sprite_info_reset();
