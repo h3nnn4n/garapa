@@ -94,7 +94,8 @@ void initialize_pop (){
     for (int i = 0; i < POP_SIZE; ++i) {
         for (int j = 0; j < N_GENES; ++j) {
 #ifdef TRAIN
-            brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 75.0;
+            /*brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 75.0;*/
+            brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 7.5;
 #else
             brain.population[i].weight[j] = ia[j];
 #endif
