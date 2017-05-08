@@ -25,6 +25,7 @@ SOURCES=utils.c                      \
 		instructions_arithmetic.c    \
 		instructions_0xcb.c          \
 		halfcarry.c                  \
+		feature_functions.c          \
 		interrupts.c                 \
 		instructions_stack_io_control.c
 

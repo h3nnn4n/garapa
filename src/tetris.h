@@ -33,21 +33,6 @@ void save_bg();
 void dump_bg();
 void reset_bg();
 
-double aggregate_height();          // f0
-double complete_rows();             // f1
-double surface_variance();          // f2
-double covered_cells();             // f3
-double well_cells();                // f4
-double covered_cells_after_clear(); // f5
-double lock_heigth();               // f6
-double burried_cells();             // f7
-double highest_cell();              // f8
-double height_delta();              // f9
-double vertical_roughness();        // f10
-double horizontal_roughness();      // f11
-double vertical_roughness_w();      // f12
-double horizontal_roughness_w();    // f13
-
 void initialize_weight ();
 
 int get_piece_rotation ( _piece_type piece_type ) ;

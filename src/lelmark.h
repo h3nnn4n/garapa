@@ -3,7 +3,8 @@
 
 #define POP_SIZE 50
 #define GEN_P_FUNCTION 3
-#define N_FUNCTION     14
+//#define N_FUNCTION     14
+#define N_FUNCTION     40
 #define N_GENES (N_FUNCTION * GEN_P_FUNCTION)
 
 #define MAX_SPRITE 1000

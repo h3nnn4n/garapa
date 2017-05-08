@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <float.h>
 
+#include "feature_functions.h"
 #include "other_window.h"
 #include "trainer.h"
 #include "tetris.h"
@@ -64,7 +65,7 @@ void evaluate_cost() {
     get_brain_pointer()->round_has_cleaned_lines = cleaned_any_row() ? 1 : 0;
 
     brain.population[brain.current].cost[2]  = complete_rows();
-    brain.population[brain.current].cost[5]  = covered_cells_after_clear();
+    brain.population[brain.current].cost[5]  = complete_rows_weighted();
 
     if ( cleaned_any_row() ) {
         clear_lines();
@@ -75,7 +76,7 @@ void evaluate_cost() {
     /*brain.population[brain.current].cost[2]  = complete_rows();*/
     brain.population[brain.current].cost[3]  = surface_variance();
     brain.population[brain.current].cost[4]  = well_cells();
-    /*brain.population[brain.current].cost[5]  = covered_cells_after_clear();*/
+    /*brain.population[brain.current].cost[5]  = complete_rows_weighted();*/
     brain.population[brain.current].cost[6]  = lock_heigth();
     brain.population[brain.current].cost[7]  = burried_cells();
     brain.population[brain.current].cost[8]  = highest_cell();
