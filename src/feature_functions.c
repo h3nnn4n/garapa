@@ -59,7 +59,7 @@ double aggregate_height() {
 // Number of rows that will be cleared
 double complete_rows(){
     _bg_info *bg_info = get_bg_info_pointer();
-    int fid           = 1;
+    int fid           = 0;
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -751,3 +751,64 @@ double hole_depth() {
 
     return total;
 }
+
+// Function n 26
+// minimum height
+double min_height() {
+    _bg_info *bg_info = get_bg_info_pointer();
+    int fid           = 26;
+    _brain* brain     = get_brain_pointer();
+    double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
+
+    double min = 10000;
+    double max =-10000;
+
+    for (int i = 0; i < __X_SIZE; ++i) {
+        int last = __Y_SIZE;
+        int x    = 0;
+        for (int j = 0; j < __Y_SIZE; ++j) {
+            if ( bg_info->data[i][j] >= 1 ) {
+                last = j;
+                break;
+            }
+        }
+
+        x = __Y_SIZE - last;
+
+        max = max > x ? max : x;
+        min = min < x ? min : x;
+    }
+
+    return ((min) * base[0] + base[1] );
+}
+
+// Function n 27
+// Maximum height
+double max_height() {
+    _bg_info *bg_info = get_bg_info_pointer();
+    int fid           = 1;
+    _brain* brain     = get_brain_pointer();
+    double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
+
+    double min = 10000;
+    double max =-10000;
+
+    for (int i = 0; i < __X_SIZE; ++i) {
+        int last = __Y_SIZE;
+        int x    = 0;
+        for (int j = 0; j < __Y_SIZE; ++j) {
+            if ( bg_info->data[i][j] >= 1 ) {
+                last = j;
+                break;
+            }
+        }
+
+        x = __Y_SIZE - last;
+
+        max = max > x ? max : x;
+        min = min < x ? min : x;
+    }
+
+    return ((max) * base[0] + base[1] );
+}
+

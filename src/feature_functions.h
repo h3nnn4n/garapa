@@ -26,5 +26,7 @@ double blocks_weighted();           // f21
 double eroded_pieces();             // f22
 double well_cells_weigthed();       // f23
 double rows_with_a_hole();          // f24
+double min_height();                // f25
+double max_height();                // f26
 
 #endif /* FEATURE_FUNCTIONS_H */
