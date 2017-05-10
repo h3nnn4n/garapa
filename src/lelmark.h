@@ -1,10 +1,45 @@
 #ifndef LELMARK_H
 #define LELMARK_H
 
+#include "tester.h"
+
 #define POP_SIZE 50
+
 #define GEN_P_FUNCTION 3
-//#define N_FUNCTION     14
-#define N_FUNCTION     40
+
+#if defined(FBDP)
+
+#define N_FUNCTION     2
+
+#elif defined(NDP)
+
+#define N_FUNCTION     21
+
+#elif defined(KBR)
+
+#define N_FUNCTION     27
+
+#elif defined(CMA)
+
+#define N_FUNCTION     13
+
+#elif defined(HA)
+
+#define N_FUNCTION     19
+
+#elif defined(LELmark)
+
+#define N_FUNCTION     13
+
+#else
+
+#define N_FUNCTION     2
+
+#endif
+
+
+
+
 #define N_GENES (N_FUNCTION * GEN_P_FUNCTION)
 
 #define MAX_SPRITE 1000

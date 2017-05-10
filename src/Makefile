@@ -1,5 +1,6 @@
 CC=gcc
-override CFLAGS+=-lm -Wall -Wextra -pedantic --std=gnu11 -O3 `sdl2-config --cflags --libs` -lSDL2_ttf
+#override CFLAGS+=-lm -Wall -Wextra -pedantic --std=gnu11 -O3 `sdl2-config --cflags --libs` -lSDL2_ttf
+override CFLAGS+=-lm -Wall -Wextra -pedantic --std=gnu11 -Og -g `sdl2-config --cflags --libs` -lSDL2_ttf
 
 SOURCES=utils.c                      \
 		disassembler.c               \

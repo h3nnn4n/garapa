@@ -28,6 +28,7 @@
 #include "tetris.h"
 #include "types.h"
 #include "ia.h"
+#include "tester.h"
 
 static _brain brain;
 
@@ -64,12 +65,65 @@ void evaluate_cost() {
     // Tests if any row was cleaned
     get_brain_pointer()->round_has_cleaned_lines = cleaned_any_row() ? 1 : 0;
 
+#if defined(FBDP)
+    if ( cleaned_any_row() ) {
+        clear_lines();
+    }
+
+    brain.population[brain.current].cost[0]  = holes();
+    brain.population[brain.current].cost[1]  = highest_cell();
+#elif defined(NDP)
+    if ( cleaned_any_row() ) {
+        clear_lines();
+    }
+
+    brain.population[brain.current].cost[0]  = holes();
+    brain.population[brain.current].cost[1]  = highest_cell();
+
+    for (int i = 0; i < 10; ++i) {
+        brain.population[brain.current].cost[2 + i]  = column_height(i);
+    }
+
+    for (int i = 0; i < 9; ++i) {
+        brain.population[brain.current].cost[12 + i]  = height_difference(i);
+    }
+#elif defined(KBR)
+    if ( cleaned_any_row() ) {
+        clear_lines();
+    }
+
+    brain.population[brain.current].cost[0]  = holes();
+    brain.population[brain.current].cost[1]  = highest_cell();
+
+    for (int i = 0; i < 10; ++i) {
+        brain.population[brain.current].cost[2 + i]  = column_height(i);
+    }
+
+    for (int i = 0; i < 9; ++i) {
+        brain.population[brain.current].cost[12 + i]  = height_difference(i);
+    }
+
+    brain.population[brain.current].cost[21]  = mean_column_height();     // 3
+    brain.population[brain.current].cost[22]  = min_height();             // 2
+    brain.population[brain.current].cost[23]  = max_mean_column_height(); // 4
+    brain.population[brain.current].cost[24]  = min_mean_column_height(); // 5
+    brain.population[brain.current].cost[25]  = mean_hole_depth();        // 8
+    brain.population[brain.current].cost[26]  = well_cells();             // 16
+#elif defined(CMA)
+
+
+#elif defined(HA)
+
+
+#elif defined(LELmark)
     brain.population[brain.current].cost[2]  = complete_rows();
     brain.population[brain.current].cost[5]  = complete_rows_weighted();
 
     if ( cleaned_any_row() ) {
         clear_lines();
     }
+
+    brain.population[brain.current].cost[1]  = max_height();
 
     brain.population[brain.current].cost[0]  = aggregate_height();
     brain.population[brain.current].cost[1]  = covered_cells();
@@ -78,15 +132,19 @@ void evaluate_cost() {
     brain.population[brain.current].cost[4]  = well_cells();
     /*brain.population[brain.current].cost[5]  = complete_rows_weighted();*/
     brain.population[brain.current].cost[6]  = lock_heigth();
-    brain.population[brain.current].cost[7]  = burried_cells();
-    brain.population[brain.current].cost[8]  = highest_cell();
-    brain.population[brain.current].cost[9]  = height_delta();
-    brain.population[brain.current].cost[10] = vertical_roughness();
-    brain.population[brain.current].cost[11] = horizontal_roughness();
-    brain.population[brain.current].cost[12] = vertical_roughness_w();
-    brain.population[brain.current].cost[13] = horizontal_roughness_w();
+    /*brain.population[brain.current].cost[7]  = burried_cells();*/
+    brain.population[brain.current].cost[7]  = highest_cell();
+    brain.population[brain.current].cost[8]  = height_delta();
+    brain.population[brain.current].cost[9]  = vertical_roughness();
+    brain.population[brain.current].cost[10] = horizontal_roughness();
+    brain.population[brain.current].cost[11] = vertical_roughness_w();
+    brain.population[brain.current].cost[12] = horizontal_roughness_w();
+#else
+    fprintf(stderr, "I am lazy\n");
+    exit(-1);
+#endif
 
-    normalizer();
+    /*normalizer();*/
 
     scaler();
 }

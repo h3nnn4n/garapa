@@ -28,5 +28,6 @@ double well_cells_weigthed();       // f23
 double rows_with_a_hole();          // f24
 double min_height();                // f25
 double max_height();                // f26
+double holes();                     // f27
 
 #endif /* FEATURE_FUNCTIONS_H */
