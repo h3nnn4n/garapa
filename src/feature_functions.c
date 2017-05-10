@@ -626,7 +626,11 @@ double mean_hole_depth() {
         }
     }
 
-    total = (total / nholes) * base[0] + base[1];;
+    if ( nholes != 0 ) {
+        total = (total / nholes) * base[0] + base[1];;
+    } else {
+        total = 0;
+    }
 
     return total;
 }
