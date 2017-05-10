@@ -29,5 +29,7 @@ double rows_with_a_hole();          // f24
 double min_height();                // f25
 double max_height();                // f26
 double holes();                     // f27
+double hole_depth();
+double pattern_diversity();
 
 #endif /* FEATURE_FUNCTIONS_H */

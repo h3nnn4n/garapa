@@ -110,6 +110,28 @@ void evaluate_cost() {
     brain.population[brain.current].cost[25]  = mean_hole_depth();        // 8
     brain.population[brain.current].cost[26]  = well_cells();             // 16
 #elif defined(CMA)
+    brain.population[brain.current].cost[1]  = complete_rows(); // 10
+
+    if ( cleaned_any_row() ) {
+        clear_lines();
+    }
+
+    brain.population[brain.current].cost[0]  = holes(); // 6
+    brain.population[brain.current].cost[2]  = blocks_weighted(); // 21
+    brain.population[brain.current].cost[3]  = well_cells(); // 16
+    brain.population[brain.current].cost[4]  = blocks(); // 20
+    brain.population[brain.current].cost[5]  = lock_heigth(); // 18
+    brain.population[brain.current].cost[6]  = eroded_pieces(); // 32
+
+    brain.population[brain.current].cost[7]  = horizontal_roughness(); // 22
+    brain.population[brain.current].cost[8]  = vertical_roughness(); // 24
+
+    brain.population[brain.current].cost[9]  = well_cells_weigthed(); // 17
+    brain.population[brain.current].cost[10]  = hole_depth(); // 34
+
+    brain.population[brain.current].cost[11]  = rows_with_a_hole(); // 33
+    brain.population[brain.current].cost[12]  = pattern_diversity(); // 35
+
 
 
 #elif defined(HA)
