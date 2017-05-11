@@ -207,6 +207,14 @@ void initialize_pop (){
             brain.population[i].cost[j]   = 0;
             brain.population[i].fitness   = 0;
             brain.population[i].worst     = 0;
+
+            for (int k = 0; k < NRUNS; ++k) {
+                brain.population[i].lines_cleared[k]  = 0;
+                brain.population[i].pieces_spawned[k] = 0;
+            }
+
+            brain.population[i].lines_cleared_total  = 0;
+            brain.population[i].pieces_spawned_total = 0;
         }
 
 
@@ -378,7 +386,7 @@ void boot_brain() {
     brain.mutation_chance     = 0.0;
     brain.crossover_chance    = 0.0;
 #endif
-    brain.max_runs            = 7;
+    brain.max_runs            = NRUNS;
     brain.runs                = 0;
     brain.worst_lines_cleared = 0;
     brain.most_lines_cleared  = 0;
@@ -417,7 +425,19 @@ void finished_evaluating_individual () {
 
     brain.runs++;
 
-    if ( brain.runs == brain.max_runs || brain.population[brain.current].fitness == 0 ) {
+    /*if ( brain.runs == brain.max_runs || brain.population[brain.current].fitness == 0 ) {*/
+    if ( brain.runs == brain.max_runs ) {
+        for (int i = 0; i < NRUNS; ++i) {
+            printf("CURRENT,%d,RUNS,%d,PS:%d,LC,%d\n", brain.current, i,
+                    brain.population[brain.current].pieces_spawned[i], brain.population[brain.current].lines_cleared[i]);
+            brain.population[brain.current].pieces_spawned[i] = 0;
+            brain.population[brain.current].lines_cleared[i] = 0;
+        }
+        printf("CURRENT,%d,RUNS,%d,PS:%d,LC,%d\n", brain.current, -1,
+                brain.population[brain.current].pieces_spawned_total, brain.population[brain.current].lines_cleared_total);
+        brain.population[brain.current].pieces_spawned_total = 0;
+        brain.population[brain.current].lines_cleared_total = 0;
+
         brain.runs = 0;
 
         if ( brain.population[brain.current].worst > brain.worst_lines_cleared ) {
@@ -434,3 +454,4 @@ void finished_evaluating_individual () {
         }
     }
 }
+

@@ -46,6 +46,8 @@
 #define __X_SIZE 10
 #define __Y_SIZE 17
 
+#define NRUNS 7
+
 typedef struct {
     int x;
     int y;
@@ -65,6 +67,12 @@ typedef struct {
     double weight[N_GENES];
     int fitness;
     int worst;
+
+    int lines_cleared_total;
+    int pieces_spawned_total;
+
+    int lines_cleared[NRUNS];
+    int pieces_spawned[NRUNS];
 
     double min[N_GENES];
     double max[N_GENES];

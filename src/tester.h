@@ -17,6 +17,6 @@
 //#define HA
 
 // LELmark
-#define LELmark
+//#define LELmark
 
 #endif /* TESTER_H */

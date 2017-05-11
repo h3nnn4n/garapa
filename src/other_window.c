@@ -632,6 +632,8 @@ void new_piece_on_screen_hook() {
     static int old_pos = 100;
     _cpu_info *cpu = get_cpu_pointer();
 
+    _brain *brain = get_brain_pointer();
+
     /*uint16_t y_pos = 0xffb2;*/
     uint16_t y_pos = 0xff93;
 
@@ -643,6 +645,9 @@ void new_piece_on_screen_hook() {
     if ( abs(cpu->mem_controller.memory[y_pos] - old_pos) > 8 ) {
         /*printf("New piece\n");*/
         /*evaluate_cost();*/
+
+        brain->population[brain->current].pieces_spawned_total++;
+        brain->population[brain->current].pieces_spawned[brain->runs]++;
 
         update_fitness();
         get_best_move();

@@ -1094,20 +1094,20 @@ double holes() {
     for (int i = 0; i < __X_SIZE; ++i) {
         int found = 0;
         for (int j = 0; j < __Y_SIZE; ++j) {
-            int x    = 0;
+            /*int x    = 0;*/
             if ( bg_info->data[i][j] >= 1 && !found ) {
                 found = 1;
             } else if ( bg_info->data[i][j] == 0 && found ) {
                 /*x = __Y_SIZE - j;*/
-                x = 1;
+                /*x = 1;*/
 
-                x = x * base[0] + base[1];
-                total += x;
+                /*x = x * base[0] + base[1];*/
+                total ++;
             }
         }
     }
 
-    return total;
+    return total * base[0] + base[1];;
 }
 
 // Function n 29*
