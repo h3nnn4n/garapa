@@ -46,8 +46,7 @@ double aggregate_height() {
             }
         }
 
-        /*x = __Y_SIZE - last;*/
-        x = 1;
+        x = __Y_SIZE - last;
 
         x = base[0] * x + base[1];
 
@@ -63,6 +62,8 @@ double complete_rows(){
     _bg_info *bg_info = get_bg_info_pointer();
 #if defined(CMA)
     int fid           = 1;
+#elif defined(HA)
+    int fid           = 3;
 #else
     int fid           = 0;
 #endif
@@ -86,11 +87,15 @@ double complete_rows(){
     return (base[0] * total + base[1]);
 }
 
-// Function n 2
+// Function n 30*
 // The sum of the height difference between 2 adjacent columns
 double surface_variance() {
     _bg_info *bg_info = get_bg_info_pointer();
+#if defined(HA)
+    int fid           = 15;
+#else
     int fid           = 2;
+#endif
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -144,7 +149,66 @@ double covered_cells() {
     return total;
 }
 
-// Function n 16*
+// Function n 14
+// Number of well cells, also can be used as total well depth
+double max_well_depth(){
+    _bg_info *bg_info = get_bg_info_pointer();
+#if defined(HA)
+    int fid           = 5;
+#else
+    int fid           = 4;
+#endif
+    _brain* brain     = get_brain_pointer();
+    double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
+
+    double total = 0;
+    double x = 0;
+
+    for (int i = 1; i < 9; ++i) {
+        x = 0;
+        for (int j = 0; j < __Y_SIZE; ++j) {
+            if ( bg_info->data[i][j] == 0 && bg_info->data[i-1][j] >= 1 && bg_info->data[i+1][j] >= 1  ) {
+                /*total += x * base[0] + base[1];*/
+                x ++;
+            } else if ( bg_info->data[i][j] >= 1 ) {
+                if ( x > total ) {
+                    total = x;
+                }
+                break;
+            }
+        }
+    }
+
+    for (int j = 0; j < __Y_SIZE; ++j) {
+        if ( bg_info->data[9][j] == 0 && bg_info->data[8][j] >= 1  ) {
+            x ++;
+            /*double x = 1;*/
+            /*total += x * base[0] + base[1];*/
+        } else if ( bg_info->data[9][j] >= 1 ) {
+            if ( x > total ) {
+                total = x;
+            }
+            break;
+        }
+    }
+
+    for (int j = 0; j < __Y_SIZE; ++j) {
+        if ( bg_info->data[0][j] == 0 && bg_info->data[1][j] >= 1  ) {
+            x ++;
+            /*double x = 1;*/
+            /*total += x * base[0] + base[1];*/
+        } else if ( bg_info->data[0][j] >= 1 ) {
+            if ( x > total ) {
+                total = x;
+            }
+            break;
+        }
+    }
+
+    return total;
+}
+
+// Function n 16* and 13*
 // Number of well cells, also can be used as total well depth
 double well_cells(){ // total well depth
     _bg_info *bg_info = get_bg_info_pointer();
@@ -152,6 +216,8 @@ double well_cells(){ // total well depth
     int fid           = 26;
 #elif defined(CMA)
     int fid           = 3;
+#elif defined(HA)
+    int fid           = 6;
 #else
     int fid           = 4;
 #endif
@@ -225,6 +291,8 @@ double lock_heigth(){
     _bg_info *bg_info = get_bg_info_pointer();
 #if defined(CMA)
     int fid           = 5;
+#elif defined(HA)
+    int fid           = 7;
 #else
     int fid           = 6;
 #endif
@@ -293,7 +361,7 @@ double burried_cells() {
 // The hiighest cell on the board
 double highest_cell() {
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(FBDP)
+#if defined(FBDP) || defined(NDP) || defined(KBR) || defined(CMA) || defined(HA)
     int fid           = 0;
 #else
     int fid           = 8;
@@ -323,11 +391,15 @@ double highest_cell() {
     return (total * base[0] + base[1] );
 }
 
-// Function n 9
+// Function n 12*
 // the bigegst height difference between 2 columns
 double height_delta() {
     _bg_info *bg_info = get_bg_info_pointer();
+#if defined(HA)
+    int fid           = 4;
+#else
     int fid           = 9;
+#endif
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -359,6 +431,8 @@ double vertical_roughness() {
     _bg_info *bg_info = get_bg_info_pointer();
 #if defined(CMA)
     int fid           = 8;
+#elif defined(HA)
+    int fid           = 11;
 #else
     int fid           = 0;
 #endif
@@ -384,6 +458,8 @@ double horizontal_roughness() {
     _bg_info *bg_info = get_bg_info_pointer();
 #if defined(CMA)
     int fid           = 7;
+#elif defined(HA)
+    int fid           = 10;
 #else
     int fid           = 0;
 #endif
@@ -659,6 +735,8 @@ double blocks() {
     _bg_info *bg_info = get_bg_info_pointer();
 #if defined(CMA)
     int fid           = 4;
+#elif defined(HA)
+    int fid           = 8;
 #else
     int fid           = 20;
 #endif
@@ -684,6 +762,8 @@ double blocks_weighted() {
     _bg_info *bg_info = get_bg_info_pointer();
 #if defined(CMA)
     int fid           = 2;
+#elif defined(HA)
+    int fid           = 9;
 #else
     int fid           = 0;
 #endif
@@ -706,13 +786,15 @@ double blocks_weighted() {
     return total;
 }
 
-// Function n 32
-// Eroded pieces
+// Function n 32* !!!!!
+// Eroded pieces TODO FIXME WIP
 double eroded_pieces() {
     /*fprintf(stderr, "Not implemented\n");*/
     _bg_info *bg_info = get_bg_info_pointer();
 #if defined(CMA)
     int fid           = 6;
+#elif defined(HA)
+    int fid           = 16;
 #else
     int fid           = 0;
 #endif
@@ -786,6 +868,8 @@ double rows_with_a_hole() {
     _bg_info *bg_info = get_bg_info_pointer();
 #if defined(CMA)
     int fid           = 11;
+#elif defined(HA)
+    int fid           = 17;
 #else
     int fid           = 0;
 #endif
@@ -818,13 +902,14 @@ double rows_with_a_hole() {
     return total;
 }
 
-// WIP TODO FIXME
 // Function n 34*
 // The sum of the number of occupied pieces above each hole
 double hole_depth() {
     _bg_info *bg_info = get_bg_info_pointer();
 #if defined(CMA)
     int fid           = 10;
+#elif defined(HA)
+    int fid           = 18;
 #else
     int fid           = 0;
 #endif
@@ -836,19 +921,21 @@ double hole_depth() {
     for (int i = 0; i < __X_SIZE; ++i) {
         int found = 0;
         for (int j = 0; j < __Y_SIZE; ++j) {
-            int x    = 0;
             if ( bg_info->data[i][j] >= 1 && !found ) {
                 found = 1;
-            } else if ( bg_info->data[i][j] == 0 && found ) {
-                x = __Y_SIZE - j;
+            }
 
-                x = x * base[0] + base[1];
-                total += x;
+            if ( found ) {
+                total += 1;
+            }
+
+            if ( bg_info->data[i][j] == 0 && found ) {
+                break;
             }
         }
     }
 
-    return total;
+    return total * base[0] + base[1];
 }
 
 // Function n 2*
@@ -919,11 +1006,44 @@ double max_height() {
     return ((max) * base[0] + base[1] );
 }
 
+// Function n 7*
+// Number of vertically connected holes
+double holes_vertical() {
+    _bg_info *bg_info = get_bg_info_pointer();
+#if defined(HA)
+    int fid           = 2;
+#else
+    int fid           = 3;
+#endif
+    _brain* brain     = get_brain_pointer();
+    double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
+
+    int total = 0;
+
+    for (int i = 0; i < __X_SIZE; ++i) {
+        int found = 0;
+        for (int j = 0; j < __Y_SIZE - 1; ++j) {
+            int x    = 0;
+            if ( bg_info->data[i][j] >= 1 && bg_info->data[i][j+1] == 0 && !found ) {
+                found = 1;
+            } else if ( bg_info->data[i][j] == 0 && bg_info->data[i][j+1] >= 1 && found ) {
+                /*x = __Y_SIZE - j;*/
+                x = 1;
+
+                x = x * base[0] + base[1];
+                total += x;
+            }
+        }
+    }
+
+    return total;
+}
+
 // Function n 6*
 // Number of holes
 double holes() {
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(FBDP) || defined(NDP) || defined(KBR) || defined(CMA)
+#if defined(FBDP) || defined(NDP) || defined(KBR) || defined(CMA) || defined(HA)
     int fid           = 0;
 #else
     int fid           = 3;
@@ -952,9 +1072,137 @@ double holes() {
     return total;
 }
 
+// Function n 29*
+// Highest hole
+double potential_rows() {
+    _bg_info *bg_info = get_bg_info_pointer();
+#if defined(HA)
+    int fid           = 14;
+#else
+    int fid           = 3;
+#endif
+    _brain* brain     = get_brain_pointer();
+    double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
+
+    int total = 0;
+    int top = 0;
+
+    for (int i = 0; i < __X_SIZE; ++i) {
+        int found = 0;
+        for (int j = 0; j < __Y_SIZE; ++j) {
+            int x    = 0;
+            if ( bg_info->data[i][j] >= 1 && !found ) {
+                found = 1;
+            } else if ( bg_info->data[i][j] == 0 && found ) {
+                x = __Y_SIZE - j;
+                if ( x > total ) {
+                    total = x;
+                }
+            }
+        }
+    }
+
+    top = - total + __Y_SIZE;
+
+    for (int j = 0; j < total; ++j) {
+        int c = 0;
+        for (int i = 0; i < __X_SIZE; ++i) {
+            if ( bg_info->data[i][j] >= 1 ) {
+                c ++;
+            }
+        }
+
+        if ( c >= 8 ) {
+            total ++;
+        }
+    }
+
+    total = total * base[0] + base[1];
+
+    return total;
+}
+
+// Function n 27*
+// Highest hole
+double blocks_above_highest_hole() {
+    _bg_info *bg_info = get_bg_info_pointer();
+#if defined(HA)
+    int fid           = 13;
+#else
+    int fid           = 3;
+#endif
+    _brain* brain     = get_brain_pointer();
+    double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
+
+    int total = 0;
+    int top = 0;
+
+    for (int i = 0; i < __X_SIZE; ++i) {
+        int found = 0;
+        for (int j = 0; j < __Y_SIZE; ++j) {
+            int x    = 0;
+            if ( bg_info->data[i][j] >= 1 && !found ) {
+                found = 1;
+            } else if ( bg_info->data[i][j] == 0 && found ) {
+                x = __Y_SIZE - j;
+                if ( x > total ) {
+                    total = x;
+                }
+            }
+        }
+    }
+
+    top = total;
+
+    for (int i = 0; i < __X_SIZE; ++i) {
+        for (int j = 0; j < total; ++j) {
+            if ( bg_info->data[i][j] >= 1 ) {
+                total ++;
+            }
+        }
+    }
+
+    total = total * base[0] + base[1];
+
+    return total;
+}
+
+// Function n 26*
+// Highest hole
+double highest_hole() {
+    _bg_info *bg_info = get_bg_info_pointer();
+#if defined(HA)
+    int fid           = 12;
+#else
+    int fid           = 3;
+#endif
+    _brain* brain     = get_brain_pointer();
+    double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
+
+    int total = 0;
+
+    for (int i = 0; i < __X_SIZE; ++i) {
+        int found = 0;
+        for (int j = 0; j < __Y_SIZE; ++j) {
+            int x    = 0;
+            if ( bg_info->data[i][j] >= 1 && !found ) {
+                found = 1;
+            } else if ( bg_info->data[i][j] == 0 && found ) {
+                x = __Y_SIZE - j;
+                if ( x > total ) {
+                    total = x;
+                }
+            }
+        }
+    }
+
+    total = total * base[0] + base[1];
+
+    return total;
+}
+
 // WIP TODO FIXME
-// Function n 35*
-// The sum of the number of occupied pieces above each hole
+// Function n 35* !!!!!!!!!!!!
 double pattern_diversity() {
     _bg_info *bg_info = get_bg_info_pointer();
 #if defined(CMA)

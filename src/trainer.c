@@ -70,8 +70,8 @@ void evaluate_cost() {
         clear_lines();
     }
 
-    brain.population[brain.current].cost[0]  = holes();
-    brain.population[brain.current].cost[1]  = highest_cell();
+    brain.population[brain.current].cost[0]  = holes(); // 1
+    brain.population[brain.current].cost[1]  = highest_cell(); // 6
 #elif defined(NDP)
     if ( cleaned_any_row() ) {
         clear_lines();
@@ -92,8 +92,8 @@ void evaluate_cost() {
         clear_lines();
     }
 
-    brain.population[brain.current].cost[0]  = holes();
-    brain.population[brain.current].cost[1]  = highest_cell();
+    brain.population[brain.current].cost[0]  = holes(); // 1
+    brain.population[brain.current].cost[1]  = highest_cell(); // 6
 
     for (int i = 0; i < 10; ++i) {
         brain.population[brain.current].cost[2 + i]  = column_height(i);
@@ -131,10 +131,90 @@ void evaluate_cost() {
 
     brain.population[brain.current].cost[11]  = rows_with_a_hole(); // 33
     brain.population[brain.current].cost[12]  = pattern_diversity(); // 35
-
-
-
 #elif defined(HA)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    brain.population[brain.current].cost[3]  = complete_rows(); // 10
+
+    if ( cleaned_any_row() ) {
+        clear_lines();
+    }
+    brain.population[brain.current].cost[0]  = holes(); // 1
+    brain.population[brain.current].cost[1]  = highest_cell(); // 6
+    brain.population[brain.current].cost[2]  = holes_vertical(); // 7
+    /*brain.population[brain.current].cost[3]  = complete_rows(); // 10*/
+    brain.population[brain.current].cost[4]  = height_delta(); // 12
+    brain.population[brain.current].cost[5]  = max_well_depth(); // 14
+    brain.population[brain.current].cost[6]  = well_cells(); // 13
+    brain.population[brain.current].cost[7]  = lock_heigth(); // 18
+
+    brain.population[brain.current].cost[8]  = blocks(); // 20
+    brain.population[brain.current].cost[9]  = blocks_weighted(); // 21
+    brain.population[brain.current].cost[10] = horizontal_roughness(); // 22
+    brain.population[brain.current].cost[11] = vertical_roughness(); // 24
+
+    brain.population[brain.current].cost[12] = highest_hole(); // 26
+    brain.population[brain.current].cost[13] = blocks_above_highest_hole(); // 27
+    brain.population[brain.current].cost[14] = potential_rows(); // 29
+    brain.population[brain.current].cost[15] = surface_variance(); // 30
+    brain.population[brain.current].cost[16] = eroded_pieces(); // 32
+    brain.population[brain.current].cost[17] = rows_with_a_hole(); // 33
+    brain.population[brain.current].cost[18] = hole_depth(); // 34
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #elif defined(LELmark)

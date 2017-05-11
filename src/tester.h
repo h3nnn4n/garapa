@@ -8,10 +8,10 @@
 //#define NDP
 
 // Kernel Based Regression RRL
-//#define KBR
+#define KBR
 
 // CMA-ES
-#define CMA
+//#define CMA
 
 // Harmony Search
 //#define HA

@@ -31,5 +31,10 @@ double max_height();                // f26
 double holes();                     // f27
 double hole_depth();
 double pattern_diversity();
+double holes_vertical();
+double max_well_depth();
+double highest_hole();
+double blocks_above_highest_hole();
+double potential_rows();
 
 #endif /* FEATURE_FUNCTIONS_H */
