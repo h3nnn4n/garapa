@@ -30,7 +30,11 @@
 // The sum of all column heights
 double aggregate_height() {
     _bg_info *bg_info = get_bg_info_pointer();
+#if defined(HA)
     int fid           = 0;
+#else
+    int fid           = 0;
+#endif
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -62,6 +66,8 @@ double complete_rows(){
     _bg_info *bg_info = get_bg_info_pointer();
 #if defined(CMA)
     int fid           = 1;
+#elif defined(LELmark)
+    int fid           = 2;
 #elif defined(HA)
     int fid           = 3;
 #else
@@ -93,6 +99,8 @@ double surface_variance() {
     _bg_info *bg_info = get_bg_info_pointer();
 #if defined(HA)
     int fid           = 15;
+#elif defined(LELmark)
+    int fid           = 3;
 #else
     int fid           = 2;
 #endif
@@ -125,7 +133,13 @@ double surface_variance() {
 // Number of hole cells weighted by their height
 double covered_cells() {
     _bg_info *bg_info = get_bg_info_pointer();
-    int fid           = 3;
+#if defined(HA)
+    int fid           = 1;
+#elif defined(LELmark)
+    int fid           = 1;
+#else
+    int fid           = 0;
+#endif
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -218,6 +232,8 @@ double well_cells(){ // total well depth
     int fid           = 3;
 #elif defined(HA)
     int fid           = 6;
+#elif defined(LELmark)
+    int fid           = 4;
 #else
     int fid           = 4;
 #endif
@@ -262,7 +278,11 @@ double well_cells(){ // total well depth
 // Number of completed rows weighted by their height
 double complete_rows_weighted(){
     _bg_info *bg_info = get_bg_info_pointer();
+#if defined(LELmark)
     int fid           = 5;
+#else
+    int fid           = 5;
+#endif
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -293,6 +313,8 @@ double lock_heigth(){
     int fid           = 5;
 #elif defined(HA)
     int fid           = 7;
+#elif defined(LELmark)
+    int fid           = 6;
 #else
     int fid           = 6;
 #endif
@@ -363,6 +385,8 @@ double highest_cell() {
     _bg_info *bg_info = get_bg_info_pointer();
 #if defined(FBDP) || defined(NDP) || defined(KBR) || defined(CMA) || defined(HA)
     int fid           = 0;
+#elif defined(LELmark)
+    int fid           = 7;
 #else
     int fid           = 8;
 #endif
@@ -397,6 +421,8 @@ double height_delta() {
     _bg_info *bg_info = get_bg_info_pointer();
 #if defined(HA)
     int fid           = 4;
+#elif defined(LELmark)
+    int fid           = 8;
 #else
     int fid           = 9;
 #endif
@@ -433,6 +459,8 @@ double vertical_roughness() {
     int fid           = 8;
 #elif defined(HA)
     int fid           = 11;
+#elif defined(LELmark)
+    int fid           = 9;
 #else
     int fid           = 0;
 #endif
@@ -460,6 +488,8 @@ double horizontal_roughness() {
     int fid           = 7;
 #elif defined(HA)
     int fid           = 10;
+#elif defined(LELmark)
+    int fid           = 10;
 #else
     int fid           = 0;
 #endif
@@ -483,7 +513,11 @@ double horizontal_roughness() {
 // same as f10 but weighted
 double vertical_roughness_w() {
     _bg_info *bg_info = get_bg_info_pointer();
-    int fid           = 10;
+#if defined(LELmark)
+    int fid           = 11;
+#else
+    int fid           = 0;
+#endif
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -504,7 +538,11 @@ double vertical_roughness_w() {
 // same as f11 but weighted
 double horizontal_roughness_w() {
     _bg_info *bg_info = get_bg_info_pointer();
-    int fid           = 13;
+#if defined(LELmark)
+    int fid           = 12;
+#else
+    int fid           = 0;
+#endif
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
