@@ -428,12 +428,12 @@ void finished_evaluating_individual () {
     /*if ( brain.runs == brain.max_runs || brain.population[brain.current].fitness == 0 ) {*/
     if ( brain.runs == brain.max_runs ) {
         for (int i = 0; i < NRUNS; ++i) {
-            printf("CURRENT,%d,RUNS,%d,PS:%d,LC,%d\n", brain.current, i,
+            printf("GEN,%d,CURRENT,%d,RUNS,%d,PS:%d,LC,%d\n", brain.elapsed_generations, brain.current, i,
                     brain.population[brain.current].pieces_spawned[i], brain.population[brain.current].lines_cleared[i]);
             brain.population[brain.current].pieces_spawned[i] = 0;
             brain.population[brain.current].lines_cleared[i] = 0;
         }
-        printf("CURRENT,%d,RUNS,%d,PS:%d,LC,%d\n", brain.current, -1,
+        printf("GEN,%d,CURRENT,%d,RUNS,%d,PS:%d,LC,%d\n", brain.elapsed_generations, brain.current, -1,
                 brain.population[brain.current].pieces_spawned_total, brain.population[brain.current].lines_cleared_total);
         brain.population[brain.current].pieces_spawned_total = 0;
         brain.population[brain.current].lines_cleared_total = 0;
