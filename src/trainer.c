@@ -438,6 +438,8 @@ void finished_evaluating_individual () {
         brain.population[brain.current].pieces_spawned_total = 0;
         brain.population[brain.current].lines_cleared_total = 0;
 
+        fflush(NULL);
+
         brain.runs = 0;
 
         if ( brain.population[brain.current].worst > brain.worst_lines_cleared ) {
