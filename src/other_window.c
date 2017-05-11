@@ -17,14 +17,10 @@
  *    misrepresented as being the original software.                          *
  * 3. This notice may not be removed or altered from any source distribution. *
  ******************************************************************************/
+#include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <assert.h>
-
-#include "SDL.h"
-#include "SDL_ttf.h"
-#include "SDL_video.h"
-#include "SDL_render.h"
 
 #include "other_window.h"
 
@@ -48,12 +44,17 @@
   (byte & 0x02 ? '1' : '0'), \
   (byte & 0x01 ? '1' : '0')
 
-#define __use_other_sdl
-#define __draw_other_window
+/*#define __use_other_sdl*/
+/*#define __draw_other_window*/
 
 static _cpu_info* cpu_info;
 
 #if defined(__draw_other_window) && defined(__use_other_sdl)
+
+#include "SDL.h"
+#include "SDL_ttf.h"
+#include "SDL_video.h"
+#include "SDL_render.h"
 
 static SDL_Window   *other_window;
 static SDL_Renderer *other_renderer;
@@ -731,5 +732,7 @@ void other_flip_screen ( ) {
 }
 
 void other_sdl_quit ( ) {
+#if defined(__draw_other_window) && defined(__use_other_sdl)
     SDL_Quit();
+#endif
 }
