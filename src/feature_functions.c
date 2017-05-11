@@ -205,7 +205,7 @@ double max_well_depth(){
         }
     }
 
-    return total;
+    return total * base[0] + base[1];
 }
 
 // Function n 16* and 13*
@@ -945,7 +945,7 @@ double min_height() {
 #if defined(KBR)
     int fid           = 22;
 #else
-    int fid           = 26;
+    int fid           = 0;
 #endif
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];

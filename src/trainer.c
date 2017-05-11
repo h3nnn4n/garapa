@@ -132,35 +132,6 @@ void evaluate_cost() {
     brain.population[brain.current].cost[11]  = rows_with_a_hole(); // 33
     brain.population[brain.current].cost[12]  = pattern_diversity(); // 35
 #elif defined(HA)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     brain.population[brain.current].cost[3]  = complete_rows(); // 10
 
     if ( cleaned_any_row() ) {
@@ -187,36 +158,6 @@ void evaluate_cost() {
     brain.population[brain.current].cost[16] = eroded_pieces(); // 32
     brain.population[brain.current].cost[17] = rows_with_a_hole(); // 33
     brain.population[brain.current].cost[18] = hole_depth(); // 34
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #elif defined(LELmark)
     brain.population[brain.current].cost[2]  = complete_rows();
     brain.population[brain.current].cost[5]  = complete_rows_weighted();
