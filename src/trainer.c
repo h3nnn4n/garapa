@@ -346,7 +346,7 @@ void selection(_obj_costs *old, _obj_costs *new) {
 }
 
 void evolutionary_step(){
-    print_pop();
+    /*print_pop();*/
 
     if ( POP_SIZE == 1 )
         return;
@@ -453,6 +453,7 @@ void finished_evaluating_individual () {
         if ( brain.current >= POP_SIZE ) {
             evolutionary_step();
             brain.current = 0;
+            printf("DIVERSITY,%f\n", brain.diversity);
         }
     }
 }
