@@ -20,10 +20,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "SDL.h"
-#include "SDL_video.h"
-#include "SDL_render.h"
-
 #include "types.h"
 #include "graphics.h"
 
@@ -37,6 +33,11 @@
 /*#define __render_window*/
 
 #ifdef __use_sdl
+
+#include "SDL.h"
+#include "SDL_video.h"
+#include "SDL_render.h"
+
 
 #ifdef __render_window
 static SDL_Window   *window;
