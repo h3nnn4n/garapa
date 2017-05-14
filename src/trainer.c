@@ -196,8 +196,8 @@ void initialize_pop (){
     for (int i = 0; i < POP_SIZE; ++i) {
         for (int j = 0; j < N_GENES; ++j) {
 #ifdef TRAIN
-            /*brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 75.0;*/
-            brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 7.5;
+            brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 75.0;
+            /*brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 7.5;*/
 #else
             brain.population[i].weight[j] = ia[j];
 #endif
@@ -380,8 +380,8 @@ void evolutionary_step(){
 void boot_brain() {
     brain.current             = 0;
 #ifdef TRAIN
-    brain.mutation_chance     = 0.1;
-    brain.crossover_chance    = 0.6;
+    brain.mutation_chance     = 0.04;
+    brain.crossover_chance    = 0.85;
 #else
     brain.mutation_chance     = 0.0;
     brain.crossover_chance    = 0.0;
