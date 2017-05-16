@@ -11,3 +11,7 @@ main.c
 *.txt
 *.log
 *.dat
+*.png
+__pycache__
+*.pyc
+main_*
