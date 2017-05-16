@@ -61,19 +61,20 @@ def pack_data(name):
 
     return best_guy, avg_guy
 
-if __name__ == '__main__':
-    mode = sys.argv[1]
-    names = sys.argv[2:]
+
+def main(mode, names):
 
     if mode == 'avg1':
         _, avg_guy = pack_data(names[0])
-        for k, v in enumerate(avg_guy):
-            print(k, v)
+        return enumerate(avg_guy)
+        #for k, v in enumerate(avg_guy):
+            #print(k, v)
 
     elif mode == 'best1':
         best_guy, _ = pack_data(names[0])
-        for k, v in enumerate(best_guy):
-            print(k, v[1])
+        return enumerate([(lambda x: x[1])(i) for i in best_guy])
+        #for k, v in enumerate(best_guy):
+            #print(k, v[1])
 
     elif mode == 'avg':
         means_data = [(lambda x: x[0])(pack_data(name)) for name in names]
@@ -85,5 +86,13 @@ if __name__ == '__main__':
                 avg += means_data[i][j][1]
             means.append(avg / len(means_data))
 
-        for k, v in enumerate(means):
-            print(k, v)
+        #for k, v in enumerate(means):
+            #print(k, v)
+        return enumerate(means)
+
+
+if __name__ == '__main__':
+    mode = sys.argv[1]
+    names = sys.argv[2:]
+    for k, v in main(mode, names):
+        print(k, v)
