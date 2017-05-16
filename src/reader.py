@@ -90,6 +90,20 @@ def main(mode, names):
             #print(k, v)
         return enumerate(means)
 
+    elif mode == 'best':
+        means_data = [(lambda x: x[0])(pack_data(name)) for name in names]
+        minlen = min([(lambda x: len(x))(values) for values in means_data])
+        best = []
+        for j in range(0, minlen):
+            m = 0
+            for i in range(0, len(means_data)):
+                m = max(m, means_data[i][j][1])
+            best.append(m)
+
+        #for k, v in enumerate(means):
+            #print(k, v)
+        return enumerate(best)
+
 
 if __name__ == '__main__':
     mode = sys.argv[1]

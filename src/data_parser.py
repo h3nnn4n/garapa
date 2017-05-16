@@ -20,3 +20,9 @@ if __name__ == '__main__':
             print('Writing to %s' % output)
             for k, v in reader.main('avg', paths):
                 outfile.write(("%d %f\n" % (k, v)))
+
+        output = "log_" + test + "_best.txt"
+        with open(output, 'wt') as outfile:
+            print('Writing to %s' % output)
+            for k, v in reader.main('best', paths):
+                outfile.write(("%d %d\n" % (k, v)))
