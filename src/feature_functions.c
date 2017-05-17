@@ -106,7 +106,7 @@ double surface_variance() {
 #elif defined(LELmark)
     int fid           = 3;
 #elif defined(ALL)
-    int fid           = 2eroded_pieces;
+    int fid           = 2;
 #else
     int fid           = 2;
 #endif
@@ -281,7 +281,7 @@ double number_of_wells(){
 
 // Function n 16* and 13*
 // Number of well cells, also can be used as total well depth, duplicated for completeness sake
-double totalwell_depth(){ // total well depth
+double total_well_depth(){ // total well depth
     _bg_info *bg_info = get_bg_info_pointer();
 #if defined(ALL)
     int fid           = 13;
@@ -1299,7 +1299,6 @@ double potential_rows() {
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
     int total = 0;
-    int top = 0;
 
     for (int i = 0; i < __X_SIZE; ++i) {
         int found = 0;
@@ -1315,8 +1314,6 @@ double potential_rows() {
             }
         }
     }
-
-    top = - total + __Y_SIZE;
 
     for (int j = 0; j < total; ++j) {
         int c = 0;
@@ -1366,10 +1363,10 @@ double blocks_above_highest_hole_w() {
         }
     }
 
-    top = total;
+    total = 0;
 
     for (int i = 0; i < __X_SIZE; ++i) {
-        for (int j = 0; j < total; ++j) {
+        for (int j = 0; j < top; ++j) {
             if ( bg_info->data[i][j] >= 1 ) {
                 total += __Y_SIZE - j; // weight is here
             }
@@ -1413,10 +1410,10 @@ double blocks_above_highest_hole() {
         }
     }
 
-    top = total;
+    total = 0;
 
     for (int i = 0; i < __X_SIZE; ++i) {
-        for (int j = 0; j < total; ++j) {
+        for (int j = 0; j < top; ++j) {
             if ( bg_info->data[i][j] >= 1 ) {
                 total ++;
             }
