@@ -32,7 +32,7 @@ double aggregate_height() {
     _bg_info *bg_info = get_bg_info_pointer();
 #if defined(HA)
     int fid           = 0;
-#if defined(ALL)
+#elif defined(ALL)
     int fid           = 16;
 #else
     int fid           = 0;
