@@ -15,7 +15,7 @@ reset
 # png
 #set terminal pngcairo size 1600,600 enhanced font 'Verdana,9'
 set terminal pngcairo size 650,300 enhanced dashed font 'Verdana,10'
-set output 'means.png'
+set output 'means2.png'
 # svg
 #set terminal svg size 410,250 fname 'Verdana, Helvetica, Arial, sans-serif' fsize '9' rounded dashed
 #set output 'nice_web_plot.svg'
@@ -65,12 +65,9 @@ set xtics rotate by -55
 
 plot \
 'log_CMA_avg.txt'     u (column(0)):2 t 'CMA'     w l ls 1, \
-'log_FBDP_avg.txt'    u (column(0)):2 t 'FBDP'    w l ls 2, \
 'log_HA_avg.txt'      u (column(0)):2 t 'HA'      w l ls 3, \
-'log_KBR_avg.txt'     u (column(0)):2 t 'KBR'     w l ls 4, \
 'log_LELmark_avg.txt' u (column(0)):2 t 'LELmark' w l ls 5, \
-'log_ALL_avg.txt'     u (column(0)):2 t 'ALL'     w l ls 6, \
-'log_NDP_avg.txt'     u (column(0)):2 t 'NDP'     w l ls 7
+'log_ALL_avg.txt'     u (column(0)):2 t 'ALL'     w l ls 6
 
 
 

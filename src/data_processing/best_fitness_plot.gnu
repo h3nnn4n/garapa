@@ -59,6 +59,7 @@ set xlabel 'Generation'
 set ylabel 'Most Cleared Lines'
 
 set xrange [0:]
+set xrange [0:30]
 set yrange [0:1200]
 set xtics rotate by -55
 
@@ -68,7 +69,8 @@ plot \
 'log_HA_best.txt'      u (column(0)):2 t 'HA'      w l ls 3, \
 'log_KBR_best.txt'     u (column(0)):2 t 'KBR'     w l ls 4, \
 'log_LELmark_best.txt' u (column(0)):2 t 'LELmark' w l ls 5, \
-'log_NDP_best.txt'     u (column(0)):2 t 'NDP'     w l ls 6
+'log_ALL_best.txt'     u (column(0)):2 t 'ALL'     w l ls 6, \
+'log_NDP_best.txt'     u (column(0)):2 t 'NDP'     w l ls 7
 
 
 
