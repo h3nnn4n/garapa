@@ -15,7 +15,7 @@ reset
 # png
 #set terminal pngcairo size 1600,600 enhanced font 'Verdana,9'
 set terminal pngcairo size 650,300 enhanced dashed font 'Verdana,10'
-set output 'means.png'
+set output 'best2.png'
 # svg
 #set terminal svg size 410,250 fname 'Verdana, Helvetica, Arial, sans-serif' fsize '9' rounded dashed
 #set output 'nice_web_plot.svg'
@@ -52,24 +52,22 @@ set key top right
 
 set key samplen 4
 
-#set title 'Average Fitness'
+#set title 'Best results from'
 
 #set format '$'
 set xlabel 'Generation'
-set ylabel 'Average Number of Cleared Lines'
+set ylabel 'Most Cleared Lines'
 
 set xrange [0:]
+set xrange [0:30]
 set yrange [0:1200]
 set xtics rotate by -55
 
 plot \
-'log_CMA_avg.txt'     u (column(0)):2 t 'CMA'     w l ls 1, \
-'log_FBDP_avg.txt'    u (column(0)):2 t 'FBDP'    w l ls 2, \
-'log_HA_avg.txt'      u (column(0)):2 t 'HA'      w l ls 3, \
-'log_KBR_avg.txt'     u (column(0)):2 t 'KBR'     w l ls 4, \
-'log_LELmark_avg.txt' u (column(0)):2 t 'LELmark' w l ls 5, \
-'log_NDP_avg.txt'     u (column(0)):2 t 'NDP'     w l ls 6
-
+'log_CMA_best.txt'     u (column(0)):2 t 'CMA'     w l ls 1, \
+'log_HA_best.txt'      u (column(0)):2 t 'HA'      w l ls 3, \
+'log_LELmark_best.txt' u (column(0)):2 t 'LELmark' w l ls 5, \
+'log_ALL_best.txt'     u (column(0)):2 t 'ALL'     w l ls 6
 
 
 
