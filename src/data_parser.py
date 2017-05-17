@@ -4,7 +4,7 @@
 import reader
 import os
 
-TESTS = ['CMA', 'KBR', 'FBDP', 'NDP', 'HA', 'LELmark']
+TESTS = ['CMA', 'KBR', 'FBDP', 'NDP', 'HA', 'LELmark', 'ALL']
 TEST_FOLDER = 'tests_folder'
 
 if __name__ == '__main__':
@@ -13,6 +13,7 @@ if __name__ == '__main__':
         print('Parsing %s' % test)
         path = os.path.join(TEST_FOLDER, test)
         for datafile in os.listdir(path):
+            print(os.path.join(path, datafile))
             paths.append(os.path.join(path, datafile))
 
         output = "log_" + test + "_avg.txt"
