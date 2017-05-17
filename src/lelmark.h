@@ -31,6 +31,10 @@
 
 #define N_FUNCTION     13
 
+#elif defined(ALL)
+
+#define N_FUNCTION     33
+
 #else
 
 #define N_FUNCTION     2

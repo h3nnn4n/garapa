@@ -32,6 +32,8 @@ double aggregate_height() {
     _bg_info *bg_info = get_bg_info_pointer();
 #if defined(HA)
     int fid           = 0;
+#if defined(ALL)
+    int fid           = 16;
 #else
     int fid           = 0;
 #endif
@@ -68,6 +70,8 @@ double complete_rows(){
     int fid           = 1;
 #elif defined(LELmark)
     int fid           = 2;
+#elif defined(ALL)
+    int fid           = 8;
 #elif defined(HA)
     int fid           = 3;
 #else
@@ -101,6 +105,8 @@ double surface_variance() {
     int fid           = 15;
 #elif defined(LELmark)
     int fid           = 3;
+#elif defined(ALL)
+    int fid           = 2eroded_pieces;
 #else
     int fid           = 2;
 #endif
@@ -169,6 +175,8 @@ double max_well_depth(){
     _bg_info *bg_info = get_bg_info_pointer();
 #if defined(HA)
     int fid           = 5;
+#elif defined(ALL)
+    int fid           = 11;
 #else
     int fid           = 4;
 #endif
@@ -222,6 +230,101 @@ double max_well_depth(){
     return total * base[0] + base[1];
 }
 
+// Function n 14**
+// Number of wells
+double number_of_wells(){
+    _bg_info *bg_info = get_bg_info_pointer();
+#if defined(ALL)
+    int fid           = 12;
+#else
+    int fid           = 0;
+#endif
+    _brain* brain     = get_brain_pointer();
+    double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
+
+    double total = 0;
+
+    for (int i = 1; i < 9; ++i) {
+        for (int j = 0; j < __Y_SIZE; ++j) {
+            if ( bg_info->data[i][j] == 0 && bg_info->data[i-1][j] >= 1 && bg_info->data[i+1][j] >= 1  ) {
+                double x = 1;
+                total += x * base[0] + base[1];
+                break;
+            } else if ( bg_info->data[i][j] >= 1 ) {
+                break;
+            }
+        }
+    }
+
+    for (int j = 0; j < __Y_SIZE; ++j) {
+        if ( bg_info->data[9][j] == 0 && bg_info->data[8][j] >= 1  ) {
+            double x = 1;
+            total += x * base[0] + base[1];
+            break;
+        } else if ( bg_info->data[9][j] >= 1 ) {
+            break;
+        }
+    }
+
+    for (int j = 0; j < __Y_SIZE; ++j) {
+        if ( bg_info->data[0][j] == 0 && bg_info->data[1][j] >= 1  ) {
+            double x = 1;
+            total += x * base[0] + base[1];
+            break;
+        } else if ( bg_info->data[0][j] >= 1 ) {
+            break;
+        }
+    }
+
+    return total;
+}
+
+// Function n 16* and 13*
+// Number of well cells, also can be used as total well depth, duplicated for completeness sake
+double totalwell_depth(){ // total well depth
+    _bg_info *bg_info = get_bg_info_pointer();
+#if defined(ALL)
+    int fid           = 13;
+#else
+    int fid           = 4;
+#endif
+    _brain* brain     = get_brain_pointer();
+    double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
+
+    double total = 0;
+
+    for (int i = 1; i < 9; ++i) {
+        for (int j = 0; j < __Y_SIZE; ++j) {
+            if ( bg_info->data[i][j] == 0 && bg_info->data[i-1][j] >= 1 && bg_info->data[i+1][j] >= 1  ) {
+                double x = 1;
+                total += x * base[0] + base[1];
+            } else if ( bg_info->data[i][j] >= 1 ) {
+                break;
+            }
+        }
+    }
+
+    for (int j = 0; j < __Y_SIZE; ++j) {
+        if ( bg_info->data[9][j] == 0 && bg_info->data[8][j] >= 1  ) {
+            double x = 1;
+            total += x * base[0] + base[1];
+        } else if ( bg_info->data[9][j] >= 1 ) {
+            break;
+        }
+    }
+
+    for (int j = 0; j < __Y_SIZE; ++j) {
+        if ( bg_info->data[0][j] == 0 && bg_info->data[1][j] >= 1  ) {
+            double x = 1;
+            total += x * base[0] + base[1];
+        } else if ( bg_info->data[0][j] >= 1 ) {
+            break;
+        }
+    }
+
+    return total;
+}
+
 // Function n 16* and 13*
 // Number of well cells, also can be used as total well depth
 double well_cells(){ // total well depth
@@ -234,6 +337,8 @@ double well_cells(){ // total well depth
     int fid           = 6;
 #elif defined(LELmark)
     int fid           = 4;
+#elif defined(ALL)
+    int fid           = 10;
 #else
     int fid           = 4;
 #endif
@@ -280,6 +385,8 @@ double complete_rows_weighted(){
     _bg_info *bg_info = get_bg_info_pointer();
 #if defined(LELmark)
     int fid           = 5;
+#elif defined(ALL)
+    int fid           = 29;
 #else
     int fid           = 5;
 #endif
@@ -315,6 +422,8 @@ double lock_heigth(){
     int fid           = 7;
 #elif defined(LELmark)
     int fid           = 6;
+#elif defined(ALL)
+    int fid           = 15;
 #else
     int fid           = 6;
 #endif
@@ -423,6 +532,8 @@ double height_delta() {
     int fid           = 4;
 #elif defined(LELmark)
     int fid           = 8;
+#elif defined(ALL)
+    int fid           = 9;
 #else
     int fid           = 9;
 #endif
@@ -461,6 +572,8 @@ double vertical_roughness() {
     int fid           = 11;
 #elif defined(LELmark)
     int fid           = 9;
+#elif defined(ALL)
+    int fid           = 20;
 #else
     int fid           = 0;
 #endif
@@ -490,6 +603,8 @@ double horizontal_roughness() {
     int fid           = 10;
 #elif defined(LELmark)
     int fid           = 10;
+#elif defined(ALL)
+    int fid           = 19;
 #else
     int fid           = 0;
 #endif
@@ -515,6 +630,8 @@ double vertical_roughness_w() {
     _bg_info *bg_info = get_bg_info_pointer();
 #if defined(LELmark)
     int fid           = 11;
+#elif defined(ALL)
+    int fid           = 32;
 #else
     int fid           = 0;
 #endif
@@ -540,6 +657,8 @@ double horizontal_roughness_w() {
     _bg_info *bg_info = get_bg_info_pointer();
 #if defined(LELmark)
     int fid           = 12;
+#elif defined(ALL)
+    int fid           = 31;
 #else
     int fid           = 0;
 #endif
@@ -633,6 +752,8 @@ double mean_column_height() {
     _bg_info *bg_info = get_bg_info_pointer();
 #if defined(KBR)
     int fid           = 21;
+#elif defined(ALL)
+    int fid           = 2;
 #else
     int fid           = 16;
 #endif
@@ -665,6 +786,8 @@ double max_mean_column_height() {
     _bg_info *bg_info = get_bg_info_pointer();
 #if defined(KBR)
     int fid           = 23;
+#elif defined(ALL)
+    int fid           = 3;
 #else
     int fid           = 17;
 #endif
@@ -700,6 +823,8 @@ double min_mean_column_height() {
     _bg_info *bg_info = get_bg_info_pointer();
 #if defined(KBR)
     int fid           = 24;
+#elif defined(ALL)
+    int fid           = 4;
 #else
     int fid           = 18;
 #endif
@@ -735,6 +860,8 @@ double mean_hole_depth() {
     _bg_info *bg_info = get_bg_info_pointer();
 #if defined(KBR)
     int fid           = 25;
+#elif defined(ALL)
+    int fid           = 7;
 #else
     int fid           = 19;
     fprintf(stderr, "I am dumb\n");
@@ -767,6 +894,33 @@ double mean_hole_depth() {
     return total;
 }
 
+// Function n 32**
+// The number of blocks in the board
+double free_blocks() {
+    _bg_info *bg_info = get_bg_info_pointer();
+#if defined(ALL)
+    int fid           = 28;
+#else
+    int fid           = 0;
+#endif
+    _brain* brain     = get_brain_pointer();
+    double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
+
+    double total = 0;
+
+    for (int i = 0; i < __X_SIZE; ++i) {
+        for (int j = 0; j < __Y_SIZE; ++j) {
+            if ( bg_info->data[i][j] >= 1 ) {
+                total ++;
+            }
+        }
+    }
+
+    total = (__X_SIZE * __Y_SIZE) - total;
+
+    return base[0] * total + base[1];
+}
+
 // Function n 20*
 // The number of blocks in the board
 double blocks() {
@@ -775,6 +929,8 @@ double blocks() {
     int fid           = 4;
 #elif defined(HA)
     int fid           = 8;
+#elif defined(ALL)
+    int fid           = 17;
 #else
     int fid           = 20;
 #endif
@@ -802,6 +958,8 @@ double blocks_weighted() {
     int fid           = 2;
 #elif defined(HA)
     int fid           = 9;
+#elif defined(ALL)
+    int fid           = 18;
 #else
     int fid           = 0;
 #endif
@@ -833,6 +991,8 @@ double eroded_pieces() {
     int fid           = 6;
 #elif defined(HA)
     int fid           = 16;
+#elif defined(ALL)
+    int fid           = 25;
 #else
     int fid           = 0;
 #endif
@@ -861,6 +1021,8 @@ double well_cells_weigthed(){ // total well depth
     _bg_info *bg_info = get_bg_info_pointer();
 #if defined(CMA)
     int fid           = 9;
+#elif defined(ALL)
+    int fid           = 14;
 #else
     int fid           = 0;
 #endif
@@ -908,6 +1070,8 @@ double rows_with_a_hole() {
     int fid           = 11;
 #elif defined(HA)
     int fid           = 17;
+#elif defined(ALL)
+    int fid           = 26;
 #else
     int fid           = 0;
 #endif
@@ -948,6 +1112,8 @@ double hole_depth() {
     int fid           = 10;
 #elif defined(HA)
     int fid           = 18;
+#elif defined(ALL)
+    int fid           = 27;
 #else
     int fid           = 0;
 #endif
@@ -982,6 +1148,8 @@ double min_height() {
     _bg_info *bg_info = get_bg_info_pointer();
 #if defined(KBR)
     int fid           = 22;
+#elif defined(ALL)
+    int fid           = 1;
 #else
     int fid           = 0;
 #endif
@@ -1016,6 +1184,8 @@ double max_height() {
     _bg_info *bg_info = get_bg_info_pointer();
 #if defined(FBDP) || defined(NDP) || defined(KBR)
     int fid           = 1;
+#elif defined(ALL)
+    int fid           = 0;
 #else
     int fid           = 8;
 #endif
@@ -1050,6 +1220,8 @@ double holes_vertical() {
     _bg_info *bg_info = get_bg_info_pointer();
 #if defined(HA)
     int fid           = 2;
+#elif defined(ALL)
+    int fid           = 6;
 #else
     int fid           = 3;
 #endif
@@ -1083,6 +1255,8 @@ double holes() {
     _bg_info *bg_info = get_bg_info_pointer();
 #if defined(FBDP) || defined(NDP) || defined(KBR) || defined(CMA) || defined(HA)
     int fid           = 0;
+#elif defined(ALL)
+    int fid           = 5;
 #else
     int fid           = 3;
 #endif
@@ -1116,6 +1290,8 @@ double potential_rows() {
     _bg_info *bg_info = get_bg_info_pointer();
 #if defined(HA)
     int fid           = 14;
+#elif defined(ALL)
+    int fid           = 23;
 #else
     int fid           = 3;
 #endif
@@ -1160,12 +1336,59 @@ double potential_rows() {
     return total;
 }
 
+// Function n
+// blocks above highest hole wighted
+double blocks_above_highest_hole_w() {
+    _bg_info *bg_info = get_bg_info_pointer();
+#if defined(ALL)
+    int fid           = 30;
+#else
+    int fid           = 3;
+#endif
+    _brain* brain     = get_brain_pointer();
+    double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
+
+    int total = 0;
+    int top = 0;
+
+    for (int i = 0; i < __X_SIZE; ++i) {
+        int found = 0;
+        for (int j = 0; j < __Y_SIZE; ++j) {
+            int x    = 0;
+            if ( bg_info->data[i][j] >= 1 && !found ) {
+                found = 1;
+            } else if ( bg_info->data[i][j] == 0 && found ) {
+                x = __Y_SIZE - j;
+                if ( x > total ) {
+                    total = x;
+                }
+            }
+        }
+    }
+
+    top = total;
+
+    for (int i = 0; i < __X_SIZE; ++i) {
+        for (int j = 0; j < total; ++j) {
+            if ( bg_info->data[i][j] >= 1 ) {
+                total += __Y_SIZE - j; // weight is here
+            }
+        }
+    }
+
+    total = total * base[0] + base[1];
+
+    return total;
+}
+
 // Function n 27*
 // Highest hole
 double blocks_above_highest_hole() {
     _bg_info *bg_info = get_bg_info_pointer();
 #if defined(HA)
     int fid           = 13;
+#elif defined(ALL)
+    int fid           = 22;
 #else
     int fid           = 3;
 #endif
@@ -1211,6 +1434,8 @@ double highest_hole() {
     _bg_info *bg_info = get_bg_info_pointer();
 #if defined(HA)
     int fid           = 12;
+#elif defined(ALL)
+    int fid           = 21;
 #else
     int fid           = 3;
 #endif
@@ -1245,6 +1470,8 @@ double pattern_diversity() {
     _bg_info *bg_info = get_bg_info_pointer();
 #if defined(CMA)
     int fid           = 12;
+#elif defined(ALL)
+    int fid           = 28;
 #else
     int fid           = 0;
 #endif

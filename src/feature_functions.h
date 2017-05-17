@@ -36,5 +36,9 @@ double max_well_depth();
 double highest_hole();
 double blocks_above_highest_hole();
 double potential_rows();
+double number_of_wells();
+double total_well_depth();
+double free_blocks();
+double blocks_above_highest_hole_w();
 
 #endif /* FEATURE_FUNCTIONS_H */
