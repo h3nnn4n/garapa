@@ -48,7 +48,9 @@ set style line 6 lt 1 lw 2 lc rgb '#E6AB02' # dark banana
 set style line 7 lt 1 lw 2 lc rgb '#A6761D' # dark tan
 set style line 8 lt 1 lw 2 lc rgb '#666666' # dark gray
 
-set key top right
+#set key top left
+#set key above width -2 vertical maxrows 2
+set key top left vertical maxrows 2
 
 set key samplen 4
 
@@ -60,7 +62,7 @@ set ylabel 'Average Number of Cleared Lines'
 
 set xrange [0:]
 #set xrange [0:30]
-set yrange [0:1200]
+#set yrange [0:1200]
 set xtics rotate by -55
 
 plot \
@@ -68,7 +70,7 @@ plot \
 'log_FBDP_avg.txt'    u (column(0)):2 t 'FBDP'    w l ls 2, \
 'log_HA_avg.txt'      u (column(0)):2 t 'HA'      w l ls 3, \
 'log_KBR_avg.txt'     u (column(0)):2 t 'KBR'     w l ls 4, \
-'log_LELmark_avg.txt' u (column(0)):2 t 'LELmark' w l ls 5, \
+'log_LELmark_avg.txt' u (column(0)):2 t 'GABATE'  w l ls 5, \
 'log_ALL_avg.txt'     u (column(0)):2 t 'ALL'     w l ls 6, \
 'log_NDP_avg.txt'     u (column(0)):2 t 'NDP'     w l ls 7
 
