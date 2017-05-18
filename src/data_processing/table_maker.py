@@ -30,4 +30,5 @@ if __name__ == '__main__':
     for k, v in data.items():
         mean = numpy.mean(v)
         std = numpy.std(v)
-        print("%8s & %8.2f & %8.2f \\\\ \hline" % (k, mean, std))
+        best = max(v)
+        print("%8s & %8d & %8.2f & %8.2f \\\\ \hline" % (k, best, mean, std))
