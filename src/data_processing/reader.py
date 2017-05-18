@@ -84,6 +84,10 @@ def main(mode, names, lenght=0):
         _, avg_guy = pack_data(names[0])
         return enumerate(avg_guy)
 
+    elif mode == 'most_cleared_lines1':
+        best_guy, _ = pack_data(names[0])
+        return [(0, max([(lambda x: x[1])(i) for i in best_guy]))]
+
     elif mode == 'best1':
         best_guy, _ = pack_data(names[0])
         return enumerate([(lambda x: x[1])(i) for i in best_guy])
