@@ -4,6 +4,8 @@
 import numpy
 import sys
 
+INTERPOLATE_DATA = False
+
 def pack_data(name):
     ngens = 0
     data = []
@@ -61,8 +63,23 @@ def pack_data(name):
     return best_guy, avg_guy
 
 
-def main(mode, names):
+def get_maxlen(name):
+    maxlen = 0
+    with open(name) as f:
+        lines = f.readlines()
+        for k, line in enumerate(lines):
+            d = line.split('\n')[0].split(',')
 
+            if d[0] == 'DIVERSITY':
+                pass
+            else:
+                gen     = int(d[1])
+                maxlen = max(gen, maxlen)
+
+    return maxlen - 1
+
+
+def main(mode, names, lenght=0):
     if mode == 'avg1':
         _, avg_guy = pack_data(names[0])
         return enumerate(avg_guy)
@@ -129,7 +146,8 @@ def main(mode, names):
     elif mode == 'avg_scaled':
         means_data = [(lambda x: x[0])(pack_data(name)) for name in names]
         minlen = min([(lambda x: len(x))(values) for values in means_data])
-        maxlen = max([(lambda x: len(x))(values) for values in means_data])
+        #maxlen = max([(lambda x: len(x))(values) for values in means_data])
+        maxlen = lenght
 
         data = [[-1 for j in range(maxlen)] for i in range(len(means_data))]
 
@@ -142,16 +160,20 @@ def main(mode, names):
 
         for d in data:
             if d[0] == -1:
-                i = 0
-                while d[i] == -1:
-                    i += 1
+                if INTERPOLATE_DATA:
+                    i = 0
+                    while d[i] == -1:
+                        i += 1
 
-                d[0] = d[i]
-                d[i] = 0
+                    d[0] = d[i]
+                    d[i] = 0
+                else:
+                    i = 0
+                    while d[i] == -1:
+                        i += 1
 
-            #for v in d:
-                #print("%4d" % v,end=' ')
-            #print()
+                    for j in range(0, i):
+                        d[j] = d[i]
 
             for pos, value in enumerate(d):
                 if value == -1:
@@ -164,20 +186,19 @@ def main(mode, names):
                     while d[p2] == -1:
                         p2 += 1
 
-                    v1 = [p1, p2]
-                    v2 = [d[p1], d[p2]]
-                    a, b = numpy.polyfit(v1, v2, 1)
-                    d[pos] = int(round(a * pos + b))
+                    if INTERPOLATE_DATA:
+                        v1 = [p1, p2]
+                        v2 = [d[p1], d[p2]]
+                        a, b = numpy.polyfit(v1, v2, 1)
+                        d[pos] = int(round(a * pos + b))
+                    else:
+                        d[pos] = d[p2]
 
                 means[pos] += d[pos]
                 ns[pos] += 1
 
         for j in range(0, maxlen):
             means[j] /= ns[j]
-            #print("%4d" % means[j],end=' ')
-        #print()
-
-        #exit()
 
         return enumerate(means)
 
