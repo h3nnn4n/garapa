@@ -22,13 +22,11 @@ def pack_data(name):
                 diver = float(d[1])
                 diversity.append(diver)
             else:
-                #print(d)
                 gen     = int(d[1])
                 current = int(d[3])
                 runs    = int(d[5])
                 ps      = int(d[6].split(':')[1])
                 lc      = int(d[8])
-                #print(gen, current, runs, ps, lc)
                 r = (gen, current, runs, ps, lc)
 
                 if oldgen != gen:
@@ -67,18 +65,32 @@ def main(mode, names):
     if mode == 'avg1':
         _, avg_guy = pack_data(names[0])
         return enumerate(avg_guy)
-        #for k, v in enumerate(avg_guy):
-            #print(k, v)
 
     elif mode == 'best1':
         best_guy, _ = pack_data(names[0])
         return enumerate([(lambda x: x[1])(i) for i in best_guy])
-        #for k, v in enumerate(best_guy):
-            #print(k, v[1])
+
+    elif mode == 'avg_all':
+        means_data = [(lambda x: x[0])(pack_data(name)) for name in names]
+        minlen = min([(lambda x: len(x))(values) for values in means_data])
+        maxlen = max([(lambda x: len(x))(values) for values in means_data])
+
+        means = [ 0 for _ in range(0, maxlen)]
+        ns    = [ 0 for _ in range(0, maxlen)]
+        for i in range(0, len(means_data)):
+            for j in range(0, len(means_data[i])):
+                means[j] += means_data[i][j][1]
+                ns[j] += 1
+
+        for j in range(0, maxlen):
+            means[j] /= ns[j]
+
+        return enumerate(means)
 
     elif mode == 'avg':
         means_data = [(lambda x: x[0])(pack_data(name)) for name in names]
         minlen = min([(lambda x: len(x))(values) for values in means_data])
+
         means = []
         for j in range(0, minlen):
             avg = 0
@@ -86,13 +98,24 @@ def main(mode, names):
                 avg += means_data[i][j][1]
             means.append(avg / len(means_data))
 
-        #for k, v in enumerate(means):
-            #print(k, v)
         return enumerate(means)
+
+    elif mode == 'best_all':
+        means_data = [(lambda x: x[0])(pack_data(name)) for name in names]
+        minlen = min([(lambda x: len(x))(values) for values in means_data])
+        maxlen = max([(lambda x: len(x))(values) for values in means_data])
+
+        best = [ 0 for _ in range(0, maxlen)]
+        for i in range(0, len(means_data)):
+            for j in range(0, len(means_data[i])):
+                best[j] = max(best[j], means_data[i][j][1])
+
+        return enumerate(best)
 
     elif mode == 'best':
         means_data = [(lambda x: x[0])(pack_data(name)) for name in names]
         minlen = min([(lambda x: len(x))(values) for values in means_data])
+
         best = []
         for j in range(0, minlen):
             m = 0
@@ -100,8 +123,6 @@ def main(mode, names):
                 m = max(m, means_data[i][j][1])
             best.append(m)
 
-        #for k, v in enumerate(means):
-            #print(k, v)
         return enumerate(best)
 
 
