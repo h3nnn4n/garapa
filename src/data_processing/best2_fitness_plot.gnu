@@ -55,7 +55,7 @@ set key samplen 4
 #set title 'Best results from'
 
 #set format '$'
-set xlabel 'Generation'
+set xlabel 'time'
 set ylabel 'Most Cleared Lines'
 
 set xrange [0:]

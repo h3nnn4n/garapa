@@ -55,7 +55,7 @@ set key samplen 4
 #set title 'Best results from'
 
 #set format '$'
-set xlabel 'Generation'
+set xlabel 'Time'
 set ylabel 'Most Cleared Lines'
 
 set xrange [0:]
@@ -71,12 +71,3 @@ plot \
 'log_LELmark_best.txt' u (column(0)):2 t 'LELmark' w l ls 5, \
 'log_ALL_best.txt'     u (column(0)):2 t 'ALL'     w l ls 6, \
 'log_NDP_best.txt'     u (column(0)):2 t 'NDP'     w l ls 7
-
-
-
-
-
-
-
-
-

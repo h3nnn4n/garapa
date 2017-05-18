@@ -55,7 +55,7 @@ set key samplen 4
 #set title 'Average Fitness'
 
 #set format '$'
-set xlabel 'Generation'
+set xlabel 'Time'
 set ylabel 'Average Number of Cleared Lines'
 
 set xrange [0:]
