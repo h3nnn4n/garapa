@@ -4,8 +4,7 @@
 import reader
 import os
 
-#TESTS = ['CMA', 'KBR', 'FBDP', 'NDP', 'HA', 'LELmark', 'ALL']
-TESTS = ['CMA', 'HA', 'LELmark', 'ALL']
+TESTS = ['CMA', 'KBR', 'FBDP', 'NDP', 'HA', 'LELmark', 'ALL']
 TEST_FOLDER = 'tests_folder'
 
 if __name__ == '__main__':
