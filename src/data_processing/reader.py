@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import numpy
 import sys
 
 def pack_data(name):
@@ -124,6 +125,61 @@ def main(mode, names):
             best.append(m)
 
         return enumerate(best)
+
+    elif mode == 'avg_scaled':
+        means_data = [(lambda x: x[0])(pack_data(name)) for name in names]
+        minlen = min([(lambda x: len(x))(values) for values in means_data])
+        maxlen = max([(lambda x: len(x))(values) for values in means_data])
+
+        data = [[-1 for j in range(maxlen)] for i in range(len(means_data))]
+
+        means = [ 0 for _ in range(0, maxlen)]
+        ns    = [ 0 for _ in range(0, maxlen)]
+        for i in range(0, len(means_data)):
+            for j in range(0, len(means_data[i])):
+                x, y = ((j+1) * maxlen/(len(means_data[i]))) - 1, means_data[i][j][1]
+                data[i][int(round(x))] = y
+
+        for d in data:
+            if d[0] == -1:
+                i = 0
+                while d[i] == -1:
+                    i += 1
+
+                d[0] = d[i]
+                d[i] = 0
+
+            #for v in d:
+                #print("%4d" % v,end=' ')
+            #print()
+
+            for pos, value in enumerate(d):
+                if value == -1:
+                    p1 = pos
+                    p2 = pos
+
+                    while d[p1] == -1:
+                        p1 -= 1
+
+                    while d[p2] == -1:
+                        p2 += 1
+
+                    v1 = [p1, p2]
+                    v2 = [d[p1], d[p2]]
+                    a, b = numpy.polyfit(v1, v2, 1)
+                    d[pos] = int(round(a * pos + b))
+
+                means[pos] += d[pos]
+                ns[pos] += 1
+
+        for j in range(0, maxlen):
+            means[j] /= ns[j]
+            #print("%4d" % means[j],end=' ')
+        #print()
+
+        #exit()
+
+        return enumerate(means)
 
 
 if __name__ == '__main__':
