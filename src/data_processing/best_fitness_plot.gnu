@@ -59,7 +59,7 @@ set xlabel 'Generation'
 set ylabel 'Most Cleared Lines'
 
 set xrange [0:]
-set xrange [0:30]
+#set xrange [0:30]
 set yrange [0:1200]
 set xtics rotate by -55
 
