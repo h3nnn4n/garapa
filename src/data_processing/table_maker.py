@@ -81,7 +81,10 @@ if __name__ == '__main__':
         comp = ""
 
         if k != MAIN:
+            #vv = [best[MAIN][i] - best[k][i] for i in range(0, maxlen)]
+            #vv = [best[k][i] - best[MAIN][i] for i in range(0, maxlen)]
             wilcox = scipy.stats.wilcoxon(best[MAIN], best[k])[1]
+            #wilcox = scipy.stats.wilcoxon(vv)[1]
 
         if wilcox > 0.05:
             comp = "$\\approx$"

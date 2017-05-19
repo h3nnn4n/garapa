@@ -57,22 +57,24 @@ set key samplen 4
 #set title 'Average Fitness'
 
 #set format '$'
-set xlabel 'Time'
+set xlabel 'Time (Hours)'
 set ylabel 'Average Number of Cleared Lines'
 
-set xrange [0:]
-#set xrange [0:30]
-#set yrange [0:1200]
 set xtics rotate by -55
+set xtics 4
+
+stats 'log_CMA_avg.txt' using (column(0)):2 nooutput
+
+set xrange [0:24]
 
 plot \
-'log_CMA_avg.txt'     u (column(0)):2 t 'CMA'     w l ls 1, \
-'log_FBDP_avg.txt'    u (column(0)):2 t 'FBDP'    w l ls 2, \
-'log_HA_avg.txt'      u (column(0)):2 t 'HA'      w l ls 3, \
-'log_KBR_avg.txt'     u (column(0)):2 t 'KBR'     w l ls 4, \
-'log_LELmark_avg.txt' u (column(0)):2 t 'GABATE'  w l ls 5, \
-'log_ALL_avg.txt'     u (column(0)):2 t 'ALL'     w l ls 6, \
-'log_NDP_avg.txt'     u (column(0)):2 t 'NDP'     w l ls 7
+'log_CMA_avg.txt'     u (((column(0))/STATS_max_x)*24):2 t 'CMA'     w l ls 1, \
+'log_FBDP_avg.txt'    u (((column(0))/STATS_max_x)*24):2 t 'FBDP'    w l ls 2, \
+'log_HA_avg.txt'      u (((column(0))/STATS_max_x)*24):2 t 'HA'      w l ls 3, \
+'log_KBR_avg.txt'     u (((column(0))/STATS_max_x)*24):2 t 'KBR'     w l ls 4, \
+'log_LELmark_avg.txt' u (((column(0))/STATS_max_x)*24):2 t 'GABATE'  w l ls 5, \
+'log_ALL_avg.txt'     u (((column(0))/STATS_max_x)*24):2 t 'ALL'     w l ls 6, \
+'log_NDP_avg.txt'     u (((column(0))/STATS_max_x)*24):2 t 'NDP'     w l ls 7
 
 
 

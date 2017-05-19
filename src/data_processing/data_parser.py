@@ -32,5 +32,5 @@ if __name__ == '__main__':
         output = "log_" + test + "_best.txt"
         with open(output, 'wt') as outfile:
             print('Writing to %s' % output)
-            for k, v in reader.main('best', paths):
+            for k, v in reader.main('best_scaled', paths, maxlen):
                 outfile.write(("%d %d\n" % (k, v)))

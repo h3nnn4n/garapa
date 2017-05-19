@@ -206,6 +206,61 @@ def main(mode, names, lenght=0):
 
         return enumerate(means)
 
+    elif mode == 'best_scaled':
+        means_data = [(lambda x: x[0])(pack_data(name)) for name in names]
+        minlen = min([(lambda x: len(x))(values) for values in means_data])
+        #maxlen = max([(lambda x: len(x))(values) for values in means_data])
+        maxlen = lenght
+
+        data = [[-1 for j in range(maxlen)] for i in range(len(means_data))]
+
+        means = [ 0 for _ in range(0, maxlen)]
+        ns    = [ 0 for _ in range(0, maxlen)]
+        for i in range(0, len(means_data)):
+            for j in range(0, len(means_data[i])):
+                x, y = ((j+1) * maxlen/(len(means_data[i]))) - 1, means_data[i][j][1]
+                data[i][int(round(x))] = y
+
+        for d in data:
+            if d[0] == -1:
+                if INTERPOLATE_DATA:
+                    i = 0
+                    while d[i] == -1:
+                        i += 1
+
+                    d[0] = d[i]
+                    d[i] = 0
+                else:
+                    i = 0
+                    while d[i] == -1:
+                        i += 1
+
+                    for j in range(0, i):
+                        d[j] = d[i]
+
+            for pos, value in enumerate(d):
+                if value == -1:
+                    p1 = pos
+                    p2 = pos
+
+                    while d[p1] == -1:
+                        p1 -= 1
+
+                    while d[p2] == -1:
+                        p2 += 1
+
+                    if INTERPOLATE_DATA:
+                        v1 = [p1, p2]
+                        v2 = [d[p1], d[p2]]
+                        a, b = numpy.polyfit(v1, v2, 1)
+                        d[pos] = int(round(a * pos + b))
+                    else:
+                        d[pos] = d[p2]
+
+                means[pos] = max(means[pos], d[pos])
+
+        return enumerate(means)
+
 
 if __name__ == '__main__':
     mode = sys.argv[1]
