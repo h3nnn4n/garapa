@@ -36,4 +36,16 @@ uint16_t apu_ch2_sample ( _cpu_info *cpu );
 uint16_t apu_ch3_sample ( _cpu_info *cpu );
 uint16_t apu_ch4_sample ( _cpu_info *cpu );
 
+uint8_t apu_is_ch1_enabled ( _cpu_info *cpu );
+uint8_t apu_is_ch2_enabled ( _cpu_info *cpu );
+uint8_t apu_is_ch3_enabled ( _cpu_info *cpu );
+uint8_t apu_is_ch4_enabled ( _cpu_info *cpu );
+
+void apu_ch1_trigger        ( _cpu_info *cpu );
+void apu_ch1_step_length    ( _cpu_info *cpu );
+void apu_ch1_step_volume    ( _cpu_info *cpu );
+void apu_ch1_step_sweep     ( _cpu_info *cpu );
+uint16_t apu_ch1_calc_sweep ( _cpu_info *cpu );
+
+
 #endif /* AUDIO_H */

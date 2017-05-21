@@ -129,7 +129,7 @@ uint8_t apu_read_byte ( _cpu_info *cpu, uint16_t addr ) {
         case 0xff10:
             return ( ( cpu->apu.ch1.sweep_period << 4 ) | ( ((cpu->apu.ch1.sweep_direction ? 1 : 0) << 3) ) | ( cpu->apu.ch1.sweep_shift ) | 0x80 );
 
-        // Ch1 sound lenght and wave patter duty
+        // Ch1 sound length and wave patter duty
         // [DDLL LLLL] Duty, Lenght
         case 0xff11:
             return ( cpu->apu.ch1.wave_pattern_duty << 6 ) | 0x3f;
@@ -147,6 +147,29 @@ uint8_t apu_read_byte ( _cpu_info *cpu, uint16_t addr ) {
         // [TL-- -FFF] Trigger, Length enable, Frequensy MSB
         case 0xff14:
             return ( ((cpu->apu.ch1.length_enable ? 1 : 0) << 6) ) | 0xbf;
+
+        case 0xff24:
+            return ((cpu->apu.left_vin_enable  << 7) |
+                    (cpu->apu.right_vin_enable << 3) |
+                    (cpu->apu.left_volume      << 4) |
+                    (cpu->apu.right_volume     << 0) );
+
+        case 0xff25:
+            return ((cpu->apu.ch4_left_enable  << 7) |
+                    (cpu->apu.ch3_left_enable  << 6) |
+                    (cpu->apu.ch2_left_enable  << 5) |
+                    (cpu->apu.ch1_left_enable  << 4) |
+                    (cpu->apu.ch4_right_enable << 3) |
+                    (cpu->apu.ch3_right_enable << 2) |
+                    (cpu->apu.ch2_right_enable << 1) |
+                    (cpu->apu.ch1_right_enable << 0));
+
+        case 0xff26:
+            return ((cpu->apu.enable           << 7) |
+                    (apu_is_ch1_enabled( cpu ) << 3) |
+                    (apu_is_ch2_enabled( cpu ) << 2) |
+                    (apu_is_ch3_enabled( cpu ) << 1) |
+                    (apu_is_ch4_enabled( cpu ) << 0) | 0x70);
 
         default:
             break;
@@ -237,7 +260,7 @@ void apu_write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ){
                 }
 
                 if ((data & (1 << 7)) != 0) {
-                    /*cpu->apu.ch1.trigger(frame_seq_step);*/
+                    apu_ch1_trigger( cpu );
                 } else if ( cpu->apu.ch1.length == 0 ) {
                     // If the extra length clock brought our length to 0 and we weren't triggered;
                     // disable
@@ -529,3 +552,115 @@ uint16_t apu_ch3_sample( _cpu_info *cpu ) {
 uint16_t apu_ch4_sample( _cpu_info *cpu ) {
     return 0;
 }
+
+
+uint8_t apu_is_ch1_enabled ( _cpu_info *cpu ) {
+    return cpu->apu.ch1.enable && (cpu->apu.ch1.volume_envl_initial > 0 || cpu->apu.ch1.volume_envl_direction);
+}
+
+uint8_t apu_is_ch2_enabled ( _cpu_info *cpu ) {
+    return cpu->apu.ch2.enable;
+}
+
+uint8_t apu_is_ch3_enabled ( _cpu_info *cpu ) {
+    return cpu->apu.ch3.enable;
+}
+
+uint8_t apu_is_ch4_enabled ( _cpu_info *cpu ) {
+    return cpu->apu.ch4.enable;
+}
+
+void apu_ch1_trigger ( _cpu_info *cpu ) {
+    cpu->apu.ch1.enable = 1;
+
+    if ( cpu->apu.ch1.length == 0 ) {
+        if ( cpu->apu.ch1.length_enable && ( cpu->apu.frame_seq_step % 2 == 1 ) ) {
+            cpu->apu.ch1.length = 63;
+        } else {
+            cpu->apu.ch1.length = 64;
+        }
+    }
+
+    cpu->apu.ch1.timer = ( 2048 - cpu->apu.ch1.frequency ) * 4;
+
+    cpu->apu.ch1.volume = cpu->apu.ch1.volume_envl_initial;
+    if ( cpu->apu.ch1.volume_envl_period == 0 ) {
+        cpu->apu.ch1.volume_envl_timer = 8;
+    } else {
+        cpu->apu.ch1.volume_envl_period;
+    }
+
+    if ( cpu->apu.frame_seq_step == 7 ) {
+        cpu->apu.ch1.volume_envl_timer++;
+    }
+
+    cpu->apu.ch1.frequency_sh = cpu->apu.ch1.frequency;
+
+    if ( cpu->apu.ch1.sweep_period == 0 ) {
+        cpu->apu.ch1.sweep_timer = 8;
+    } else {
+        cpu->apu.ch1.sweep_timer = cpu->apu.ch1.sweep_period;
+    }
+
+    cpu->apu.ch1.sweep_enable = cpu->apu.ch1.sweep_period > 0 || cpu->apu.ch1.sweep_shift > 0;
+    cpu->apu.ch1.sweep_negate_calcd = 0;
+
+    if ( cpu->apu.ch1.sweep_enable && cpu->apu.ch1.sweep_shift > 0 ) {
+        apu_ch1_calc_sweep( cpu );
+    }
+}
+
+void apu_ch1_step_length ( _cpu_info *cpu ) {
+
+}
+
+void apu_ch1_step_volume ( _cpu_info *cpu ) {
+
+}
+
+void apu_ch1_step_sweep ( _cpu_info *cpu ) {
+    if ( cpu->apu.ch1.sweep_timer > 0 ) {
+        cpu->apu.ch1.sweep_timer -= 1;
+    }
+
+    if ( cpu->apu.ch1.sweep_period > 0 && cpu->apu.ch1.sweep_enable && cpu->apu.ch1.sweep_timer == 0 ) {
+        uint16_t freq = apu_ch1_calc_sweep( cpu );
+        if ( freq <= 2047 && cpu->apu.ch1.sweep_shift > 0 ) {
+            cpu->apu.ch1.frequency_sh = freq;
+            cpu->apu.ch1.frequency = freq;
+
+            apu_ch1_calc_sweep( cpu );
+        }
+    }
+
+    if ( cpu->apu.ch1.sweep_timer == 0 ) {
+        if ( cpu->apu.ch1.sweep_period == 0 ) {
+            cpu->apu.ch1.sweep_timer = 8;
+        } else {
+            cpu->apu.ch1.sweep_timer = cpu->apu.ch1.sweep_period;
+        };
+    }
+}
+
+uint16_t apu_ch1_calc_sweep ( _cpu_info *cpu ) {
+    int16_t freq = cpu->apu.ch1.frequency_sh;
+    int16_t r    = cpu->apu.ch1.frequency_sh >> cpu->apu.ch1.sweep_shift;
+
+    if ( cpu->apu.ch1.sweep_direction ) {
+        freq -= r;
+    } else {
+        freq += r;
+    }
+
+    if ( freq > 2047 ) {
+        cpu->apu.ch1.enable = 0;
+        cpu->apu.ch1.sweep_enable = 0;
+    }
+
+    if ( cpu->apu.ch1.sweep_direction ) {
+        cpu->apu.ch1.sweep_negate_calcd = 1;
+    }
+
+    return freq;
+}
+
