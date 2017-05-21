@@ -26,6 +26,7 @@
 #include <sys/types.h>
 
 #include "utils.h"
+#include "audio.h"
 #include "types.h"
 #include "memory.h"
 #include "cartridge.h"
@@ -39,6 +40,7 @@
 int main(int argc, char *argv[]) {
     _cpu_info cpu;
     sdl_init();
+
     atexit(sdl_quit);
 
     if ( argc == 1 ) {
@@ -50,6 +52,8 @@ int main(int argc, char *argv[]) {
     test_control.test_enable = 0;
 
     init_cpu(&cpu);
+
+    apu_sdl_init(&cpu);
 
     load_rom ( &cpu, argv[1], 0x0000 );
 

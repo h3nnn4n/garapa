@@ -29,6 +29,7 @@
 #include "disassembler.h"
 #include "cartridge.h"
 #include "display.h"
+#include "audio.h"
 
 void load_rom ( _cpu_info *cpu, const char* fname, uint16_t offset ) {
     FILE *f = NULL;
@@ -109,6 +110,8 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->joystick.button_right  = 1;
     cpu->joystick.button_down   = 1;
     cpu->joystick.button_up     = 1;
+
+    apu_reset( cpu );
 
     cpu->pc     = 0;
     cpu->a      = 0;

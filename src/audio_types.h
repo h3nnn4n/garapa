@@ -3,7 +3,10 @@
 
 #include <stdint.h>
 
+#include "SDL.h"
+
 #define BUFFER_SIZE 1024
+#define SAMPLE_RATE 48000
 
 typedef struct {
     uint8_t enable;
@@ -88,7 +91,7 @@ typedef struct {
     _channel4 ch4;
 
     uint16_t buffer[BUFFER_SIZE * 2];
-    uint8_t buffer_index;
+    uint16_t buffer_index;
 
     uint32_t sample_timer;
 
@@ -110,6 +113,9 @@ typedef struct {
     uint8_t ch2_right_enable;
     uint8_t ch3_right_enable;
     uint8_t ch4_right_enable;
+
+    SDL_AudioSpec want, have;
+    SDL_AudioDeviceID dev;
 } _apu;
 
 #endif /* AUDIO_TYPES_H */
