@@ -1,9 +1,9 @@
-Here comes dat gameboi
+Garapa
 ======================
-LELmark
+GABATE - Genetic Algorithm Based Agent for TEtris
 -------
 
-LELmark is a fork (right now a branch) of Here comes dat gameboi that plays Tetris by itself. So far the plan is to make a couple of Game specific AI to play some games.
+GABATE is a fork (right now a branch) of Garapa that plays Tetris by itself. So far the plan is to make a couple of Game specific AI to play some games.
 
 Features
 ========
@@ -16,7 +16,7 @@ Features
  - Genetic algorithm to weight the different placement criteria
  - Fitness based on the number of cleared lines
  - Autonomous training system
- - For each individual, the game is played 5 times and the worst run is used as fitness, to ensure consistency.
+ - For each individual, the game is played a fixed number of times and the worst run is used as fitness, to ensure consistency.
 
 License
 =======
