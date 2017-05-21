@@ -7,6 +7,8 @@
 
 #define GEN_P_FUNCTION 3
 
+// TODO Clean this mess
+
 #if defined(FBDP)
 
 #define N_FUNCTION     2

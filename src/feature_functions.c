@@ -26,6 +26,8 @@
 #include "other_window.h"
 #include "trainer.h"
 
+// TODO Clean this mess
+
 // Function n 0
 // The sum of all column heights
 double aggregate_height() {

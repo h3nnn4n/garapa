@@ -61,6 +61,7 @@ void scaler() {
     }
 }
 
+// TODO Clean this mess
 void evaluate_cost() {
     // Tests if any row was cleaned
     get_brain_pointer()->round_has_cleaned_lines = cleaned_any_row() ? 1 : 0;
