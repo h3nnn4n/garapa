@@ -47,10 +47,38 @@ typedef struct {
 
 typedef struct {
     uint8_t enable;
+    uint8_t dac_enable;
+
+    uint8_t length;
+    uint8_t length_enable;
+
+    uint8_t volume;
+    uint16_t frequency;
+    uint16_t timer;
+
+    uint8_t wave_ram[16];
+    uint8_t wave_ram_buffer;
+    uint8_t wave_ram_buffer_position;
 } _channel3;
 
 typedef struct {
     uint8_t enable;
+
+    uint8_t length;
+    uint8_t length_enable;
+
+    uint8_t volume;
+    uint8_t volume_envl_timer;
+    uint8_t volume_envl_initial;
+    uint8_t volume_envl_direction;
+    uint8_t volume_envl_period;
+
+    uint8_t shift;
+    uint8_t width;
+    uint8_t divisor;
+    uint8_t lfsr;
+
+    uint16_t timer;
 } _channel4;
 
 typedef struct {
