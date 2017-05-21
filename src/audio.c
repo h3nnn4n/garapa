@@ -38,6 +38,74 @@ uint8_t apu_read_byte ( _cpu_info *cpu, uint16_t addr ) {
 
 void apu_write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ){
     switch ( addr ) {
+        case 0xff10:
+            if ( cpu->apu.enable ) {
+                cpu->apu.ch1.sweep_period = (data >> 4) & 7;
+                cpu->apu.ch1.sweep_shift = data & 7;
+
+                // Clearing the sweep negate mode bit in NR10 after at least one
+                // sweep calculation has been made using the negate mode since
+                // the last trigger causes the channel to be immediately disabled.
+                if (cpu->apu.ch1.sweep_direction && !((data & (1 << 3)) != 0) && cpu->apu.ch1.sweep_negate_calcd) {
+                    cpu->apu.ch1.enable = 0;
+                    cpu->apu.ch1.sweep_enable = 0;
+                }
+            }
+            break;
+
+        case 0xff11:
+            if ( cpu->apu.enable ) {
+                cpu->apu.ch1.wave_pattern_duty = (data >> 6) & 0x03;
+            }
+
+            cpu->apu.ch1.length = 64 - (data & 63);
+            break;
+
+        case 0xff12:
+            if ( cpu->apu.enable ) {
+                // If the old envelope period was zero and the envelope is
+                // still doing automatic updates, volume is incremented by 1,
+                // otherwise if the envelope was in subtract mode, volume is
+                // incremented by 2.
+                if ( cpu->apu.ch1.volume_envl_period == 0 && (cpu->apu.ch1.volume > 0 || cpu->apu.ch1.volume < 0x0f)) {
+                    cpu->apu.ch1.volume += 1;
+                    if (cpu->apu.ch1.volume_envl_direction) {
+                        cpu->apu.ch1.volume += 1;
+                    }
+
+                    cpu->apu.ch1.volume &= 0xF;
+                }
+
+                cpu->apu.ch1.volume_envl_initial = (data >> 4) & 15;
+
+                // If the mode was changed (add to subtract or subtract to add),
+                // volume is set to 16-volume.
+                if (cpu->apu.ch1.volume_envl_direction != ((data & (1 << 3)) != 0)) {
+                    cpu->apu.ch1.volume = 16 - cpu->apu.ch1.volume;
+                    cpu->apu.ch1.volume &= 0xF;
+                }
+
+                cpu->apu.ch1.volume_envl_direction = ((data & (1 << 3)) != 0);
+                cpu->apu.ch1.volume_envl_period = data & 7;
+
+                // Setting the volume envelope to 0 with a decrease direction will disable
+                // the channel
+                if (cpu->apu.ch1.volume_envl_initial == 0 && !cpu->apu.ch1.volume_envl_direction) {
+                    cpu->apu.ch1.enable = 0;
+                }
+            }
+            break;
+
+        case 0xff13:
+            if ( cpu->apu.enable ) {
+                cpu->apu.ch1.frequency &= !0xff;
+                cpu->apu.ch1.frequency |= data;
+            }
+            break;
+
+        case 0xff14:
+            break;
+
         default:
             break;
     }
