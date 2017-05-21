@@ -22,6 +22,7 @@
 #include <assert.h>
 
 #include "memory.h"
+#include "audio.h"
 #include "interrupts.h"
 #include "time_keeper.h"
 #include "utils.h"
@@ -71,6 +72,15 @@ uint8_t read_byte ( _cpu_info *cpu, uint16_t addr ) {
         } else {
             return 0xff;
         }
+    }
+
+    if ( (addr >= 0xff10 && addr <= 0xff26) ||
+         (addr >= 0xff30 && addr <= 0xff3f) ) {
+        return apu_read_byte ( cpu, addr );
+    }
+
+    if ( addr >= 0xff10 && addr <= 0xff26 ) {
+        return apu_read_byte ( cpu, addr );
     }
 
     return _read_byte ( cpu, addr );
@@ -253,6 +263,11 @@ void write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ) {
 
     if ( addr < 0x8000 ) {
         cartridge_write ( cpu, addr, data );
+    }
+
+    if ( (addr >= 0xff10 && addr <= 0xff26) ||
+         (addr >= 0xff30 && addr <= 0xff3f) ) {
+        apu_write_byte ( cpu, addr, data );
     }
 
     switch ( addr ) {  // WRITE

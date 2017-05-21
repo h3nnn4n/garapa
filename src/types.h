@@ -22,6 +22,8 @@
 
 #include <stdint.h>
 
+#include "audio_types.h"
+
 typedef struct {                     // This is the struct that is
     uint8_t button_right;            // used to communicate with
     uint8_t button_left;             // the external world; In this
@@ -176,6 +178,7 @@ typedef struct {                              // Struct that holds ALL informati
     _timer          timer;                    //
     _lcd            lcd;                      //
     _dma            dma;                      //
+    _apu            apu;                      //
                                               //
     uint8_t enable_interrupts;                // Interrupt enable flag
     uint8_t pending_interrupts;               // Interrupt delay. In some situations interrupts take some extra cycles
