@@ -20,6 +20,8 @@ SOURCES=utils.c                      \
 		instructions_0xcb.c          \
 		halfcarry.c                  \
 		audio.c                      \
+		ch1.c                        \
+		ch2.c                        \
 		interrupts.c                 \
 		instructions_stack_io_control.c
 

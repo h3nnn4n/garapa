@@ -5,6 +5,8 @@
 #include "audio_types.h"
 #include "audio.h"
 #include "types.h"
+#include "ch1.h"
+#include "ch2.h"
 
 void apu_sdl_init( _cpu_info *cpu ) {
     SDL_InitSubSystem(SDL_INIT_AUDIO);
@@ -83,11 +85,16 @@ void apu_update ( _cpu_info *cpu ) {
         uint16_t sample_l = 0;
         uint16_t sample_r = 0;
 
+        uint16_t ch1 = 0;
+        uint16_t ch2 = 0;
+        uint16_t ch3 = 0;
+        uint16_t ch4 = 0;
+
         if ( cpu->apu.enable ) {
-            uint16_t ch1 = apu_ch1_sample( cpu );
-            uint16_t ch2 = apu_ch2_sample( cpu );
-            uint16_t ch3 = apu_ch3_sample( cpu );
-            uint16_t ch4 = apu_ch4_sample( cpu );
+            ch1 = apu_ch1_sample( cpu );
+            ch2 = apu_ch2_sample( cpu );
+            ch3 = apu_ch3_sample( cpu );
+            ch4 = apu_ch4_sample( cpu );
 
             if ( cpu->apu.ch1_left_enable ) {
                 sample_l += ch1;
@@ -121,6 +128,8 @@ void apu_update ( _cpu_info *cpu ) {
 
         sample_l *= 12;
         sample_r *= 12;
+
+        printf("%4d %4d: %4d %4d %4d %4d\n", sample_l, sample_r, ch1, ch2, ch3, ch4);
 
         cpu->apu.buffer[cpu->apu.buffer_index] = sample_l;
         cpu->apu.buffer[cpu->apu.buffer_index + 1] = sample_r;
@@ -167,6 +176,18 @@ uint8_t apu_read_byte ( _cpu_info *cpu, uint16_t addr ) {
         // [TL-- -FFF] Trigger, Length enable, Frequensy MSB
         case 0xff14:
             return ( ((cpu->apu.ch1.length_enable ? 1 : 0) << 6) ) | 0xbf;
+
+        case 0xff16:
+            return ( cpu->apu.ch2.wave_pattern_duty << 6 ) | 0x3f;
+
+        case 0xff17:
+            return ( ( cpu->apu.ch2.volume_envl_initial << 4 ) | ( ((cpu->apu.ch2.volume_envl_direction ? 1 : 0) << 3) ) | ( cpu->apu.ch2.volume_envl_period ) );
+
+        case 0xff18:
+            return 0xff;
+
+        case 0xff19:
+            return ( ((cpu->apu.ch2.length_enable ? 1 : 0) << 6) ) | 0xbf;
 
         case 0xff24:
             return ((cpu->apu.left_vin_enable  << 7) |
@@ -289,6 +310,80 @@ void apu_write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ){
             }
             break;
 
+        case 0xff16:
+            if ( cpu->apu.enable ) {
+                cpu->apu.ch2.wave_pattern_duty = (data >> 6) & 0x03;
+            }
+
+            cpu->apu.ch2.length = 64 - (data & 63);
+            break;
+
+        case 0xff17:
+            if ( cpu->apu.enable ) {
+                // If the old envelope period was zero and the envelope is
+                // still doing automatic updates, volume is incremented by 1,
+                // otherwise if the envelope was in subtract mode, volume is
+                // incremented by 2.
+                if ( cpu->apu.ch2.volume_envl_period == 0 && (cpu->apu.ch2.volume > 0 || cpu->apu.ch2.volume < 0x0f)) {
+                    cpu->apu.ch2.volume += 1;
+                    if (cpu->apu.ch2.volume_envl_direction) {
+                        cpu->apu.ch2.volume += 1;
+                    }
+
+                    cpu->apu.ch2.volume &= 0xF;
+                }
+
+                cpu->apu.ch2.volume_envl_initial = (data >> 4) & 15;
+
+                // If the mode was changed (add to subtract or subtract to add),
+                // volume is set to 16-volume.
+                if (cpu->apu.ch2.volume_envl_direction != ((data & (1 << 3)) != 0)) {
+                    cpu->apu.ch2.volume = 16 - cpu->apu.ch2.volume;
+                    cpu->apu.ch2.volume &= 0xF;
+                }
+
+                cpu->apu.ch2.volume_envl_direction = ((data & (1 << 3)) != 0);
+                cpu->apu.ch2.volume_envl_period = data & 7;
+
+                // Setting the volume envelope to 0 with a decrease direction will disable
+                // the channel
+                if (cpu->apu.ch2.volume_envl_initial == 0 && !cpu->apu.ch2.volume_envl_direction) {
+                    cpu->apu.ch2.enable = 0;
+                }
+            }
+            break;
+
+        case 0xff18:
+            if ( cpu->apu.enable ) {
+                cpu->apu.ch2.frequency &= !0xff;
+                cpu->apu.ch2.frequency |= data;
+            }
+            break;
+
+        case 0xff19:
+            if ( cpu->apu.enable ) {
+                cpu->apu.ch2.frequency &= !0x700;
+                cpu->apu.ch2.frequency |= ((data & 7)) << 8;
+
+                uint8_t prev_length_enable = cpu->apu.ch2.length_enable;
+                cpu->apu.ch2.length_enable = ((data & (1 << 6)) != 0);
+
+                // Enabling the length counter when the next step of the frame sequencer
+                // would not clock the length counter; should clock the length counter
+                if (!prev_length_enable && cpu->apu.ch2.length_enable && (cpu->apu.frame_seq_step % 2 == 1) && cpu->apu.ch2.length > 0) {
+                    cpu->apu.ch2.length -= 1;
+                }
+
+                if ((data & (1 << 7)) != 0) {
+                    apu_ch2_trigger( cpu );
+                } else if ( cpu->apu.ch2.length == 0 ) {
+                    // If the extra length clock brought our length to 0 and we weren't triggered;
+                    // disable
+                    cpu->apu.ch2.enable = 0;
+                }
+            }
+            break;
+
         case 0xff24:
             if ( cpu->apu.enable ) {
                 cpu->apu.left_vin_enable  = data & (1 << 7);
@@ -379,26 +474,6 @@ void apu_clear ( _cpu_info *cpu ) {
 
 // CH reset functions
 
-void apu_ch1_reset ( _cpu_info *cpu ){
-    apu_ch1_clear( cpu );
-    cpu->apu.ch1.enable = 1;
-
-    cpu->apu.ch1.length_enable = 0;
-
-    cpu->apu.ch1.wave_pattern_duty = 0x02;
-
-    cpu->apu.ch1.volume_envl_period = 0x3;
-    cpu->apu.ch1.volume_envl_initial = 0x0f;
-
-    cpu->apu.ch1.timer = 0x00;
-}
-
-void apu_ch2_reset ( _cpu_info *cpu ){
-    apu_ch2_clear( cpu );
-    cpu->apu.ch2.length = 0;
-    cpu->apu.ch2.timer = 0x00;
-}
-
 void apu_ch3_reset ( _cpu_info *cpu ){
     cpu->apu.ch3.wave_ram[0]  = 0x84;
     cpu->apu.ch3.wave_ram[1]  = 0x40;
@@ -427,46 +502,6 @@ void apu_ch4_reset ( _cpu_info *cpu ){
 }
 
 // CH clear functions
-
-void apu_ch1_clear ( _cpu_info *cpu ){
-    cpu->apu.ch1.enable                = 0;
-    cpu->apu.ch1.sweep_enable          = 0;
-    cpu->apu.ch1.sweep_timer           = 0;
-    cpu->apu.ch1.frequency_sh          = 0;
-    cpu->apu.ch1.sweep_direction       = 0;
-    cpu->apu.ch1.sweep_shift           = 0;
-    cpu->apu.ch1.sweep_negate_calcd    = 0;
-
-    cpu->apu.ch1.wave_pattern_duty     = 0;
-    cpu->apu.ch1.wave_pattern_index    = 0;
-
-    cpu->apu.ch1.length_enable         = 0;
-
-    cpu->apu.ch1.volume                = 0;
-    cpu->apu.ch1.volume_envl_initial   = 0;
-    cpu->apu.ch1.volume_envl_direction = 0;
-    cpu->apu.ch1.volume_envl_period    = 0;
-    cpu->apu.ch1.volume_envl_timer     = 0;
-
-    cpu->apu.ch1.timer                &= 0x03; // when reset, the lower 2 bits are not changed
-}
-
-void apu_ch2_clear ( _cpu_info *cpu ){
-    cpu->apu.ch2.enable                = 0;
-
-    cpu->apu.ch2.wave_pattern_duty     = 0;
-    cpu->apu.ch2.wave_pattern_index    = 0;
-
-    cpu->apu.ch2.length_enable         = 0;
-
-    cpu->apu.ch2.volume                = 0;
-    cpu->apu.ch2.volume_envl_initial   = 0;
-    cpu->apu.ch2.volume_envl_direction = 0;
-    cpu->apu.ch2.volume_envl_period    = 0;
-    cpu->apu.ch2.volume_envl_timer     = 0;
-
-    cpu->apu.ch2.timer                &= 0x03; // when reset, the lower 2 bits are not changed
-}
 
 void apu_ch3_clear ( _cpu_info *cpu ){
     cpu->apu.ch3.enable                = 0;
@@ -498,91 +533,12 @@ void apu_ch4_clear ( _cpu_info *cpu ){
     cpu->apu.ch4.lfsr                  = 0;
 }
 
-// Channels Step
-
-void apu_ch1_step( _cpu_info *cpu ) {
-    /*println!("{:04x} {:04x} {:04x} {:04x} {:04x} {:04x} {:04x} {:04x} {:04x} {:04x} {:04x} {:04x} {:04x}",*/
-                /*self.sweep_timer, self.frequency_sh, self.sweep_period,*/
-                /*self.sweep_shift, self.wave_pattern_duty, self.wave_pattern_index, self.length, self.volume, self.volume_envl_timer,*/
-                /*self.volume_envl_initial, self.volume_envl_period, self.frequency, self.timer);*/
-
-    /*printf("%04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x\n",*/
-            /*cpu->apu.ch1.sweep_timer,*/
-            /*cpu->apu.ch1.frequency_sh,*/
-            /*cpu->apu.ch1.sweep_period,*/
-            /*cpu->apu.ch1.sweep_shift,*/
-            /*cpu->apu.ch1.wave_pattern_duty,*/
-            /*cpu->apu.ch1.wave_pattern_index,*/
-            /*cpu->apu.ch1.length,*/
-            /*cpu->apu.ch1.volume,*/
-            /*cpu->apu.ch1.volume_envl_timer,*/
-            /*cpu->apu.ch1.volume_envl_initial,*/
-            /*cpu->apu.ch1.volume_envl_period,*/
-            /*cpu->apu.ch1.frequency,*/
-            /*cpu->apu.ch1.timer);*/
-
-    if ( cpu->apu.ch1.timer > 0 ) {
-        cpu->apu.ch1.timer--;
-    }
-
-    if ( cpu->apu.ch1.timer == 0 ) {
-        cpu->apu.ch1.wave_pattern_index ++;
-        if ( cpu->apu.ch1.wave_pattern_index >= 8 ) {
-            cpu->apu.ch1.wave_pattern_index = 0;
-        }
-
-        cpu->apu.ch1.timer = ( 2048 - cpu->apu.ch1.frequency ) * 4;
-    }
-}
-
-void apu_ch2_step( _cpu_info *cpu ) {
-
-}
-
 void apu_ch3_step( _cpu_info *cpu ) {
 
 }
 
 void apu_ch4_step( _cpu_info *cpu ) {
 
-}
-
-// Get channel sample
-
-uint16_t apu_ch1_sample( _cpu_info *cpu ) {
-    if ( cpu->apu.ch1.enable ) {
-
-        uint8_t pat = 0;
-
-        switch (cpu->apu.ch1.wave_pattern_duty) {
-            case 0x0:
-                pat = 0x01 ; // 0b00000001
-                break;
-            case 0x1:
-                pat = 0x81 ; // 0b10000001
-                break;
-            case 0x2:
-                pat = 0x87 ; // 0b10000111
-                break;
-            case 0x3:
-                pat = 0x7e ; // 0b01111110
-                break;
-        }
-
-        uint8_t bit = (pat & (1 << (7 - cpu->apu.ch1.wave_pattern_index)));
-
-        if ( bit ) {
-            return cpu->apu.ch1.volume;
-        } else {
-            return 0;
-        }
-    } else {
-        return 0;
-    }
-}
-
-uint16_t apu_ch2_sample( _cpu_info *cpu ) {
-    return 0;
 }
 
 uint16_t apu_ch3_sample( _cpu_info *cpu ) {
@@ -593,15 +549,6 @@ uint16_t apu_ch4_sample( _cpu_info *cpu ) {
     return 0;
 }
 
-
-uint8_t apu_is_ch1_enabled ( _cpu_info *cpu ) {
-    return cpu->apu.ch1.enable && (cpu->apu.ch1.volume_envl_initial > 0 || cpu->apu.ch1.volume_envl_direction);
-}
-
-uint8_t apu_is_ch2_enabled ( _cpu_info *cpu ) {
-    return cpu->apu.ch2.enable;
-}
-
 uint8_t apu_is_ch3_enabled ( _cpu_info *cpu ) {
     return cpu->apu.ch3.enable;
 }
@@ -610,138 +557,11 @@ uint8_t apu_is_ch4_enabled ( _cpu_info *cpu ) {
     return cpu->apu.ch4.enable;
 }
 
-void apu_ch1_trigger ( _cpu_info *cpu ) {
-    cpu->apu.ch1.enable = 1;
-
-    if ( cpu->apu.ch1.length == 0 ) {
-        if ( cpu->apu.ch1.length_enable && ( cpu->apu.frame_seq_step % 2 == 1 ) ) {
-            cpu->apu.ch1.length = 63;
-        } else {
-            cpu->apu.ch1.length = 64;
-        }
-    }
-
-    cpu->apu.ch1.timer = ( 2048 - cpu->apu.ch1.frequency ) * 4;
-
-    cpu->apu.ch1.volume = cpu->apu.ch1.volume_envl_initial;
-    if ( cpu->apu.ch1.volume_envl_period == 0 ) {
-        cpu->apu.ch1.volume_envl_timer = 8;
-    } else {
-        cpu->apu.ch1.volume_envl_timer = cpu->apu.ch1.volume_envl_period;
-    }
-
-    if ( cpu->apu.frame_seq_step == 7 ) {
-        cpu->apu.ch1.volume_envl_timer++;
-    }
-
-    cpu->apu.ch1.frequency_sh = cpu->apu.ch1.frequency;
-
-    if ( cpu->apu.ch1.sweep_period == 0 ) {
-        cpu->apu.ch1.sweep_timer = 8;
-    } else {
-        cpu->apu.ch1.sweep_timer = cpu->apu.ch1.sweep_period;
-    }
-
-    cpu->apu.ch1.sweep_enable = cpu->apu.ch1.sweep_period > 0 || cpu->apu.ch1.sweep_shift > 0;
-    cpu->apu.ch1.sweep_negate_calcd = 0;
-
-    if ( cpu->apu.ch1.sweep_enable && cpu->apu.ch1.sweep_shift > 0 ) {
-        apu_ch1_calc_sweep( cpu );
-    }
-}
-
-void apu_ch1_step_length ( _cpu_info *cpu ) {
-    if ( cpu->apu.ch1.length_enable && cpu->apu.ch1.length > 0 ) {
-        cpu->apu.ch1.length -= 1;
-        if ( cpu->apu.ch1.length == 0 ) {
-            cpu->apu.ch1.enable = 0;
-        }
-    }
-}
-
-void apu_ch1_step_volume ( _cpu_info *cpu ) {
-    if ( cpu->apu.ch1.volume_envl_timer > 0 ) {
-        cpu->apu.ch1.volume_envl_timer -= 1;
-    }
-
-    if ( cpu->apu.ch1.volume_envl_period > 0 && cpu->apu.ch1.volume_envl_timer == 0 ) {
-        if ( cpu->apu.ch1.volume_envl_direction ) {
-            if ( cpu->apu.ch1.volume < 0xF ) {
-                cpu->apu.ch1.volume += 1;
-            }
-        } else if ( cpu->apu.ch1.volume > 0 ) {
-            cpu->apu.ch1.volume -= 1;
-        }
-    }
-
-    if ( cpu->apu.ch1.volume_envl_timer == 0 ) {
-        if ( cpu->apu.ch1.volume_envl_period == 0 ) {
-            cpu->apu.ch1.volume_envl_timer = 8;
-        } else {
-            cpu->apu.ch1.volume_envl_timer = cpu->apu.ch1.volume_envl_period;
-        }
-    }
-}
-
-void apu_ch1_step_sweep ( _cpu_info *cpu ) {
-    if ( cpu->apu.ch1.sweep_timer > 0 ) {
-        cpu->apu.ch1.sweep_timer -= 1;
-    }
-
-    if ( cpu->apu.ch1.sweep_period > 0 && cpu->apu.ch1.sweep_enable && cpu->apu.ch1.sweep_timer == 0 ) {
-        uint16_t freq = apu_ch1_calc_sweep( cpu );
-        if ( freq <= 2047 && cpu->apu.ch1.sweep_shift > 0 ) {
-            cpu->apu.ch1.frequency_sh = freq;
-            cpu->apu.ch1.frequency = freq;
-
-            apu_ch1_calc_sweep( cpu );
-        }
-    }
-
-    if ( cpu->apu.ch1.sweep_timer == 0 ) {
-        if ( cpu->apu.ch1.sweep_period == 0 ) {
-            cpu->apu.ch1.sweep_timer = 8;
-        } else {
-            cpu->apu.ch1.sweep_timer = cpu->apu.ch1.sweep_period;
-        };
-    }
-}
-
-uint16_t apu_ch1_calc_sweep ( _cpu_info *cpu ) {
-    int16_t freq = cpu->apu.ch1.frequency_sh;
-    int16_t r    = cpu->apu.ch1.frequency_sh >> cpu->apu.ch1.sweep_shift;
-
-    if ( cpu->apu.ch1.sweep_direction ) {
-        freq -= r;
-    } else {
-        freq += r;
-    }
-
-    if ( freq > 2047 ) {
-        cpu->apu.ch1.enable = 0;
-        cpu->apu.ch1.sweep_enable = 0;
-    }
-
-    if ( cpu->apu.ch1.sweep_direction ) {
-        cpu->apu.ch1.sweep_negate_calcd = 1;
-    }
-
-    return freq;
-}
-
-void apu_ch2_step_length( _cpu_info *cpu ) {
-
-}
-
 void apu_ch3_step_length( _cpu_info *cpu ) {
 
 }
 
 void apu_ch4_step_length( _cpu_info *cpu ) {
-
-}
-
-void apu_ch2_step_volume( _cpu_info *cpu ) {
 
 }
 
