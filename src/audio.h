@@ -9,6 +9,7 @@
 void apu_sdl_init();
 
 void apu_update ( _cpu_info *cpu );
+void apu_update_on_div_change ( _cpu_info *cpu );
 
 uint8_t apu_read_byte ( _cpu_info *cpu, uint16_t addr );
 void apu_write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data );
@@ -46,6 +47,12 @@ void apu_ch1_step_length    ( _cpu_info *cpu );
 void apu_ch1_step_volume    ( _cpu_info *cpu );
 void apu_ch1_step_sweep     ( _cpu_info *cpu );
 uint16_t apu_ch1_calc_sweep ( _cpu_info *cpu );
+
+void apu_ch2_step_length( _cpu_info *cpu );
+void apu_ch3_step_length( _cpu_info *cpu );
+void apu_ch4_step_length( _cpu_info *cpu );
+void apu_ch2_step_volume( _cpu_info *cpu );
+void apu_ch4_step_volume( _cpu_info *cpu );
 
 
 #endif /* AUDIO_H */

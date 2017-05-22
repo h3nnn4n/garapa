@@ -10,10 +10,11 @@ void apu_sdl_init( _cpu_info *cpu ) {
     SDL_InitSubSystem(SDL_INIT_AUDIO);
 
     SDL_memset(&cpu->apu.want, 0, sizeof(cpu->apu.want));
-    cpu->apu.want.freq = 48000;          // Sample rate
-    cpu->apu.want.format = AUDIO_S8;
+    cpu->apu.want.freq = SAMPLE_RATE;          // Sample rate
+    cpu->apu.want.format = AUDIO_U16;
+    cpu->apu.want.format = AUDIO_S16;
     cpu->apu.want.channels = 2;          // Number of sound channels
-    cpu->apu.want.samples = 1024;        // Buffer size
+    cpu->apu.want.samples = BUFFER_SIZE;        // Buffer size
     cpu->apu.want.callback = NULL;
 
     cpu->apu.dev = SDL_OpenAudioDevice(NULL, 0, &cpu->apu.want, &cpu->apu.have, 0);
@@ -22,17 +23,47 @@ void apu_sdl_init( _cpu_info *cpu ) {
         SDL_Log("Failed to open audio: %s", SDL_GetError());
     } else {
         if (cpu->apu.have.format != cpu->apu.want.format) {
-            SDL_Log("We didn't get U16 audio format.");
+            SDL_Log("We didn't get requested audio format.");
         }
         if (cpu->apu.have.freq != cpu->apu.want.freq) {
-            SDL_Log("We didn't get the freq.");
+            SDL_Log("Asked for %d frequency but got %d", cpu->apu.want.freq, cpu->apu.have.freq);
         }
         if (cpu->apu.have.samples != cpu->apu.want.samples) {
-            SDL_Log("We didn't get samples.");
+            SDL_Log("Asked for %d samples but got %d", cpu->apu.want.samples, cpu->apu.have.samples);
         }
         SDL_PauseAudioDevice(cpu->apu.dev, 0);
         SDL_PauseAudioDevice(cpu->apu.dev, 1);
         SDL_PauseAudioDevice(cpu->apu.dev, 0);
+    }
+}
+
+void apu_update_on_div_change ( _cpu_info *cpu ) {
+    if ( cpu->apu.enable ) {
+        if ((((cpu->timer._timer_old >> 8) & (1 << 4)) != 0)
+            &&
+           !(((cpu->timer._timer >> 8) & (1 << 4)) != 0)) {
+            if ( cpu->apu.frame_seq_step % 2 == 0 ) {
+                apu_ch1_step_length( cpu );
+                apu_ch2_step_length( cpu );
+                apu_ch3_step_length( cpu );
+                apu_ch4_step_length( cpu );
+            }
+
+            if ( cpu->apu.frame_seq_step == 7 ) {
+                apu_ch1_step_volume( cpu );
+                apu_ch2_step_volume( cpu );
+                apu_ch4_step_volume( cpu );
+            }
+
+            if ( cpu->apu.frame_seq_step == 6 || cpu->apu.frame_seq_step == 2 ) {
+                apu_ch1_step_sweep( cpu );
+            }
+
+            cpu->apu.frame_seq_step += 1;
+            cpu->apu.frame_seq_step &= 7;
+        }
+    } else {
+        return;
     }
 }
 
@@ -44,7 +75,7 @@ void apu_update ( _cpu_info *cpu ) {
     apu_ch4_step( cpu );
 
     // Collect sample from channels (if ready)
-    if ( cpu->apu.sample_timer > 0 ) {
+    if ( cpu->apu.sample_timer > 0 ){
         cpu->apu.sample_timer -= 1;
     }
 
@@ -58,43 +89,31 @@ void apu_update ( _cpu_info *cpu ) {
             uint16_t ch3 = apu_ch3_sample( cpu );
             uint16_t ch4 = apu_ch4_sample( cpu );
 
-            printf("enabled: ");
-
             if ( cpu->apu.ch1_left_enable ) {
                 sample_l += ch1;
-                printf("ch1l ");
             }
             if ( cpu->apu.ch2_left_enable ) {
                 sample_l += ch2;
-                printf("ch2l ");
             }
             if ( cpu->apu.ch3_left_enable ) {
                 sample_l += ch3;
-                printf("ch3l ");
             }
             if ( cpu->apu.ch4_left_enable ) {
                 sample_l += ch4;
-                printf("ch4l ");
             }
 
             if ( cpu->apu.ch1_right_enable ) {
                 sample_r += ch1;
-                printf("ch1r ");
             }
             if ( cpu->apu.ch2_right_enable ) {
                 sample_r += ch2;
-                printf("ch2r ");
             }
             if ( cpu->apu.ch3_right_enable ) {
                 sample_r += ch3;
-                printf("ch3r ");
             }
             if ( cpu->apu.ch4_right_enable ) {
                 sample_r += ch4;
-                printf("ch4r ");
             }
-
-            printf(" left: %6d right:%6d ch1: %4d ch2: %4d ch3: %4d ch4: %4d \n", sample_l, sample_r, ch1, ch2, ch3, ch4);
         }
 
         sample_l *= (uint16_t) cpu->apu.left_volume;
@@ -107,15 +126,16 @@ void apu_update ( _cpu_info *cpu ) {
         cpu->apu.buffer[cpu->apu.buffer_index + 1] = sample_r;
         cpu->apu.buffer_index += 2;
 
-        /*printf("%4d %4d %4d\n", cpu->apu.buffer_index, sample_l, sample_r);*/
-
-        if ( cpu->apu.buffer_index >= (BUFFER_SIZE) * 2 ) {
-            printf("BOOM! audio write\n");
-
-            if ( SDL_QueueAudio( cpu->apu.dev, cpu->apu.buffer, cpu->apu.buffer_index )) {
-                printf("This happened on SDL_QueueAudio: %s", SDL_GetError());
-            }
+        if ( cpu->apu.buffer_index >= (cpu->apu.have.samples) * 2 ) {
             cpu->apu.buffer_index = 0;
+
+            while ( SDL_GetQueuedAudioSize( cpu->apu.dev ) > cpu->apu.have.samples * sizeof(uint16_t) * 2 ) {
+                SDL_Delay(1);
+            }
+
+            if ( SDL_QueueAudio( cpu->apu.dev, cpu->apu.buffer, cpu->apu.have.samples * sizeof(uint16_t) * 2 )) {
+                SDL_Log("This happened on SDL_QueueAudio: %s", SDL_GetError());
+            }
         }
 
         // Reload sample timer
@@ -365,9 +385,9 @@ void apu_ch1_reset ( _cpu_info *cpu ){
 
     cpu->apu.ch1.length_enable = 0;
 
-    cpu->apu.ch1.wave_pattern_duty = 0x10;
+    cpu->apu.ch1.wave_pattern_duty = 0x02;
 
-    cpu->apu.ch1.volume_envl_period = 0x11;
+    cpu->apu.ch1.volume_envl_period = 0x3;
     cpu->apu.ch1.volume_envl_initial = 0x0f;
 
     cpu->apu.ch1.timer = 0x00;
@@ -481,11 +501,31 @@ void apu_ch4_clear ( _cpu_info *cpu ){
 // Channels Step
 
 void apu_ch1_step( _cpu_info *cpu ) {
+    /*println!("{:04x} {:04x} {:04x} {:04x} {:04x} {:04x} {:04x} {:04x} {:04x} {:04x} {:04x} {:04x} {:04x}",*/
+                /*self.sweep_timer, self.frequency_sh, self.sweep_period,*/
+                /*self.sweep_shift, self.wave_pattern_duty, self.wave_pattern_index, self.length, self.volume, self.volume_envl_timer,*/
+                /*self.volume_envl_initial, self.volume_envl_period, self.frequency, self.timer);*/
+
+    /*printf("%04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x\n",*/
+            /*cpu->apu.ch1.sweep_timer,*/
+            /*cpu->apu.ch1.frequency_sh,*/
+            /*cpu->apu.ch1.sweep_period,*/
+            /*cpu->apu.ch1.sweep_shift,*/
+            /*cpu->apu.ch1.wave_pattern_duty,*/
+            /*cpu->apu.ch1.wave_pattern_index,*/
+            /*cpu->apu.ch1.length,*/
+            /*cpu->apu.ch1.volume,*/
+            /*cpu->apu.ch1.volume_envl_timer,*/
+            /*cpu->apu.ch1.volume_envl_initial,*/
+            /*cpu->apu.ch1.volume_envl_period,*/
+            /*cpu->apu.ch1.frequency,*/
+            /*cpu->apu.ch1.timer);*/
+
     if ( cpu->apu.ch1.timer > 0 ) {
         cpu->apu.ch1.timer--;
     }
 
-    if ( cpu->apu.ch1.timer-- ) {
+    if ( cpu->apu.ch1.timer == 0 ) {
         cpu->apu.ch1.wave_pattern_index ++;
         if ( cpu->apu.ch1.wave_pattern_index >= 8 ) {
             cpu->apu.ch1.wave_pattern_index = 0;
@@ -587,7 +627,7 @@ void apu_ch1_trigger ( _cpu_info *cpu ) {
     if ( cpu->apu.ch1.volume_envl_period == 0 ) {
         cpu->apu.ch1.volume_envl_timer = 8;
     } else {
-        cpu->apu.ch1.volume_envl_period;
+        cpu->apu.ch1.volume_envl_timer = cpu->apu.ch1.volume_envl_period;
     }
 
     if ( cpu->apu.frame_seq_step == 7 ) {
@@ -611,11 +651,36 @@ void apu_ch1_trigger ( _cpu_info *cpu ) {
 }
 
 void apu_ch1_step_length ( _cpu_info *cpu ) {
-
+    if ( cpu->apu.ch1.length_enable && cpu->apu.ch1.length > 0 ) {
+        cpu->apu.ch1.length -= 1;
+        if ( cpu->apu.ch1.length == 0 ) {
+            cpu->apu.ch1.enable = 0;
+        }
+    }
 }
 
 void apu_ch1_step_volume ( _cpu_info *cpu ) {
+    if ( cpu->apu.ch1.volume_envl_timer > 0 ) {
+        cpu->apu.ch1.volume_envl_timer -= 1;
+    }
 
+    if ( cpu->apu.ch1.volume_envl_period > 0 && cpu->apu.ch1.volume_envl_timer == 0 ) {
+        if ( cpu->apu.ch1.volume_envl_direction ) {
+            if ( cpu->apu.ch1.volume < 0xF ) {
+                cpu->apu.ch1.volume += 1;
+            }
+        } else if ( cpu->apu.ch1.volume > 0 ) {
+            cpu->apu.ch1.volume -= 1;
+        }
+    }
+
+    if ( cpu->apu.ch1.volume_envl_timer == 0 ) {
+        if ( cpu->apu.ch1.volume_envl_period == 0 ) {
+            cpu->apu.ch1.volume_envl_timer = 8;
+        } else {
+            cpu->apu.ch1.volume_envl_timer = cpu->apu.ch1.volume_envl_period;
+        }
+    }
 }
 
 void apu_ch1_step_sweep ( _cpu_info *cpu ) {
@@ -663,4 +728,25 @@ uint16_t apu_ch1_calc_sweep ( _cpu_info *cpu ) {
 
     return freq;
 }
+
+void apu_ch2_step_length( _cpu_info *cpu ) {
+
+}
+
+void apu_ch3_step_length( _cpu_info *cpu ) {
+
+}
+
+void apu_ch4_step_length( _cpu_info *cpu ) {
+
+}
+
+void apu_ch2_step_volume( _cpu_info *cpu ) {
+
+}
+
+void apu_ch4_step_volume( _cpu_info *cpu ) {
+
+}
+
 

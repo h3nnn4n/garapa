@@ -6,7 +6,7 @@
 #include "SDL.h"
 
 #define BUFFER_SIZE 1024
-#define SAMPLE_RATE 48000
+#define SAMPLE_RATE 44100
 
 typedef struct {
     uint8_t enable;

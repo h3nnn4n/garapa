@@ -229,6 +229,7 @@ void timer_tick_and_full_mcycle ( _cpu_info *cpu ) {
         timer_update   ( cpu );
         display_update ( cpu );
         apu_update     ( cpu );
+        apu_update_on_div_change ( cpu );
     }
 
     input_update   ( cpu );
@@ -238,9 +239,8 @@ void timer_update( _cpu_info *cpu ) {
     // Timer Increases each T-CYCLE ( 4 per M-CYCLE );
     // DIV is the upper 8 (MSB) bits, and it increases every 256 t-cycles
     // or 64 NOPs
-    //
+
     if ( debug_timer ) print_timer_state ( cpu );
-    /*print_timer_state ( cpu );*/
 
     static int8_t mcycle_bump = 0;
     cpu->cycles_clock    += 1;
