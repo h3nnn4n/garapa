@@ -27,8 +27,13 @@ void out1 ( _cpu_info *cpu ) ;
 
 void out_put(_cpu_info *cpu) {
     /*printf ( "TRACE:wadatsumi::gb::cpu:%11llu: ", cpu->cycles_machine ) ;*/
-    printf ( "Cycles: %11llu: ", cpu->cycles_machine ) ;
-    out2   ( cpu->mem_controller.memory, cpu->pc                        ) ;
+    /*printf ( "Cycles: %11llu: ", cpu->cycles_machine ) ;*/
+    printf ( "%11llu: ", cpu->cycles_machine ) ;
+    if ( cpu->pc < 0x8000 ) {
+        out2   ( cpu->mem_controller.rom, cpu->pc                        ) ;
+    } else {
+        out2   ( cpu->mem_controller.memory, cpu->pc                     ) ;
+    }
     out1   ( cpu                                                        ) ;
     puts   ( ""                                                         ) ;
 }
