@@ -7,6 +7,8 @@
 #include "types.h"
 #include "ch1.h"
 #include "ch2.h"
+#include "ch3.h"
+#include "ch4.h"
 
 void apu_sdl_init( _cpu_info *cpu ) {
     SDL_InitSubSystem(SDL_INIT_AUDIO);
@@ -471,102 +473,4 @@ void apu_clear ( _cpu_info *cpu ) {
     cpu->apu.ch4_right_enable = 0;
 
 }
-
-// CH reset functions
-
-void apu_ch3_reset ( _cpu_info *cpu ){
-    cpu->apu.ch3.wave_ram[0]  = 0x84;
-    cpu->apu.ch3.wave_ram[1]  = 0x40;
-    cpu->apu.ch3.wave_ram[2]  = 0x43;
-    cpu->apu.ch3.wave_ram[3]  = 0xaa;
-    cpu->apu.ch3.wave_ram[4]  = 0x2d;
-    cpu->apu.ch3.wave_ram[5]  = 0x78;
-    cpu->apu.ch3.wave_ram[6]  = 0x92;
-    cpu->apu.ch3.wave_ram[7]  = 0x3c;
-    cpu->apu.ch3.wave_ram[8]  = 0x60;
-    cpu->apu.ch3.wave_ram[9]  = 0x59;
-    cpu->apu.ch3.wave_ram[10] = 0x59;
-    cpu->apu.ch3.wave_ram[11] = 0xb0;
-    cpu->apu.ch3.wave_ram[12] = 0x34;
-    cpu->apu.ch3.wave_ram[13] = 0xb8;
-    cpu->apu.ch3.wave_ram[14] = 0x2e;
-    cpu->apu.ch3.wave_ram[15] = 0xda;
-
-    cpu->apu.ch3.length = 0;
-    apu_ch3_clear( cpu );
-}
-
-void apu_ch4_reset ( _cpu_info *cpu ){
-    apu_ch4_clear( cpu );
-    cpu->apu.ch4.length = 0;
-}
-
-// CH clear functions
-
-void apu_ch3_clear ( _cpu_info *cpu ){
-    cpu->apu.ch3.enable                = 0;
-    cpu->apu.ch3.dac_enable            = 0;
-
-    cpu->apu.ch3.length_enable         = 0;
-
-    cpu->apu.ch3.volume                = 0;
-    cpu->apu.ch3.frequency             = 0;
-    cpu->apu.ch3.timer                 = 0;
-
-    cpu->apu.ch3.wave_ram_buffer       = 0;
-    cpu->apu.ch3.wave_ram_buffer_position = 0;
-}
-
-void apu_ch4_clear ( _cpu_info *cpu ){
-    cpu->apu.ch4.enable                = 0;
-    cpu->apu.ch4.length_enable         = 0;
-
-    cpu->apu.ch4.volume                = 0;
-    cpu->apu.ch4.volume_envl_initial   = 0;
-    cpu->apu.ch4.volume_envl_direction = 0;
-    cpu->apu.ch4.volume_envl_period    = 0;
-    cpu->apu.ch4.volume_envl_timer     = 0;
-
-    cpu->apu.ch4.shift                 = 0;
-    cpu->apu.ch4.width                 = 0;
-    cpu->apu.ch4.divisor               = 0;
-    cpu->apu.ch4.lfsr                  = 0;
-}
-
-void apu_ch3_step( _cpu_info *cpu ) {
-
-}
-
-void apu_ch4_step( _cpu_info *cpu ) {
-
-}
-
-uint16_t apu_ch3_sample( _cpu_info *cpu ) {
-    return 0;
-}
-
-uint16_t apu_ch4_sample( _cpu_info *cpu ) {
-    return 0;
-}
-
-uint8_t apu_is_ch3_enabled ( _cpu_info *cpu ) {
-    return cpu->apu.ch3.enable;
-}
-
-uint8_t apu_is_ch4_enabled ( _cpu_info *cpu ) {
-    return cpu->apu.ch4.enable;
-}
-
-void apu_ch3_step_length( _cpu_info *cpu ) {
-
-}
-
-void apu_ch4_step_length( _cpu_info *cpu ) {
-
-}
-
-void apu_ch4_step_volume( _cpu_info *cpu ) {
-
-}
-
 

@@ -22,6 +22,8 @@ SOURCES=utils.c                      \
 		audio.c                      \
 		ch1.c                        \
 		ch2.c                        \
+		ch3.c                        \
+		ch4.c                        \
 		interrupts.c                 \
 		instructions_stack_io_control.c
 
