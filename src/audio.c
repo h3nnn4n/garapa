@@ -131,7 +131,7 @@ void apu_update ( _cpu_info *cpu ) {
         sample_l *= 12;
         sample_r *= 12;
 
-        printf("%4d %4d: %4d %4d %4d %4d\n", sample_l, sample_r, ch1, ch2, ch3, ch4);
+        /*printf("%4d %4d: %4d %4d %4d %4d\n", sample_l, sample_r, ch1, ch2, ch3, ch4);*/
 
         cpu->apu.buffer[cpu->apu.buffer_index] = sample_l;
         cpu->apu.buffer[cpu->apu.buffer_index + 1] = sample_r;
