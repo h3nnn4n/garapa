@@ -93,10 +93,10 @@ void apu_update ( _cpu_info *cpu ) {
         uint16_t ch4 = 0;
 
         if ( cpu->apu.enable ) {
-            ch1 = apu_ch1_sample( cpu ) * 0;
-            ch2 = apu_ch2_sample( cpu ) * 0;
-            ch3 = apu_ch3_sample( cpu ) * 0;
-            ch4 = apu_ch4_sample( cpu ) * 1;
+            ch1 = apu_ch1_sample( cpu );
+            ch2 = apu_ch2_sample( cpu );
+            ch3 = apu_ch3_sample( cpu );
+            ch4 = apu_ch4_sample( cpu );
 
             if ( cpu->apu.ch1_left_enable ) {
                 sample_l += ch1;
