@@ -420,8 +420,65 @@ void apu_write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ){
             }
             break;
 
+        // Ch3 on-off
+        // [E--- ----]
+        case 0xff1a:
+            cpu->apu.ch3.dac_enable = (data && (1<<7)) != 0;
+
+            if ( cpu->apu.ch3.dac_enable ) {
+                cpu->apu.ch3.enable = 0;
+            }
+            break;
+
+        // ch3 sound len
+        // [LLLL LLLL] Length load (256-L)
+        case 0xff1b:
+            cpu->apu.ch3.length = ((uint16_t)256) - data;
+            break;
+
+        // ch3 sound volume
+        // [-VV- ----] Volume
+        case 0xff1c:
+            cpu->apu.ch3.volume = (data >> 5) & 3;
+            break;
+
+        // Channel 3 Frequency (lo)
+        // [FFFF FFFF] Frequency LSB
+        case 0xff1d:
+            if ( cpu->apu.enable ) {
+                cpu->apu.ch3.frequency &= !0x700;
+                cpu->apu.ch3.frequency |= ((data & 7) <<8);
+            }
+            break;
+
+        // Channel 3 Misc.
+        // [TL-- -FFF] Trigger, Length enable, Frequency MSB
+        case 0xff1e:
+            if ( cpu->apu.enable ) {
+                cpu->apu.ch3.frequency &= !0x700;
+                cpu->apu.ch3.frequency |= ((data & 7) <<8);
+
+                uint8_t prev_length_enable = cpu->apu.ch3.length_enable;
+                cpu->apu.ch3.length_enable = ((data & (1 << 6)) != 0);
+
+                if (!prev_length_enable && cpu->apu.ch3.length_enable && (cpu->apu.frame_seq_step % 2 == 1) && cpu->apu.ch3.length > 0) {
+                    cpu->apu.ch3.length -= 1;
+                }
+
+                if ((data & (1 << 7)) != 0) {
+                    apu_ch3_trigger( cpu );
+                } else if ( cpu->apu.ch3.length == 0 ) {
+                    cpu->apu.ch3.enable = 0;
+                }
+            }
+            break;
+
         default:
             break;
+    }
+
+    if ( addr >= 0xff30 && addr <= 0xffe3 ) {
+        cpu->apu.ch3.wave_ram[(addr - 0xff30)] = data;
     }
 }
 

@@ -20,7 +20,7 @@ typedef struct {
 
     uint8_t wave_pattern_duty;
     uint8_t wave_pattern_index;
-    uint8_t length;
+    uint16_t length;
     uint8_t length_enable;
     uint8_t volume;
     uint8_t volume_envl_timer;
@@ -36,7 +36,7 @@ typedef struct {
 
     uint8_t wave_pattern_duty;
     uint8_t wave_pattern_index;
-    uint8_t length;
+    uint16_t length;
     uint8_t length_enable;
     uint8_t volume;
     uint8_t volume_envl_timer;
@@ -52,7 +52,7 @@ typedef struct {
     uint8_t enable;
     uint8_t dac_enable;
 
-    uint8_t length;
+    uint16_t length;
     uint8_t length_enable;
 
     uint8_t volume;
@@ -67,7 +67,7 @@ typedef struct {
 typedef struct {
     uint8_t enable;
 
-    uint8_t length;
+    uint16_t length;
     uint8_t length_enable;
 
     uint8_t volume;
