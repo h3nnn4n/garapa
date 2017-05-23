@@ -74,12 +74,8 @@ uint8_t read_byte ( _cpu_info *cpu, uint16_t addr ) {
         }
     }
 
-    /*if ( (addr >= 0xff10 && addr <= 0xff26) ||*/
-         /*(addr >= 0xff30 && addr <= 0xff3f) ) {*/
-    if ( (addr >= 0xff10 && addr <= 0xff19) ||
-         (addr >= 0xff1a && addr <= 0xff1e) ||
-         (addr >= 0xff30 && addr <= 0xff3f) ||
-         (addr >= 0xff24 && addr <= 0xff26) ) {
+    if ( (addr >= 0xff10 && addr <= 0xff26) ||
+         (addr >= 0xff30 && addr <= 0xff3f) ) {
         return apu_read_byte ( cpu, addr );
     }
 
@@ -265,12 +261,8 @@ void write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ) {
         cartridge_write ( cpu, addr, data );
     }
 
-    /*if ( (addr >= 0xff10 && addr <= 0xff26) ||*/
-         /*(addr >= 0xff30 && addr <= 0xff3f) ) {*/
-    if ( (addr >= 0xff10 && addr <= 0xff19) ||
-         (addr >= 0xff1a && addr <= 0xff1e) ||
-         (addr >= 0xff30 && addr <= 0xff3f) ||
-         (addr >= 0xff24 && addr <= 0xff26) ) {
+    if ( (addr >= 0xff10 && addr <= 0xff26) ||
+         (addr >= 0xff30 && addr <= 0xff3f) ) {
         apu_write_byte ( cpu, addr, data );
     }
 

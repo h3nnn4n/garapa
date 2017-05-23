@@ -79,7 +79,7 @@ typedef struct {
     uint8_t shift;
     uint8_t width;
     uint8_t divisor;
-    uint8_t lfsr;
+    uint16_t lfsr;
 
     uint16_t timer;
 } _channel4;

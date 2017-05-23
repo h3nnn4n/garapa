@@ -93,10 +93,10 @@ void apu_update ( _cpu_info *cpu ) {
         uint16_t ch4 = 0;
 
         if ( cpu->apu.enable ) {
-            ch1 = apu_ch1_sample( cpu );
-            ch2 = apu_ch2_sample( cpu );
-            ch3 = apu_ch3_sample( cpu );
-            ch4 = apu_ch4_sample( cpu );
+            ch1 = apu_ch1_sample( cpu ) * 0;
+            ch2 = apu_ch2_sample( cpu ) * 0;
+            ch3 = apu_ch3_sample( cpu ) * 0;
+            ch4 = apu_ch4_sample( cpu ) * 1;
 
             if ( cpu->apu.ch1_left_enable ) {
                 sample_l += ch1;
@@ -191,6 +191,23 @@ uint8_t apu_read_byte ( _cpu_info *cpu, uint16_t addr ) {
         case 0xff19:
             return ( ((cpu->apu.ch2.length_enable ? 1 : 0) << 6) ) | 0xbf;
 
+        // Channel 4 Volume Envelope
+        // [VVVV APPP] Starting volume, Envelope add mode, period
+        case 0xff21:
+            return ( ( cpu->apu.ch4.volume_envl_initial << 4 ) | ( ((cpu->apu.ch4.volume_envl_direction ? 1 : 0) << 3) ) | ( cpu->apu.ch4.volume_envl_period ) );
+
+        // Channel 4 Polynomial Counter
+        // [SSSS WDDD] Clock shift, Width mode of LFSR, Divisor code
+        /*0xFF22 => (self.shift << 4) | bits::bit(self.width, 3) | self.divisor,*/
+        case 0xff22:
+            return ( ( cpu->apu.ch4.shift << 4 ) | ((cpu->apu.ch4.width & (1 << 3)) !=0) | ( cpu->apu.ch4.divisor ) );
+
+        // Channel 2 Misc.
+        // [TL-- ----] Trigger, Length enable
+        /*0xFF23 => bits::bit(self.length_enable, 6) | 0xBF,*/
+        case 0xff23:
+            return ((cpu->apu.ch4.length_enable & (1 << 6)) !=0) | 0xbf;
+
         case 0xff24:
             return ((cpu->apu.left_vin_enable  << 7) |
                     (cpu->apu.right_vin_enable << 3) |
@@ -215,10 +232,10 @@ uint8_t apu_read_byte ( _cpu_info *cpu, uint16_t addr ) {
                     (apu_is_ch4_enabled( cpu ) << 0) | 0x70);
 
         default:
-            break;
+            return 0xff;
     }
 
-    return 0;
+    return 0xff;
 }
 
 void apu_write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ){
@@ -248,7 +265,7 @@ void apu_write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ){
 
         case 0xff12:
             if ( cpu->apu.enable ) {
-                // If the old envelope period was zero and the envelope is
+                // if the old envelope period was zero and the envelope is
                 // still doing automatic updates, volume is incremented by 1,
                 // otherwise if the envelope was in subtract mode, volume is
                 // incremented by 2.
@@ -258,22 +275,22 @@ void apu_write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ){
                         cpu->apu.ch1.volume += 1;
                     }
 
-                    cpu->apu.ch1.volume &= 0xF;
+                    cpu->apu.ch1.volume &= 0xf;
                 }
 
                 cpu->apu.ch1.volume_envl_initial = (data >> 4) & 15;
 
-                // If the mode was changed (add to subtract or subtract to add),
+                // if the mode was changed (add to subtract or subtract to add),
                 // volume is set to 16-volume.
                 if (cpu->apu.ch1.volume_envl_direction != ((data & (1 << 3)) != 0)) {
                     cpu->apu.ch1.volume = 16 - cpu->apu.ch1.volume;
-                    cpu->apu.ch1.volume &= 0xF;
+                    cpu->apu.ch1.volume &= 0xf;
                 }
 
                 cpu->apu.ch1.volume_envl_direction = ((data & (1 << 3)) != 0);
                 cpu->apu.ch1.volume_envl_period = data & 7;
 
-                // Setting the volume envelope to 0 with a decrease direction will disable
+                // setting the volume envelope to 0 with a decrease direction will disable
                 // the channel
                 if (cpu->apu.ch1.volume_envl_initial == 0 && !cpu->apu.ch1.volume_envl_direction) {
                     cpu->apu.ch1.enable = 0;
@@ -382,6 +399,83 @@ void apu_write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ){
                     // If the extra length clock brought our length to 0 and we weren't triggered;
                     // disable
                     cpu->apu.ch2.enable = 0;
+                }
+            }
+            break;
+
+        // Channel 4 Sound Length
+        // [--LL LLLL] Length load (64-L)
+        /*0xFF20 => { self.length = 64 - (value & 0b11_1111); }*/
+        case 0xff20:
+            cpu->apu.ch4.length = 64 - (data & 0x3f);
+            break;
+
+        // Channel 4 Volume Envelope
+        // [VVVV APPP] Starting volume, Envelope add mode, period
+        case 0xff21:
+            if ( cpu->apu.enable ) {
+                // if the old envelope period was zero and the envelope is
+                // still doing automatic updates, volume is incremented by 1,
+                // otherwise if the envelope was in subtract mode, volume is
+                // incremented by 2.
+                if ( cpu->apu.ch4.volume_envl_period == 0 && (cpu->apu.ch4.volume > 0 || cpu->apu.ch4.volume < 0x0f)) {
+                    cpu->apu.ch4.volume += 1;
+                    if (cpu->apu.ch4.volume_envl_direction) {
+                        cpu->apu.ch4.volume += 1;
+                    }
+
+                    cpu->apu.ch4.volume &= 0xf;
+                }
+
+                cpu->apu.ch4.volume_envl_initial = (data >> 4) & 15;
+
+                // if the mode was ch4nged (add to subtract or subtract to add),
+                // volume is set to 16-volume.
+                if (cpu->apu.ch4.volume_envl_direction != ((data & (1 << 3)) != 0)) {
+                    cpu->apu.ch4.volume = 16 - cpu->apu.ch4.volume;
+                    cpu->apu.ch4.volume &= 0xf;
+                }
+
+                cpu->apu.ch4.volume_envl_direction = ((data & (1 << 3)) != 0);
+                cpu->apu.ch4.volume_envl_period = data & 7;
+
+                // setting the volume envelope to 0 with a decrease direction will disable
+                // the ch4nnel
+                if (cpu->apu.ch4.volume_envl_initial == 0 && !cpu->apu.ch4.volume_envl_direction) {
+                    cpu->apu.ch4.enable = 0;
+                }
+            }
+            break;
+
+        // Channel 4 Polynomial Counter
+        // [SSSS WDDD] Clock shift, Width mode of LFSR, Divisor code
+        case 0xff22:
+            if ( cpu->apu.enable ) {
+                cpu->apu.ch4.shift   = (data >> 4) & 15;
+                cpu->apu.ch4.width   = (data & (1 << 3)) != 0;
+                cpu->apu.ch4.divisor = data & 7;
+            }
+            break;
+
+        // Channel 4 Misc.
+        // [TL-- ----] Trigger, Length enable
+        case 0xff23:
+            if ( cpu->apu.enable ) {
+                uint8_t prev_length_enable = cpu->apu.ch4.length_enable;
+                cpu->apu.ch4.length_enable = ((data & (1 << 6)) != 0);
+
+                // Enabling the length counter when the next step of the frame sequencer
+                // would not clock the length counter; should clock the length counter
+                if (!prev_length_enable && cpu->apu.ch4.length_enable && (cpu->apu.frame_seq_step % 2 == 1) && cpu->apu.ch4.length > 0) {
+                    cpu->apu.ch4.length -= 1;
+                }
+
+                if ((data & (1 << 7)) != 0) {
+                    apu_ch4_trigger( cpu );
+                } else if ( cpu->apu.ch4.length == 0 ) {
+                    // If the extra length clock brought our length to 0 and we weren't triggered;
+                    // disable
+                    cpu->apu.ch4.enable = 0;
                 }
             }
             break;
