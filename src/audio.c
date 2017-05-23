@@ -239,6 +239,11 @@ uint8_t apu_read_byte ( _cpu_info *cpu, uint16_t addr ) {
 }
 
 void apu_write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ){
+    if ( addr >= 0xff30 && addr <= 0xffe3 ) {
+        cpu->apu.ch3.wave_ram[(addr - 0xff30)] = data;
+        return;
+    }
+
     switch ( addr ) {
         case 0xff10:
             if ( cpu->apu.enable ) {
@@ -327,6 +332,9 @@ void apu_write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ){
                     cpu->apu.ch1.enable = 0;
                 }
             }
+            break;
+
+        case 0xff15:
             break;
 
         case 0xff16:
@@ -491,15 +499,15 @@ void apu_write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ){
 
         case 0xff25:
             if ( cpu->apu.enable ) {
-                cpu->apu.ch4_left_enable  = data & (1 << 7);
-                cpu->apu.ch3_left_enable  = data & (1 << 6);
-                cpu->apu.ch2_left_enable  = data & (1 << 5);
-                cpu->apu.ch1_left_enable  = data & (1 << 4);
+                cpu->apu.ch4_left_enable  = (data & (1 << 7)) != 0;
+                cpu->apu.ch3_left_enable  = (data & (1 << 6)) != 0;
+                cpu->apu.ch2_left_enable  = (data & (1 << 5)) != 0;
+                cpu->apu.ch1_left_enable  = (data & (1 << 4)) != 0;
 
-                cpu->apu.ch4_right_enable = data & (1 << 3);
-                cpu->apu.ch3_right_enable = data & (1 << 2);
-                cpu->apu.ch2_right_enable = data & (1 << 1);
-                cpu->apu.ch1_right_enable = data & (1 << 0);
+                cpu->apu.ch4_right_enable = (data & (1 << 3)) != 0;
+                cpu->apu.ch3_right_enable = (data & (1 << 2)) != 0;
+                cpu->apu.ch2_right_enable = (data & (1 << 1)) != 0;
+                cpu->apu.ch1_right_enable = (data & (1 << 0)) != 0;
             }
             break;
 
@@ -569,10 +577,6 @@ void apu_write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ){
 
         default:
             break;
-    }
-
-    if ( addr >= 0xff30 && addr <= 0xffe3 ) {
-        cpu->apu.ch3.wave_ram[(addr - 0xff30)] = data;
     }
 }
 
