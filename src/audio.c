@@ -155,7 +155,14 @@ void apu_update ( _cpu_info *cpu ) {
 }
 
 uint8_t apu_read_byte ( _cpu_info *cpu, uint16_t addr ) {
+    if ( (addr >= 0xff30) && (addr <= 0xff3f) ) {
+        return cpu->apu.ch3.wave_ram[addr - 0xff30];
+    }
+
     switch ( addr ) {
+        /////////////////////////////////////////////
+        //  CH1 session
+        /////////////////////////////////////////////
         // Ch1 sweep [-PPP NSSS] = sweep Period, Negate, Shift
         case 0xff10:
             return ( ( cpu->apu.ch1.sweep_period << 4 ) | ( ((cpu->apu.ch1.sweep_direction ? 1 : 0) << 3) ) | ( cpu->apu.ch1.sweep_shift ) | 0x80 );
@@ -179,6 +186,11 @@ uint8_t apu_read_byte ( _cpu_info *cpu, uint16_t addr ) {
         case 0xff14:
             return ( ((cpu->apu.ch1.length_enable ? 1 : 0) << 6) ) | 0xbf;
 
+        /////////////////////////////////////////////
+
+        /////////////////////////////////////////////
+        //  CH2 session
+        /////////////////////////////////////////////
         case 0xff16:
             return ( cpu->apu.ch2.wave_pattern_duty << 6 ) | 0x3f;
 
@@ -190,6 +202,45 @@ uint8_t apu_read_byte ( _cpu_info *cpu, uint16_t addr ) {
 
         case 0xff19:
             return ( ((cpu->apu.ch2.length_enable ? 1 : 0) << 6) ) | 0xbf;
+
+        /////////////////////////////////////////////
+
+
+        /////////////////////////////////////////////
+        //  CH3 session
+        /////////////////////////////////////////////
+        // Channel 3 Sound On/Off
+        // [E--- ----] DAC Power
+        case 0xff1a:
+            return (cpu->apu.ch3.dac_enable << 7 ) | 0x7f;
+
+        case 0xff1b:
+            return 0xff;
+
+        // Channel 3 Volume
+        // [-VV- ----] Volume
+        case 0xff1c:
+            return (cpu->apu.ch3.volume << 5) | 0x9f;
+
+        case 0xff1d:
+            return 0xff;
+
+        // Channel 3 Misc.
+        // [TL-- -FFF] Trigger, Length enable, Frequency MSB
+        case 0xff1e:
+            return (cpu->apu.ch3.length_enable << 6) | 0xbf;
+
+        // Wave RAM
+        // Treated elsewhere
+
+        /////////////////////////////////////////////
+
+
+        /////////////////////////////////////////////
+        //  CH4 session
+        /////////////////////////////////////////////
+        case 0xff20:
+            return 0xff;
 
         // Channel 4 Volume Envelope
         // [VVVV APPP] Starting volume, Envelope add mode, period
@@ -207,7 +258,13 @@ uint8_t apu_read_byte ( _cpu_info *cpu, uint16_t addr ) {
         /*0xFF23 => bits::bit(self.length_enable, 6) | 0xBF,*/
         case 0xff23:
             return ((cpu->apu.ch4.length_enable & (1 << 6)) !=0) | 0xbf;
+        /////////////////////////////////////////////
 
+
+
+        /////////////////////////////////////////////
+        //  APU
+        /////////////////////////////////////////////
         case 0xff24:
             return ((cpu->apu.left_vin_enable  << 7) |
                     (cpu->apu.right_vin_enable << 3) |
@@ -230,21 +287,26 @@ uint8_t apu_read_byte ( _cpu_info *cpu, uint16_t addr ) {
                     (apu_is_ch2_enabled( cpu ) << 2) |
                     (apu_is_ch3_enabled( cpu ) << 1) |
                     (apu_is_ch4_enabled( cpu ) << 0) | 0x70);
-
-        default:
-            return 0xff;
+        /////////////////////////////////////////////
     }
 
     return 0xff;
 }
 
 void apu_write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ){
+    /////////////////////////////////////////////
+    //  CH3 - Wave ram
+    /////////////////////////////////////////////
     if ( addr >= 0xff30 && addr <= 0xffe3 ) {
         cpu->apu.ch3.wave_ram[(addr - 0xff30)] = data;
         return;
     }
+    /////////////////////////////////////////////
 
     switch ( addr ) {
+        /////////////////////////////////////////////
+        //  CH1
+        /////////////////////////////////////////////
         case 0xff10:
             if ( cpu->apu.enable ) {
                 cpu->apu.ch1.sweep_period = (data >> 4) & 7;
@@ -333,9 +395,14 @@ void apu_write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ){
                 }
             }
             break;
+        /////////////////////////////////////////////
 
         case 0xff15:
             break;
+
+        /////////////////////////////////////////////
+        //  CH2
+        /////////////////////////////////////////////
 
         case 0xff16:
             if ( cpu->apu.enable ) {
@@ -410,6 +477,12 @@ void apu_write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ){
                 }
             }
             break;
+
+        /////////////////////////////////////////////
+
+        /////////////////////////////////////////////
+        //  CH4
+        /////////////////////////////////////////////
 
         // Channel 4 Sound Length
         // [--LL LLLL] Length load (64-L)
@@ -487,7 +560,11 @@ void apu_write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ){
                 }
             }
             break;
+        /////////////////////////////////////////////
 
+        /////////////////////////////////////////////
+        //  APU
+        /////////////////////////////////////////////
         case 0xff24:
             if ( cpu->apu.enable ) {
                 cpu->apu.left_vin_enable  = data & (1 << 7);
@@ -521,7 +598,11 @@ void apu_write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ){
                 apu_ch4_clear( cpu );
             }
             break;
+        /////////////////////////////////////////////
 
+        /////////////////////////////////////////////
+        //  CH3
+        /////////////////////////////////////////////
         // Ch3 on-off
         // [E--- ----]
         case 0xff1a:
@@ -574,6 +655,7 @@ void apu_write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ){
                 }
             }
             break;
+        /////////////////////////////////////////////
 
         default:
             break;
