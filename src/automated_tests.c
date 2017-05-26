@@ -24,6 +24,7 @@
 
 #include "automated_tests.h"
 #include "lookup3.h"
+#include "audio.h"
 #include "types.h"
 #include "utils.h"
 #include "types.h"
@@ -182,6 +183,8 @@ void test_run ( ) {
     test_create_buffer( &test_control );
 
     _cpu_info cpu;
+
+    apu_sdl_init(&cpu);
 
     for (int i = 0; i < 68; ++i) {
         test_control.test_needed_frames = tests_to_run[i].frames;
