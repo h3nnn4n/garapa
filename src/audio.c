@@ -155,7 +155,7 @@ void apu_update ( _cpu_info *cpu ) {
     }
 }
 
-uint8_t apu_read_byte ( _cpu_info *cpu, uint16_t addr ) {
+uint8_t _apu_read_byte ( _cpu_info *cpu, uint16_t addr ) {
     if ( (addr >= 0xff30) && (addr <= 0xff3f) ) {
         return cpu->apu.ch3.wave_ram[addr - 0xff30];
     }
@@ -297,7 +297,16 @@ uint8_t apu_read_byte ( _cpu_info *cpu, uint16_t addr ) {
     return 0xff;
 }
 
+uint8_t apu_read_byte ( _cpu_info *cpu, uint16_t addr ) {
+    uint8_t ret = _apu_read_byte(cpu, addr);
+
+    /*printf("apu_read %04x: %02x\n", addr, ret);*/
+
+    return ret;
+}
+
 void apu_write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ){
+    /*printf("apu_write %04x: %02x\n", addr, data);*/
     /////////////////////////////////////////////
     //  CH3 - Wave ram
     /////////////////////////////////////////////
