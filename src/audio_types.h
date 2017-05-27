@@ -6,7 +6,8 @@
 #include "SDL.h"
 
 #define BUFFER_SIZE 1024
-#define SAMPLE_RATE 44100
+//#define SAMPLE_RATE 44100
+#define SAMPLE_RATE 48000
 
 typedef struct {
     uint8_t enable;
@@ -20,7 +21,7 @@ typedef struct {
 
     uint8_t wave_pattern_duty;
     uint8_t wave_pattern_index;
-    uint16_t length;
+    uint8_t length;
     uint8_t length_enable;
     uint8_t volume;
     uint8_t volume_envl_timer;
@@ -36,7 +37,7 @@ typedef struct {
 
     uint8_t wave_pattern_duty;
     uint8_t wave_pattern_index;
-    uint16_t length;
+    uint8_t length;
     uint8_t length_enable;
     uint8_t volume;
     uint8_t volume_envl_timer;
@@ -67,7 +68,7 @@ typedef struct {
 typedef struct {
     uint8_t enable;
 
-    uint16_t length;
+    uint8_t length;
     uint8_t length_enable;
 
     uint8_t volume;

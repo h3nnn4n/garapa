@@ -42,21 +42,6 @@ void apu_ch2_step( _cpu_info *cpu ) {
 }
 
 uint16_t apu_ch2_sample( _cpu_info *cpu ) {
-    /*printf("%04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x\n",*/
-            /*cpu->apu.ch2.sweep_timer,*/
-            /*cpu->apu.ch2.frequency_sh,*/
-            /*cpu->apu.ch2.sweep_period,*/
-            /*cpu->apu.ch2.sweep_shift,*/
-            /*cpu->apu.ch2.wave_pattern_duty,*/
-            /*cpu->apu.ch2.wave_pattern_index,*/
-            /*cpu->apu.ch2.length,*/
-            /*cpu->apu.ch2.volume,*/
-            /*cpu->apu.ch2.volume_envl_timer,*/
-            /*cpu->apu.ch2.volume_envl_initial,*/
-            /*cpu->apu.ch2.volume_envl_period,*/
-            /*cpu->apu.ch2.frequency,*/
-            /*cpu->apu.ch2.timer);*/
-
     if ( cpu->apu.ch2.enable ) {
 
         uint8_t pat = 0;

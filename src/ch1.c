@@ -25,7 +25,9 @@ void apu_ch1_clear ( _cpu_info *cpu ){
     cpu->apu.ch1.sweep_enable          = 0;
     cpu->apu.ch1.sweep_timer           = 0;
     cpu->apu.ch1.frequency_sh          = 0;
+    cpu->apu.ch1.frequency             = 0;
     cpu->apu.ch1.sweep_direction       = 0;
+    cpu->apu.ch1.sweep_period          = 0;
     cpu->apu.ch1.sweep_shift           = 0;
     cpu->apu.ch1.sweep_negate_calcd    = 0;
 
@@ -44,26 +46,6 @@ void apu_ch1_clear ( _cpu_info *cpu ){
 }
 
 void apu_ch1_step( _cpu_info *cpu ) {
-    /*println!("{:04x} {:04x} {:04x} {:04x} {:04x} {:04x} {:04x} {:04x} {:04x} {:04x} {:04x} {:04x} {:04x}",*/
-                /*self.sweep_timer, self.frequency_sh, self.sweep_period,*/
-                /*self.sweep_shift, self.wave_pattern_duty, self.wave_pattern_index, self.length, self.volume, self.volume_envl_timer,*/
-                /*self.volume_envl_initial, self.volume_envl_period, self.frequency, self.timer);*/
-
-    /*printf("%04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x\n",*/
-            /*cpu->apu.ch1.sweep_timer,*/
-            /*cpu->apu.ch1.frequency_sh,*/
-            /*cpu->apu.ch1.sweep_period,*/
-            /*cpu->apu.ch1.sweep_shift,*/
-            /*cpu->apu.ch1.wave_pattern_duty,*/
-            /*cpu->apu.ch1.wave_pattern_index,*/
-            /*cpu->apu.ch1.length,*/
-            /*cpu->apu.ch1.volume,*/
-            /*cpu->apu.ch1.volume_envl_timer,*/
-            /*cpu->apu.ch1.volume_envl_initial,*/
-            /*cpu->apu.ch1.volume_envl_period,*/
-            /*cpu->apu.ch1.frequency,*/
-            /*cpu->apu.ch1.timer);*/
-
     if ( cpu->apu.ch1.timer > 0 ) {
         cpu->apu.ch1.timer--;
     }
@@ -208,13 +190,13 @@ void apu_ch1_step_sweep ( _cpu_info *cpu ) {
             cpu->apu.ch1.sweep_timer = 8;
         } else {
             cpu->apu.ch1.sweep_timer = cpu->apu.ch1.sweep_period;
-        };
+        }
     }
 }
 
 uint16_t apu_ch1_calc_sweep ( _cpu_info *cpu ) {
-    int16_t freq = cpu->apu.ch1.frequency_sh;
-    int16_t r    = cpu->apu.ch1.frequency_sh >> cpu->apu.ch1.sweep_shift;
+    uint16_t freq = cpu->apu.ch1.frequency_sh;
+    uint16_t r    = cpu->apu.ch1.frequency_sh >> cpu->apu.ch1.sweep_shift;
 
     if ( cpu->apu.ch1.sweep_direction ) {
         freq -= r;

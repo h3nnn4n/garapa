@@ -131,7 +131,8 @@ void apu_update ( _cpu_info *cpu ) {
         sample_l *= 12;
         sample_r *= 12;
 
-        /*printf("%4d %4d: %4d %4d %4d %4d\n", sample_l, sample_r, ch1, ch2, ch3, ch4);*/
+        sample_l *= 9;
+        sample_r *= 9;
 
         cpu->apu.buffer[cpu->apu.buffer_index] = sample_l;
         cpu->apu.buffer[cpu->apu.buffer_index + 1] = sample_r;
@@ -165,7 +166,10 @@ uint8_t apu_read_byte ( _cpu_info *cpu, uint16_t addr ) {
         /////////////////////////////////////////////
         // Ch1 sweep [-PPP NSSS] = sweep Period, Negate, Shift
         case 0xff10:
-            return ( ( cpu->apu.ch1.sweep_period << 4 ) | ( ((cpu->apu.ch1.sweep_direction ? 1 : 0) << 3) ) | ( cpu->apu.ch1.sweep_shift ) | 0x80 );
+            return ( ( cpu->apu.ch1.sweep_period << 4 ) |
+                   ( ((cpu->apu.ch1.sweep_direction ? 1 : 0) << 3) ) |
+                   ( cpu->apu.ch1.sweep_shift ) |
+                   ( 0x80 ) );
 
         // Ch1 sound length and wave patter duty
         // [DDLL LLLL] Duty, Lenght
@@ -251,13 +255,13 @@ uint8_t apu_read_byte ( _cpu_info *cpu, uint16_t addr ) {
         // [SSSS WDDD] Clock shift, Width mode of LFSR, Divisor code
         /*0xFF22 => (self.shift << 4) | bits::bit(self.width, 3) | self.divisor,*/
         case 0xff22:
-            return ( ( cpu->apu.ch4.shift << 4 ) | ((cpu->apu.ch4.width & (1 << 3)) !=0) | ( cpu->apu.ch4.divisor ) );
+            return ( ( cpu->apu.ch4.shift << 4 ) | (cpu->apu.ch4.width << 3) | ( cpu->apu.ch4.divisor ) );
 
         // Channel 2 Misc.
         // [TL-- ----] Trigger, Length enable
         /*0xFF23 => bits::bit(self.length_enable, 6) | 0xBF,*/
         case 0xff23:
-            return ((cpu->apu.ch4.length_enable & (1 << 6)) !=0) | 0xbf;
+            return (cpu->apu.ch4.length_enable << 6) | 0xbf;
         /////////////////////////////////////////////
 
 
@@ -282,11 +286,11 @@ uint8_t apu_read_byte ( _cpu_info *cpu, uint16_t addr ) {
                     (cpu->apu.ch1_right_enable << 0));
 
         case 0xff26:
-            return ((cpu->apu.enable           << 7) |
-                    (apu_is_ch1_enabled( cpu ) << 3) |
-                    (apu_is_ch2_enabled( cpu ) << 2) |
-                    (apu_is_ch3_enabled( cpu ) << 1) |
-                    (apu_is_ch4_enabled( cpu ) << 0) | 0x70);
+            return (((!!cpu->apu.enable)       << 7) |
+                    (apu_is_ch4_enabled( cpu ) << 3) |
+                    (apu_is_ch3_enabled( cpu ) << 2) |
+                    (apu_is_ch2_enabled( cpu ) << 1) |
+                    (apu_is_ch1_enabled( cpu ) << 0) | 0x70);
         /////////////////////////////////////////////
     }
 
@@ -319,6 +323,9 @@ void apu_write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ){
                     cpu->apu.ch1.enable = 0;
                     cpu->apu.ch1.sweep_enable = 0;
                 }
+
+                cpu->apu.ch1.sweep_direction = (data & (1 << 3)) != 0;
+
             }
             break;
 
@@ -367,14 +374,14 @@ void apu_write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ){
 
         case 0xff13:
             if ( cpu->apu.enable ) {
-                cpu->apu.ch1.frequency &= !0xff;
+                cpu->apu.ch1.frequency &= ~0xff;
                 cpu->apu.ch1.frequency |= data;
             }
             break;
 
         case 0xff14:
             if ( cpu->apu.enable ) {
-                cpu->apu.ch1.frequency &= !0x700;
+                cpu->apu.ch1.frequency &= ~0x700;
                 cpu->apu.ch1.frequency |= ((data & 7)) << 8;
 
                 uint8_t prev_length_enable = cpu->apu.ch1.length_enable;
@@ -449,14 +456,14 @@ void apu_write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ){
 
         case 0xff18:
             if ( cpu->apu.enable ) {
-                cpu->apu.ch2.frequency &= !0xff;
+                cpu->apu.ch2.frequency &= ~0xff;
                 cpu->apu.ch2.frequency |= data;
             }
             break;
 
         case 0xff19:
             if ( cpu->apu.enable ) {
-                cpu->apu.ch2.frequency &= !0x700;
+                cpu->apu.ch2.frequency &= ~0x700;
                 cpu->apu.ch2.frequency |= ((data & 7)) << 8;
 
                 uint8_t prev_length_enable = cpu->apu.ch2.length_enable;
@@ -567,10 +574,10 @@ void apu_write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ){
         /////////////////////////////////////////////
         case 0xff24:
             if ( cpu->apu.enable ) {
-                cpu->apu.left_vin_enable  = data & (1 << 7);
-                cpu->apu.right_vin_enable = data & (1 << 3);
+                cpu->apu.left_vin_enable  = (data & (1 << 7)) != 0;
+                cpu->apu.right_vin_enable = (data & (1 << 3)) != 0;
                 cpu->apu.left_volume      = (data >> 4) & 0x07;
-                cpu->apu.left_volume      = (data >> 0) & 0x07;
+                cpu->apu.right_volume     = (data >> 0) & 0x07;
             }
             break;
 
@@ -589,7 +596,7 @@ void apu_write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ){
             break;
 
         case 0xff26:
-            cpu->apu.enable = data & (1 << 7);
+            cpu->apu.enable = (data & (1 << 7)) != 0;
             if ( !cpu->apu.enable ) {
                 apu_clear( cpu );
                 apu_ch1_clear( cpu );
@@ -606,10 +613,12 @@ void apu_write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ){
         // Ch3 on-off
         // [E--- ----]
         case 0xff1a:
-            cpu->apu.ch3.dac_enable = (data && (1<<7)) != 0;
+            if ( cpu->apu.enable ) {
+                cpu->apu.ch3.dac_enable = (data & (1<<7)) != 0;
 
-            if ( cpu->apu.ch3.dac_enable ) {
-                cpu->apu.ch3.enable = 0;
+                if ( !cpu->apu.ch3.dac_enable ) {
+                    cpu->apu.ch3.enable = 0;
+                }
             }
             break;
 
@@ -622,14 +631,16 @@ void apu_write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ){
         // ch3 sound volume
         // [-VV- ----] Volume
         case 0xff1c:
-            cpu->apu.ch3.volume = (data >> 5) & 3;
+            if ( cpu->apu.enable ) {
+                cpu->apu.ch3.volume = (data >> 5) & 3;
+            }
             break;
 
         // Channel 3 Frequency (lo)
         // [FFFF FFFF] Frequency LSB
         case 0xff1d:
             if ( cpu->apu.enable ) {
-                cpu->apu.ch3.frequency &= !0x700;
+                cpu->apu.ch3.frequency &= ~0x700;
                 cpu->apu.ch3.frequency |= ((data & 7) <<8);
             }
             break;
@@ -638,7 +649,7 @@ void apu_write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ){
         // [TL-- -FFF] Trigger, Length enable, Frequency MSB
         case 0xff1e:
             if ( cpu->apu.enable ) {
-                cpu->apu.ch3.frequency &= !0x700;
+                cpu->apu.ch3.frequency &= ~0x700;
                 cpu->apu.ch3.frequency |= ((data & 7) <<8);
 
                 uint8_t prev_length_enable = cpu->apu.ch3.length_enable;
