@@ -45,7 +45,7 @@ void emulate_INTERRUPT ( _cpu_info *cpu ) {
             /*read_byte(cpu, 0xffff),*/
             /*cpu->enable_interrupts);*/
 
-    uint8_t intn = read_byte(cpu, 0xff0f) & (read_byte(cpu, 0xffff));
+    uint8_t intn = _read_byte(cpu, 0xff0f) & (_read_byte(cpu, 0xffff));
 
     if ( cpu->enable_interrupts == 0 && (
             read_byte(cpu, 0xff0f) &
