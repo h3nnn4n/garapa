@@ -702,6 +702,19 @@ void screen_update() {
 
     print_screen_state();
 
+    SDL_Event ev;
+
+    while (SDL_PollEvent(&ev)) {
+        switch (ev.type) {
+            case SDL_WINDOWEVENT_CLOSE:
+            case SDL_QUIT:
+                exit(0);
+                break;
+            default:
+                break;
+        }
+    }
+
     if ( cpu_info->mem_controller.memory[0xffe1] == 0x0000 ) {
         draw_bg();
         /*draw_falling_blocks();*/
