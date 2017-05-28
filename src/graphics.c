@@ -136,6 +136,26 @@ void draw_rectangle(int x, int y, int x2, int y2, int r, int g, int b) {
     SDL_RenderFillRect(renderer, &dstrect);
 }
 
+void draw_text_with_bg(char *text, int x, int y, int r, int g, int b) {
+    int texW = 0;
+    int texH = 0;
+
+    SDL_Color color = { r, g, b, 0 };
+    SDL_Surface* surface = TTF_RenderText_Solid(font, text, color);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+    SDL_QueryTexture(texture, NULL, NULL, &texW, &texH);
+    /*printf("%d %d\n", texW, texH);*/
+    SDL_Rect dstrect = { x, y, texW, texH };
+
+    draw_rectangle(x, y, texW, texH, 0, 0, 0);
+
+    SDL_RenderCopy(renderer, texture, NULL, &dstrect);
+
+    SDL_DestroyTexture(texture);
+    SDL_FreeSurface(surface);
+}
+
 void draw_text(char *text, int x, int y, int r, int g, int b) {
     int texW = 0;
     int texH = 0;
@@ -152,7 +172,6 @@ void draw_text(char *text, int x, int y, int r, int g, int b) {
     SDL_DestroyTexture(texture);
     SDL_FreeSurface(surface);
 }
-
 
 void input_update ( _cpu_info *cpu ) {
     SDL_Event ev;
