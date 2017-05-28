@@ -1,5 +1,5 @@
 CC=gcc
-override CFLAGS+=-lm -Wall -Wextra -pedantic --std=gnu11 -O3 `sdl2-config --cflags --libs`
+override CFLAGS+=-lm -Wall -Wextra -pedantic --std=gnu11 -O3 `sdl2-config --cflags --libs` -lSDL2_ttf
 
 SOURCES=utils.c                      \
 		disassembler.c               \
@@ -19,6 +19,7 @@ SOURCES=utils.c                      \
 		instructions_arithmetic.c    \
 		instructions_0xcb.c          \
 		halfcarry.c                  \
+		overlay.c                    \
 		audio.c                      \
 		ch1.c                        \
 		ch2.c                        \

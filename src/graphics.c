@@ -21,10 +21,12 @@
 #include <stdlib.h>
 
 #include "SDL.h"
+#include "SDL_ttf.h"
 #include "SDL_video.h"
 #include "SDL_render.h"
 
 #include "types.h"
+#include "overlay.h"
 #include "graphics.h"
 
 #define __use_sdl
@@ -34,6 +36,7 @@
 static SDL_Window   *window;
 static SDL_Renderer *renderer;
 static SDL_Texture  *bitmap;
+static TTF_Font      *font;
 static uint32_t *pixels;
 static int screenx = 160;
 static int screeny = 144;
@@ -55,6 +58,7 @@ uint32_t *get_frame_buffer () {
 
 void sdl_init ( ) {
     SDL_Init(SDL_INIT_VIDEO);
+    TTF_Init();
 
     window = SDL_CreateWindow("here comes dat gameboi",
         SDL_WINDOWPOS_CENTERED,
@@ -75,15 +79,46 @@ void sdl_init ( ) {
     memset(pixels, 255, screenx * screeny * sizeof(uint32_t));
 
     SDL_UpdateTexture(bitmap, NULL, pixels, screenx * sizeof(uint32_t));
+
+    font = TTF_OpenFont("inconsolata.ttf", 18);
 }
 
-void flip_screen ( ) {
+void flip_screen ( _cpu_info *cpu ) {
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, bitmap, NULL, NULL);
+
+    SDL_RenderSetScale(renderer, 1, 1);
+    overlay_main( cpu );
+    SDL_RenderSetScale(renderer, 4, 4);
+
     SDL_RenderPresent(renderer);
 
     SDL_UpdateTexture(bitmap, NULL, pixels, screenx * sizeof(uint32_t));
 }
+
+void draw_rectangle(int x, int y, int x2, int y2, int r, int g, int b) {
+    SDL_SetRenderDrawColor(renderer, r, g, b, 0);
+    SDL_Rect dstrect = { x, y, x2, y2 };
+    SDL_RenderFillRect(renderer, &dstrect);
+}
+
+void draw_text(char *text, int x, int y, int r, int g, int b) {
+    int texW = 0;
+    int texH = 0;
+
+    SDL_Color color = { r, g, b, 0 };
+    SDL_Surface* surface = TTF_RenderText_Solid(font, text, color);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+    SDL_QueryTexture(texture, NULL, NULL, &texW, &texH);
+    SDL_Rect dstrect = { x, y, texW, texH };
+
+    SDL_RenderCopy(renderer, texture, NULL, &dstrect);
+
+    SDL_DestroyTexture(texture);
+    SDL_FreeSurface(surface);
+}
+
 
 void input_update ( _cpu_info *cpu ) {
     SDL_Event ev;
