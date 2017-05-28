@@ -30,8 +30,8 @@ void     sdl_init          (                ) ;
 void     input_update      ( _cpu_info *cpu ) ;
 void     sdl_quit          (                ) ;
 
-void draw_rectangle(int x, int y, int x2, int y2, int r, int g, int b);
-void draw_text(char *text, int x, int y, int r, int g, int b);
-void draw_text_with_bg(char *text, int x, int y, int r, int g, int b);
+void draw_rectangle_overlay(int x, int y, int x2, int y2, int r, int g, int b);
+void draw_text_overlay(char *text, int x, int y, int r, int g, int b);
+void draw_text_with_bg_overlay(char *text, int x, int y, int r, int g, int b);
 
 #endif /* GRAPHICS_meu_H */

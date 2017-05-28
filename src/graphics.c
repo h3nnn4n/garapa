@@ -130,13 +130,13 @@ void flip_screen ( _cpu_info *cpu ) {
 #endif
 }
 
-void draw_rectangle(int x, int y, int x2, int y2, int r, int g, int b) {
+void draw_rectangle_overlay(int x, int y, int x2, int y2, int r, int g, int b) {
     SDL_SetRenderDrawColor(renderer, r, g, b, 0);
     SDL_Rect dstrect = { x, y, x2, y2 };
     SDL_RenderFillRect(renderer, &dstrect);
 }
 
-void draw_text_with_bg(char *text, int x, int y, int r, int g, int b) {
+void draw_text_with_bg_overlay(char *text, int x, int y, int r, int g, int b) {
     int texW = 0;
     int texH = 0;
 
@@ -148,7 +148,7 @@ void draw_text_with_bg(char *text, int x, int y, int r, int g, int b) {
     /*printf("%d %d\n", texW, texH);*/
     SDL_Rect dstrect = { x, y, texW, texH };
 
-    draw_rectangle(x, y, texW, texH, 0, 0, 0);
+    draw_rectangle_overlay(x, y, texW, texH, 0, 0, 0);
 
     SDL_RenderCopy(renderer, texture, NULL, &dstrect);
 
@@ -156,7 +156,7 @@ void draw_text_with_bg(char *text, int x, int y, int r, int g, int b) {
     SDL_FreeSurface(surface);
 }
 
-void draw_text(char *text, int x, int y, int r, int g, int b) {
+void draw_text(_overlaychar *text, int x, int y, int r, int g, int b) {
     int texW = 0;
     int texH = 0;
 
@@ -279,5 +279,8 @@ void sdl_init ( ) {}
 void input_update ( _cpu_info *cpu ) {}
 void sdl_quit ( ) {}
 uint32_t *get_frame_buffer () { return NULL; }
+void draw_rectangle_overlay(int x, int y, int x2, int y2, int r, int g, int b) {}
+void draw_text_overlay(char *text, int x, int y, int r, int g, int b) {}
+void draw_text_with_bg_overlay(char *text, int x, int y, int r, int g, int b) {}
 
 #endif

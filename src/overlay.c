@@ -17,7 +17,7 @@ void draw_array(_cpu_info *cpu, uint16_t base, uint8_t offset, int x, int y, int
         strcat(text, text2);
     }
 
-    draw_text_with_bg(text, x, y, r, g, b);
+    draw_text_with_bg_overlay(text, x, y, r, g, b);
 }
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"
