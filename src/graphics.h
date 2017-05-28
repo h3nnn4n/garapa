@@ -32,5 +32,6 @@ void     sdl_quit          (                ) ;
 
 void draw_rectangle(int x, int y, int x2, int y2, int r, int g, int b);
 void draw_text(char *text, int x, int y, int r, int g, int b);
+void draw_text_with_bg(char *text, int x, int y, int r, int g, int b);
 
 #endif /* GRAPHICS_meu_H */
