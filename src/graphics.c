@@ -33,10 +33,10 @@
 #include "file_control.h"
 #include "rev.h"
 
-/*#define __use_sdl*/
+#define __use_sdl
 
 /*#define __save_frames*/
-/*#define __render_window*/
+#define __render_window
 
 #ifdef __use_sdl
 
@@ -116,7 +116,7 @@ void flip_screen ( _cpu_info *cpu ) {
     }
 #endif
 
-#if __render_window
+#ifdef __render_window
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, bitmap, NULL, NULL);
 
@@ -156,7 +156,7 @@ void draw_text_with_bg_overlay(char *text, int x, int y, int r, int g, int b) {
     SDL_FreeSurface(surface);
 }
 
-void draw_text(_overlaychar *text, int x, int y, int r, int g, int b) {
+void draw_text_overlay(char *text, int x, int y, int r, int g, int b) {
     int texW = 0;
     int texH = 0;
 
