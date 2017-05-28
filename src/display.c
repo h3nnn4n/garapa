@@ -642,7 +642,7 @@ void display_update( _cpu_info *cpu ) {
             /*printf("VBLANK Interrupt\n");*/
             cpu->interrupts.pending_vblank = 1;
 
-            flip_screen();
+            flip_screen( cpu );
             other_flip_screen();
             cpu->die = test_step ( &test_control );
         }
