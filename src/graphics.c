@@ -255,7 +255,7 @@ void sdl_quit ( ) {
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
-void flip_screen ( ) {}
+void flip_screen ( _cpu_info *cpu ) {}
 void sdl_init ( ) {}
 void input_update ( _cpu_info *cpu ) {}
 void sdl_quit ( ) {}
