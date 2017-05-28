@@ -17,14 +17,10 @@
  *    misrepresented as being the original software.                          *
  * 3. This notice may not be removed or altered from any source distribution. *
  ******************************************************************************/
+#include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <assert.h>
-
-#include "SDL.h"
-#include "SDL_ttf.h"
-#include "SDL_video.h"
-#include "SDL_render.h"
 
 #include "other_window.h"
 
@@ -48,12 +44,17 @@
   (byte & 0x02 ? '1' : '0'), \
   (byte & 0x01 ? '1' : '0')
 
-#define __use_other_sdl
-#define __draw_other_window
+/*#define __use_other_sdl*/
+/*#define __draw_other_window*/
 
 static _cpu_info* cpu_info;
 
 #if defined(__draw_other_window) && defined(__use_other_sdl)
+
+#include "SDL.h"
+#include "SDL_ttf.h"
+#include "SDL_video.h"
+#include "SDL_render.h"
 
 static SDL_Window   *other_window;
 static SDL_Renderer *other_renderer;
@@ -632,6 +633,8 @@ void new_piece_on_screen_hook() {
     static int old_pos = 100;
     _cpu_info *cpu = get_cpu_pointer();
 
+    _brain *brain = get_brain_pointer();
+
     /*uint16_t y_pos = 0xffb2;*/
     uint16_t y_pos = 0xff93;
 
@@ -643,6 +646,9 @@ void new_piece_on_screen_hook() {
     if ( abs(cpu->mem_controller.memory[y_pos] - old_pos) > 8 ) {
         /*printf("New piece\n");*/
         /*evaluate_cost();*/
+
+        brain->population[brain->current].pieces_spawned_total++;
+        brain->population[brain->current].pieces_spawned[brain->runs]++;
 
         update_fitness();
         get_best_move();
@@ -739,5 +745,7 @@ void other_flip_screen ( ) {
 }
 
 void other_sdl_quit ( ) {
+#if defined(__draw_other_window) && defined(__use_other_sdl)
     SDL_Quit();
+#endif
 }

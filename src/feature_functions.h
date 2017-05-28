@@ -28,5 +28,17 @@ double well_cells_weigthed();       // f23
 double rows_with_a_hole();          // f24
 double min_height();                // f25
 double max_height();                // f26
+double holes();                     // f27
+double hole_depth();
+double pattern_diversity();
+double holes_vertical();
+double max_well_depth();
+double highest_hole();
+double blocks_above_highest_hole();
+double potential_rows();
+double number_of_wells();
+double total_well_depth();
+double free_blocks();
+double blocks_above_highest_hole_w();
 
 #endif /* FEATURE_FUNCTIONS_H */

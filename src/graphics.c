@@ -40,6 +40,11 @@
 
 #ifdef __use_sdl
 
+#include "SDL.h"
+#include "SDL_video.h"
+#include "SDL_render.h"
+
+
 #ifdef __render_window
 static SDL_Window   *window;
 #endif
