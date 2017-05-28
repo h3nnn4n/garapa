@@ -1,8 +1,24 @@
 #include <stdio.h>
+#include <stdint.h>
+#include <string.h>
+
 
 #include "types.h"
 #include "overlay.h"
 #include "graphics.h"
+
+void draw_array(_cpu_info *cpu, uint16_t base, uint8_t offset, int x, int y, int r, int g, int b) {
+    char text[512];
+    text[0] = '\0';
+
+    for (uint16_t addr = base; addr < base+offset; ++addr) {
+        char text2[256];
+        sprintf(text2, "%2x ", cpu->mem_controller.memory[addr]);
+        strcat(text, text2);
+    }
+
+    draw_text_with_bg(text, x, y, r, g, b);
+}
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 void overlay_main( _cpu_info *cpu ) {
