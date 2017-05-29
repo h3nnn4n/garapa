@@ -32,6 +32,8 @@
 
 static _brain brain;
 
+double trained_ia[] = { -0.80 , 33.87 , 19.87 ,  8.28 , 66.68 , 64.06}; // fitness =   39
+
 void normalizer() {
     for (int i = 0; i < N_FUNCTION; ++i) {
         if ( brain.population[brain.current].cost[i] < brain.population[brain.current].min[i] ) {
@@ -242,7 +244,7 @@ void initialize_pop (){
             brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 75.0;
             /*brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 7.5;*/
 #else
-            brain.population[i].weight[j] = ia[j];
+            brain.population[i].weight[j] = trained_ia[j];
 #endif
 
             brain.population[i].min[j]    = DBL_MAX;
@@ -349,13 +351,14 @@ _obj_costs get_best_individual() {
 
 void print_pop() {
     for (int i = 0; i < POP_SIZE; ++i) {
+        printf("double trained_ia[] = ");
         for (int j = 0; j < N_GENES; ++j) {
-            printf("%6.2f ", brain.population[i].weight[j]);
+            printf("%6.2f ,", brain.population[i].weight[j]);
         }
-        printf("= %4d\n", brain.population[i].fitness);
+        printf("}; // fitness = %4d\n", brain.population[i].fitness);
     }
 
-    printf("best: %4d / %4d - %12.4f\n", brain.most_lines_cleared, brain.worst_lines_cleared, brain.diversity);
+    printf("// best: %4d / %4d - %12.4f\n", brain.most_lines_cleared, brain.worst_lines_cleared, brain.diversity);
 
     printf("\n");
     fflush(stdout);
@@ -470,6 +473,12 @@ void finished_evaluating_individual () {
 
     /*if ( brain.runs == brain.max_runs || brain.population[brain.current].fitness == 0 ) {*/
     if ( brain.runs == brain.max_runs ) {
+        printf("double trained_ia[] = {");
+        for (int j = 0; j < N_GENES; ++j) {
+            printf("%6.2f ,", brain.population[brain.current].weight[j]);
+        }
+        printf("}; // fitness = %4d\n", brain.population[brain.current].fitness);
+
         for (int i = 0; i < NRUNS; ++i) {
             printf("GEN,%d,CURRENT,%d,RUNS,%d,PS:%d,LC,%d\n", brain.elapsed_generations, brain.current, i,
                     brain.population[brain.current].pieces_spawned[i], brain.population[brain.current].lines_cleared[i]);

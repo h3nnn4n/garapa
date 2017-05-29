@@ -19,4 +19,7 @@
 // LELmark
 //#define LELmark
 
+// ALL
+//#define ALL
+
 #endif /* TESTER_H */
