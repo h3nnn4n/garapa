@@ -28,6 +28,7 @@ SOURCES=utils.c                      \
 		instructions_0xcb.c          \
 		halfcarry.c                  \
 		feature_functions.c          \
+		feature_set.c                \
 		overlay.c                    \
 		interrupts.c                 \
 		instructions_stack_io_control.c

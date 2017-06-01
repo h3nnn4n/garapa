@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2016-2017  Renan S. Silva                                    *
+ * Copyright (C) 2017  Renan S. Silva                                         *
  *                                                                            *
  * This software is provided 'as-is', without any express or implied          *
  * warranty. In no event will the authors be held liable for any damages      *
@@ -18,16 +18,15 @@
  * 3. This notice may not be removed or altered from any source distribution. *
  ******************************************************************************/
 
-#ifndef FF_CONTROLLER_H
-#define FF_CONTROLLER_H
+#ifndef FEATURE_SET_H
+#define FEATURE_SET_H
 
-typedef struct {
-    int current;
-} _ff_controller;
+void feature_set_FBDP();
+void feature_set_NDP();
+void feature_set_KBR();
+void feature_set_CMA();
+void feature_set_HA();
+void feature_set_LELmark();
+void feature_set_ALL();
 
-void ff_ctrl_reset();
-int ff_ctrl_ngens();
-int ff_ctrl_next();
-int ff_ctrl_current();
-
-#endif /* FF_CONTROLLER_H */
+#endif /* FEATURE_SET_H */

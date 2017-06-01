@@ -25,6 +25,7 @@
 #include "feature_functions.h"
 #include "ff_controller.h"
 #include "other_window.h"
+#include "feature_set.h"
 #include "trainer.h"
 #include "tetris.h"
 #include "types.h"
@@ -37,7 +38,7 @@ static _brain brain;
 double trained_ia[] = { 32.35, -49.50, 44.92, -4.96, 67.28, -4.26, -9.10, 42.57, -16.80, 6.98, -12.69, 16.81, -52.29, 35.24, 12.67, -22.58, 18.89, 38.76, -50.81, 70.76, -51.03, -52.32, -37.36, 40.87, -66.04, 39.31, -13.83, 38.29, 58.41, -26.93, 64.36, 52.25, 16.16, -68.15, 51.03, -50.47, 69.55, 4.40, -60.75 }; // fitness =  113
 
 void normalizer() {
-    for (int i = 0; i < N_FUNCTION; ++i) {
+    for (int i = 0; i < ff_ctrl_current() + 1; ++i) {
         if ( brain.population[brain.current].cost[i] < brain.population[brain.current].min[i] ) {
             /*printf("new min %f %f\n", brain.population[brain.current].cost[i], brain.population[brain.current].min[i] );*/
             brain.population[brain.current].min[i] = brain.population[brain.current].cost[i];
@@ -60,7 +61,7 @@ void normalizer() {
 }
 
 void scaler() {
-    for (int i = 0; i < N_FUNCTION; ++i) {
+    for (int i = 0; i < ff_ctrl_current() + 1; ++i) {
         brain.population[brain.current].cost[i] *= brain.population[brain.current].weight[ (i * GEN_P_FUNCTION) + 2 ];
     }
 }
@@ -70,166 +71,13 @@ void evaluate_cost() {
 
     ff_ctrl_reset();
 
-#if defined(FBDP)
-
-    if ( cleaned_any_row() ) {
-        clear_lines();
-    }
-
-    brain.population[brain.current].cost[ff_ctrl_next()]  = holes(); // 1
-    brain.population[brain.current].cost[ff_ctrl_next()]  = highest_cell(); // 6
-#elif defined(NDP)
-    if ( cleaned_any_row() ) {
-        clear_lines();
-    }
-
-    brain.population[brain.current].cost[ff_ctrl_next()]  = holes();
-    brain.population[brain.current].cost[ff_ctrl_next()]  = highest_cell();
-
-    for (int i = 0; i < 10; ++i) {
-        brain.population[brain.current].cost[ff_ctrl_next()]  = column_height(i);
-    }
-
-    for (int i = 0; i < 9; ++i) {
-        brain.population[brain.current].cost[ff_ctrl_next()]  = height_difference(i);
-    }
-#elif defined(KBR)
-    if ( cleaned_any_row() ) {
-        clear_lines();
-    }
-
-    brain.population[brain.current].cost[ff_ctrl_next()]  = holes(); // 1
-    brain.population[brain.current].cost[ff_ctrl_next()]  = highest_cell(); // 6
-
-    for (int i = 0; i < 10; ++i) {
-        brain.population[brain.current].cost[ff_ctrl_next()]  = column_height(i);
-    }
-
-    for (int i = 0; i < 9; ++i) {
-        brain.population[brain.current].cost[ff_ctrl_next()]  = height_difference(i);
-    }
-
-    brain.population[brain.current].cost[ff_ctrl_next()]  = mean_column_height();     // 3
-    brain.population[brain.current].cost[ff_ctrl_next()]  = min_height();             // 2
-    brain.population[brain.current].cost[ff_ctrl_next()]  = max_mean_column_height(); // 4
-    brain.population[brain.current].cost[ff_ctrl_next()]  = min_mean_column_height(); // 5
-    brain.population[brain.current].cost[ff_ctrl_next()]  = mean_hole_depth();        // 8
-    brain.population[brain.current].cost[ff_ctrl_next()]  = well_cells();             // 16
-#elif defined(CMA)
-    brain.population[brain.current].cost[ff_ctrl_next()]  = complete_rows(); // 10
-
-    if ( cleaned_any_row() ) {
-        clear_lines();
-    }
-
-    brain.population[brain.current].cost[ff_ctrl_next()]  = holes(); // 6
-    brain.population[brain.current].cost[ff_ctrl_next()]  = blocks_weighted(); // 21
-    brain.population[brain.current].cost[ff_ctrl_next()]  = well_cells(); // 16
-    brain.population[brain.current].cost[ff_ctrl_next()]  = blocks(); // 20
-    brain.population[brain.current].cost[ff_ctrl_next()]  = lock_heigth(); // 18
-    brain.population[brain.current].cost[ff_ctrl_next()]  = eroded_pieces(); // 32
-
-    brain.population[brain.current].cost[ff_ctrl_next()]  = horizontal_roughness(); // 22
-    brain.population[brain.current].cost[ff_ctrl_next()]  = vertical_roughness(); // 24
-
-    brain.population[brain.current].cost[ff_ctrl_next()]  = well_cells_weigthed(); // 17
-    brain.population[brain.current].cost[ff_ctrl_next()]  = hole_depth(); // 34
-
-    brain.population[brain.current].cost[ff_ctrl_next()]  = rows_with_a_hole(); // 33
-    brain.population[brain.current].cost[ff_ctrl_next()]  = pattern_diversity(); // 35
-#elif defined(HA)
-    brain.population[brain.current].cost[ff_ctrl_next()]  = complete_rows(); // 10
-
-    if ( cleaned_any_row() ) {
-        clear_lines();
-    }
-    brain.population[brain.current].cost[ff_ctrl_next()]  = holes(); // 1
-    brain.population[brain.current].cost[ff_ctrl_next()]  = highest_cell(); // 6
-    brain.population[brain.current].cost[ff_ctrl_next()]  = holes_vertical(); // 7
-    brain.population[brain.current].cost[ff_ctrl_next()]  = height_delta(); // 12
-    brain.population[brain.current].cost[ff_ctrl_next()]  = max_well_depth(); // 14
-    brain.population[brain.current].cost[ff_ctrl_next()]  = well_cells(); // 13
-    brain.population[brain.current].cost[ff_ctrl_next()]  = lock_heigth(); // 18
-
-    brain.population[brain.current].cost[ff_ctrl_next()]  = blocks(); // 20
-    brain.population[brain.current].cost[ff_ctrl_next()]  = blocks_weighted(); // 21
-    brain.population[brain.current].cost[ff_ctrl_next()] = horizontal_roughness(); // 22
-    brain.population[brain.current].cost[ff_ctrl_next()] = vertical_roughness(); // 24
-
-    brain.population[brain.current].cost[ff_ctrl_next()] = highest_hole(); // 26
-    brain.population[brain.current].cost[ff_ctrl_next()] = blocks_above_highest_hole(); // 27
-    brain.population[brain.current].cost[ff_ctrl_next()] = potential_rows(); // 29
-    brain.population[brain.current].cost[ff_ctrl_next()] = surface_variance(); // 30
-    brain.population[brain.current].cost[ff_ctrl_next()] = eroded_pieces(); // 32
-    brain.population[brain.current].cost[ff_ctrl_next()] = rows_with_a_hole(); // 33
-    brain.population[brain.current].cost[ff_ctrl_next()] = hole_depth(); // 34
-#elif defined(LELmark)
-    brain.population[brain.current].cost[ff_ctrl_next()]  = complete_rows();
-    brain.population[brain.current].cost[ff_ctrl_next()]  = complete_rows_weighted();
-
-    if ( cleaned_any_row() ) {
-        clear_lines();
-    }
-
-    brain.population[brain.current].cost[ff_ctrl_next()]  = aggregate_height();
-    brain.population[brain.current].cost[ff_ctrl_next()]  = covered_cells();
-    brain.population[brain.current].cost[ff_ctrl_next()]  = surface_variance();
-    brain.population[brain.current].cost[ff_ctrl_next()]  = well_cells();
-    brain.population[brain.current].cost[ff_ctrl_next()]  = lock_heigth();
-    brain.population[brain.current].cost[ff_ctrl_next()]  = burried_cells();
-    brain.population[brain.current].cost[ff_ctrl_next()]  = highest_cell();
-    brain.population[brain.current].cost[ff_ctrl_next()]  = height_delta();
-    brain.population[brain.current].cost[ff_ctrl_next()]  = vertical_roughness();
-    brain.population[brain.current].cost[ff_ctrl_next()] = horizontal_roughness();
-    brain.population[brain.current].cost[ff_ctrl_next()] = vertical_roughness_w();
-    brain.population[brain.current].cost[ff_ctrl_next()] = horizontal_roughness_w();
-#elif defined(ALL)
-    brain.population[brain.current].cost[ff_ctrl_next()] = complete_rows();
-
-    if ( cleaned_any_row() ) {
-        clear_lines();
-    }
-
-    brain.population[brain.current].cost[ff_ctrl_next()] = max_height();
-    brain.population[brain.current].cost[ff_ctrl_next()] = min_height();
-    brain.population[brain.current].cost[ff_ctrl_next()] = mean_column_height();
-    brain.population[brain.current].cost[ff_ctrl_next()] = max_mean_column_height();
-    brain.population[brain.current].cost[ff_ctrl_next()] = min_mean_column_height();
-    brain.population[brain.current].cost[ff_ctrl_next()] = holes();
-    brain.population[brain.current].cost[ff_ctrl_next()] = holes_vertical();
-    brain.population[brain.current].cost[ff_ctrl_next()] = mean_hole_depth();
-    brain.population[brain.current].cost[ff_ctrl_next()] = height_delta();
-    brain.population[brain.current].cost[ff_ctrl_next()] = well_cells();
-    brain.population[brain.current].cost[ff_ctrl_next()] = max_well_depth();
-    brain.population[brain.current].cost[ff_ctrl_next()] = number_of_wells();
-    brain.population[brain.current].cost[ff_ctrl_next()] = total_well_depth();
-    brain.population[brain.current].cost[ff_ctrl_next()] = well_cells_weigthed();
-    brain.population[brain.current].cost[ff_ctrl_next()] = lock_heigth();
-    brain.population[brain.current].cost[ff_ctrl_next()] = aggregate_height();
-    brain.population[brain.current].cost[ff_ctrl_next()] = blocks();
-    brain.population[brain.current].cost[ff_ctrl_next()] = blocks_weighted();
-
-    brain.population[brain.current].cost[ff_ctrl_next()] = horizontal_roughness();
-    brain.population[brain.current].cost[ff_ctrl_next()] = vertical_roughness();
-
-    brain.population[brain.current].cost[ff_ctrl_next()] = highest_hole();
-    brain.population[brain.current].cost[ff_ctrl_next()] = blocks_above_highest_hole();
-    brain.population[brain.current].cost[ff_ctrl_next()] = potential_rows();
-    brain.population[brain.current].cost[ff_ctrl_next()] = surface_variance();
-    brain.population[brain.current].cost[ff_ctrl_next()] = eroded_pieces();
-    brain.population[brain.current].cost[ff_ctrl_next()] = rows_with_a_hole();
-    brain.population[brain.current].cost[ff_ctrl_next()] = hole_depth();
-    brain.population[brain.current].cost[ff_ctrl_next()] = pattern_diversity();
-    brain.population[brain.current].cost[ff_ctrl_next()] = free_blocks();
-
-    brain.population[brain.current].cost[ff_ctrl_next()] = complete_rows_weighted();
-    brain.population[brain.current].cost[ff_ctrl_next()] = blocks_above_highest_hole_w();
-    brain.population[brain.current].cost[ff_ctrl_next()] = horizontal_roughness_w();
-    brain.population[brain.current].cost[ff_ctrl_next()] = vertical_roughness_w();
-#else
-    fprintf(stderr, "No feature set selected!\nAborting\n");
-    exit(-1);
-#endif
+    /*feature_set_FBDP();*/
+    /*feature_set_NDP();*/
+    /*feature_set_KBR();*/
+    feature_set_CMA();
+    /*feature_set_HA();*/
+    /*feature_set_LELmark();*/
+    /*feature_set_ALL();*/
 
     /*normalizer();*/
 
@@ -238,7 +86,7 @@ void evaluate_cost() {
 
 void initialize_pop (){
     for (int i = 0; i < POP_SIZE; ++i) {
-        for (int j = 0; j < N_GENES; ++j) {
+        for (int j = 0; j < ff_ctrl_ngens(); ++j) {
 #ifdef TRAIN
             brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 75.0;
             /*brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 7.5;*/
@@ -273,7 +121,7 @@ void update_diversity() {
     for (int i = 0; i < POP_SIZE; ++i) {
         for (int j = 0; j < POP_SIZE; ++j) {
             double d = 0;
-            for (int k = 0; k < N_GENES; ++k) {
+            for (int k = 0; k < ff_ctrl_ngens(); ++k) {
                 d += sqrt ( pow(brain.population[i].weight[k] - brain.population[j].weight[k], 2) );
             }
             brain.diversity += d / ( POP_SIZE * POP_SIZE );
@@ -287,7 +135,7 @@ double get_cost(){
 
     double result = 0;
 
-    for (int i = 0; i < N_FUNCTION; i ++ ) {
+    for (int i = 0; i < ff_ctrl_current() + 1; i ++ ) {
         result += obj->cost[i];
     }
 
@@ -303,8 +151,8 @@ void crossover ( _obj_costs *new_pop, _obj_costs *old_pop, int p1, int p2, int p
     _obj_costs b = old_pop[p2];
 
     if ( drand48() < brain.crossover_chance ) {
-        for (int i = 0; i < N_GENES; ++i) {
-            if ( drand48() < .5 ) {
+        for (int i = 0; i < ff_ctrl_ngens(); ++i) {
+            if ( drand48() < .1 ) {
                 new_pop[pos + 0].weight[i] = a.weight[i];
                 new_pop[pos + 1].weight[i] = b.weight[i];
             } else {
@@ -313,7 +161,7 @@ void crossover ( _obj_costs *new_pop, _obj_costs *old_pop, int p1, int p2, int p
             }
         }
     } else {
-        for (int i = 0; i < N_GENES; ++i) {
+        for (int i = 0; i < ff_ctrl_ngens(); ++i) {
             new_pop[pos + 0].weight[i] = a.weight[i];
             new_pop[pos + 1].weight[i] = b.weight[i];
         }
@@ -328,7 +176,7 @@ double random_normal() {
 }
 
 void mutation ( _obj_costs *individual ) {
-    for (int i = 0; i < N_GENES; ++i) {
+    for (int i = 0; i < ff_ctrl_ngens(); ++i) {
         if ( drand48() < brain.mutation_chance ) {
             individual->weight[i] += random_normal() * 0.3;
         }
@@ -351,7 +199,7 @@ _obj_costs get_best_individual() {
 void print_pop() {
     for (int i = 0; i < POP_SIZE; ++i) {
         printf("double trained_ia[] = ");
-        for (int j = 0; j < N_GENES; ++j) {
+        for (int j = 0; j < ff_ctrl_ngens(); ++j) {
             printf("%6.2f ,", brain.population[i].weight[j]);
         }
         printf("}; // fitness = %4d\n", brain.population[i].fitness);
@@ -375,13 +223,13 @@ void selection(_obj_costs *old, _obj_costs *new) {
         } while ( p1 == p2 );
 
         if ( old[p1].fitness > old[p2].fitness ) {
-            for (int i = 0; i < N_GENES; ++i) {
+            for (int i = 0; i < ff_ctrl_ngens(); ++i) {
                 new[c].weight[i] = old[p1].weight[i];
                 new[c].cost[i]   = 0;
                 new[c].fitness   = old[p1].fitness;
             }
         } else {
-            for (int i = 0; i < N_GENES; ++i) {
+            for (int i = 0; i < ff_ctrl_ngens(); ++i) {
                 new[c].weight[i] = old[p2].weight[i];
                 new[c].cost[i]   = 0;
                 new[c].fitness   = old[p2].fitness;
@@ -473,7 +321,7 @@ void finished_evaluating_individual () {
     /*if ( brain.runs == brain.max_runs || brain.population[brain.current].fitness == 0 ) {*/
     if ( brain.runs == brain.max_runs ) {
         printf("double trained_ia[] = {");
-        for (int j = 0; j < N_GENES; ++j) {
+        for (int j = 0; j < ff_ctrl_ngens(); ++j) {
             printf("%6.2f ,", brain.population[brain.current].weight[j]);
         }
         printf("}; // fitness = %4d\n", brain.population[brain.current].fitness);

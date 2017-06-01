@@ -29,6 +29,7 @@
 #include "lelmark.h"
 #include "graphics.h"
 #include "file_control.h"
+#include "ff_controller.h"
 
 #include "tetris.h"
 
@@ -44,8 +45,8 @@
   (byte & 0x02 ? '1' : '0'), \
   (byte & 0x01 ? '1' : '0')
 
-/*#define __use_other_sdl*/
-/*#define __draw_other_window*/
+#define __use_other_sdl
+#define __draw_other_window
 
 static _cpu_info* cpu_info;
 
@@ -382,7 +383,7 @@ void print_cost() {
     sprintf(text, "total: %f", get_cost() );
     draw_text(text, 10, pos, 0x2a, 0x7d, 0xd5);
 
-    for (int i = 0; i < N_GENES; i += 3) {
+    for (int i = 0; i < ff_ctrl_ngens(); i += 3) {
         pos += 20;
 
         /*sprintf(text, "%2d %7.2f %7.2f %7.2f = %10.2f",*/

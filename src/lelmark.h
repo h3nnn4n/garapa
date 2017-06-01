@@ -6,45 +6,43 @@
 #define POP_SIZE 50
 
 #define GEN_P_FUNCTION 3
+#define N_FUNCTION     60
 
 // TODO Clean this mess
 
-#if defined(FBDP)
+//#if defined(FBDP)
 
-#define N_FUNCTION     2
+//#define N_FUNCTION     2
 
-#elif defined(NDP)
+//#elif defined(NDP)
 
-#define N_FUNCTION     21
+//#define N_FUNCTION     21
 
-#elif defined(KBR)
+//#elif defined(KBR)
 
-#define N_FUNCTION     27
+//#define N_FUNCTION     27
 
-#elif defined(CMA)
+//#elif defined(CMA)
 
-#define N_FUNCTION     13
+//#define N_FUNCTION     13
 
-#elif defined(HA)
+//#elif defined(HA)
 
-#define N_FUNCTION     19
+//#define N_FUNCTION     19
 
-#elif defined(LELmark)
+//#elif defined(LELmark)
 
-#define N_FUNCTION     13
+//#define N_FUNCTION     13
 
-#elif defined(ALL)
+//#elif defined(ALL)
 
-#define N_FUNCTION     33
+//#define N_FUNCTION     33
 
-#else
+//#else
 
-#define N_FUNCTION     2
+//#define N_FUNCTION     2
 
-#endif
-
-
-
+//#endif
 
 #define N_GENES (N_FUNCTION * GEN_P_FUNCTION)
 
