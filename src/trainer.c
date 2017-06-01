@@ -38,7 +38,7 @@ static _brain brain;
 double trained_ia[] = { 32.35, -49.50, 44.92, -4.96, 67.28, -4.26, -9.10, 42.57, -16.80, 6.98, -12.69, 16.81, -52.29, 35.24, 12.67, -22.58, 18.89, 38.76, -50.81, 70.76, -51.03, -52.32, -37.36, 40.87, -66.04, 39.31, -13.83, 38.29, 58.41, -26.93, 64.36, 52.25, 16.16, -68.15, 51.03, -50.47, 69.55, 4.40, -60.75 }; // fitness =  113
 
 void normalizer() {
-    for (int i = 0; i < ff_ctrl_current() + 1; ++i) {
+    for (int i = 0; i < ff_ctrl_current_plus(); ++i) {
         if ( brain.population[brain.current].cost[i] < brain.population[brain.current].min[i] ) {
             /*printf("new min %f %f\n", brain.population[brain.current].cost[i], brain.population[brain.current].min[i] );*/
             brain.population[brain.current].min[i] = brain.population[brain.current].cost[i];
@@ -61,7 +61,7 @@ void normalizer() {
 }
 
 void scaler() {
-    for (int i = 0; i < ff_ctrl_current() + 1; ++i) {
+    for (int i = 0; i < ff_ctrl_current_plus(); ++i) {
         brain.population[brain.current].cost[i] *= brain.population[brain.current].weight[ (i * GEN_P_FUNCTION) + 2 ];
     }
 }
@@ -86,7 +86,7 @@ void evaluate_cost() {
 
 void initialize_pop (){
     for (int i = 0; i < POP_SIZE; ++i) {
-        for (int j = 0; j < ff_ctrl_ngens(); ++j) {
+        for (int j = 0; j < N_GENES; ++j) {
 #ifdef TRAIN
             brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 75.0;
             /*brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 7.5;*/
@@ -135,7 +135,7 @@ double get_cost(){
 
     double result = 0;
 
-    for (int i = 0; i < ff_ctrl_current() + 1; i ++ ) {
+    for (int i = 0; i < ff_ctrl_current_plus(); i ++ ) {
         result += obj->cost[i];
     }
 
