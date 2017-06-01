@@ -25,7 +25,7 @@
 #include "lelmark.h"
 #include "other_window.h"
 
-//#define TRAIN
+#define TRAIN
 
 double get_cost();
 
