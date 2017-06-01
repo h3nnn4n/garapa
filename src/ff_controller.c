@@ -17,26 +17,23 @@
  *    misrepresented as being the original software.                          *
  * 3. This notice may not be removed or altered from any source distribution. *
  ******************************************************************************/
-#ifndef TRAINER_H
-#define TRAINER_H
 
-#include "types.h"
-#include "tetris.h"
-#include "lelmark.h"
-#include "other_window.h"
+#include <stdio.h>
 
-#define TRAIN
+#include "ff_controller.h"
 
-double get_cost();
+static _ff_controller ff_ctrl;
 
-void mutation ( _obj_costs *individual );
-void print_pop();
-void boot_brain();
-void evaluate_cost();
-void finished_evaluating_individual();
-void update_fitness();
-void update_diversity();
+void ff_ctrl_reset() {
+    ff_ctrl.current = -1;
+}
 
-_brain* get_brain_pointer();
+int ff_ctrl_next() {
+    ff_ctrl.current += 1;
 
-#endif /* TRAINER_H */
+    return ff_ctrl.current;
+}
+
+int ff_ctrl_current() {
+    return ff_ctrl.current;
+}

@@ -23,6 +23,7 @@
 #include <stdlib.h>
 
 #include "feature_functions.h"
+#include "ff_controller.h"
 #include "other_window.h"
 #include "trainer.h"
 
@@ -32,13 +33,7 @@
 // The sum of all column heights
 double aggregate_height() {
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(HA)
-    int fid           = 0;
-#elif defined(ALL)
-    int fid           = 16;
-#else
-    int fid           = 0;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -68,17 +63,7 @@ double aggregate_height() {
 // Number of rows that will be cleared
 double complete_rows(){
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(CMA)
-    int fid           = 1;
-#elif defined(LELmark)
-    int fid           = 2;
-#elif defined(ALL)
-    int fid           = 8;
-#elif defined(HA)
-    int fid           = 3;
-#else
-    int fid           = 0;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -103,15 +88,7 @@ double complete_rows(){
 // The sum of the height difference between 2 adjacent columns
 double surface_variance() {
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(HA)
-    int fid           = 15;
-#elif defined(LELmark)
-    int fid           = 3;
-#elif defined(ALL)
-    int fid           = 2;
-#else
-    int fid           = 2;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -141,13 +118,7 @@ double surface_variance() {
 // Number of hole cells weighted by their height
 double covered_cells() {
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(HA)
-    int fid           = 1;
-#elif defined(LELmark)
-    int fid           = 1;
-#else
-    int fid           = 0;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -175,13 +146,7 @@ double covered_cells() {
 // Number of well cells, also can be used as total well depth
 double max_well_depth(){
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(HA)
-    int fid           = 5;
-#elif defined(ALL)
-    int fid           = 11;
-#else
-    int fid           = 4;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -236,11 +201,7 @@ double max_well_depth(){
 // Number of wells
 double number_of_wells(){
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(ALL)
-    int fid           = 12;
-#else
-    int fid           = 0;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -285,11 +246,7 @@ double number_of_wells(){
 // Number of well cells, also can be used as total well depth, duplicated for completeness sake
 double total_well_depth(){ // total well depth
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(ALL)
-    int fid           = 13;
-#else
-    int fid           = 4;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -331,19 +288,7 @@ double total_well_depth(){ // total well depth
 // Number of well cells, also can be used as total well depth
 double well_cells(){ // total well depth
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(KBR)
-    int fid           = 26;
-#elif defined(CMA)
-    int fid           = 3;
-#elif defined(HA)
-    int fid           = 6;
-#elif defined(LELmark)
-    int fid           = 4;
-#elif defined(ALL)
-    int fid           = 10;
-#else
-    int fid           = 4;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -385,13 +330,7 @@ double well_cells(){ // total well depth
 // Number of completed rows weighted by their height
 double complete_rows_weighted(){
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(LELmark)
-    int fid           = 5;
-#elif defined(ALL)
-    int fid           = 29;
-#else
-    int fid           = 5;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -418,17 +357,7 @@ double complete_rows_weighted(){
 // The lock height (Y position of where the piece was placed
 double lock_heigth(){
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(CMA)
-    int fid           = 5;
-#elif defined(HA)
-    int fid           = 7;
-#elif defined(LELmark)
-    int fid           = 6;
-#elif defined(ALL)
-    int fid           = 15;
-#else
-    int fid           = 6;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -449,7 +378,7 @@ double lock_heigth(){
 // Number of empty blocks below the highest hole
 double burried_cells() {
     _bg_info *bg_info = get_bg_info_pointer();
-    int fid           = 7;
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -494,13 +423,7 @@ double burried_cells() {
 // The hiighest cell on the board
 double highest_cell() {
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(FBDP) || defined(NDP) || defined(KBR) || defined(CMA) || defined(HA)
-    int fid           = 0;
-#elif defined(LELmark)
-    int fid           = 7;
-#else
-    int fid           = 8;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -530,15 +453,7 @@ double highest_cell() {
 // the bigegst height difference between 2 columns
 double height_delta() {
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(HA)
-    int fid           = 4;
-#elif defined(LELmark)
-    int fid           = 8;
-#elif defined(ALL)
-    int fid           = 9;
-#else
-    int fid           = 9;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -568,17 +483,7 @@ double height_delta() {
 // aka verical transitions
 double vertical_roughness() {
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(CMA)
-    int fid           = 8;
-#elif defined(HA)
-    int fid           = 11;
-#elif defined(LELmark)
-    int fid           = 9;
-#elif defined(ALL)
-    int fid           = 20;
-#else
-    int fid           = 0;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -599,17 +504,7 @@ double vertical_roughness() {
 // Same as above, but for horizontal changes
 double horizontal_roughness() {
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(CMA)
-    int fid           = 7;
-#elif defined(HA)
-    int fid           = 10;
-#elif defined(LELmark)
-    int fid           = 10;
-#elif defined(ALL)
-    int fid           = 19;
-#else
-    int fid           = 0;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -630,13 +525,7 @@ double horizontal_roughness() {
 // same as f10 but weighted
 double vertical_roughness_w() {
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(LELmark)
-    int fid           = 11;
-#elif defined(ALL)
-    int fid           = 32;
-#else
-    int fid           = 0;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -657,13 +546,7 @@ double vertical_roughness_w() {
 // same as f11 but weighted
 double horizontal_roughness_w() {
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(LELmark)
-    int fid           = 12;
-#elif defined(ALL)
-    int fid           = 31;
-#else
-    int fid           = 0;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -684,11 +567,7 @@ double horizontal_roughness_w() {
 // The height of a single column
 double column_height( int pos ) {
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(NDP) || defined(KBR)
-    int fid           = 2 + pos;
-#else
-    int fid           = 14 + pos;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -718,11 +597,7 @@ double column_height( int pos ) {
 // the height difference between 2 adjacent columns
 double height_difference( int pos ) { // Column Difference
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(NDP) || defined(KBR)
-    int fid           = 12 + pos;
-#else
-    int fid           = 15 + pos;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -752,13 +627,7 @@ double height_difference( int pos ) { // Column Difference
 // the mean column height
 double mean_column_height() {
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(KBR)
-    int fid           = 21;
-#elif defined(ALL)
-    int fid           = 2;
-#else
-    int fid           = 16;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -786,13 +655,7 @@ double mean_column_height() {
 // max - mean column height
 double max_mean_column_height() {
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(KBR)
-    int fid           = 23;
-#elif defined(ALL)
-    int fid           = 3;
-#else
-    int fid           = 17;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -823,13 +686,7 @@ double max_mean_column_height() {
 // mean - min column height
 double min_mean_column_height() {
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(KBR)
-    int fid           = 24;
-#elif defined(ALL)
-    int fid           = 4;
-#else
-    int fid           = 18;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -860,15 +717,7 @@ double min_mean_column_height() {
 // mean hole depth
 double mean_hole_depth() {
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(KBR)
-    int fid           = 25;
-#elif defined(ALL)
-    int fid           = 7;
-#else
-    int fid           = 19;
-    fprintf(stderr, "I am dumb\n");
-    exit(-1);
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -900,11 +749,7 @@ double mean_hole_depth() {
 // The number of blocks in the board
 double free_blocks() {
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(ALL)
-    int fid           = 28;
-#else
-    int fid           = 0;
-#endif
+    int fid = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -927,15 +772,7 @@ double free_blocks() {
 // The number of blocks in the board
 double blocks() {
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(CMA)
-    int fid           = 4;
-#elif defined(HA)
-    int fid           = 8;
-#elif defined(ALL)
-    int fid           = 17;
-#else
-    int fid           = 20;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -956,15 +793,7 @@ double blocks() {
 // The number of blocks in the board, but a block on the i-th row counts i times as much
 double blocks_weighted() {
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(CMA)
-    int fid           = 2;
-#elif defined(HA)
-    int fid           = 9;
-#elif defined(ALL)
-    int fid           = 18;
-#else
-    int fid           = 0;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -989,15 +818,7 @@ double blocks_weighted() {
 double eroded_pieces() {
     /*fprintf(stderr, "Not implemented\n");*/
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(CMA)
-    int fid           = 6;
-#elif defined(HA)
-    int fid           = 16;
-#elif defined(ALL)
-    int fid           = 25;
-#else
-    int fid           = 0;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -1021,13 +842,7 @@ double eroded_pieces() {
 // Number of well cells, also can be used as total well depth, weighted
 double well_cells_weigthed(){ // total well depth
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(CMA)
-    int fid           = 9;
-#elif defined(ALL)
-    int fid           = 14;
-#else
-    int fid           = 0;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -1068,15 +883,7 @@ double well_cells_weigthed(){ // total well depth
 // functon n 33*
 double rows_with_a_hole() {
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(CMA)
-    int fid           = 11;
-#elif defined(HA)
-    int fid           = 17;
-#elif defined(ALL)
-    int fid           = 26;
-#else
-    int fid           = 0;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -1110,15 +917,7 @@ double rows_with_a_hole() {
 // The sum of the number of occupied pieces above each hole
 double hole_depth() {
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(CMA)
-    int fid           = 10;
-#elif defined(HA)
-    int fid           = 18;
-#elif defined(ALL)
-    int fid           = 27;
-#else
-    int fid           = 0;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -1148,13 +947,7 @@ double hole_depth() {
 // minimum height
 double min_height() {
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(KBR)
-    int fid           = 22;
-#elif defined(ALL)
-    int fid           = 1;
-#else
-    int fid           = 0;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -1184,13 +977,7 @@ double min_height() {
 // Maximum height
 double max_height() {
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(FBDP) || defined(NDP) || defined(KBR)
-    int fid           = 1;
-#elif defined(ALL)
-    int fid           = 0;
-#else
-    int fid           = 8;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -1220,13 +1007,7 @@ double max_height() {
 // Number of vertically connected holes
 double holes_vertical() {
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(HA)
-    int fid           = 2;
-#elif defined(ALL)
-    int fid           = 6;
-#else
-    int fid           = 3;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -1255,13 +1036,7 @@ double holes_vertical() {
 // Number of holes
 double holes() {
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(FBDP) || defined(NDP) || defined(KBR) || defined(CMA) || defined(HA)
-    int fid           = 0;
-#elif defined(ALL)
-    int fid           = 5;
-#else
-    int fid           = 3;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -1290,13 +1065,7 @@ double holes() {
 // Highest hole
 double potential_rows() {
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(HA)
-    int fid           = 14;
-#elif defined(ALL)
-    int fid           = 23;
-#else
-    int fid           = 3;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -1339,11 +1108,7 @@ double potential_rows() {
 // blocks above highest hole wighted
 double blocks_above_highest_hole_w() {
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(ALL)
-    int fid           = 30;
-#else
-    int fid           = 3;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -1384,13 +1149,7 @@ double blocks_above_highest_hole_w() {
 // Highest hole
 double blocks_above_highest_hole() {
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(HA)
-    int fid           = 13;
-#elif defined(ALL)
-    int fid           = 22;
-#else
-    int fid           = 3;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -1431,13 +1190,7 @@ double blocks_above_highest_hole() {
 // Highest hole
 double highest_hole() {
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(HA)
-    int fid           = 12;
-#elif defined(ALL)
-    int fid           = 21;
-#else
-    int fid           = 3;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
@@ -1467,13 +1220,7 @@ double highest_hole() {
 // Function n 35* !!!!!!!!!!!!
 double pattern_diversity() {
     _bg_info *bg_info = get_bg_info_pointer();
-#if defined(CMA)
-    int fid           = 12;
-#elif defined(ALL)
-    int fid           = 28;
-#else
-    int fid           = 0;
-#endif
+    int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 

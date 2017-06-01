@@ -14,6 +14,7 @@ SOURCES=utils.c                      \
 		opt_to_str.c                 \
 		time_keeper.c                \
 		tetris.c                     \
+		ff_controller.c              \
 		trainer.c                    \
 		microcode.c                  \
 		memory.c                     \
