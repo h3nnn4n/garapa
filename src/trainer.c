@@ -74,12 +74,12 @@ void evaluate_cost() {
     /*feature_set_FBDP();*/
     /*feature_set_NDP();*/
     /*feature_set_KBR();*/
-    /*feature_set_CMA();*/
+    feature_set_CMA();
     /*feature_set_HA();*/
     /*feature_set_LELmark();*/
     /*feature_set_ALL();*/
 
-    feature_set_testing();
+    /*feature_set_testing();*/
 
     /*normalizer();*/
 

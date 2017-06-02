@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2016  Renan S. Silva                                         *
+ * Copyright (C) 2016-2017  Renan S. Silva                                    *
  *                                                                            *
  * This software is provided 'as-is', without any express or implied          *
  * warranty. In no event will the authors be held liable for any damages      *
@@ -25,6 +25,8 @@
 
 #include "graphics.h"
 #include "memory.h"
+#include "trainer.h"
+#include "lelmark.h"
 #include "types.h"
 #include "rev.h"
 #include "utils.h"
@@ -61,7 +63,9 @@ void decoder( _cpu_info *cpu ) {
 
     static int counter = 0;
 
-    /*if ( cpu->pc == 0x27f7 ) {*/
+    if ( cpu->pc == 0x2062 ) {
+        get_brain_pointer()->new_piece = 1;
+    }
     /*if ( cpu->pc == 0x0033 ) {*/
         /*if ( cpu->mem_controller.memory[0xffe1] == 0 ) {*/
             /*exit(0);*/

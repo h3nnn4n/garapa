@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2016  Renan S. Silva                                         *
+ * Copyright (C) 2016-2017  Renan S. Silva                                    *
  *                                                                            *
  * This software is provided 'as-is', without any express or implied          *
  * warranty. In no event will the authors be held liable for any damages      *
@@ -45,8 +45,8 @@
   (byte & 0x02 ? '1' : '0'), \
   (byte & 0x01 ? '1' : '0')
 
-#define __use_other_sdl
-#define __draw_other_window
+/*#define __use_other_sdl*/
+/*#define __draw_other_window*/
 
 static _cpu_info* cpu_info;
 
@@ -644,8 +644,8 @@ void new_piece_on_screen_hook() {
     /*int x = get_cpu_pointer()->mem_controller.memory[0xff92] - 8;*/
     /*int y = get_cpu_pointer()->mem_controller.memory[0xff93] - 16;*/
 
-    if ( abs(cpu->mem_controller.memory[y_pos] - old_pos) > 8 ) {
-        /*printf("New piece\n");*/
+    if ( brain->new_piece ) {
+        brain->new_piece = 0;
         /*evaluate_cost();*/
 
         brain->population[brain->current].pieces_spawned_total++;
