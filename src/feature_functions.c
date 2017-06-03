@@ -27,8 +27,6 @@
 #include "other_window.h"
 #include "trainer.h"
 
-// TODO Clean this mess
-
 // Function n 0
 // The sum of all column heights
 double aggregate_height() {
@@ -813,29 +811,42 @@ double blocks_weighted() {
     return total;
 }
 
-// Function n 32* !!!!!
-// Eroded pieces TODO FIXME WIP
+// Function n 32*
+// Eroded pieces
 double eroded_pieces() {
-    /*fprintf(stderr, "Not implemented\n");*/
     _bg_info *bg_info = get_bg_info_pointer();
     int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
     double total = 0;
+    int missing = 4;
+    int cleared = 0;
 
-    for (int i = 0; i < __X_SIZE; ++i) {
-        int x    = 0;
-        for (int j = 0; j < __Y_SIZE; ++j) {
-            if ( bg_info->data[i][j] >= 1 ) {
-                x = __Y_SIZE - j;
-                x = base[0] * x + base[1];
-                total += base[0] * x + base[1];
+    // Checks for cleared lines
+    for (int j = 0; j < __Y_SIZE; ++j) {
+        int ok = 1;
+        for (int i = 0; i < __X_SIZE; ++i) {
+            if ( bg_info->data[i][j] == 0 ) {
+                ok = 0;
+                break;
+            }
+        }
+
+        if ( ok ) {
+            cleared ++;
+            // Counts the number of blocks to be removed
+            for (int i = 0; i < __X_SIZE; ++i) {
+                if ( bg_info->data[i][j] == 2 ) {
+                    missing --;
+                }
             }
         }
     }
 
-    return 0;
+    total = cleared * missing;
+
+    return total * base[0] + base[1];
 }
 
 // Function n 17*
@@ -1216,30 +1227,41 @@ double highest_hole() {
     return total;
 }
 
-// WIP TODO FIXME
-// Function n 35* !!!!!!!!!!!!
+// Function n 35*
 double pattern_diversity() {
     _bg_info *bg_info = get_bg_info_pointer();
     int fid           = ff_ctrl_current();
     _brain* brain     = get_brain_pointer();
     double *base      = &brain->population[brain->current].weight[fid * GEN_P_FUNCTION];
 
-    int total = 0;
+    int hash[__Y_SIZE];
+    int used[__Y_SIZE * __Y_SIZE];
+
+    int total = __Y_SIZE;
+
+    for (int i = 0; i < __Y_SIZE * __Y_SIZE; ++i) {
+        used[i] = 0;
+    }
+
+    for (int i = 0; i < __Y_SIZE; ++i) {
+        hash[i] = 0;
+    }
 
     for (int i = 0; i < __X_SIZE; ++i) {
-        int found = 0;
         for (int j = 0; j < __Y_SIZE; ++j) {
-            int x    = 0;
-            if ( bg_info->data[i][j] >= 1 && !found ) {
-                found = 1;
-            } else if ( bg_info->data[i][j] == 0 && found ) {
-                x = __Y_SIZE - j;
-
-                x = x * base[0] + base[1];
-                total += x;
+            if ( bg_info->data[i][j] >= 1 ) {
+                hash[j] = pow(2, i);
             }
         }
     }
 
-    return total;
+    for (int i = 0; i < __Y_SIZE; ++i) {
+        if ( used[hash[i]] ) {
+            total --;
+        }
+
+        used[hash[i]] ++;
+    }
+
+    return total * base[0] + base[1];
 }
