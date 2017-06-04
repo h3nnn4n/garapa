@@ -304,6 +304,10 @@ void get_best_move(){
                 int first = 0;
                 found = 0;
                 for (int dy = 24; dy < 8*20; dy += 8 ) {
+                    if ( !can_fit(piece, dx, dy ) && dy == 24) {
+                        break;
+                    }
+
                     if ( can_fit(piece, dx, dy )) {
                         found = 1;
                         first = 1;
@@ -358,11 +362,15 @@ void get_best_move(){
             }
         }
 
-        for (int dx = 0 ; dx < 96; dx += 8) {
+        for (int dx = 8 ; dx < 96; dx += 8) {
             if ( is_inside_bounds(piece, dx, 16)) {
                 int first = 0;
                 found = 0;
                 for (int dy = 24; dy < 8*20; dy += 8 ) {
+                    if ( !can_fit(piece, dx, dy ) && dy == 24) {
+                        break;
+                    }
+
                     if ( can_fit(piece, dx, dy )) {
                         found = 1;
                         first = 1;

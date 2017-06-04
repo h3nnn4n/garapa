@@ -74,8 +74,8 @@ void evaluate_cost() {
     /*feature_set_FBDP();*/
     /*feature_set_NDP();*/
     /*feature_set_KBR();*/
-    feature_set_CMA();
-    /*feature_set_HA();*/
+    /*feature_set_CMA();*/
+    feature_set_HA();
     /*feature_set_LELmark();*/
     /*feature_set_ALL();*/
 
@@ -90,7 +90,7 @@ void initialize_pop (){
     for (int i = 0; i < POP_SIZE; ++i) {
         for (int j = 0; j < N_GENES; ++j) {
 #ifdef TRAIN
-            brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 75.0;
+            brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 50.0;
             /*brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 7.5;*/
 #else
             brain.population[i].weight[j] = trained_ia[j];
@@ -320,13 +320,13 @@ void finished_evaluating_individual () {
 
     brain.runs++;
 
-    /*if ( brain.runs == brain.max_runs || brain.population[brain.current].fitness == 0 ) {*/
-    if ( brain.runs == brain.max_runs ) {
+    if ( brain.runs == brain.max_runs || brain.population[brain.current].fitness == 0 ) {
+    /*if ( brain.runs == brain.max_runs ) {*/
         printf("double trained_ia[] = {");
         for (int j = 0; j < ff_ctrl_ngens(); ++j) {
-            printf("%6.2f ,", brain.population[brain.current].weight[j]);
+            printf("%6.4f ,", brain.population[brain.current].weight[j]);
         }
-        printf("}; // fitness = %4d\n", brain.population[brain.current].fitness);
+        printf("}; // fitness = %4d\n", brain.population[brain.current].worst);
 
         for (int i = 0; i < NRUNS; ++i) {
             printf("GEN,%d,CURRENT,%d,RUNS,%d,PS:%d,LC,%d\n", brain.elapsed_generations, brain.current, i,

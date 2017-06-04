@@ -27,15 +27,16 @@
 void feature_set_testing(){
     _brain *brain = get_brain_pointer();
 
-    /*brain->population[brain->current].cost[ff_ctrl_next()] = complete_rows();*/
+    brain->population[brain->current].cost[ff_ctrl_next()] = complete_rows();
     brain->population[brain->current].cost[ff_ctrl_next()] = complete_rows_weighted();
+    brain->population[brain->current].cost[ff_ctrl_next()] = eroded_pieces();
 
     if ( cleaned_any_row() ) {
         clear_lines();
     }
 
-    /*brain->population[brain->current].cost[ff_ctrl_next()] = max_height();*/
-    /*brain->population[brain->current].cost[ff_ctrl_next()] = min_height();*/
+    brain->population[brain->current].cost[ff_ctrl_next()] = max_height();
+    brain->population[brain->current].cost[ff_ctrl_next()] = min_height();
     /*brain->population[brain->current].cost[ff_ctrl_next()] = mean_column_height();*/
     /*brain->population[brain->current].cost[ff_ctrl_next()] = max_mean_column_height();*/
     /*brain->population[brain->current].cost[ff_ctrl_next()] = min_mean_column_height();*/
@@ -43,27 +44,26 @@ void feature_set_testing(){
     /*brain->population[brain->current].cost[ff_ctrl_next()] = holes_vertical();*/
     /*brain->population[brain->current].cost[ff_ctrl_next()] = mean_hole_depth();*/
     /*brain->population[brain->current].cost[ff_ctrl_next()] = height_delta();*/
-    /*brain->population[brain->current].cost[ff_ctrl_next()] = well_cells();*/
+    brain->population[brain->current].cost[ff_ctrl_next()] = well_cells();
     /*brain->population[brain->current].cost[ff_ctrl_next()] = max_well_depth();*/
     /*brain->population[brain->current].cost[ff_ctrl_next()] = number_of_wells();*/
     /*brain->population[brain->current].cost[ff_ctrl_next()] = total_well_depth();*/
     /*brain->population[brain->current].cost[ff_ctrl_next()] = well_cells_weigthed();*/
-    /*brain->population[brain->current].cost[ff_ctrl_next()] = lock_heigth();*/
+    brain->population[brain->current].cost[ff_ctrl_next()] = lock_heigth();
     brain->population[brain->current].cost[ff_ctrl_next()] = aggregate_height();
     /*brain->population[brain->current].cost[ff_ctrl_next()] = blocks();*/
     brain->population[brain->current].cost[ff_ctrl_next()] = blocks_weighted();
 
-    /*brain->population[brain->current].cost[ff_ctrl_next()] = horizontal_roughness();*/
-    /*brain->population[brain->current].cost[ff_ctrl_next()] = vertical_roughness();*/
+    brain->population[brain->current].cost[ff_ctrl_next()] = horizontal_roughness();
+    brain->population[brain->current].cost[ff_ctrl_next()] = vertical_roughness();
 
     /*brain->population[brain->current].cost[ff_ctrl_next()] = highest_hole();*/
     /*brain->population[brain->current].cost[ff_ctrl_next()] = blocks_above_highest_hole();*/
-    /*brain->population[brain->current].cost[ff_ctrl_next()] = potential_rows();*/
+    brain->population[brain->current].cost[ff_ctrl_next()] = potential_rows();
     brain->population[brain->current].cost[ff_ctrl_next()] = surface_variance();
-    /*brain->population[brain->current].cost[ff_ctrl_next()] = eroded_pieces();*/
-    /*brain->population[brain->current].cost[ff_ctrl_next()] = rows_with_a_hole();*/
+    brain->population[brain->current].cost[ff_ctrl_next()] = rows_with_a_hole();
     /*brain->population[brain->current].cost[ff_ctrl_next()] = hole_depth();*/
-    /*brain->population[brain->current].cost[ff_ctrl_next()] = pattern_diversity();*/
+    brain->population[brain->current].cost[ff_ctrl_next()] = pattern_diversity();
     /*brain->population[brain->current].cost[ff_ctrl_next()] = free_blocks();*/
 
     /*brain->population[brain->current].cost[ff_ctrl_next()] = blocks_above_highest_hole_w();*/
@@ -125,7 +125,7 @@ void feature_set_KBR(){
 
     for (int i = 0; i < 9; ++i) {
         brain->population[brain->current].cost[ff_ctrl_next()] = height_difference(i);
-    } 
+    }
     brain->population[brain->current].cost[ff_ctrl_next()] = mean_column_height();     // 3
     brain->population[brain->current].cost[ff_ctrl_next()] = min_height();             // 2
     brain->population[brain->current].cost[ff_ctrl_next()] = max_mean_column_height(); // 4

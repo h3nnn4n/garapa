@@ -24,6 +24,8 @@ def pack_data(name):
             if d[0] == 'DIVERSITY':
                 diver = float(d[1])
                 diversity.append(diver)
+            elif 'double' in d[0]:
+                pass
             else:
                 gen     = int(d[1])
                 current = int(d[3])
@@ -71,6 +73,8 @@ def get_maxlen(name):
             d = line.split('\n')[0].split(',')
 
             if d[0] == 'DIVERSITY':
+                pass
+            elif d[0] == 'double':
                 pass
             else:
                 gen     = int(d[1])
