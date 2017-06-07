@@ -30,7 +30,7 @@
 #include "graphics.h"
 #include "file_control.h"
 #include "ff_controller.h"
-
+#include "stats.h"
 #include "tetris.h"
 
 
@@ -287,6 +287,7 @@ void other_window_init ( ) {
     ai_state.game_state      = BOOTING;
 
     boot_brain();
+    reset_stats();
 }
 
 _bg_info* get_bg_info_pointer () {
@@ -645,6 +646,8 @@ void new_piece_on_screen_hook() {
     /*int y = get_cpu_pointer()->mem_controller.memory[0xff93] - 16;*/
 
     if ( brain->new_piece ) {
+        update_stats(cpu->mem_controller.memory[0xc203]);
+
         brain->new_piece = 0;
         /*evaluate_cost();*/
 

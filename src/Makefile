@@ -23,6 +23,7 @@ SOURCES=utils.c                      \
 		file_control.c               \
 		instructions_branch.c        \
 		instructions_data_transfer.c \
+		stats.c                      \
 		instructions_logical.c       \
 		instructions_arithmetic.c    \
 		instructions_0xcb.c          \

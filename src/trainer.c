@@ -356,6 +356,7 @@ void finished_evaluating_individual () {
             brain.current = 0;
             printf("DIVERSITY,%f\n", brain.diversity);
         }
+        print_stats();
     }
 }
 
