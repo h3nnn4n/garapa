@@ -23,7 +23,7 @@
 
 #include "tester.h"
 
-#define POP_SIZE 50
+#define POP_SIZE 20
 
 #define GEN_P_FUNCTION 3
 #define N_FUNCTION     60

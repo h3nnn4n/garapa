@@ -26,6 +26,8 @@ def pack_data(name):
                 diversity.append(diver)
             elif 'double' in d[0]:
                 pass
+            elif 'O:' in d[0]:
+                pass
             else:
                 gen     = int(d[1])
                 current = int(d[3])
@@ -75,6 +77,8 @@ def get_maxlen(name):
             if d[0] == 'DIVERSITY':
                 pass
             elif d[0] == 'double':
+                pass
+            elif '0:' in d[0]:
                 pass
             else:
                 gen     = int(d[1])
