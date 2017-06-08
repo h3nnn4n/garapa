@@ -2,8 +2,8 @@
 
 reset
 
-#set terminal pngcairo size 1600,600 enhanced font 'Verdana,9'
-set terminal pngcairo size 650,300 enhanced dashed font 'Verdana,10'
+set terminal pngcairo size 1600,600 enhanced font 'Verdana,9'
+#set terminal pngcairo size 650,300 enhanced dashed font 'Verdana,10'
 set output 'piece_count.png'
 
 set style line 11 lc rgb '#808080' lt 1
@@ -40,6 +40,6 @@ plot \
 'log_pieces.txt'     u 1:3 t 'I'     w l ls 2, \
 'log_pieces.txt'     u 1:4 t 'S'     w l ls 3, \
 'log_pieces.txt'     u 1:5 t 'Z'     w l ls 4, \
-'log_pieces.txt'     u 1:6 t 'L'     w l ls 5, \
 'log_pieces.txt'     u 1:7 t 'J'     w l ls 6, \
 'log_pieces.txt'     u 1:8 t 'T'     w l ls 7, \
+'log_pieces.txt'     u 1:6 t 'L'     w l ls 5, \
