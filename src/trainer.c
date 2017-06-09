@@ -287,7 +287,7 @@ void boot_brain() {
     brain.mutation_chance     = 0.04;
     brain.crossover_chance    = 0.85;
 #else
-    brain.mutation_chance     = 0.01;
+    brain.mutation_chance     = 0.04;
     brain.crossover_chance    = 0.0;
 #endif
     brain.max_runs            = NRUNS;
@@ -381,30 +381,32 @@ void finished_evaluating_individual () {
     if ( brain.population[brain.current].fitness < brain.population[brain.current].worst || brain.runs == 0 ) {
         brain.population[brain.current].worst = brain.population[brain.current].fitness;
     }
+#ifdef print_piece_sequence
     printf("\n");
+#endif
 
     brain.runs++;
 
     if ( brain.runs == brain.max_runs || brain.population[brain.current].fitness == 0 ) {
 #ifdef print_ga_status
-        /*printf("double trained_ia[] = {");*/
-        /*for (int j = 0; j < ff_ctrl_ngens(); ++j) {*/
-            /*printf("%6.4f ,", brain.population[brain.current].weight[j]);*/
-        /*}*/
-        /*printf("}; // fitness = %4d\n", brain.population[brain.current].worst);*/
+        printf("double trained_ia[] = {");
+        for (int j = 0; j < ff_ctrl_ngens(); ++j) {
+            printf("%6.4f ,", brain.population[brain.current].weight[j]);
+        }
+        printf("}; // fitness = %4d\n", brain.population[brain.current].worst);
 #endif
 
         for (int i = 0; i < NRUNS; ++i) {
 #ifdef print_ga_status
-            /*printf("GEN,%d,CURRENT,%d,RUNS,%d,PS:%d,LC,%d\n", brain.elapsed_generations, brain.current, i,*/
-                    /*brain.population[brain.current].pieces_spawned[i], brain.population[brain.current].lines_cleared[i]);*/
+            printf("GEN,%d,CURRENT,%d,RUNS,%d,PS:%d,LC,%d\n", brain.elapsed_generations, brain.current, i,
+                    brain.population[brain.current].pieces_spawned[i], brain.population[brain.current].lines_cleared[i]);
 #endif
             brain.population[brain.current].pieces_spawned[i] = 0;
             brain.population[brain.current].lines_cleared[i] = 0;
         }
 #ifdef print_ga_status
-        /*printf("GEN,%d,CURRENT,%d,RUNS,%d,PS:%d,LC,%d\n", brain.elapsed_generations, brain.current, -1,*/
-                /*brain.population[brain.current].pieces_spawned_total, brain.population[brain.current].lines_cleared_total);*/
+        printf("GEN,%d,CURRENT,%d,RUNS,%d,PS:%d,LC,%d\n", brain.elapsed_generations, brain.current, -1,
+                brain.population[brain.current].pieces_spawned_total, brain.population[brain.current].lines_cleared_total);
 #endif
         brain.population[brain.current].pieces_spawned_total = 0;
         brain.population[brain.current].lines_cleared_total = 0;
@@ -425,7 +427,7 @@ void finished_evaluating_individual () {
             evolutionary_step();
             brain.current = 0;
 #ifdef print_ga_status
-            /*printf("DIVERSITY,%f\n", brain.diversity);*/
+            printf("DIVERSITY,%f\n", brain.diversity);
 #endif
         }
 #ifdef print_piece_stats
