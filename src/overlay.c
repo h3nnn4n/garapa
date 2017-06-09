@@ -24,6 +24,7 @@ void draw_array(_cpu_info *cpu, uint16_t base, uint8_t offset, int x, int y, int
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 void overlay_main( _cpu_info *cpu ) {
+#if 0
     char text[256];
     int posx = 0;
     int posy = 20;
@@ -60,7 +61,6 @@ void overlay_main( _cpu_info *cpu ) {
     /*draw_text(text, px3 * 4, py3 * 4, 0, 255, 255);*/
 
 
-#if 0
     posy += 20; draw_array(cpu, 0xc0a0, 3, posx, posy, 255, 255, 0); // Score
     posy += 20; draw_array(cpu, 0xc0a3, 8, posx, posy, 255, 255, 0); // FInished row pointers
 
