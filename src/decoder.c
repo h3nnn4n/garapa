@@ -63,7 +63,7 @@ void decoder( _cpu_info *cpu ) {
 
     static int counter = 0;
 
-    if ( cpu->pc == 0x2062 ) {
+    if ( cpu->pc == 0x20c4 ) {
         get_brain_pointer()->new_piece = 1;
     }
     /*if ( cpu->pc == 0x0033 ) {*/
