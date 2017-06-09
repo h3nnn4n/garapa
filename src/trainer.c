@@ -41,7 +41,8 @@ static _brain brain;
 
 // HA
 /*double trained_ia[] = {32.1508, 2.8777, -49.4253, 39.8463, 28.9834, 9.8544, -32.4268, 32.5170, 16.7758, -27.1612, -33.5880, -44.6022, -6.4512, 33.3889, -34.1346, 9.7343, -35.0173, 48.9320, -46.6092, -25.8300, 30.7455, -31.4399, 8.8452, 41.2565, -33.2424, 24.3321, 33.6927, 0.3008, 28.2476, -41.0953, -0.7421, 15.4908, 43.7104, -30.0510, -14.2121, 39.8671, 24.6210, 45.9686, -41.0614, -27.9304, 31.9153, 7.8082, 28.5994, -29.1026, 1.2354, 42.3936, -0.5425, -22.4464, 2.6247, -25.2252, -18.9337, 2.9831, -33.8267, -46.4482, -49.1497, 37.7229, -10.7922}; // fitness =   879*/
-double trained_ia[] = {32.1508, 2.8777, -49.4253, 39.8463, 28.9834, 9.8544, -32.4268, 32.5170, 16.7758, -27.1612, -33.5880, -44.6022, -6.4512, 33.3889, -34.1346, 9.7343, -35.0173, 48.9320, -46.6092, -25.8300, 30.7455, -31.4399, 8.8452, 41.2565, -33.2424, 24.3321, 33.6927, 0.3008, 28.2476, -41.0953, -0.7421, 15.4908, 43.7104, -30.0510, -14.2121, 39.8671, 24.6210, 45.9686, -41.0614, -27.9304, 31.9153, 7.8082, 28.5994, -29.1026, 1.2354, 42.3936, -0.5425, -22.4464, 2.6247, -25.2252, -18.9337, 2.9831, -33.8267, -46.4482, -49.1497, 37.7229, -10.7922}; // fitness =   980
+/*double trained_ia[] = {32.1508, 2.8777, -49.4253, 39.8463, 28.9834, 9.8544, -32.4268, 32.5170, 16.7758, -27.1612, -33.5880, -44.6022, -6.4512, 33.3889, -34.1346, 9.7343, -35.0173, 48.9320, -46.6092, -25.8300, 30.7455, -31.4399, 8.8452, 41.2565, -33.2424, 24.3321, 33.6927, 0.3008, 28.2476, -41.0953, -0.7421, 15.4908, 43.7104, -30.0510, -14.2121, 39.8671, 24.6210, 45.9686, -41.0614, -27.9304, 31.9153, 7.8082, 28.5994, -29.1026, 1.2354, 42.3936, -0.5425, -22.4464, 2.6247, -25.2252, -18.9337, 2.9831, -33.8267, -46.4482, -49.1497, 37.7229, -10.7922}; // fitness =   980*/
+double trained_ia[] = {2.1508, 2.8777, -9.4253, 39.8463, 28.9834, 9.8544, -32.4268, 32.5170, 16.7758, -27.1612, -33.5880, -44.6022, -6.4512, 33.3889, -34.1346, 9.7343, -35.0173, 48.9320, -46.6092, -25.8300, 30.7455, -31.4399, 8.8452, 41.2565, -33.2424, 24.3321, 33.6927, 0.3008, 28.2476, -41.0953, -0.7421, 15.4908, 43.7104, -30.0510, -14.2121, 39.8671, 24.6210, 45.9686, -41.0614, -27.9304, 31.9153, 7.8082, 28.5994, -29.1026, 1.2354, 42.3936, -0.5425, -22.4464, 2.6247, -25.2252, -18.9337, 2.9831, -33.8267, -46.4482, -49.1497, 37.7229, -10.7922}; // fitness =   980
 
 
 void normalizer() {
@@ -287,8 +288,8 @@ void boot_brain() {
     brain.mutation_chance     = 0.04;
     brain.crossover_chance    = 0.85;
 #else
-    brain.mutation_chance     = 0.04;
-    brain.crossover_chance    = 0.0;
+    brain.mutation_chance     = 0.1;
+    brain.crossover_chance    = 0.9;
 #endif
     brain.max_runs            = NRUNS;
     brain.runs                = 0;
@@ -321,6 +322,7 @@ void update_fitness() {
 }
 
 void print_piece() {
+    static int counter = 0;
     switch (get_cpu_pointer()->mem_controller.memory[0xc203]) {
         case 0x0c:
         case 0x0d:
@@ -375,6 +377,10 @@ void print_piece() {
             fprintf(stderr, "Invalid piece in get_current_piece\n");
             abort();
     }
+
+    if ( (counter++) % 5 == 0 ){
+        fflush(NULL);
+    }
 }
 
 void finished_evaluating_individual () {
@@ -393,7 +399,7 @@ void finished_evaluating_individual () {
         for (int j = 0; j < ff_ctrl_ngens(); ++j) {
             printf("%6.4f ,", brain.population[brain.current].weight[j]);
         }
-        printf("}; // fitness = %4d\n", brain.population[brain.current].worst);
+        printf("}; // fitness = %4d %4d %4d\n", brain.population[brain.current].fitness, brain.population[brain.current].worst, brain.population[brain.current].lines_cleared_total);
 #endif
 
         for (int i = 0; i < NRUNS; ++i) {
@@ -410,8 +416,6 @@ void finished_evaluating_individual () {
 #endif
         brain.population[brain.current].pieces_spawned_total = 0;
         brain.population[brain.current].lines_cleared_total = 0;
-
-        fflush(NULL);
 
         brain.runs = 0;
 
@@ -430,9 +434,12 @@ void finished_evaluating_individual () {
             printf("DIVERSITY,%f\n", brain.diversity);
 #endif
         }
+
 #ifdef print_piece_stats
         print_stats();
 #endif
+
+        fflush(NULL);
     }
 }
 
