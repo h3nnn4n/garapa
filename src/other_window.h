@@ -45,6 +45,9 @@ void other_sdl_quit ( ) ;
 void other_flip_screen ( ) ;
 uint32_t *other_get_frame_buffer () ;
 uint32_t *other_get_frame_buffer_vision () ;
+void draw_rectangle(int x, int y, int x2, int y2, int r, int g, int b);
+void draw_text(char *text, int x, int y, int r, int g, int b);
+void draw_square(int x, int y, int r, int g, int b);
 
 
 

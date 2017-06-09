@@ -11,4 +11,8 @@ typedef struct {
     int T;
 } _stats;
 
+void reset_stats();
+void update_stats(int id);
+void print_stats();
+
 #endif /* STATS_H */

@@ -24,6 +24,7 @@
 
 #include "other_window.h"
 
+#include "stats.h"
 #include "types.h"
 #include "trainer.h"
 #include "lelmark.h"
@@ -293,16 +294,17 @@ void other_window_init ( ) {
 _bg_info* get_bg_info_pointer () {
     return &bg_info;
 }
-void draw_rectangle(int x, int y, int x2, int y2, int r, int g, int b) {
+
 #ifdef __draw_other_window
+void draw_rectangle(int x, int y, int x2, int y2, int r, int g, int b) {
     SDL_SetRenderDrawColor(other_renderer, r, g, b, 0);
     SDL_Rect dstrect = { x, y, x2, y2 };
     SDL_RenderFillRect(other_renderer, &dstrect);
-#endif
 }
+#endif
 
-void draw_square(int x, int y, int r, int g, int b) {
 #ifdef __draw_other_window
+void draw_square(int x, int y, int r, int g, int b) {
     int size = 1;
     int x2 = x / size;
     int y2 = y / size;
@@ -310,8 +312,8 @@ void draw_square(int x, int y, int r, int g, int b) {
     SDL_SetRenderDrawColor(other_renderer, r, g, b, 0);
     SDL_Rect dstrect = { x2, y2, w2, w2 };
     SDL_RenderFillRect(other_renderer, &dstrect);
-#endif
 }
+#endif
 
 void draw_falling_blocks() {
     for (int i = 0; i < sprite_t_info.used_sprites; ++i) {
@@ -357,8 +359,8 @@ void draw_best() {
     draw_square(best_piece.coord.x + best_piece.blocks.d.x * 8 , best_piece.coord.y + best_piece.blocks.d.y * 8,  0 ,  0, 255 );
 }
 
-void draw_text(char *text, int x, int y, int r, int g, int b) {
 #ifdef __draw_other_window
+void draw_text(char *text, int x, int y, int r, int g, int b) {
     int texW = 0;
     int texH = 0;
 
@@ -373,8 +375,8 @@ void draw_text(char *text, int x, int y, int r, int g, int b) {
 
     SDL_DestroyTexture(texture);
     SDL_FreeSurface(surface);
-#endif
 }
+#endif
 
 void print_cost() {
     char text[256];
@@ -648,6 +650,8 @@ void new_piece_on_screen_hook() {
     if ( brain->new_piece ) {
         update_stats(cpu->mem_controller.memory[0xc203]);
 
+        print_piece();
+
         brain->new_piece = 0;
         /*evaluate_cost();*/
 
@@ -753,3 +757,11 @@ void other_sdl_quit ( ) {
     SDL_Quit();
 #endif
 }
+
+#if !defined(__draw_other_window)
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+void draw_rectangle(int x, int y, int x2, int y2, int r, int g, int b) {}
+void draw_square(int x, int y, int r, int g, int b) {}
+void draw_text(char *text, int x, int y, int r, int g, int b) {}
+
+#endif

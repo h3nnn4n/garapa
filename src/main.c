@@ -40,6 +40,9 @@
 #include "automated_tests.h"
 
 int main(int argc, char *argv[]) {
+    if ( argc < 2 )
+        fprintf(stderr, "Missing argument\n");
+
     _cpu_info cpu;
     sdl_init();
 
