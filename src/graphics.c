@@ -141,6 +141,16 @@ void draw_rectangle_overlay(int x, int y, int x2, int y2, int r, int g, int b) {
     SDL_RenderFillRect(renderer, &dstrect);
 }
 
+void draw_square_overlay(int x, int y, int r, int g, int b) {
+    int size = 1;
+    int x2 = x / size;
+    int y2 = y / size;
+    int w2 = 8*4 / size;
+    SDL_SetRenderDrawColor(renderer, r, g, b, 0);
+    SDL_Rect dstrect = { x2, y2, w2, w2 };
+    SDL_RenderFillRect(renderer, &dstrect);
+}
+
 void draw_text_with_bg_overlay(char *text, int x, int y, int r, int g, int b) {
     int texW = 0;
     int texH = 0;

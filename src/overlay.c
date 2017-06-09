@@ -2,10 +2,12 @@
 #include <stdint.h>
 #include <string.h>
 
-
+#include "lelmark.h"
+#include "tetris.h"
 #include "types.h"
 #include "overlay.h"
 #include "graphics.h"
+#include "other_window.h"
 
 void draw_array(_cpu_info *cpu, uint16_t base, uint8_t offset, int x, int y, int r, int g, int b) {
     char text[512];
@@ -22,9 +24,19 @@ void draw_array(_cpu_info *cpu, uint16_t base, uint8_t offset, int x, int y, int
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 void overlay_main( _cpu_info *cpu ) {
-    /*char text[256];*/
+    char text[256];
     int posx = 0;
     int posy = 20;
+
+    _best_piece best_piece = *(get_best_piece_pointer());
+
+    best_piece.coord.x *= 4;
+    best_piece.coord.y *= 4;
+
+    draw_square_overlay(best_piece.coord.x + best_piece.blocks.a.x * 8*4 , best_piece.coord.y + best_piece.blocks.a.y * 8*4, 60 , 100, 255 );
+    draw_square_overlay(best_piece.coord.x + best_piece.blocks.b.x * 8*4 , best_piece.coord.y + best_piece.blocks.b.y * 8*4, 60 , 100, 255 );
+    draw_square_overlay(best_piece.coord.x + best_piece.blocks.c.x * 8*4 , best_piece.coord.y + best_piece.blocks.c.y * 8*4, 60 , 100, 255 );
+    draw_square_overlay(best_piece.coord.x + best_piece.blocks.d.x * 8*4 , best_piece.coord.y + best_piece.blocks.d.y * 8*4,  0 ,   0, 255 );
 
     // Draws the centre of the piece
     /*int px = cpu->mem_controller.memory[0xc202];*/
@@ -34,19 +46,21 @@ void overlay_main( _cpu_info *cpu ) {
     /*draw_text(text, px * 4, py * 4, 255, 0, 0);*/
 
     // Draws the bottom rightmost block
-    /*int px2 = cpu->mem_controller.memory[0xff92];*/
-    /*int py2 = cpu->mem_controller.memory[0xff93];*/
-    /*sprintf(text,"%2d %2d", px2, py2);*/
-    /*draw_rectangle(px2*4, py2*4, 8*4, 8*4, 0, 255, 0);*/
-    /*draw_text(text, px2 * 4, py2 * 4, 0, 0, 255);*/
+    int px2 = cpu->mem_controller.memory[0xff92] - 8;
+    int py2 = cpu->mem_controller.memory[0xff93] - 16;
+    sprintf(text,"%2d %2d", px2, py2);
+    /*draw_text_with_bg_overlay(text, (px2 + 4) * 4, py2 * 4, 0, 0, 255);*/
+    draw_rectangle_overlay(px2*4, py2*4, 8*4, 8*4, 0, 255, 0);
 
     // mirror for `0xff92`
-    /*int px3 = cpu->mem_controller.memory[0xffb3];*/
-    /*int py3 = cpu->mem_controller.memory[0xffb2];*/
-    /*sprintf(text,"%2d %2d", px3, py3);*/
-    /*draw_rectangle(px3*4, py3*4, 8*4, 8*4, 0, 127, 127);*/
+    int px3 = cpu->mem_controller.memory[0xffb3] - 8;
+    int py3 = cpu->mem_controller.memory[0xffb2] - 16;
+    sprintf(text,"%2d %2d", px3, py3);
+    draw_rectangle_overlay(px3*4, py3*4, 8*4, 8*4, 0, 127, 127);
     /*draw_text(text, px3 * 4, py3 * 4, 0, 255, 255);*/
 
+
+#if 0
     posy += 20; draw_array(cpu, 0xc0a0, 3, posx, posy, 255, 255, 0); // Score
     posy += 20; draw_array(cpu, 0xc0a3, 8, posx, posy, 255, 255, 0); // FInished row pointers
 
@@ -87,4 +101,5 @@ void overlay_main( _cpu_info *cpu ) {
   /*posy += 20; draw_array(cpu, 0xc912, 10, posx, posy, 255, 255, 0);*/
     posy += 20; draw_array(cpu, 0xca22, 10, posx, posy, 255, 255, 0);
   /*posy += 20; draw_array(cpu, 0xca32, 10, posx, posy, 255, 255, 0);*/
+#endif
 }
