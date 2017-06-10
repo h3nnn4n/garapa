@@ -5,6 +5,11 @@ GABATE - Genetic Algorithm Based Agent for TEtris
 
 GABATE is a fork (right now a branch) of Garapa that plays Tetris by itself. So far the plan is to make a couple of Game specific AI to play some games.
 
+Records
+=======
+
+So far the current record is: 2637 pieces, using the commit 0d80367629e0175715e83fe3b3ba427f4366089c
+
 Features
 ========
 
