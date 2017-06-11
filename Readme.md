@@ -8,7 +8,7 @@ GABATE is a fork (right now a branch) of Garapa that plays Tetris by itself. So 
 Records
 =======
 
-So far the current record is: 2637 pieces, using the commit 0d80367629e0175715e83fe3b3ba427f4366089c
+So far the current record is: 3118 pieces, using the commit fbc04a10db4f3f8c00892f8d91623e3473eed528
 
 Features
 ========

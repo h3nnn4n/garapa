@@ -70,7 +70,7 @@
 #define __X_SIZE 10
 #define __Y_SIZE 17
 
-#define NRUNS 10
+#define NRUNS 3
 
 typedef struct {
     int x;
