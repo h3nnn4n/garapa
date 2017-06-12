@@ -41,4 +41,6 @@ _piece get_rotated_piece (_piece_type piece_type ) ;
 
 _piece_type get_current_piece();
 
+int try_and_fit(double *best_cost, int *first, int *found, int dx, int dy, int x, int y, _piece piece, _piece_type piece_type, int n_totation );
+
 #endif /* TETRIS_H */

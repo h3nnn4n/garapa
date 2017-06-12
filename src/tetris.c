@@ -284,8 +284,61 @@ void reset_bg() {
     }
 }
 
+int try_and_fit(double *best_cost, int *first, int *found, int dx, int dy, int x, int y, _piece piece, _piece_type piece_type, int n_totation ) {
+    _best_piece *best_piece = get_best_piece_pointer();
+
+    if ( can_fit(piece, dx, dy )) {
+        *found = 1;
+        *first = 1;
+    } else if ( first ) {
+        save_bg();
+        add_piece(piece, dx, dy - 8);
+        evaluate_cost();
+        if ( *best_cost < get_cost() ) {
+            *best_cost          = get_cost();
+            best_piece->coord.x = dx + x;
+            best_piece->coord.y = dy + y;
+            best_piece->type    = piece_type;
+            best_piece->blocks  = piece;
+            best_piece->set     = 1;
+            best_piece->nrotations = n_totation;
+            best_piece->parameters = get_brain_pointer()->population[get_brain_pointer()->current];
+        }
+
+        /*screen_update();*/
+        /*SDL_Delay(25);*/
+
+        restore_bg();
+        return 1;
+    } else {
+        return 1;
+    }
+
+    if ( piece_touched_the_ground (piece, dx, dy) ) {
+        save_bg();
+        add_piece(piece, dx, dy - 8);
+        evaluate_cost();
+        *best_cost          = get_cost();
+        best_piece->coord.x = dx + x;
+        best_piece->coord.y = dy + y;
+        best_piece->type    = piece_type;
+        best_piece->blocks  = piece;
+        best_piece->set     = 1;
+        best_piece->nrotations = n_totation;
+        best_piece->parameters = get_brain_pointer()->population[get_brain_pointer()->current];
+
+        /*screen_update();*/
+        /*SDL_Delay(25);*/
+
+        restore_bg();
+        return 1;
+    }
+
+    return 0;
+}
+
 void get_best_move(){
-    double best_cost = -999999;
+    double best_cost = -1<<31;
     _best_piece *best_piece = get_best_piece_pointer();
 
     best_piece->set = 0;
@@ -308,52 +361,8 @@ void get_best_move(){
                         break;
                     }
 
-                    if ( can_fit(piece, dx, dy )) {
-                        found = 1;
-                        first = 1;
-                    } else if ( first ) {
-                        save_bg();
-                        add_piece(piece, dx, dy - 8);
-                        evaluate_cost();
-                        if ( best_cost < get_cost() ) {
-                            best_cost           = get_cost();
-                            best_piece->coord.x = dx + x;
-                            best_piece->coord.y = dy + y;
-                            best_piece->type    = piece_type;
-                            best_piece->blocks  = piece;
-                            best_piece->set     = 1;
-                            best_piece->nrotations = n_totation;
-                            best_piece->parameters = get_brain_pointer()->population[get_brain_pointer()->current];
-                        }
-
-                        /*screen_update();*/
-                        /*SDL_Delay(25);*/
-
-                        restore_bg();
+                    if ( try_and_fit(&best_cost, &first, &found, dx, dy,x, y, piece, piece_type, n_totation))
                         break;
-                    } else {
-                        break;
-                    }
-
-                    if ( piece_touched_the_ground (piece, dx, dy) ) {
-                        save_bg();
-                        add_piece(piece, dx, dy - 8);
-                        evaluate_cost();
-                        best_cost           = get_cost();
-                        best_piece->coord.x = dx + x;
-                        best_piece->coord.y = dy + y;
-                        best_piece->type    = piece_type;
-                        best_piece->blocks  = piece;
-                        best_piece->set     = 1;
-                        best_piece->nrotations = n_totation;
-                        best_piece->parameters = get_brain_pointer()->population[get_brain_pointer()->current];
-
-                        /*screen_update();*/
-                        /*SDL_Delay(25);*/
-
-                        restore_bg();
-                        break;
-                    }
                 }
             }
 
@@ -371,52 +380,8 @@ void get_best_move(){
                         break;
                     }
 
-                    if ( can_fit(piece, dx, dy )) {
-                        found = 1;
-                        first = 1;
-                    } else if ( first ) {
-                        save_bg();
-                        add_piece(piece, dx, dy - 8);
-                        evaluate_cost();
-                        if ( best_cost < get_cost() ) {
-                            best_cost           = get_cost();
-                            best_piece->coord.x = dx + x;
-                            best_piece->coord.y = dy + y;
-                            best_piece->type    = piece_type;
-                            best_piece->blocks  = piece;
-                            best_piece->set     = 1;
-                            best_piece->nrotations = n_totation;
-                            best_piece->parameters = get_brain_pointer()->population[get_brain_pointer()->current];
-                        }
-
-                        /*screen_update();*/
-                        /*SDL_Delay(25);*/
-
-                        restore_bg();
+                    if ( try_and_fit(&best_cost, &first, &found, dx, dy,x, y, piece, piece_type, n_totation))
                         break;
-                    } else {
-                        break;
-                    }
-
-                    if ( piece_touched_the_ground (piece, dx, dy) ) {
-                        save_bg();
-                        add_piece(piece, dx, dy - 8);
-                        evaluate_cost();
-                        best_cost           = get_cost();
-                        best_piece->coord.x = dx + x;
-                        best_piece->coord.y = dy + y;
-                        best_piece->type    = piece_type;
-                        best_piece->blocks  = piece;
-                        best_piece->set     = 1;
-                        best_piece->nrotations = n_totation;
-                        best_piece->parameters = get_brain_pointer()->population[get_brain_pointer()->current];
-
-                        /*screen_update();*/
-                        /*SDL_Delay(25);*/
-
-                        restore_bg();
-                        break;
-                    }
                 }
             }
 
