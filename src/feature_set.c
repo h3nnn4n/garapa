@@ -160,6 +160,40 @@ void feature_set_CMA(){
     brain->population[brain->current].cost[ff_ctrl_next()] = pattern_diversity(); // 35
 }
 
+void feature_set_HA2(){
+    _brain *brain = get_brain_pointer();
+
+    brain->population[brain->current].cost[ff_ctrl_next()] = complete_rows(); // 10
+    brain->population[brain->current].cost[ff_ctrl_next()] = complete_rows_weighted();
+    brain->population[brain->current].cost[ff_ctrl_next()] = eroded_pieces(); // 32
+
+    if ( cleaned_any_row() ) {
+        clear_lines();
+    }
+
+    brain->population[brain->current].cost[ff_ctrl_next()] = holes(); // 1
+    brain->population[brain->current].cost[ff_ctrl_next()] = highest_cell(); // 6
+    brain->population[brain->current].cost[ff_ctrl_next()] = holes_vertical(); // 7
+    brain->population[brain->current].cost[ff_ctrl_next()] = height_delta(); // 12
+    brain->population[brain->current].cost[ff_ctrl_next()] = max_well_depth(); // 14
+    brain->population[brain->current].cost[ff_ctrl_next()] = well_cells(); // 13
+    brain->population[brain->current].cost[ff_ctrl_next()] = lock_heigth(); // 18
+
+    brain->population[brain->current].cost[ff_ctrl_next()] = blocks(); // 20
+    brain->population[brain->current].cost[ff_ctrl_next()] = blocks_weighted(); // 21
+    brain->population[brain->current].cost[ff_ctrl_next()] = horizontal_roughness(); // 22
+    brain->population[brain->current].cost[ff_ctrl_next()] = vertical_roughness(); // 24
+    brain->population[brain->current].cost[ff_ctrl_next()] = horizontal_roughness_w();
+    brain->population[brain->current].cost[ff_ctrl_next()] = vertical_roughness_w();
+
+    brain->population[brain->current].cost[ff_ctrl_next()] = highest_hole(); // 26
+    brain->population[brain->current].cost[ff_ctrl_next()] = blocks_above_highest_hole(); // 27
+    brain->population[brain->current].cost[ff_ctrl_next()] = potential_rows(); // 29
+    brain->population[brain->current].cost[ff_ctrl_next()] = surface_variance(); // 30
+    brain->population[brain->current].cost[ff_ctrl_next()] = rows_with_a_hole(); // 33
+    brain->population[brain->current].cost[ff_ctrl_next()] = hole_depth(); // 34
+}
+
 void feature_set_HA(){
     _brain *brain = get_brain_pointer();
 

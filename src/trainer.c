@@ -88,8 +88,10 @@ void evaluate_cost() {
     /*feature_set_KBR();*/
     /*feature_set_CMA();*/
     /*feature_set_HA();*/
-    feature_set_LELmark();
+    /*feature_set_LELmark();*/
     /*feature_set_ALL();*/
+
+    feature_set_HA2();
 
     /*feature_set_testing();*/
 

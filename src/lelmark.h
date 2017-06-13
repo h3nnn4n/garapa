@@ -25,7 +25,7 @@
 
 #define POP_SIZE 10
 
-#define GEN_P_FUNCTION 3
+#define GEN_P_FUNCTION 30
 #define N_FUNCTION     60
 
 // TODO Clean this mess
@@ -70,7 +70,7 @@
 #define __X_SIZE 10
 #define __Y_SIZE 17
 
-#define NRUNS 3
+#define NRUNS 10
 
 typedef struct {
     int x;
