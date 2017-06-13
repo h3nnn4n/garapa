@@ -20,11 +20,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "SDL.h"
-#include "SDL_ttf.h"
-#include "SDL_video.h"
-#include "SDL_render.h"
-
 #include "types.h"
 #include "overlay.h"
 #include "graphics.h"
@@ -41,6 +36,7 @@
 #ifdef __use_sdl
 
 #include "SDL.h"
+#include "SDL_ttf.h"
 #include "SDL_video.h"
 #include "SDL_render.h"
 

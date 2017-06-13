@@ -19,8 +19,6 @@
  ******************************************************************************/
 #include <stdio.h>
 
-#include "SDL.h"
-
 #include "automated_tests.h"
 
 #include "debug.h"
