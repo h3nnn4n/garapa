@@ -192,6 +192,8 @@ void feature_set_HA2(){
     brain->population[brain->current].cost[ff_ctrl_next()] = surface_variance(); // 30
     brain->population[brain->current].cost[ff_ctrl_next()] = rows_with_a_hole(); // 33
     brain->population[brain->current].cost[ff_ctrl_next()] = hole_depth(); // 34
+    brain->population[brain->current].cost[ff_ctrl_next()] = pattern_diversity(); // 35
+    brain->population[brain->current].cost[ff_ctrl_next()] = burried_cells();
 }
 
 void feature_set_HA(){
