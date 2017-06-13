@@ -23,31 +23,43 @@
 #include "ff_controller.h"
 #include "lelmark.h"
 
+/*#define ff_debug*/
+
 static _ff_controller ff_ctrl;
 
 void ff_ctrl_reset() {
     ff_ctrl.current = -1;
-    /*fprintf(stderr, "ff_ctrl_reset() was called\n");*/
+#ifdef ff_debug
+    fprintf(stderr, "ff_ctrl_reset() was called\n");
+#endif
 }
 
 int ff_ctrl_next() {
     ff_ctrl.current += 1;
 
-    /*fprintf(stderr, "ff_ctrl_next() was called: %2d\n", ff_ctrl.current);*/
+#ifdef ff_debug
+    fprintf(stderr, "ff_ctrl_next() was called: %2d\n", ff_ctrl.current);
+#endif
     return ff_ctrl.current;
 }
 
 int ff_ctrl_current() {
-    /*fprintf(stderr, "ff_ctrl_current() was called: %2d\n", ff_ctrl.current);*/
+#ifdef ff_debug
+    fprintf(stderr, "ff_ctrl_current() was called: %2d\n", ff_ctrl.current);
+#endif
     return ff_ctrl.current;
 }
 
 int ff_ctrl_current_plus() {
-    /*fprintf(stderr, "ff_ctrl_current_plus() was called: %2d\n", ff_ctrl.current + 1);*/
+#ifdef ff_debug
+    fprintf(stderr, "ff_ctrl_current_plus() was called: %2d\n", ff_ctrl.current + 1);
+#endif
     return ff_ctrl.current + 1;
 }
 
 int ff_ctrl_ngens() {
-    /*fprintf(stderr, "ff_ctrl_ngens() was called: %2d\n", GEN_P_FUNCTION * (ff_ctrl_current() + 1));*/
+#ifdef ff_debug
+    fprintf(stderr, "ff_ctrl_ngens() was called: %2d\n", GEN_P_FUNCTION * (ff_ctrl_current() + 1));
+#endif
     return GEN_P_FUNCTION * (ff_ctrl.current + 1);
 }

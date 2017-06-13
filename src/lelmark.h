@@ -23,9 +23,9 @@
 
 #include "tester.h"
 
-#define POP_SIZE 10
+#define POP_SIZE 30
 
-#define GEN_P_FUNCTION 30
+#define GEN_P_FUNCTION 3
 #define N_FUNCTION     60
 
 // TODO Clean this mess
