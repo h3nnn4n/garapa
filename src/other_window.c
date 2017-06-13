@@ -447,28 +447,22 @@ void mem_fiddling() {
         draw_text(text, 400, pos, 0x2a, 0x90, 0xf5);
         pos += 20;
 
-        int a = get_cpu_pointer()->mem_controller.memory[0x9951];
-        int b = get_cpu_pointer()->mem_controller.memory[0x9950];
-        int c = get_cpu_pointer()->mem_controller.memory[0x994f];
-        int d = get_cpu_pointer()->mem_controller.memory[0x994e];
-
-        a = a == 0x2f ? 0 : a;
-        b = b == 0x2f ? 0 : b;
-        c = c == 0x2f ? 0 : c;
-        d = d == 0x2f ? 0 : d;
-
         /*sprintf(text, "best: %3d , %3d ", best_piece.coord.x, best_piece.coord.y);*/
         /*draw_text(text, 40, pos, 0x2a, 0x90, 0xf5);*/
         /*pos += 20;*/
 
-        sprintf(text,"Lines Cleared: %4d", a  * 1    +
-                                           b  * 10   +
-                                           c  * 100  +
-                                           d  * 1000);
+        _brain *brain = get_brain_pointer();
+
+        sprintf(text,"Lines Cleared: %4d", brain->population[brain->current].fitness);
         draw_text(text, 400, pos, 0x2a, 0x90, 0xf5);
         pos += 20;
 
         sprintf(text,"Least Cleared: %4d", get_brain_pointer()->population[get_brain_pointer()->current].worst);
+        draw_text(text, 400, pos, 0x2a, 0x90, 0xf5);
+        pos += 20;
+
+        index = 0x994e;
+        sprintf(text, "0x%04x = %02d %02x ", index, cpu_info->mem_controller.memory[index], cpu_info->mem_controller.memory[index]);
         draw_text(text, 400, pos, 0x2a, 0x90, 0xf5);
         pos += 20;
 

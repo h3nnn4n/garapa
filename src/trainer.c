@@ -21,6 +21,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <float.h>
+#include <assert.h>
 
 #include "feature_functions.h"
 #include "ff_controller.h"
@@ -387,9 +388,13 @@ void print_piece() {
 }
 
 void finished_evaluating_individual () {
+    brain.population[brain.current].lines_cleared[brain.runs] = brain.population[brain.current].fitness;
+    brain.population[brain.current].lines_cleared_total += brain.population[brain.current].fitness;
+
     if ( brain.population[brain.current].fitness < brain.population[brain.current].worst || brain.runs == 0 ) {
         brain.population[brain.current].worst = brain.population[brain.current].fitness;
     }
+
 #ifdef print_piece_sequence
     printf("\n");
 #endif
