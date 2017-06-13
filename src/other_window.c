@@ -34,6 +34,7 @@
 #include "stats.h"
 #include "tetris.h"
 
+#define fast_training 1
 
 #define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
 #define BYTE_TO_BINARY(byte)  \
@@ -148,18 +149,27 @@ void joystick_hook () {
                     case 1:
                         move_queue.ready = 0;
 
+                        if ( get_brain_pointer()->suicide && fast_training ) {
+                            cpu->joystick.button_down  = 0;
+                            break;
+                        }
+
                         if ( best_piece.nrotations > 0 /*&& move_queue.wait_rotation == 0*/ ) {
                             /*printf("Called rotation %2d\n", best_piece.nrotations);*/
                             cpu->joystick.button_b   = 0;
                             move_queue.wait_rotation = 1;
                             best_piece.nrotations--;
-                        } else
+                        }
+
+                        // FIXME Check out the best move strategy
+
                         if ( best_piece.coord.x > x ) {
                             cpu->joystick.button_right = 0;
                         } else
                         if ( best_piece.coord.x < x ) {
                             cpu->joystick.button_left  = 0;
-                        } else
+                        }
+
                         if ( best_piece.coord.x == x ) {
                             cpu->joystick.button_down  = 0;
                         }
@@ -644,6 +654,10 @@ void new_piece_on_screen_hook() {
     if ( brain->new_piece ) {
         update_stats(cpu->mem_controller.memory[0xc203]);
 
+        if ( brain->population[brain->current].fitness > brain->population[brain->current].worst && brain->runs > 0 ) {
+            brain->suicide = 1;
+        }
+
         print_piece();
 
         brain->new_piece = 0;
@@ -669,6 +683,7 @@ void game_over_hook() {
     int atual = cpu_info->mem_controller.memory[0xffe1];
 
     if ( atual == 0x000d && old != atual ) {
+        get_brain_pointer()->suicide = 0;
         reset_bg();
         check_stop_condition();
         update_fitness();

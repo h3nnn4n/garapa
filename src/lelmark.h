@@ -126,6 +126,8 @@ typedef struct {
 
     int rng;
 
+    int suicide;
+
     int round_has_cleaned_lines;
     _bg_info bg_info_copy;
 } _brain;
