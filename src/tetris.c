@@ -214,7 +214,6 @@ int has_invalid_position() {
     _bg_info *bg_info = get_bg_info_pointer();
 
     for (int j = 0; j < __Y_SIZE; ++j) {
-        int ok = 1;
         for (int i = 0; i < __X_SIZE; ++i) {
             if ( bg_info->data[i][j] > 2 ) {
                 return 1;
