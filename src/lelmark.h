@@ -23,7 +23,7 @@
 
 #include "tester.h"
 
-#define POP_SIZE 30
+#define POP_SIZE 50
 
 #define GEN_P_FUNCTION 3
 #define N_FUNCTION     60
@@ -70,7 +70,7 @@
 #define __X_SIZE 10
 #define __Y_SIZE 17
 
-#define NRUNS 10
+#define NRUNS 7
 
 typedef struct {
     int x;
