@@ -167,65 +167,29 @@ int can_fit(_piece piece, int dx, int dy) {
     xx = (x + dx + piece.a.x*8) / 8 - 2;
     yy = (y + dy + piece.a.y*8) / 8 - 1;
 
-    if ( xx < 0 || xx > __X_SIZE || yy < 0 || yy > __Y_SIZE ) {
-        /*fprintf(stderr, "Warning, (%3d, %3d),(%3d + %3d, %3d + %3d) is not inside of (%3d, %3d)\n", xx, yy, x, dx, y, dy, __X_SIZE, __Y_SIZE);*/
-        /*return 0;*/
-    }
-
-
-    if ( bg->data[xx][yy] >= 1 ) return 0;
+    if ( bg->data[xx][yy] == 1 ) return 0;
 
     xx = (x + dx + piece.b.x*8) / 8 - 2;
     yy = (y + dy + piece.b.y*8) / 8 - 1;
 
-    if ( xx < 0 || xx > __X_SIZE || yy < 0 || yy > __Y_SIZE ) {
-        /*fprintf(stderr, "Warning, (%3d, %3d),(%3d + %3d, %3d + %3d) is not inside of (%3d, %3d)\n", xx, yy, x, dx, y, dy, __X_SIZE, __Y_SIZE);*/
-        /*return 0;*/
-    }
-
-
-    if ( bg->data[xx][yy] >= 1 ) return 0;
+    if ( bg->data[xx][yy] == 1 ) return 0;
 
     xx = (x + dx + piece.c.x*8) / 8 - 2;
     yy = (y + dy + piece.c.y*8) / 8 - 1;
 
-    if ( xx < 0 || xx > __X_SIZE || yy < 0 || yy > __Y_SIZE ) {
-        /*fprintf(stderr, "Warning, (%3d, %3d),(%3d + %3d, %3d + %3d) is not inside of (%3d, %3d)\n", xx, yy, x, dx, y, dy, __X_SIZE, __Y_SIZE);*/
-        /*return 0;*/
-    }
-
-
-    if ( bg->data[xx][yy] >= 1 ) return 0;
+    if ( bg->data[xx][yy] == 1 ) return 0;
 
     xx = (x + dx + piece.d.x*8) / 8 - 2;
     yy = (y + dy + piece.d.y*8) / 8 - 1;
 
-    if ( xx < 0 || xx > __X_SIZE || yy < 0 || yy > __Y_SIZE ) {
-        /*fprintf(stderr, "Warning, (%3d, %3d),(%3d + %3d, %3d + %3d) is not inside of (%3d, %3d)\n", xx, yy, x, dx, y, dy, __X_SIZE, __Y_SIZE);*/
-        /*return 0;*/
-    }
-
-    if ( bg->data[xx][yy] >= 1 ) return 0;
+    if ( bg->data[xx][yy] == 1 ) return 0;
 
     return 1;
 }
 
-int has_invalid_position() {
-    _bg_info *bg_info = get_bg_info_pointer();
-
-    for (int j = 0; j < __Y_SIZE; ++j) {
-        for (int i = 0; i < __X_SIZE; ++i) {
-            if ( bg_info->data[i][j] > 2 ) {
-                return 1;
-            }
-        }
-    }
-
-    return 0;
-}
-
 void clear_lines() {
     _bg_info *bg_info = get_bg_info_pointer();
+    _brain *brain = get_brain_pointer();
 
     for (int j = 0; j < __Y_SIZE; ++j) {
         int ok = 1;
@@ -259,6 +223,10 @@ void clear_lines() {
                     }
                 }
             }
+        }
+        if ( changed ) {
+            brain->population[brain->current].lines_cleared_total++;
+            brain->population[brain->current].lines_cleared[brain->runs]++;
         }
     } while ( changed );
     /*dump_bg();*/
@@ -316,74 +284,8 @@ void reset_bg() {
     }
 }
 
-int try_and_fit(double *best_cost, int *first, int *found, int dx, int dy, int x, int y, _piece piece, _piece_type piece_type, int n_totation ) {
-    _best_piece *best_piece = get_best_piece_pointer();
-
-    if ( can_fit(piece, dx, dy )) {
-        *first = 1;
-    } else if ( first ) {
-        *found = 1;
-        save_bg();
-        add_piece(piece, dx, dy - 8);
-        evaluate_cost();
-        if ( *best_cost < get_cost() ) {
-            *best_cost          = get_cost();
-            best_piece->coord.x = dx + x;
-            best_piece->coord.y = dy + y;
-            best_piece->type    = piece_type;
-            best_piece->blocks  = piece;
-            best_piece->set     = 1;
-            best_piece->nrotations = n_totation;
-            best_piece->parameters = get_brain_pointer()->population[get_brain_pointer()->current];
-        }
-
-        /*screen_update();*/
-        /*SDL_Delay(25);*/
-
-        /*printf("F: found = %d    first = %d  -- %3d %3d -- %3d %3d -- %3d %3d = %d\n",*/
-                /**found, *first, x, y, dx, dy, x+dx, y+dy, can_fit(piece, dx, dy ));*/
-        /*fflush(NULL);*/
-        /*dump_bg();*/
-
-        restore_bg();
-        return 1;
-    } else {
-        return 1;
-    }
-
-    /*printf("ELSE\n");*/
-
-    if ( piece_touched_the_ground (piece, dx, dy) ) {
-        *found = 1;
-        save_bg();
-        add_piece(piece, dx, dy - 8);
-        evaluate_cost();
-        *best_cost          = get_cost();
-        best_piece->coord.x = dx + x;
-        best_piece->coord.y = dy + y;
-        best_piece->type    = piece_type;
-        best_piece->blocks  = piece;
-        best_piece->set     = 1;
-        best_piece->nrotations = n_totation;
-        best_piece->parameters = get_brain_pointer()->population[get_brain_pointer()->current];
-
-        /*screen_update();*/
-        /*SDL_Delay(25);*/
-
-        /*printf("G: found = %d    first = %d  -- %3d %3d -- %3d %3d -- %3d %3d = %d\n",*/
-                /**found, *first, x, y, dx, dy, x+dx, y+dy, can_fit(piece, dx, dy ));*/
-        /*fflush(NULL);*/
-        /*dump_bg();*/
-
-        restore_bg();
-        return 1;
-    }
-
-    return 0;
-}
-
 void get_best_move(){
-    double best_cost = -1<<31;
+    double best_cost = -999999;
     _best_piece *best_piece = get_best_piece_pointer();
 
     best_piece->set = 0;
@@ -394,67 +296,52 @@ void get_best_move(){
     int x = get_cpu_pointer()->mem_controller.memory[0xff92] - 8;
     int y = get_cpu_pointer()->mem_controller.memory[0xff93] - 24;
 
-    /*printf("%3d %3d\n", x, y);*/
-
     for (int n_totation = 0; n_totation < get_piece_rotation(piece_type); ++n_totation) {
-        int found = 0;
         for (int dx = -80 ; dx < 96; dx += 8) {
-        /*for (int dx = 0; dx >= -80; dx -= 8) {*/
             if ( is_inside_bounds(piece, dx, 16)) {
                 int first = 0;
-                for (int dy = y+16; dy < 8*20; dy += 8 ) {
-                /*for (int dy = 24; dy < 8*20; dy += 8 ) {*/
-                    /*fprintf(stderr, ".");*/
-                    if ( !can_fit(piece, dx, dy && !first )) {
-                        /*printf("\nXXXXXXXXXXXXXXX\n");*/
-                        /*printf("Cant FIT! %3d %3d\n", dx, dy);*/
+                for (int dy = 24; dy < 8*20; dy += 8 ) {
+                    if ( can_fit(piece, dx, dy )) {
+                        first = 1;
+                    } else if ( first ) {
+                        save_bg();
+                        add_piece(piece, dx, dy - 8);
+                        evaluate_cost();
+                        if ( best_cost < get_cost() ) {
+                            best_cost           = get_cost();
+                            best_piece->coord.x = dx + x;
+                            best_piece->coord.y = dy + y;
+                            best_piece->type    = piece_type;
+                            best_piece->blocks  = piece;
+                            best_piece->set     = 1;
+                            best_piece->nrotations = n_totation;
+                            best_piece->parameters = get_brain_pointer()->population[get_brain_pointer()->current];
+                        }
 
-                        /*save_bg();*/
-                        /*add_piece(piece, dx, dy - 8);*/
-                        /*dump_bg();*/
-                        /*restore_bg();*/
-                        /*printf("XXXXXXXXXXXXXXX\n\n\n");*/
-
+                        restore_bg();
+                        break;
+                    } else {
                         break;
                     }
 
-                    if ( try_and_fit(&best_cost, &first, &found, dx, dy,x, y, piece, piece_type, n_totation))
+                    if ( piece_touched_the_ground (piece, dx, dy) ) {
+                        save_bg();
+                        add_piece(piece, dx, dy - 8);
+                        evaluate_cost();
+                        best_cost           = get_cost();
+                        best_piece->coord.x = dx + x;
+                        best_piece->coord.y = dy + y;
+                        best_piece->type    = piece_type;
+                        best_piece->blocks  = piece;
+                        best_piece->set     = 1;
+                        best_piece->nrotations = n_totation;
+                        best_piece->parameters = get_brain_pointer()->population[get_brain_pointer()->current];
+                        restore_bg();
                         break;
+                    }
                 }
-                /*fprintf(stderr, "\n");*/
             }
-
-            /*if ( !found ) {*/
-                /*break;*/
-            /*}*/
         }
-
-        /*found = 1;*/
-        /*for (int dx = 8 ; dx < 96; dx += 8) {*/
-            /*if ( is_inside_bounds(piece, dx, 16)) {*/
-                /*int first = 0;*/
-                /*found = 0;*/
-                /*for (int dy = y+16; dy < 8*20; dy += 8 ) {*/
-                    /*if ( !can_fit(piece, dx, dy )) {*/
-                        /*printf("Cant FIT! %3d %3d\n", dx, dy);*/
-
-                        /*save_bg();*/
-                        /*add_piece(piece, dx, dy - 8);*/
-                        /*dump_bg();*/
-                        /*restore_bg();*/
-
-                        /*break;*/
-                    /*}*/
-
-                    /*if ( try_and_fit(&best_cost, &first, &found, dx, dy,x, y, piece, piece_type, n_totation))*/
-                        /*break;*/
-                /*}*/
-            /*}*/
-
-            /*if ( !found ) {*/
-                /*break;*/
-            /*}*/
-        /*}*/
 
         piece_type = rotate_piece ( piece_type );
         piece = get_rotated_piece ( piece_type );

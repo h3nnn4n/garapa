@@ -654,9 +654,9 @@ void new_piece_on_screen_hook() {
     if ( brain->new_piece ) {
         update_stats(cpu->mem_controller.memory[0xc203]);
 
-        if ( brain->population[brain->current].fitness > brain->population[brain->current].worst && brain->runs > 0 ) {
-            brain->suicide = 1;
-        }
+        /*if ( brain->population[brain->current].fitness > brain->population[brain->current].worst && brain->runs > 0 ) {*/
+            /*brain->suicide = 1;*/
+        /*}*/
 
         print_piece();
 
