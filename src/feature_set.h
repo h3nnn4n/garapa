@@ -31,5 +31,6 @@ void feature_set_ALL();
 
 void feature_set_testing();
 void feature_set_HA2();
+void feature_set_basic();
 
 #endif /* FEATURE_SET_H */

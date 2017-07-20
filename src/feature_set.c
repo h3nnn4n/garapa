@@ -24,6 +24,20 @@
 #include "trainer.h"
 #include "tetris.h"
 
+void feature_set_basic(){
+    _brain *brain = get_brain_pointer();
+
+    brain->population[brain->current].cost[ff_ctrl_next()] = complete_rows();
+
+    if ( cleaned_any_row() ) {
+        clear_lines();
+    }
+
+    brain->population[brain->current].cost[ff_ctrl_next()] = holes();
+    brain->population[brain->current].cost[ff_ctrl_next()] = aggregate_height();
+    brain->population[brain->current].cost[ff_ctrl_next()] = surface_variance();
+}
+
 void feature_set_testing(){
     _brain *brain = get_brain_pointer();
 

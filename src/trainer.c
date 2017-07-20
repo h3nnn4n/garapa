@@ -90,7 +90,7 @@ void evaluate_cost() {
     /*feature_set_FBDP();*/
     /*feature_set_NDP();*/
     /*feature_set_KBR();*/
-    feature_set_CMA();
+    /*feature_set_CMA();*/
     /*feature_set_HA();*/
     /*feature_set_LELmark();*/
     /*feature_set_ALL();*/
@@ -98,6 +98,7 @@ void evaluate_cost() {
     /*feature_set_HA2();*/
 
     /*feature_set_testing();*/
+    feature_set_basic();
 
     /*normalizer();*/
 
@@ -108,8 +109,8 @@ void initialize_pop (){
     for (int i = 0; i < POP_SIZE; ++i) {
         for (int j = 0; j < N_GENES; ++j) {
 #ifdef TRAIN
-            brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 50.0;
-            /*brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 7.5;*/
+            /*brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 50.0;*/
+            brain.population[i].weight[j] = ( drand48() * 2.0 - 1.0 ) * 7.5;
 #else
             brain.population[i].weight[j] = trained_ia[j];
 #endif
