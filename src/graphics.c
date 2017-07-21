@@ -91,6 +91,7 @@ void flip_screen ( _cpu_info *cpu ) {
 
     SDL_RenderSetScale(renderer, 1, 1);
     overlay_main( cpu );
+    garapa_jl_draw();
     SDL_RenderSetScale(renderer, 4, 4);
 
     SDL_RenderPresent(renderer);
