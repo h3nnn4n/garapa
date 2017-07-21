@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2016  Renan S. Silva                                         *
+ * Copyright (C) 2016-2017  Renan S. Silva                                    *
  *                                                                            *
  * This software is provided 'as-is', without any express or implied          *
  * warranty. In no event will the authors be held liable for any damages      *
@@ -17,8 +17,8 @@
  *    misrepresented as being the original software.                          *
  * 3. This notice may not be removed or altered from any source distribution. *
  ******************************************************************************/
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef UTILSS_H
+#define UTILSS_H
 
 #include <sys/stat.h>
 #include <sys/types.h>
