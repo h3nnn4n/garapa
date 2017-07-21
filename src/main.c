@@ -33,6 +33,7 @@
 #include "decoder.h"
 #include "graphics.h"
 #include "display.h"
+#include "julia_api.h"
 #include "disassembler.h"
 #include "time_keeper.h"
 #include "automated_tests.h"
