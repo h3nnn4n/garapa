@@ -131,8 +131,8 @@ void apu_update ( _cpu_info *cpu ) {
         sample_l *= 12;
         sample_r *= 12;
 
-        sample_l *= 9;
-        sample_r *= 9;
+        /*sample_l *= 9;*/
+        /*sample_r *= 9;*/
 
         cpu->apu.buffer[cpu->apu.buffer_index] = sample_l;
         cpu->apu.buffer[cpu->apu.buffer_index + 1] = sample_r;
