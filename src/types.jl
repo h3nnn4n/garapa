@@ -51,6 +51,12 @@ type ga_brain
 
     current_generation :: Int64
     individual_index   :: Int64
+
+    number_of_evaluations_per_agent      :: Int64
+    number_of_evaluations_per_agent_left :: Int64
+
+    function_evaluations_total :: Int64
+    function_evaluations_left  :: Int64
 end
 
-ga_brain() = ga_brain(0.0, 0.0, Array{Float64, 2}(0, 0), 0, 0, 0, 0, 0)
+ga_brain() = ga_brain(0.0, 0.0, Array{Float64, 2}(0, 0), 0, 0, 0, 0, 0, 0, 0, 0, 0)

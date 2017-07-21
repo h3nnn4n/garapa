@@ -4,6 +4,7 @@ include("feature_functions.jl")
 include("position_evaluator.jl")
 include("draw.jl")
 
+brain = ga_brain()
 
 Ta_piece = [ -1 -1 ;  0 -1 ;  1 -1 ; 0 0 ] # Ta
 Tb_piece = [  0 -2 ;  0 -1 ;  1 -1 ; 0 0 ] # Tb
@@ -31,11 +32,8 @@ Zb_piece = [  1 -2 ;  0 -1 ;  1 -1 ; 0 0 ] # Zb
 
 O_piece  = [ -1 -1 ;  0 -1 ; -1  0 ; 0 0 ] # O
 
-
-brain = ga_brain()
-
 function get_piece_offsets(piece :: Int64)
-    d = Dict{Int64, Int64}()
+    d = Dict{Int64, Array{Int64, 2}}()
 
     d[0x00] = La_piece
     d[0x01] = Lb_piece
@@ -116,7 +114,6 @@ function get_next_piece_rotation(piece :: Int64)
     return d[piece]
 end
 
-
 function init_game_state()
     bsize_y = 17
     bsize_x = 10
@@ -128,6 +125,15 @@ function init_game_state()
     brain.number_of_features = 4
     brain.fields_per_feature = 2
     brain.population_size    = 20
+
+    brain.current_generation = 0
+    brain.individual_index   = 1
+
+    brain.number_of_evaluations_per_agent      = 5
+    brain.number_of_evaluations_per_agent_left = brain.number_of_evaluations_per_agent
+
+    brain.function_evaluations_total = 100
+    brain.function_evaluations_left  = brain.function_evaluations_total
 
     range = 5.0
 
@@ -144,17 +150,12 @@ end
 
 function check_for_new_piece()
     if garapa_read_pc() == 0x2062
-        #=println("New piece")=#
-        #=@printf("%4d %4d %4d %4d\n",=#
-            #=aggegrate_height(gs.board),=#
-            #=number_of_holes(gs.board),=#
-            #=surface_variance(gs.board),=#
-            #=cleared_rows(gs.board)=#
-        #=)=#
+        new_piece()
     end
 end
 
 function new_piece()
+    println("New Piece")
     evaluate_board(gs)
 end
 
@@ -170,6 +171,23 @@ end
 
 function game_over()
     println("Game over")
+
+    brain.number_of_evaluations_per_agent_left -= 1
+    brain.function_evaluations_left            -= 1
+
+    if brain.number_of_evaluations_per_agent <= 0
+        brain.number_of_evaluations_per_agent = brain.number_of_evaluations_per_agent_left
+        brain.individual_index += 1
+
+        if brain.individual_index > brain.population_size
+            evo_step()
+            brain.individual_index = 1
+        end
+    end
+end
+
+function evo_step()
+
 end
 
 function finished_boot()
@@ -180,25 +198,6 @@ function entered_menu()
     println("MENU")
 end
 
-function piece_fits(piece_id :: Int64, x :: Int64, y :: Int64) :: Bool
-    px = div((garapa_read_byte(0xff92) - 8 ), 4)
-    py = div((garapa_read_byte(0xff93) - 16), 4)
-
-    piece = get_piece_offsets(piece_id)
-
-    if px + piece[1, 1] < 1 || px + piece[1, 1] > 10 return false end
-    if py + piece[1, 2] < 1 || py + piece[1, 2] > 17 return false end
-    if px + piece[2, 1] < 1 || px + piece[2, 1] > 10 return false end
-    if py + piece[2, 2] < 1 || py + piece[2, 2] > 17 return false end
-    if px + piece[3, 1] < 1 || px + piece[3, 1] > 10 return false end
-    if py + piece[3, 2] < 1 || py + piece[3, 2] > 17 return false end
-    if px + piece[4, 1] < 1 || px + piece[4, 1] > 10 return false end
-    if py + piece[4, 2] < 1 || py + piece[4, 2] > 17 return false end
-
-    return true
-end
-
-
 function draw_overlay()
     text = @sprintf("screen: 0x%04x", garapa_read_byte(0xffe1))
     garapa_draw_test_with_bg(text, 500, 10, 0, 255, 255)
@@ -207,24 +206,19 @@ function draw_overlay()
         px = (garapa_read_byte(0xff92) - 8 ) * 4
         py = (garapa_read_byte(0xff93) - 16) * 4
 
-        garapa_draw_rectangle(px, py, 8 * 4, 8 * 4, 0, 255, 0)
+        garapa_draw_rectangle(px, py, 8 * 4, 8 * 4, 127, 127, 255)
 
         piece = get_piece_offsets(garapa_read_byte(0xc203))
 
-        garapa_draw_rectangle(px + piece[1, 1] * 4 * 8, py + piece[1, 2] * 4 * 8, 8 * 4, 8 * 4, 0, 255, 0)
-        garapa_draw_rectangle(px + piece[2, 1] * 4 * 8, py + piece[2, 2] * 4 * 8, 8 * 4, 8 * 4, 0, 255, 0)
-        garapa_draw_rectangle(px + piece[3, 1] * 4 * 8, py + piece[3, 2] * 4 * 8, 8 * 4, 8 * 4, 0, 255, 0)
-
+        garapa_draw_rectangle(px + piece[1, 1] * 4 * 8, py + piece[1, 2] * 4 * 8, 8 * 4, 8 * 4, 0, 0, 255)
+        garapa_draw_rectangle(px + piece[2, 1] * 4 * 8, py + piece[2, 2] * 4 * 8, 8 * 4, 8 * 4, 0, 0, 255)
+        garapa_draw_rectangle(px + piece[3, 1] * 4 * 8, py + piece[3, 2] * 4 * 8, 8 * 4, 8 * 4, 0, 0, 255)
     end
 end
 
 function piece_moved()
-    px = garapa_read_byte(0xc202)
-    py = garapa_read_byte(0xc201)
 
-    new_piece()
 end
-
 
 function update_game_state()
     draw_overlay()
@@ -294,20 +288,4 @@ function extract_board()
     end
 end
 
-function print_board( board :: BitArray{2})
-    for x in 1:10
-        for y in 1:17
-            if board[y, x]
-                @printf("X ")
-            else
-                @printf("  ")
-            end
-        end
-        @printf("\n")
-    end
-
-    @printf("\n")
-end
-
 gs = init_game_state()
-
