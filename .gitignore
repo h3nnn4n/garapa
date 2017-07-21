@@ -3,6 +3,7 @@ magic
 main
 *.o
 *.swp
+*.swo
 *.gb
 *.txt
 *.log
