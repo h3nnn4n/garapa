@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2016  Renan S. Silva                                         *
+ * Copyright (C) 2016-2017  Renan S. Silva                                    *
  *                                                                            *
  * This software is provided 'as-is', without any express or implied          *
  * warranty. In no event will the authors be held liable for any damages      *
@@ -22,8 +22,8 @@
 #include <unistd.h>
 #include <time.h>
 #include <assert.h>
-
 #include <sys/types.h>
+#include <julia.h>
 
 #include "utils.h"
 #include "audio.h"
@@ -37,11 +37,16 @@
 #include "time_keeper.h"
 #include "automated_tests.h"
 
+
 int main(int argc, char *argv[]) {
     _cpu_info cpu;
     sdl_init();
+    garapa_jl_init();
 
     atexit(sdl_quit);
+
+    /*garapa_jl_exit();*/
+    /*return EXIT_SUCCESS;*/
 
     if ( argc == 1 ) {
         test_control.test_enable = 1;
@@ -53,6 +58,8 @@ int main(int argc, char *argv[]) {
 
     init_cpu(&cpu);
 
+    garapa_jl_set_cpu_pointer(&cpu);
+
     apu_sdl_init(&cpu);
 
     load_rom ( &cpu, argv[1], 0x0000 );
@@ -61,7 +68,9 @@ int main(int argc, char *argv[]) {
 
     while ( 1 ) {
         decoder        ( &cpu );
+        /*garapa_jl_cpu_loop_call();*/
     }
 
-    return 0;
+    garapa_jl_exit();
+    return EXIT_SUCCESS;
 }

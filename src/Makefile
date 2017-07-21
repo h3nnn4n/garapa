@@ -1,5 +1,12 @@
+JL_SHARE  = $(shell julia -e 'print(joinpath(JULIA_HOME,Base.DATAROOTDIR,"julia"))')
+CFLAGS   += $(shell $(JL_SHARE)/julia-config.jl --cflags)
+CXXFLAGS += $(shell $(JL_SHARE)/julia-config.jl --cflags)
+LDFLAGS  += $(shell $(JL_SHARE)/julia-config.jl --ldflags)
+LDLIBS   += $(shell $(JL_SHARE)/julia-config.jl --ldlibs)
+
 CC=gcc
-override CFLAGS+=-lm -Wall -Wextra -pedantic --std=gnu11 -O3 `sdl2-config --cflags --libs` -lSDL2_ttf
+override CFLAGS+=-lm -Wall -Wextra -pedantic -O2 `sdl2-config --cflags --libs` -lSDL2_ttf
+#override CFLAGS+=--std=gnu11 -lm -Wall -Wextra -pedantic -O2 `sdl2-config --cflags --libs` -lSDL2_ttf
 
 SOURCES=utils.c                      \
 		disassembler.c               \
@@ -26,6 +33,7 @@ SOURCES=utils.c                      \
 		ch3.c                        \
 		ch4.c                        \
 		interrupts.c                 \
+		julia_api.c                  \
 		instructions_stack_io_control.c
 
 ROM_PATH=../roms/cpu_instrs/individual/
@@ -52,7 +60,7 @@ test: $(EXECUTABLE)
 
 
 $(EXECUTABLE): $(OBJECTS) $(OBJECTS_BIN)
-	$(CC) $(CFLAGS) $(OBJECTS) $(OBJECTS_BIN) -o $@
+	$(CC) $(LDFLAGS) $(LDLIBS) $(CFLAGS) $(OBJECTS) $(OBJECTS_BIN) -o $@
 
 .c.o:
 	$(CC) $(CFLAGS) $< -c -o $@

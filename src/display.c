@@ -28,6 +28,7 @@
 #include "memory.h"
 #include "display.h"
 #include "graphics.h"
+#include "julia_api.h"
 
 #define dma_read(cpu,addr) (_read_byte(cpu, addr))
 
@@ -585,6 +586,7 @@ void display_update( _cpu_info *cpu ) {
             cpu->interrupts.pending_vblank = 1;
 
             flip_screen( cpu );
+            garapa_jl_display_update();
             cpu->die = test_step ( &test_control );
         }
     } else if ( cpu->lcd.mode == 0 && cpu->lcd.cycles_spent >= 1 && cpu->lcd.cycles_spent < 5 && cpu->lcd.active_line >= 1 &&

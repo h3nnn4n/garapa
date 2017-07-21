@@ -19,6 +19,7 @@
  ******************************************************************************/
 #include <stdint.h>
 #include <stdlib.h>
+#include <julia.h>
 
 #include "SDL.h"
 #include "SDL_ttf.h"
@@ -28,6 +29,7 @@
 #include "types.h"
 #include "overlay.h"
 #include "graphics.h"
+#include "julia_api.h"
 
 #define __use_sdl
 
