@@ -11,6 +11,9 @@ void garapa_jl_quit_on_error();
 void garapa_jl_cpu_loop_call();
 void garapa_jl_display_update();
 void garapa_jl_set_cpu_pointer( _cpu_info *cpu );
+void garapa_jl_load_file(char *file);
+
+void garapa_jl_write_byte(uint16_t addr, uint8_t data);
 
 uint8_t garapa_jl_read_byte(uint16_t addr);
 uint16_t garapa_jl_read_pc();

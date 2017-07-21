@@ -27,6 +27,17 @@ void garapa_jl_init() {
     garapa_jl_quit_on_error();
 }
 
+void garapa_jl_load_file(char *file){
+    printf("Loading %s\n", file);
+    jl_load(file);
+
+    jl_function_t *cpu_loop = jl_get_function(jl_current_module, "garapa_init");
+
+    jl_call0(cpu_loop);
+
+    garapa_jl_quit_on_error();
+}
+
 void garapa_jl_exit() {
     jl_atexit_hook(EXIT_SUCCESS);
 }
@@ -56,7 +67,12 @@ uint16_t garapa_jl_read_pc() {
 }
 
 uint8_t garapa_jl_read_byte(uint16_t addr) {
-    return _read_byte ( garapa_jl_get_cpu_pointer(), addr );
+    return _read_byte( garapa_jl_get_cpu_pointer(), addr );
+}
+
+void garapa_jl_write_byte(uint16_t addr, uint8_t data) {
+    printf("%04x %02x\n", addr, data);
+    write_byte( garapa_jl_get_cpu_pointer(), addr, data );
 }
 
 void garapa_jl_cpu_loop_call() {
@@ -70,3 +86,4 @@ void garapa_jl_cpu_loop_call() {
 
     garapa_jl_quit_on_error();
 }
+

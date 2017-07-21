@@ -45,13 +45,12 @@ int main(int argc, char *argv[]) {
 
     atexit(sdl_quit);
 
-    /*garapa_jl_exit();*/
-    /*return EXIT_SUCCESS;*/
-
     if ( argc == 1 ) {
         test_control.test_enable = 1;
         test_run ();
         return 0;
+    } else if ( argc == 3 ) {
+        garapa_jl_load_file(argv[2]);
     }
 
     test_control.test_enable = 0;
