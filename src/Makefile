@@ -5,8 +5,7 @@ LDFLAGS  += $(shell $(JL_SHARE)/julia-config.jl --ldflags)
 LDLIBS   += $(shell $(JL_SHARE)/julia-config.jl --ldlibs)
 
 CC=gcc
-override CFLAGS+=-lm -Wall -Wextra -pedantic -O2 `sdl2-config --cflags --libs` -lSDL2_ttf
-#override CFLAGS+=--std=gnu11 -lm -Wall -Wextra -pedantic -O2 `sdl2-config --cflags --libs` -lSDL2_ttf
+override CFLAGS+=--std=gnu11 -lm -Wall -Wextra -pedantic -O3 `sdl2-config --cflags --libs` -lSDL2_ttf
 
 SOURCES=utils.c                      \
 		disassembler.c               \
