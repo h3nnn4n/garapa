@@ -87,3 +87,14 @@ void garapa_jl_cpu_loop_call() {
     garapa_jl_quit_on_error();
 }
 
+void garapa_jl_draw() {
+    static jl_function_t *drawer = NULL;
+
+    if ( drawer == NULL ) {
+        drawer = jl_get_function(jl_current_module, "drawer");
+    }
+
+    jl_call0(drawer);
+
+    garapa_jl_quit_on_error();
+}

@@ -31,6 +31,12 @@
 type game_state
     board  :: BitArray{2}
     screen :: SCREEN
+
+    px :: Int64
+    py :: Int64
+
+    bsize_x :: Int64
+    bsize_y :: Int64
 end
 
 type agent

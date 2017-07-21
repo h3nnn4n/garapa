@@ -1,12 +1,13 @@
 include("j_utils.jl")
 include("types.jl")
 include("feature_functions.jl")
-
-bsize_x = 10
-bsize_y = 17
+include("position_evaluator.jl")
+include("draw.jl")
 
 function init_game_state()
-    gs = game_state(falses(bsize_y, bsize_x), boot)
+    bsize_y = 17
+    bsize_x = 10
+    gs = game_state(falses(bsize_y, bsize_x), boot, -1, -1, bsize_x, bsize_y)
 
     return gs
 end
@@ -18,9 +19,18 @@ end
 
 function check_for_new_piece()
     if garapa_read_pc() == 0x2062
-        println("New piece")
-        println(aggegrate_height(gs.board))
+        #=println("New piece")=#
+        #=@printf("%4d %4d %4d %4d\n",=#
+            #=aggegrate_height(gs.board),=#
+            #=number_of_holes(gs.board),=#
+            #=surface_variance(gs.board),=#
+            #=cleared_rows(gs.board)=#
+        #=)=#
     end
+end
+
+function new_piece()
+    evaluate_board(gs)
 end
 
 function garapa_init()
@@ -45,8 +55,42 @@ function entered_menu()
     println("MENU")
 end
 
+function draw_overlay()
+    text = @sprintf("screen: 0x%04x", garapa_read_byte(0xffe1))
+    garapa_draw_test_with_bg(text, 500, 10, 0, 255, 255)
+
+    if gs.screen == ingame
+        px = (garapa_read_byte(0xff92) - 8 ) * 4
+        py = (garapa_read_byte(0xff93) - 16) * 4
+
+        garapa_draw_rectangle(px, py, 8 * 4, 8 * 4, 0, 255, 0)
+    end
+end
+
+
+function piece_moved()
+    px = garapa_read_byte(0xc202)
+    py = garapa_read_byte(0xc201)
+
+    new_piece()
+end
+
+
 function update_game_state()
+    draw_overlay()
     screen = garapa_read_byte(0xffe1)
+
+    px     = garapa_read_byte(0xc202)
+    py     = garapa_read_byte(0xc201)
+
+    if px != gs.px || py != gs.py
+        if screen == 0x00
+            piece_moved()
+        end
+
+        gs.px = px
+        gs.py = py
+    end
 
     old_screen = gs.screen
 
