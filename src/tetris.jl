@@ -4,7 +4,118 @@ include("feature_functions.jl")
 include("position_evaluator.jl")
 include("draw.jl")
 
+
+Ta_piece = [ -1 -1 ;  0 -1 ;  1 -1 ; 0 0 ] # Ta
+Tb_piece = [  0 -2 ;  0 -1 ;  1 -1 ; 0 0 ] # Tb
+Tc_piece = [ -1 -1 ; -2  0 ; -1  0 ; 0 0 ] # Tc
+Td_piece = [  0 -2 ; -1 -1 ;  0 -1 ; 0 0 ] # Td
+
+Ja_piece = [ -2 -1 ; -1 -1 ;  0 -1 ; 0 0 ] # Ja
+Jb_piece = [  0 -2 ;  1 -2 ;  0 -1 ; 0 0 ] # Jb
+Jc_piece = [ -2 -1 ; -2  0 ; -1  0 ; 0 0 ] # Jc
+Jd_piece = [  0 -2 ;  0 -1 ; -1  0 ; 0 0 ] # Jd
+
+La_piece = [  0 -1 ;  1 -1 ;  2 -1 ; 0 0 ] # La
+Lb_piece = [ -1 -2 ; -1 -1 ; -1  0 ; 0 0 ] # Lb
+Lc_piece = [  0 -1 ; -2  0 ; -1  0 ; 0 0 ] # Lc
+Ld_piece = [ -1 -2 ;  0 -2 ;  0 -1 ; 0 0 ] # Ld
+
+Sa_piece = [  0 -1 ;  1 -1 ; -1  0 ; 0 0 ] # Sa
+Sb_piece = [ -1 -2 ; -1 -1 ;  0 -1 ; 0 0 ] # Sb
+
+Ia_piece = [ -3  0 ; -2  0 ; -1  0 ; 0 0 ] # Ia
+Ib_piece = [  0 -3 ;  0 -2 ;  0 -1 ; 0 0 ] # Ib
+
+Za_piece = [ -2 -1 ; -1 -1 ; -1  0 ; 0 0 ] # Za
+Zb_piece = [  1 -2 ;  0 -1 ;  1 -1 ; 0 0 ] # Zb
+
+O_piece  = [ -1 -1 ;  0 -1 ; -1  0 ; 0 0 ] # O
+
+
 brain = ga_brain()
+
+function get_piece_offsets(piece :: Int64)
+    d = Dict{Int64, Int64}()
+
+    d[0x00] = La_piece
+    d[0x01] = Lb_piece
+    d[0x02] = Lc_piece
+    d[0x03] = Ld_piece
+
+    d[0x04] = Ja_piece
+    d[0x05] = Jb_piece
+    d[0x06] = Jc_piece
+    d[0x07] = Jd_piece
+
+    d[0x08] = Ia_piece
+    d[0x09] = Ib_piece
+    d[0x0a] = Ia_piece
+    d[0x0b] = Ib_piece
+
+    d[0x0c] = O_piece
+    d[0x0d] = O_piece
+    d[0x0e] = O_piece
+    d[0x0f] = O_piece
+
+    d[0x10] = Za_piece
+    d[0x11] = Zb_piece
+    d[0x12] = Za_piece
+    d[0x13] = Zb_piece
+
+    d[0x14] = Sa_piece
+    d[0x15] = Sb_piece
+    d[0x16] = Sa_piece
+    d[0x17] = Sb_piece
+
+    d[0x18] = Ta_piece
+    d[0x19] = Tb_piece
+    d[0x1a] = Tc_piece
+    d[0x1b] = Td_piece
+
+    return d[piece]
+end
+
+function get_next_piece_rotation(piece :: Int64)
+    d = Dict{Int64, Int64}()
+
+    d[0x00] = 0x03
+    d[0x01] = 0x00
+    d[0x02] = 0x01
+    d[0x03] = 0x02
+
+    d[0x04] = 0x07
+    d[0x05] = 0x04
+    d[0x06] = 0x05
+    d[0x07] = 0x06
+
+    d[0x08] = 0x0b
+    d[0x09] = 0x08
+    d[0x0a] = 0x09
+    d[0x0b] = 0x0a
+
+    d[0x0c] = 0x0f
+    d[0x0d] = 0x0c
+    d[0x0e] = 0x0d
+    d[0x0f] = 0x0e
+
+    d[0x10] = 0x13
+    d[0x11] = 0x10
+    d[0x12] = 0x11
+    d[0x13] = 0x12
+
+    d[0x14] = 0x17
+    d[0x15] = 0x14
+    d[0x16] = 0x15
+    d[0x17] = 0x16
+
+    d[0x18] = 0x1b
+    d[0x19] = 0x18
+    d[0x1a] = 0x19
+    d[0x1b] = 0x1a
+
+    return d[piece]
+end
+
 
 function init_game_state()
     bsize_y = 17
@@ -69,6 +180,25 @@ function entered_menu()
     println("MENU")
 end
 
+function piece_fits(piece_id :: Int64, x :: Int64, y :: Int64) :: Bool
+    px = div((garapa_read_byte(0xff92) - 8 ), 4)
+    py = div((garapa_read_byte(0xff93) - 16), 4)
+
+    piece = get_piece_offsets(piece_id)
+
+    if px + piece[1, 1] < 1 || px + piece[1, 1] > 10 return false end
+    if py + piece[1, 2] < 1 || py + piece[1, 2] > 17 return false end
+    if px + piece[2, 1] < 1 || px + piece[2, 1] > 10 return false end
+    if py + piece[2, 2] < 1 || py + piece[2, 2] > 17 return false end
+    if px + piece[3, 1] < 1 || px + piece[3, 1] > 10 return false end
+    if py + piece[3, 2] < 1 || py + piece[3, 2] > 17 return false end
+    if px + piece[4, 1] < 1 || px + piece[4, 1] > 10 return false end
+    if py + piece[4, 2] < 1 || py + piece[4, 2] > 17 return false end
+
+    return true
+end
+
+
 function draw_overlay()
     text = @sprintf("screen: 0x%04x", garapa_read_byte(0xffe1))
     garapa_draw_test_with_bg(text, 500, 10, 0, 255, 255)
@@ -78,9 +208,15 @@ function draw_overlay()
         py = (garapa_read_byte(0xff93) - 16) * 4
 
         garapa_draw_rectangle(px, py, 8 * 4, 8 * 4, 0, 255, 0)
+
+        piece = get_piece_offsets(garapa_read_byte(0xc203))
+
+        garapa_draw_rectangle(px + piece[1, 1] * 4 * 8, py + piece[1, 2] * 4 * 8, 8 * 4, 8 * 4, 0, 255, 0)
+        garapa_draw_rectangle(px + piece[2, 1] * 4 * 8, py + piece[2, 2] * 4 * 8, 8 * 4, 8 * 4, 0, 255, 0)
+        garapa_draw_rectangle(px + piece[3, 1] * 4 * 8, py + piece[3, 2] * 4 * 8, 8 * 4, 8 * 4, 0, 255, 0)
+
     end
 end
-
 
 function piece_moved()
     px = garapa_read_byte(0xc202)
@@ -156,6 +292,21 @@ function extract_board()
 
         x = 0
     end
+end
+
+function print_board( board :: BitArray{2})
+    for x in 1:10
+        for y in 1:17
+            if board[y, x]
+                @printf("X ")
+            else
+                @printf("  ")
+            end
+        end
+        @printf("\n")
+    end
+
+    @printf("\n")
 end
 
 gs = init_game_state()
