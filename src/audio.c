@@ -10,7 +10,11 @@
 #include "ch3.h"
 #include "ch4.h"
 
+/*#define use_sound*/
+
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 void apu_sdl_init( _cpu_info *cpu ) {
+#ifdef use_sound
     SDL_InitSubSystem(SDL_INIT_AUDIO);
 
     SDL_memset(&cpu->apu.want, 0, sizeof(cpu->apu.want));
@@ -39,6 +43,7 @@ void apu_sdl_init( _cpu_info *cpu ) {
         SDL_PauseAudioDevice(cpu->apu.dev, 1);
         SDL_PauseAudioDevice(cpu->apu.dev, 0);
     }
+#endif
 }
 
 void apu_update_on_div_change ( _cpu_info *cpu ) {
@@ -134,6 +139,7 @@ void apu_update ( _cpu_info *cpu ) {
         /*sample_l *= 9;*/
         /*sample_r *= 9;*/
 
+#ifdef use_sound
         cpu->apu.buffer[cpu->apu.buffer_index] = sample_l;
         cpu->apu.buffer[cpu->apu.buffer_index + 1] = sample_r;
         cpu->apu.buffer_index += 2;
@@ -149,6 +155,7 @@ void apu_update ( _cpu_info *cpu ) {
                 SDL_Log("This happened on SDL_QueueAudio: %s", SDL_GetError());
             }
         }
+#endif
 
         // Reload sample timer
         cpu->apu.sample_timer = 4194304 / SAMPLE_RATE;
