@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
 
     while ( 1 ) {
         decoder        ( &cpu );
-        /*garapa_jl_cpu_loop_call();*/
+        garapa_jl_cpu_loop_call();
     }
 
     garapa_jl_exit();

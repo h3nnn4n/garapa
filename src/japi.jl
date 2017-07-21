@@ -23,6 +23,7 @@ function garapa_register_callback_display_update(func)
 end
 
 function garapa_register_callback_cpu_loop(func)
+    println("Updated cpu_loop callback: ", func)
     global callback_cpu_loop = func
 end
 
