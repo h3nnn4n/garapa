@@ -585,8 +585,8 @@ void display_update( _cpu_info *cpu ) {
             /*printf("VBLANK Interrupt\n");*/
             cpu->interrupts.pending_vblank = 1;
 
-            flip_screen( cpu );
             garapa_jl_display_update();
+            flip_screen( cpu );
             cpu->die = test_step ( &test_control );
         }
     } else if ( cpu->lcd.mode == 0 && cpu->lcd.cycles_spent >= 1 && cpu->lcd.cycles_spent < 5 && cpu->lcd.active_line >= 1 &&
