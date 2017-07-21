@@ -4,10 +4,24 @@ include("feature_functions.jl")
 include("position_evaluator.jl")
 include("draw.jl")
 
+brain = ga_brain()
+
 function init_game_state()
     bsize_y = 17
     bsize_x = 10
-    gs = game_state(falses(bsize_y, bsize_x), boot, -1, -1, bsize_x, bsize_y)
+    gs      = game_state(falses(bsize_y, bsize_x), boot, -1, -1, bsize_x, bsize_y)
+
+    brain.mutation_rate  = 0.02
+    brain.crossover_rate = 0.85
+
+    brain.number_of_features = 4
+    brain.fields_per_feature = 2
+    brain.population_size    = 20
+
+    range = 5.0
+
+    brain.population = rand(brain.population_size,
+                            brain.number_of_features * brain.fields_per_feature) .* (range * 2.0) .- range
 
     return gs
 end

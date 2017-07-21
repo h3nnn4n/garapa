@@ -39,11 +39,18 @@ type game_state
     bsize_y :: Int64
 end
 
-type agent
-end
-
 type ga_brain
     mutation_rate  :: Float64
     crossover_rate :: Float64
-    population     :: Array{agent, 1}
+
+    population     :: Array{Float64, 2}
+
+    number_of_features :: Int64
+    fields_per_feature :: Int64
+    population_size    :: Int64
+
+    current_generation :: Int64
+    individual_index   :: Int64
 end
+
+ga_brain() = ga_brain(0.0, 0.0, Array{Float64, 2}(0, 0), 0, 0, 0, 0, 0)
