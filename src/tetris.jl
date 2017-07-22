@@ -206,7 +206,7 @@ function check_for_new_piece()
 end
 
 function new_piece()
-    println("New Piece")
+    #=println("New Piece")=#
     gs.new_piece = true
     #=find_best_move(gs)=#
 end
@@ -218,12 +218,12 @@ function garapa_init()
 end
 
 function entered_game()
-    println("Entered a GAME")
+    #=println("Entered a GAME")=#
     gs.new_piece = true
 end
 
 function game_over()
-    println("Game over")
+    #=println("Game over")=#
 
     brain.number_of_evaluations_per_agent_left -= 1
     brain.function_evaluations_left            -= 1
@@ -244,11 +244,11 @@ function evo_step()
 end
 
 function finished_boot()
-    println("BOOT")
+    #=println("BOOT")=#
 end
 
 function entered_menu()
-    println("MENU")
+    #=println("MENU")=#
 end
 
 function draw_overlay()
@@ -297,9 +297,9 @@ function update_game_state()
     draw_overlay()
     screen = garapa_read_byte(0xffe1)
 
-    if olds != screen
-        @printf("%02x %02x\n", olds, screen)
-    end
+    #=if olds != screen=#
+        #=@printf("%02x %02x\n", olds, screen)=#
+    #=end=#
 
     global olds = screen
 
@@ -327,9 +327,9 @@ function update_game_state()
         global gs.screen = menu
     elseif screen == 0x08 || screen == 0x0e
         global gs.screen = gametype
-    elseif screen == 0x10 || screen == 0x11
+    elseif screen == 0x10 || screen == 0x11 || screen == 0x0a
         global gs.screen = atype
-    elseif screen == 0x00 # || screen == 0x0a
+    elseif screen == 0x00
         global gs.screen = ingame
     elseif screen == 0x01 || screen == 0x0d || screen == 0x04
         global gs.screen = gameover
