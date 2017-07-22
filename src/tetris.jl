@@ -6,6 +6,7 @@ include("position_evaluator.jl")
 include("draw.jl")
 
 brain = ga_brain()
+gs    = game_state() #init_game_state()
 
 Ta_piece = [ -1 -1 ;  0 -1 ;  1 -1 ; 0 0 ] # Ta
 Tb_piece = [  0 -2 ;  0 -1 ;  1 -1 ; 0 0 ] # Tb
@@ -157,15 +158,6 @@ function get_next_piece_rotation(piece :: Int64)
 end
 
 function init_game_state()
-    bsize_y = 17
-    bsize_x = 10
-    gs      = game_state(falses(bsize_y, bsize_x), boot, -1, -1,
-                         bsize_x, bsize_y,
-                         false,
-                         false,
-                         0, 0, 0, 0,
-                         false)
-
     brain.mutation_rate  = 0.02
     brain.crossover_rate = 0.85
 
@@ -187,7 +179,9 @@ function init_game_state()
     brain.population = rand(brain.population_size,
                             brain.number_of_features * brain.fields_per_feature) .* (range * 2.0) .- range
 
-    return gs
+    brain.agent_data = zeros(Float64, (brain.population_size, brain.number_of_evaluations_per_agent))
+
+    brain.fitness = zeros(brain.population_size)
 end
 
 function frame_update()
@@ -228,8 +222,8 @@ function game_over()
     brain.number_of_evaluations_per_agent_left -= 1
     brain.function_evaluations_left            -= 1
 
-    if brain.number_of_evaluations_per_agent <= 0
-        brain.number_of_evaluations_per_agent = brain.number_of_evaluations_per_agent_left
+    if brain.number_of_evaluations_per_agent_left <= 0
+        brain.number_of_evaluations_per_agent_left = brain.number_of_evaluations_per_agent
         brain.individual_index += 1
 
         if brain.individual_index > brain.population_size
@@ -240,10 +234,17 @@ function game_over()
 end
 
 function evo_step()
+    evaluate_fitness()
+end
 
+function evaluate_fitness()
+    for i in 1:brain.population_size
+        brain.fitness[i] = mean(brain.agent_data[1:1:brain.number_of_evaluations_per_agent])
+    end
 end
 
 function finished_boot()
+    init_game_state()
     #=println("BOOT")=#
 end
 
@@ -252,8 +253,19 @@ function entered_menu()
 end
 
 function draw_overlay()
+    posx, posy = 400, 10
+
     text = @sprintf("screen: 0x%04x", garapa_read_byte(0xffe1))
-    garapa_draw_test_with_bg(text, 500, 10, 0, 255, 255)
+    garapa_draw_test_with_bg(text, posx, posy, 0, 255, 255)
+    posy += 20
+
+    text = @sprintf("gen: %4d - %4d - %4d", brain.current_generation, brain.individual_index, brain.number_of_evaluations_per_agent_left)
+    garapa_draw_test_with_bg(text, posx, posy, 0, 255, 255)
+    posy += 20
+
+    #=text = @sprintf("generation: %4d", brain.current_generation)=#
+    #=garapa_draw_test_with_bg(text, posx, posy, 0, 255, 255)=#
+    #=posy += 20=#
 
     if gs.screen == ingame
         px = (garapa_read_byte(0xff92) - 8 ) * 4
@@ -367,4 +379,3 @@ function extract_board()
     end
 end
 
-gs = init_game_state()

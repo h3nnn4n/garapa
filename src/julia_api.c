@@ -13,6 +13,9 @@ void garapa_jl_quit_on_error(){
         fprintf(stderr, "An error was detected in the Julia API! \n");
         jl_call2(jl_get_function(jl_base_module, "show"), jl_stderr_obj(), jl_exception_occurred());
         jl_printf(jl_stderr_stream(), "\n");
+        jl_printf(jl_stderr_stream(), "\n");
+
+        jl_eval_string("println(stacktrace(catch_backtrace()))");
 
         fprintf(stderr, "---------------------------------------------\n");
         /*exit(EXIT_FAILURE);*/

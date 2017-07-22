@@ -55,6 +55,8 @@ type ga_brain
     crossover_rate :: Float64
 
     population     :: Array{Float64, 2}
+    agent_data     :: Array{Float64, 2}
+    fitness        :: Array{Float64, 1}
 
     number_of_features :: Int64
     fields_per_feature :: Int64
@@ -70,4 +72,21 @@ type ga_brain
     function_evaluations_left  :: Int64
 end
 
-ga_brain() = ga_brain(0.0, 0.0, Array{Float64, 2}(0, 0), 0, 0, 0, 0, 0, 0, 0, 0, 0)
+ga_brain()   = ga_brain(0.0, 0.0,
+                        Array{Float64, 2}(0, 0),
+                        Array{Float64, 2}(0, 0),
+                        Array{Float64, 1}(0),
+                        0, 0, 0, 0, 0, 0, 0, 0, 0
+                        )
+
+bsize_y = 17
+bsize_x = 10
+
+game_state() = game_state(falses(bsize_y, bsize_x), boot, -1, -1,
+                          bsize_x, bsize_y,
+                          false,
+                          false,
+                          0, 0, 0, 0,
+                          false
+                          )
+
