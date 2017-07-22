@@ -303,8 +303,8 @@ function update_game_state()
 
     global olds = screen
 
-    px     = garapa_read_byte(0xc202)
-    py     = garapa_read_byte(0xc201)
+    px = div(garapa_read_byte(0xff92) - 8 , 8)
+    py = div(garapa_read_byte(0xff93) - 16, 8)
 
     if px != gs.px || py != gs.py
         if screen == 0x00
