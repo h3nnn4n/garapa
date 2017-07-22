@@ -1,4 +1,5 @@
 include("j_utils.jl")
+include("input_handler.jl")
 include("types.jl")
 include("feature_functions.jl")
 include("position_evaluator.jl")
@@ -31,6 +32,47 @@ Za_piece = [ -2 -1 ; -1 -1 ; -1  0 ; 0 0 ] # Za
 Zb_piece = [  1 -2 ;  0 -1 ;  1 -1 ; 0 0 ] # Zb
 
 O_piece  = [ -1 -1 ;  0 -1 ; -1  0 ; 0 0 ] # O
+
+function get_piece_n_rotations(piece :: Int64)
+    d = Dict{Int64, Int64}()
+
+    d[0x00] = 4
+    d[0x01] = 4
+    d[0x02] = 4
+    d[0x03] = 4
+
+    d[0x04] = 4
+    d[0x05] = 4
+    d[0x06] = 4
+    d[0x07] = 4
+
+    d[0x08] = 2
+    d[0x09] = 2
+    d[0x0a] = 2
+    d[0x0b] = 2
+
+    d[0x0c] = 1
+    d[0x0d] = 1
+    d[0x0e] = 1
+    d[0x0f] = 1
+
+    d[0x10] = 2
+    d[0x11] = 2
+    d[0x12] = 2
+    d[0x13] = 2
+
+    d[0x14] = 2
+    d[0x15] = 2
+    d[0x16] = 2
+    d[0x17] = 2
+
+    d[0x18] = 4
+    d[0x19] = 4
+    d[0x1a] = 4
+    d[0x1b] = 4
+
+    return d[piece]
+end
 
 function get_piece_offsets(piece :: Int64)
     d = Dict{Int64, Array{Int64, 2}}()
@@ -117,7 +159,12 @@ end
 function init_game_state()
     bsize_y = 17
     bsize_x = 10
-    gs      = game_state(falses(bsize_y, bsize_x), boot, -1, -1, bsize_x, bsize_y)
+    gs      = game_state(falses(bsize_y, bsize_x), boot, -1, -1,
+                         bsize_x, bsize_y,
+                         false,
+                         false,
+                         0, 0, 0, 0,
+                         false)
 
     brain.mutation_rate  = 0.02
     brain.crossover_rate = 0.85
@@ -149,14 +196,19 @@ function frame_update()
 end
 
 function check_for_new_piece()
-    if garapa_read_pc() == 0x2062
+    if garapa_read_pc() == 0x2062 && gs.screen == ingame
         new_piece()
     end
+
+    #=if garapa_read_pc() == 0x2a0e=#
+        #=input_handler(gs, brain)=#
+    #=end=#
 end
 
 function new_piece()
     println("New Piece")
-    evaluate_board(gs)
+    gs.new_piece = true
+    #=find_best_move(gs)=#
 end
 
 function garapa_init()
@@ -167,6 +219,7 @@ end
 
 function entered_game()
     println("Entered a GAME")
+    gs.new_piece = true
 end
 
 function game_over()
@@ -206,13 +259,19 @@ function draw_overlay()
         px = (garapa_read_byte(0xff92) - 8 ) * 4
         py = (garapa_read_byte(0xff93) - 16) * 4
 
-        garapa_draw_rectangle(px, py, 8 * 4, 8 * 4, 127, 127, 255)
-
         piece = get_piece_offsets(garapa_read_byte(0xc203))
 
-        garapa_draw_rectangle(px + piece[1, 1] * 4 * 8, py + piece[1, 2] * 4 * 8, 8 * 4, 8 * 4, 0, 0, 255)
-        garapa_draw_rectangle(px + piece[2, 1] * 4 * 8, py + piece[2, 2] * 4 * 8, 8 * 4, 8 * 4, 0, 0, 255)
-        garapa_draw_rectangle(px + piece[3, 1] * 4 * 8, py + piece[3, 2] * 4 * 8, 8 * 4, 8 * 4, 0, 0, 255)
+        garapa_draw_rectangle(px + piece[1, 1] * 4 * 8, py + piece[1, 2] * 4 * 8, 8 * 4, 8 * 4, 0  , 0  , 255)
+        garapa_draw_rectangle(px + piece[2, 1] * 4 * 8, py + piece[2, 2] * 4 * 8, 8 * 4, 8 * 4, 0  , 0  , 255)
+        garapa_draw_rectangle(px + piece[3, 1] * 4 * 8, py + piece[3, 2] * 4 * 8, 8 * 4, 8 * 4, 0  , 0  , 255)
+        garapa_draw_rectangle(px + piece[4, 1] * 4 * 8, py + piece[4, 2] * 4 * 8, 8 * 4, 8 * 4, 127, 127, 255)
+
+        best_piece = get_piece_offsets(gs.best_piece)
+
+        garapa_draw_rectangle((gs.best_x + 1 + best_piece[1, 1]) * 4 * 8, (gs.best_y + best_piece[1, 2]) * 4 * 8, 8 * 4, 8 * 4, 0  , 255, 0  )
+        garapa_draw_rectangle((gs.best_x + 1 + best_piece[2, 1]) * 4 * 8, (gs.best_y + best_piece[2, 2]) * 4 * 8, 8 * 4, 8 * 4, 0  , 255, 0  )
+        garapa_draw_rectangle((gs.best_x + 1 + best_piece[3, 1]) * 4 * 8, (gs.best_y + best_piece[3, 2]) * 4 * 8, 8 * 4, 8 * 4, 0  , 255, 0  )
+        garapa_draw_rectangle((gs.best_x + 1 + best_piece[4, 1]) * 4 * 8, (gs.best_y + best_piece[4, 2]) * 4 * 8, 8 * 4, 8 * 4, 127, 255, 127)
     end
 end
 
@@ -220,9 +279,29 @@ function piece_moved()
 
 end
 
+olds = 0xff
+
 function update_game_state()
+    input_handler(gs, brain)
+
+    if gs.new_piece
+        gs.new_piece = false
+        bx, by, rotation, best_piece = find_best_move(gs, brain)
+
+        gs.best_x = bx
+        gs.best_y = by
+        gs.best_r = rotation
+        gs.best_piece = best_piece
+    end
+
     draw_overlay()
     screen = garapa_read_byte(0xffe1)
+
+    if olds != screen
+        @printf("%02x %02x\n", olds, screen)
+    end
+
+    global olds = screen
 
     px     = garapa_read_byte(0xc202)
     py     = garapa_read_byte(0xc201)
@@ -250,7 +329,7 @@ function update_game_state()
         global gs.screen = gametype
     elseif screen == 0x10 || screen == 0x11
         global gs.screen = atype
-    elseif screen == 0x00
+    elseif screen == 0x00 # || screen == 0x0a
         global gs.screen = ingame
     elseif screen == 0x01 || screen == 0x0d || screen == 0x04
         global gs.screen = gameover

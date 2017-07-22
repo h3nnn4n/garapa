@@ -15,6 +15,7 @@ void garapa_jl_load_file(char *file);
 void garapa_jl_draw();
 
 void garapa_jl_write_byte(uint16_t addr, uint8_t data);
+void garapa_jl_joystick_hook( _cpu_info *cpu );
 
 uint8_t garapa_jl_read_byte(uint16_t addr);
 uint16_t garapa_jl_read_pc();

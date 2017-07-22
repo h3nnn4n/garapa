@@ -1,3 +1,5 @@
+keys = 0xff
+
 function garapa_read_pc() :: Int64
     return ccall(:garapa_jl_read_pc, UInt16, ())
 end
@@ -10,3 +12,10 @@ function garapa_read_byte( addr :: UInt16 ) :: Int64
     return ccall(:garapa_jl_read_byte, UInt8, (UInt16,), addr)
 end
 
+function garapa_get_buttons() :: Int64
+    return keys
+end
+
+function garapa_write_buttons( k :: Int64 )
+    global keys = k
+end

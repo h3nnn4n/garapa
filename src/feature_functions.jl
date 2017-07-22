@@ -1,5 +1,3 @@
-include("types.jl")
-
 bsize_x = 10
 bsize_y = 17
 

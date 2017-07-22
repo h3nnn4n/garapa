@@ -27,6 +27,42 @@ void garapa_jl_init() {
     garapa_jl_quit_on_error();
 }
 
+void garapa_jl_joystick_hook( _cpu_info *cpu ) {
+    static jl_function_t *keysf = NULL;
+
+    if ( keysf == NULL ) {
+        keysf = jl_get_function(jl_current_module, "garapa_get_buttons");
+    }
+
+    jl_value_t *ret = jl_call0(keysf);
+
+    if (jl_typeis(ret, jl_int64_type)) {
+        int keys = jl_unbox_int64(ret) & 0xff;
+
+        /*if ( !(keys & 0x01) ) { cpu->joystick.button_start  = !!(keys & 0x01); }*/
+        /*if ( !(keys & 0x02) ) { cpu->joystick.button_select = !!(keys & 0x02); }*/
+        /*if ( !(keys & 0x04) ) { cpu->joystick.button_b      = !!(keys & 0x04); }*/
+        /*if ( !(keys & 0x08) ) { cpu->joystick.button_a      = !!(keys & 0x08); }*/
+        /*if ( !(keys & 0x10) ) { cpu->joystick.button_down   = !!(keys & 0x10); }*/
+        /*if ( !(keys & 0x20) ) { cpu->joystick.button_up     = !!(keys & 0x20); }*/
+        /*if ( !(keys & 0x40) ) { cpu->joystick.button_left   = !!(keys & 0x40); }*/
+        /*if ( !(keys & 0x80) ) { cpu->joystick.button_right  = !!(keys & 0x80); }*/
+
+        cpu->joystick.button_start  = !!(keys & 0x01);
+        cpu->joystick.button_select = !!(keys & 0x02);
+        cpu->joystick.button_b      = !!(keys & 0x04);
+        cpu->joystick.button_a      = !!(keys & 0x08);
+        cpu->joystick.button_down   = !!(keys & 0x10);
+        cpu->joystick.button_up     = !!(keys & 0x20);
+        cpu->joystick.button_left   = !!(keys & 0x40);
+        cpu->joystick.button_right  = !!(keys & 0x80);
+    } else {
+        fprintf(stderr, "ERROR: unexpected return type from garapa_get_buttons()::Float64\n");
+    }
+
+    garapa_jl_quit_on_error();
+}
+
 void garapa_jl_load_file(char *file){
     printf("Loading %s\n", file);
     jl_load(file);

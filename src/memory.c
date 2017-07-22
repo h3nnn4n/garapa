@@ -27,6 +27,7 @@
 #include "time_keeper.h"
 #include "utils.h"
 #include "types.h"
+#include "julia_api.h"
 #include "graphics.h"
 #include "display.h"
 #include "cartridge.h"
@@ -89,6 +90,8 @@ uint8_t _read_byte ( _cpu_info *cpu, uint16_t addr ) {
     switch ( addr ) {
         case 0xff00:
             {
+                garapa_jl_joystick_hook( cpu );
+
                 /*printf (" %d %d %d %d - %d %d %d %d\n",*/
                           /*cpu->joystick.button_start  ,*/
                           /*cpu->joystick.button_select ,*/
@@ -98,6 +101,7 @@ uint8_t _read_byte ( _cpu_info *cpu, uint16_t addr ) {
                           /*cpu->joystick.button_up     ,*/
                           /*cpu->joystick.button_left   ,*/
                           /*cpu->joystick.button_right  );*/
+
                 uint8_t input = 0;
                 if ( cpu->joystick.select_button == 0 ) {
                     input =

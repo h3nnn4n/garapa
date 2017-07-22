@@ -37,6 +37,17 @@ type game_state
 
     bsize_x :: Int64
     bsize_y :: Int64
+
+    new_piece :: Bool
+
+    piece_pending :: Bool
+
+    best_x :: Int64
+    best_y :: Int64
+    best_r :: Int64
+    best_piece :: Int64
+
+    input_controller :: Bool
 end
 
 type ga_brain
