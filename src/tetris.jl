@@ -163,12 +163,12 @@ function init_game_state()
 
     brain.number_of_features = 4
     brain.fields_per_feature = 2
-    brain.population_size    = 20
+    brain.population_size    = 3
 
     brain.current_generation = 0
     brain.individual_index   = 1
 
-    brain.number_of_evaluations_per_agent      = 5
+    brain.number_of_evaluations_per_agent      = 1
     brain.number_of_evaluations_per_agent_left = brain.number_of_evaluations_per_agent
 
     brain.function_evaluations_total = 100
@@ -219,27 +219,78 @@ end
 function game_over()
     #=println("Game over")=#
 
+    c = garapa_read_byte(0x9951)
+    b = garapa_read_byte(0x9950)
+    a = garapa_read_byte(0x994f)
+
+    a = a == 0x2f ? 0 : a
+    b = b == 0x2f ? 0 : b
+    c = c == 0x2f ? 0 : c
+
+    score = a * 100 + b * 10 + c * 1
+
+    @printf("gen: %4d - %4d - %4d: score %4d\n", brain.current_generation, brain.individual_index, brain.number_of_evaluations_per_agent_left, score)
+
+    brain.agent_data[brain.individual_index, brain.number_of_evaluations_per_agent_left] = score
+
     brain.number_of_evaluations_per_agent_left -= 1
     brain.function_evaluations_left            -= 1
 
     if brain.number_of_evaluations_per_agent_left <= 0
+        #=println(brain.agent_data[brain.individual_index, 1:end])=#
+        #=println()=#
+
         brain.number_of_evaluations_per_agent_left = brain.number_of_evaluations_per_agent
         brain.individual_index += 1
 
         if brain.individual_index > brain.population_size
             evo_step()
             brain.individual_index = 1
+            brain.current_generation += 1
+            println()
         end
     end
 end
 
 function evo_step()
     evaluate_fitness()
+
+    selection()
+end
+
+function selection()
+    intermediate = zeros(brain.population_size, brain.number_of_features * brain.fields_per_feature)
+
+    for i in brain.population_size
+        a = rand(1:brain.population_size)
+        b = rand(1:brain.population_size)
+
+        while a == b
+            a = rand(1:brain.population_size)
+            b = rand(1:brain.population_size)
+        end
+
+        if brain.fitness[a] > brain.fitness[b]
+            intermediate[i, :] = brain.population[a, :]
+        else
+            intermediate[i, :] = brain.population[b, :]
+        end
+    end
+
+    println()
+    for i in 1:brain.population_size
+        #=@printf("%8.8f %8.8f %d\n", intermediate[i], brain.population[i], intermediate[i] == brain.population[i] ? 1 : 0)=#
+        println("$(intermediate[i, :]) - $(brain.population[i, :]) $(intermediate[i, :] == brain.population[i, :] ? 1 : 0)")
+    end
+    println()
+
+    brain.population = intermediate
 end
 
 function evaluate_fitness()
     for i in 1:brain.population_size
-        brain.fitness[i] = mean(brain.agent_data[1:1:brain.number_of_evaluations_per_agent])
+        brain.fitness[i] = mean(brain.agent_data[i, 1:brain.number_of_evaluations_per_agent])
+        #=println(brain.fitness[i])=#
     end
 end
 
@@ -266,6 +317,18 @@ function draw_overlay()
     #=text = @sprintf("generation: %4d", brain.current_generation)=#
     #=garapa_draw_test_with_bg(text, posx, posy, 0, 255, 255)=#
     #=posy += 20=#
+
+    a = garapa_read_byte(0x9951)
+    b = garapa_read_byte(0x9950)
+    c = garapa_read_byte(0x994f)
+
+    a = a == 0x2f ? 0 : a
+    b = b == 0x2f ? 0 : b
+    c = c == 0x2f ? 0 : c
+
+    text = @sprintf("%x%x%x", c, b, a)
+    garapa_draw_test_with_bg(text, posx, posy, 0, 255, 255)
+    posy += 20
 
     if gs.screen == ingame
         px = (garapa_read_byte(0xff92) - 8 ) * 4
@@ -294,7 +357,14 @@ end
 olds = 0xff
 
 function update_game_state()
+    tic()
     input_handler(gs, brain)
+
+    #=a = garapa_read_byte(0xff51)=#
+    #=b = garapa_read_byte(0xff50)=#
+    #=c = garapa_read_byte(0xff4f)=#
+
+    #=@printf("%d%d%d\n", a, b, c)=#
 
     if gs.new_piece
         gs.new_piece = false
@@ -358,6 +428,13 @@ function update_game_state()
             entered_menu()
         end
     end
+
+    t = toq()
+
+    #=if t > 1/60=#
+        #=warn("Processing took too long: $t")=#
+    #=end=#
+    #=toc()=#
 end
 
 function extract_board()

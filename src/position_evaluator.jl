@@ -97,70 +97,52 @@ function find_best_move(gs :: game_state, ga :: ga_brain)
 end
 
 function does_piece_fits(board :: BitArray{2}, piece_id :: Int64, x :: Int64, y :: Int64)
-    try
-        piece = get_piece_offsets(piece_id)
+    piece = get_piece_offsets(piece_id)
 
-        if board[y + piece[1, 2], x + piece[1, 1]] return false end
-        if board[y + piece[2, 2], x + piece[2, 1]] return false end
-        if board[y + piece[3, 2], x + piece[3, 1]] return false end
-        if board[y + piece[4, 2], x + piece[4, 1]] return false end
-    catch
-        @printf(STDERR, "Exception at does_piece_fits\n")
-        #=catch_backtrace()=#
-    end
+    if board[y + piece[1, 2], x + piece[1, 1]] return false end
+    if board[y + piece[2, 2], x + piece[2, 1]] return false end
+    if board[y + piece[3, 2], x + piece[3, 1]] return false end
+    if board[y + piece[4, 2], x + piece[4, 1]] return false end
 
     return true
 end
 
 function is_piece_inside_bounds_x(piece_id :: Int64, x :: Int64) :: Bool
-    try
-        piece = get_piece_offsets(piece_id)
+    piece = get_piece_offsets(piece_id)
 
-        if x + piece[1, 1] < 1 || x + piece[1, 1] > 10 return false end
-        if x + piece[2, 1] < 1 || x + piece[2, 1] > 10 return false end
-        if x + piece[3, 1] < 1 || x + piece[3, 1] > 10 return false end
-        if x + piece[4, 1] < 1 || x + piece[4, 1] > 10 return false end
-    catch
-        @printf(STDERR, "Exception at is_piece_inside_bounds_x\n")
-        #=println(catch_backtrace())=#
-    end
+    if x + piece[1, 1] < 1 || x + piece[1, 1] > 10 return false end
+    if x + piece[2, 1] < 1 || x + piece[2, 1] > 10 return false end
+    if x + piece[3, 1] < 1 || x + piece[3, 1] > 10 return false end
+    if x + piece[4, 1] < 1 || x + piece[4, 1] > 10 return false end
 
     return true
 end
 
 function is_piece_inside_bounds(piece_id :: Int64, x :: Int64, y :: Int64) :: Bool
-    try
-        piece = get_piece_offsets(piece_id)
+    piece = get_piece_offsets(piece_id)
 
-        if x + piece[1, 1] < 1 || x + piece[1, 1] > 10 return false end
-        if y + piece[1, 2] < 1 || y + piece[1, 2] > 17 return false end
+    if x + piece[1, 1] < 1 || x + piece[1, 1] > 10 return false end
+    if y + piece[1, 2] < 1 || y + piece[1, 2] > 17 return false end
 
-        if x + piece[2, 1] < 1 || x + piece[2, 1] > 10 return false end
-        if y + piece[2, 2] < 1 || y + piece[2, 2] > 17 return false end
+    if x + piece[2, 1] < 1 || x + piece[2, 1] > 10 return false end
+    if y + piece[2, 2] < 1 || y + piece[2, 2] > 17 return false end
 
-        if x + piece[3, 1] < 1 || x + piece[3, 1] > 10 return false end
-        if y + piece[3, 2] < 1 || y + piece[3, 2] > 17 return false end
+    if x + piece[3, 1] < 1 || x + piece[3, 1] > 10 return false end
+    if y + piece[3, 2] < 1 || y + piece[3, 2] > 17 return false end
 
-        if x + piece[4, 1] < 1 || x + piece[4, 1] > 10 return false end
-        if y + piece[4, 2] < 1 || y + piece[4, 2] > 17 return false end
-    catch
-        @printf(STDERR, "Exception at is_piece_inside_bounds\n")
-        #=println(catch_backtrace())=#
-    end
+    if x + piece[4, 1] < 1 || x + piece[4, 1] > 10 return false end
+    if y + piece[4, 2] < 1 || y + piece[4, 2] > 17 return false end
 
     return true
 end
 
 function place_piece(board :: BitArray{2}, piece_id :: Int64, x :: Int64, y :: Int64)
-    try
-        piece = get_piece_offsets(piece_id)
+    piece = get_piece_offsets(piece_id)
 
+    if is_piece_inside_bounds(piece_id, x, y)
         board[y + piece[1, 2], x + piece[1, 1]] = true
         board[y + piece[2, 2], x + piece[2, 1]] = true
         board[y + piece[3, 2], x + piece[3, 1]] = true
         board[y + piece[4, 2], x + piece[4, 1]] = true
-    catch
-        @printf(STDERR, "Exception at place_piece\n")
-        #=println(stacktrace(backtrace()))=#
     end
 end
