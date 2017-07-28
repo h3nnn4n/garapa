@@ -31,7 +31,7 @@
 #include "graphics.h"
 #include "julia_api.h"
 
-#define __use_sdl
+/*#define __use_sdl*/
 
 #ifdef __use_sdl
 
@@ -229,10 +229,11 @@ void sdl_quit ( ) {
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
-void flip_screen ( ) {}
+void flip_screen ( _cpu_info *cpu ) {}
 void sdl_init ( ) {}
 void input_update ( _cpu_info *cpu ) {}
 void sdl_quit ( ) {}
+void draw_text_with_bg(char *text, int x, int y, int r, int g, int b) {}
 uint32_t *get_frame_buffer () { return NULL; }
 
 #endif
