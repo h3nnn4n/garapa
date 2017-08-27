@@ -1,3 +1,5 @@
+using Distributions
+
 include("j_utils.jl")
 include("input_handler.jl")
 include("types.jl")
@@ -258,6 +260,8 @@ function evo_step()
     evaluate_fitness()
 
     selection()
+    crossover()
+    mutation()
 end
 
 function selection()
@@ -287,6 +291,44 @@ function selection()
     println()
 
     brain.population = intermediate
+end
+
+function crossover()
+    intermediate = zeros(brain.population_size, brain.number_of_features * brain.fields_per_feature)
+
+    for i in 1:brain.population_size
+        a = rand(1:brain.population_size)
+        b = rand(1:brain.population_size)
+
+        while a == b
+            a = rand(1:brain.population_size)
+            b = rand(1:brain.population_size)
+        end
+
+        if rand() < brain.crossover_rate
+            pos = rand(2:length(brain.population[a, :])-1)
+
+            if rand() < .5
+                intermediate[i, :] = vcat(brain.population[a, 1:pos], brain.population[b, pos+1:end])
+            else
+                intermediate[i, :] = vcat(brain.population[b, 1:pos], brain.population[a, pos+1:end])
+            end
+        else
+            intermediate[i, :] = brain.population[b, :]
+        end
+    end
+
+    brain.population = intermediate
+end
+
+function mutation()
+    for i in 1:brain.population_size
+        for j in 1:length(brain.population[i, :])
+            if rand() < brain.mutation_rate
+                brain.population[i, j] += rand(Normal())
+            end
+        end
+    end
 end
 
 function evaluate_fitness()
