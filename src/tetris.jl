@@ -4,6 +4,7 @@ include("types.jl")
 include("feature_functions.jl")
 include("position_evaluator.jl")
 include("draw.jl")
+include("tetris_utils.jl")
 
 brain = ga_brain()
 gs    = game_state() #init_game_state()
@@ -191,6 +192,7 @@ end
 
 function check_for_new_piece()
     if garapa_read_pc() == 0x2062 && gs.screen == ingame
+        #=println("New Piece")=#
         new_piece()
     end
 
@@ -212,12 +214,12 @@ function garapa_init()
 end
 
 function entered_game()
-    #=println("Entered a GAME")=#
+    println("Entered a GAME")
     gs.new_piece = true
 end
 
 function game_over()
-    #=println("Game over")=#
+    println("Game over")
 
     c = garapa_read_byte(0x9951)
     b = garapa_read_byte(0x9950)
@@ -296,11 +298,11 @@ end
 
 function finished_boot()
     init_game_state()
-    #=println("BOOT")=#
+    println("BOOT")
 end
 
 function entered_menu()
-    #=println("MENU")=#
+    println("MENU")
 end
 
 function draw_overlay()
@@ -374,6 +376,9 @@ function update_game_state()
         gs.best_y = by
         gs.best_r = rotation
         gs.best_piece = best_piece
+        #=@printf("best %3d %3d %s %s\n", gs.best_x, gs.best_y, gs.best_r, gs.best_piece)=#
+
+        print_board(gs.board)
     end
 
     draw_overlay()

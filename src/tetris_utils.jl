@@ -1,18 +1,17 @@
 function print_board( board :: BitArray{2})
+    x, y = size(board)
+
     @printf("+---------------------+\n")
-    for y in 1:17
+
+    for i in 1:x
         @printf("| ")
-        for x in 1:10
-            if board[y, x]
-                @printf("X ")
-            else
-                @printf("  ")
-            end
+        for j in 1:y
+            @printf("%s ", board[i, j] ? "X" : " ")
         end
         @printf("|\n")
     end
 
     @printf("+---------------------+\n")
+
     @printf("\n")
 end
-
