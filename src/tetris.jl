@@ -263,7 +263,7 @@ end
 function selection()
     intermediate = zeros(brain.population_size, brain.number_of_features * brain.fields_per_feature)
 
-    for i in brain.population_size
+    for i in 1:brain.population_size
         a = rand(1:brain.population_size)
         b = rand(1:brain.population_size)
 
@@ -378,7 +378,7 @@ function update_game_state()
         gs.best_piece = best_piece
         #=@printf("best %3d %3d %s %s\n", gs.best_x, gs.best_y, gs.best_r, gs.best_piece)=#
 
-        print_board(gs.board)
+        #=print_board(gs.board)=#
     end
 
     draw_overlay()
