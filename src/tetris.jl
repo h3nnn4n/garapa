@@ -166,15 +166,15 @@ function init_game_state()
 
     brain.number_of_features = 4
     brain.fields_per_feature = 2
-    brain.population_size    = 3
+    brain.population_size    = 50
 
     brain.current_generation = 0
     brain.individual_index   = 1
 
-    brain.number_of_evaluations_per_agent      = 1
+    brain.number_of_evaluations_per_agent      = 5
     brain.number_of_evaluations_per_agent_left = brain.number_of_evaluations_per_agent
 
-    brain.function_evaluations_total = 100
+    brain.function_evaluations_total = 10000
     brain.function_evaluations_left  = brain.function_evaluations_total
 
     range = 5.0
