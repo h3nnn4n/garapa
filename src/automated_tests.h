@@ -17,7 +17,7 @@
  *    misrepresented as being the original software.                          *
  * 3. This notice may not be removed or altered from any source distribution. *
  ******************************************************************************/
-#ifndef AUTOMATED_TESTS_Hj
+#ifndef AUTOMATED_TESTS_H
 #define AUTOMATED_TESTS_H
 
 typedef struct {
