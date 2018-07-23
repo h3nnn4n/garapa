@@ -24,7 +24,7 @@
 #include "cartridge.h"
 #include "types.h"
 
-char *mbc_code[] = {
+const char *mbc_code[] = {
     [0x00] = "ROM ONLY",
     [0x01] = "MBC1",
     [0x02] = "MBC1+RAM",
@@ -58,7 +58,7 @@ char *mbc_code[] = {
     [0xFF] = "HuC1+RAM+BATTERY"
 };
 
-uint32_t rom_nbanks[] = {
+const uint32_t rom_nbanks[] = {
     [0x00] = 0   , // " 32KByte (no ROM banking)",
     [0x01] = 4   , // " 64KByte (4 banks)",
     [0x02] = 8   , // "128KByte (8 banks)",
@@ -73,7 +73,7 @@ uint32_t rom_nbanks[] = {
     [0x54] = 96  // "1.5MByte (96 banks)"
 };
 
-uint32_t rom_size[] = {
+const uint32_t rom_size[] = {
     [0x00] = 2   * 0x4000, // " 32KByte (no ROM banking)",
     [0x01] = 4   * 0x4000, // " 64KByte (4 banks)",
     [0x02] = 8   * 0x4000, // "128KByte (8 banks)",
@@ -88,7 +88,7 @@ uint32_t rom_size[] = {
     [0x54] = 96  * 0x4000  // "1.5MByte (96 banks)"
 };
 
-char *rom_size_code[] = {
+const char *rom_size_code[] = {
     [0x00] = " 32KByte (no ROM banking)",
     [0x01] = " 64KByte (4 banks)",
     [0x02] = "128KByte (8 banks)",
@@ -103,7 +103,7 @@ char *rom_size_code[] = {
     [0x54] = "1.5MByte (96 banks)"
 };
 
-uint32_t ram_size[] = {
+const uint32_t ram_size[] = {
     [0x00] = 0  * 0x0800, // "None",
     [0x01] = 1  * 0x0800, // "2 KBytes",
     [0x02] = 1  * 0x2000, // "8 Kbytes",
@@ -112,7 +112,7 @@ uint32_t ram_size[] = {
     [0x05] = 8  * 0x2000  // "64 KBytes (8 banks of 8KBytes each)"
 };
 
-char *ram_size_code[] = {
+const char *ram_size_code[] = {
     [0x00] = "None",
     [0x01] = "2 KBytes",
     [0x02] = "8 Kbytes",
