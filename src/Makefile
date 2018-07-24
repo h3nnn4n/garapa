@@ -37,20 +37,6 @@ OBJECTS_BIN=$(SOURCE_BIN:.c=.o)
 
 all: $(SOURCES) $(SOURCE_BIN) $(EXECUTABLE)
 
-test: $(EXECUTABLE)
-	./$(EXECUTABLE) $(ROM_PATH)/"01-special.gb"
-	./$(EXECUTABLE) $(ROM_PATH)/"02-interrupts.gb"
-	./$(EXECUTABLE) $(ROM_PATH)/"03-op sp,hl.gb"
-	./$(EXECUTABLE) $(ROM_PATH)/"04-op r,imm.gb"
-	./$(EXECUTABLE) $(ROM_PATH)/"05-op rp.gb"
-	./$(EXECUTABLE) $(ROM_PATH)/"06-ld r,r.gb"
-	./$(EXECUTABLE) $(ROM_PATH)/"07-jr,jp,call,ret,rst.gb"
-	./$(EXECUTABLE) $(ROM_PATH)/"08-misc instrs.gb"
-	./$(EXECUTABLE) $(ROM_PATH)/"09-op r,r.gb"
-	./$(EXECUTABLE) $(ROM_PATH)/"10-bit ops.gb"
-	./$(EXECUTABLE) $(ROM_PATH)/"11-op a,(hl).gb"
-
-
 $(EXECUTABLE): $(OBJECTS) $(OBJECTS_BIN)
 	$(CC) $(CFLAGS) $(OBJECTS) $(OBJECTS_BIN) -o $@
 
