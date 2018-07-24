@@ -226,10 +226,11 @@ void sdl_quit ( ) {
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
-void flip_screen ( ) {}
+void flip_screen ( _cpu_info *cpu ) {}
 void sdl_init ( ) {}
 void input_update ( _cpu_info *cpu ) {}
 void sdl_quit ( ) {}
 uint32_t *get_frame_buffer () { return NULL; }
+void draw_text_with_bg(char *text, int x, int y, int r, int g, int b) {}
 
 #endif
