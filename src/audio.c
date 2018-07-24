@@ -29,6 +29,9 @@
 #include "ch3.h"
 #include "ch4.h"
 
+#define __use_audio
+
+#ifdef __use_audio
 void apu_sdl_init( _cpu_info *cpu ) {
     SDL_InitSubSystem(SDL_INIT_AUDIO);
 
@@ -59,6 +62,13 @@ void apu_sdl_init( _cpu_info *cpu ) {
         SDL_PauseAudioDevice(cpu->apu.dev, 0);
     }
 }
+
+#else
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+void apu_sdl_init( _cpu_info *cpu ) {
+  SDL_memset(&cpu->apu.want, 0, sizeof(cpu->apu.want));
+}
+#endif
 
 void apu_update_on_div_change ( _cpu_info *cpu ) {
     if ( cpu->apu.enable ) {
@@ -160,6 +170,7 @@ void apu_update ( _cpu_info *cpu ) {
         if ( cpu->apu.buffer_index >= (cpu->apu.have.samples) * 2 ) {
             cpu->apu.buffer_index = 0;
 
+#ifdef __use_audio
             while ( SDL_GetQueuedAudioSize( cpu->apu.dev ) > cpu->apu.have.samples * sizeof(uint16_t) * 2 ) {
                 SDL_Delay(1);
             }
@@ -167,6 +178,7 @@ void apu_update ( _cpu_info *cpu ) {
             if ( SDL_QueueAudio( cpu->apu.dev, cpu->apu.buffer, cpu->apu.have.samples * sizeof(uint16_t) * 2 )) {
                 SDL_Log("This happened on SDL_QueueAudio: %s", SDL_GetError());
             }
+#endif
         }
 
         // Reload sample timer
@@ -747,6 +759,4 @@ void apu_clear ( _cpu_info *cpu ) {
     cpu->apu.ch2_right_enable = 0;
     cpu->apu.ch3_right_enable = 0;
     cpu->apu.ch4_right_enable = 0;
-
 }
-
