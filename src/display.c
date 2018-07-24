@@ -31,33 +31,6 @@
 
 #define dma_read(cpu,addr) (_read_byte(cpu, addr))
 
-typedef struct {
-    int16_t  posx;
-    int16_t  posy;
-    uint8_t  hflip;
-    uint8_t  vflip;
-
-    uint8_t  palette_number;
-
-    uint8_t  priority; // 1 if above background
-                       // PS: Actual bit in OAM is 0 for when above
-    uint8_t  tile;
-    uint8_t  tileaddr;
-
-    uint8_t  color_bit1;
-    uint8_t  color_bit2;
-
-    uint16_t tile_addr;
-} _sprite_info;
-
-_sprite_info sprites[40];
-uint8_t sprite_pivot;
-uint16_t pixel_pipeline_cycles;
-
-uint8_t priority_cache[144 * 160];
-uint8_t sprite_x_cache[144 * 160];
-uint8_t sprite_stall_buckets[(168 + 256 + 7) / 8]; // How big?
-
 // 0xff47
 void write_bg_palette ( _cpu_info *cpu, uint8_t data ) {
     cpu->lcd.bg_palette[0] = ( data >> 0 ) & 0x03;
@@ -342,7 +315,7 @@ void draw_background_and_window( _cpu_info *cpu ) {
         color = (((bit2 & (0x01 << (((posx % 8) - 7) * -1))) != 0) << 1) |
                  ((bit1 & (0x01 << (((posx % 8) - 7) * -1))) != 0)       ;
 
-        priority_cache[cpu->lcd.active_line * 160 + i] = color > 0 ? 1 : 0;
+        cpu->lcd.lcd_status.priority_cache[cpu->lcd.active_line * 160 + i] = color > 0 ? 1 : 0;
 
         buffer[cpu->lcd.active_line*160 + i] = cpu->lcd.colors[cpu->lcd.bg_palette[color]];
 
@@ -353,7 +326,7 @@ void draw_background_and_window( _cpu_info *cpu ) {
 }
 
 void fetch_sprites ( _cpu_info *cpu ) {
-    sprite_pivot          = 0;
+    cpu->lcd.lcd_status.sprite_pivot = 0;
 
     // OAM = 0xfe00
     // bit0 = y
@@ -367,13 +340,13 @@ void fetch_sprites ( _cpu_info *cpu ) {
         uint16_t tileaddr = dma_read(cpu, 0xfe00 + (i*4 + 2)); // Tile index
         uint8_t flags     = dma_read(cpu, 0xfe00 + (i*4 + 3)); // Tile flags
 
-        sprites[sprite_pivot].posx  = posx;
-        sprites[sprite_pivot].posy  = posy;
-        sprites[sprite_pivot].vflip = !!(flags & 0x40);
-        sprites[sprite_pivot].hflip = !!(flags & 0x20);
-        sprites[sprite_pivot].tile  = tileaddr;
+        cpu->lcd.lcd_status.sprites[cpu->lcd.lcd_status.sprite_pivot].posx  = posx;
+        cpu->lcd.lcd_status.sprites[cpu->lcd.lcd_status.sprite_pivot].posy  = posy;
+        cpu->lcd.lcd_status.sprites[cpu->lcd.lcd_status.sprite_pivot].vflip = !!(flags & 0x40);
+        cpu->lcd.lcd_status.sprites[cpu->lcd.lcd_status.sprite_pivot].hflip = !!(flags & 0x20);
+        cpu->lcd.lcd_status.sprites[cpu->lcd.lcd_status.sprite_pivot].tile  = tileaddr;
 
-        sprites[sprite_pivot].palette_number = !!(flags & 0x08);
+        cpu->lcd.lcd_status.sprites[cpu->lcd.lcd_status.sprite_pivot].palette_number = !!(flags & 0x08);
 
         /*printf(" sprite %04x x: %4d  y: %4d\n", 0xfe00 + (i*4    ), posx, posy);*/
 
@@ -389,42 +362,43 @@ void fetch_sprites ( _cpu_info *cpu ) {
 
             uint16_t addr = 0x8000 + (tileaddr * 16) + line_offset;
 
-            sprites[sprite_pivot].tileaddr   = addr;
-            sprites[sprite_pivot].color_bit1 = dma_read(cpu, addr    );
-            sprites[sprite_pivot].color_bit2 = dma_read(cpu, addr + 1);
+            cpu->lcd.lcd_status.sprites[cpu->lcd.lcd_status.sprite_pivot].tileaddr   = addr;
+            cpu->lcd.lcd_status.sprites[cpu->lcd.lcd_status.sprite_pivot].color_bit1 = dma_read(cpu, addr    );
+            cpu->lcd.lcd_status.sprites[cpu->lcd.lcd_status.sprite_pivot].color_bit2 = dma_read(cpu, addr + 1);
 
-            sprite_pivot ++;
+            cpu->lcd.lcd_status.sprite_pivot ++;
         }
     }
 }
 
-void sort_sprites ( ) {
+// This should not be needed. Lets leave it here for now TODO: Remove me later
+/*void sort_sprites ( ) {*/
     // Dumb bubble sort
     // Should be fast enough
 
-    int run;
+    /*int run;*/
 
-    do {
-        run = 0;
-        for (int i = 0; i < sprite_pivot; ++i) {
-            if ( (sprites[i].posx >  sprites[i+1].posy) ||
-                ((sprites[i].posx == sprites[i+1].posy) && sprites[i].tile > sprites[i+1].tile)) {
+    /*do {*/
+        /*run = 0;*/
+        /*for (int i = 0; i < cpu->lcd.lcd_status.sprite_pivot; ++i) {*/
+            /*if ( (sprites[i].posx >  sprites[i+1].posy) ||*/
+                /*((sprites[i].posx == sprites[i+1].posy) && sprites[i].tile > sprites[i+1].tile)) {*/
 
-                _sprite_info t = sprites[i  ];
-                sprites[i  ]   = sprites[i+1];
-                sprites[i+1]   = t;
+                /*_sprite_info t = sprites[i  ];*/
+                /*sprites[i  ]   = sprites[i+1];*/
+                /*sprites[i+1]   = t;*/
 
-                run = 1;
-            }
-        }
-    } while ( run );
-}
+                /*run = 1;*/
+            /*}*/
+        /*}*/
+    /*} while ( run );*/
+/*}*/
 
 void draw_sprites ( _cpu_info *cpu ) {
     uint32_t *buffer = get_frame_buffer();
     if ( buffer == NULL ) return; // FIXME
 
-    pixel_pipeline_cycles    = 0;
+    cpu->lcd.lcd_status.pixel_pipeline_cycles    = 0;
 
     uint8_t  rendered        = 0;
     uint16_t has_sprite_at_0 = 0;
@@ -438,38 +412,38 @@ void draw_sprites ( _cpu_info *cpu ) {
     // bit3 = atributes
     // TODO: Sprites Priority
 
-    int sprites_to_draw = sprite_pivot <= 10 ? sprite_pivot : 10;
+    int sprites_to_draw = cpu->lcd.lcd_status.sprite_pivot <= 10 ? cpu->lcd.lcd_status.sprite_pivot : 10;
     for (int i = 0; i < sprites_to_draw; ++i) {
-        int16_t posy      = sprites[i].posy;
-        int16_t posx      = sprites[i].posx;
-        uint8_t pallete   = sprites[i].palette_number;
+        int16_t posy      = cpu->lcd.lcd_status.sprites[i].posy;
+        int16_t posx      = cpu->lcd.lcd_status.sprites[i].posx;
+        uint8_t pallete   = cpu->lcd.lcd_status.sprites[i].palette_number;
 
         if ( sprites_draw >= 10 ) break;
 
         if ( ( cpu->lcd.active_line >= posy ) &&
              ( cpu->lcd.active_line < posy + ( cpu->lcd.sprite_size ? 16 : 8 ) ) ) {
 
-            uint8_t bit1 = sprites[i].color_bit1;
-            uint8_t bit2 = sprites[i].color_bit2;
+            uint8_t bit1 = cpu->lcd.lcd_status.sprites[i].color_bit1;
+            uint8_t bit2 = cpu->lcd.lcd_status.sprites[i].color_bit2;
 
             for (int j = 0; j < 8; ++j) {
                 uint8_t color;
                 uint8_t j_flip;
                 cache_index = cpu->lcd.active_line * 160 + posx + j;
-                uint8_t pcache = priority_cache[cache_index];
+                uint8_t pcache = cpu->lcd.lcd_status.priority_cache[cache_index];
 
                 if ( (pcache & 0x02 ) &&
-                     (sprite_x_cache[cache_index] <= posx +8 ) )
+                     (cpu->lcd.lcd_status.sprite_x_cache[cache_index] <= posx +8 ) )
                     continue;
 
                 if ( pcache & 0x04 )
                     continue;
 
                 if ( (pcache & 0x01) &&
-                     (sprites[i].priority) )
+                     (cpu->lcd.lcd_status.sprites[i].priority) )
                     continue;
 
-                if ( sprites[i].hflip )
+                if ( cpu->lcd.lcd_status.sprites[i].hflip )
                     j_flip = 7 - j;
                 else
                     j_flip = j;
@@ -480,8 +454,8 @@ void draw_sprites ( _cpu_info *cpu ) {
                 color = (((bit2 & (0x80 >> j_flip)) != 0) << 1) |
                          ((bit1 & (0x80 >> j_flip)) != 0)       ;
 
-                priority_cache[cache_index] |= color > 0 ? 0x02 : 0x00;
-                sprite_x_cache[cache_index]  = posx + j;
+                cpu->lcd.lcd_status.priority_cache[cache_index] |= color > 0 ? 0x02 : 0x00;
+                cpu->lcd.lcd_status.sprite_x_cache[cache_index]  = posx + j;
 
                 rendered = 1;
 
@@ -498,7 +472,7 @@ void draw_sprites ( _cpu_info *cpu ) {
             if ( rendered ) {
                 int16_t posx2 = posx + 8;
                 if ( posx2 < 168 ) {
-                    pixel_pipeline_cycles += 6;
+                    cpu->lcd.lcd_status.pixel_pipeline_cycles += 6;
 
                     int16_t x = posx2 + (int16_t) cpu->lcd.bg_scroll_x;
 
@@ -517,10 +491,10 @@ void draw_sprites ( _cpu_info *cpu ) {
                         stall = 0;
                     }
 
-                    sprite_stall_buckets[bucket_index] =
-                        stall > sprite_stall_buckets[bucket_index] ?
+                    cpu->lcd.lcd_status.sprite_stall_buckets[bucket_index] =
+                        stall > cpu->lcd.lcd_status.sprite_stall_buckets[bucket_index] ?
                         stall :
-                        sprite_stall_buckets[bucket_index];
+                        cpu->lcd.lcd_status.sprite_stall_buckets[bucket_index];
                 }
 
                 sprites_draw++;
@@ -529,14 +503,14 @@ void draw_sprites ( _cpu_info *cpu ) {
     }
 
     for (int i = 0; i < ((168 + cpu->lcd.bg_scroll_x + 7) / 8); ++i) {
-        pixel_pipeline_cycles += sprite_stall_buckets[i];
+        cpu->lcd.lcd_status.pixel_pipeline_cycles += cpu->lcd.lcd_status.sprite_stall_buckets[i];
     }
 
     if ( has_sprite_at_0 ) {
-        pixel_pipeline_cycles += cpu->lcd.bg_scroll_x & 0x07;
+        cpu->lcd.lcd_status.pixel_pipeline_cycles += cpu->lcd.bg_scroll_x & 0x07;
     }
 
-    pixel_pipeline_cycles &= 0xfc;
+    cpu->lcd.lcd_status.pixel_pipeline_cycles &= 0xfc;
 }
 
 // Mode 0 lasts 201-207
@@ -604,12 +578,12 @@ void display_update( _cpu_info *cpu ) {
         }
 
         for (int i = 0; i < 160 * 144; ++i) {
-            priority_cache[i] = 0;
-            sprite_x_cache[i] = 0;
+            cpu->lcd.lcd_status.priority_cache[i] = 0;
+            cpu->lcd.lcd_status.sprite_x_cache[i] = 0;
         }
 
         for (int i = 0; i < (160 + 256 + 7)/8; ++i) {
-            sprite_stall_buckets[i] = 0;
+            cpu->lcd.lcd_status.sprite_stall_buckets[i] = 0;
         }
 
         draw_background_and_window(cpu);
@@ -618,7 +592,7 @@ void display_update( _cpu_info *cpu ) {
             fetch_sprites(cpu);
             /*sort_sprites(cpu);*/
             draw_sprites(cpu);
-            cpu->lcd.m3_cycles += pixel_pipeline_cycles;
+            cpu->lcd.m3_cycles += cpu->lcd.lcd_status.pixel_pipeline_cycles;
         }
 
     } else if ( cpu->lcd.mode == 3 && cpu->lcd.cycles_spent >= ((85 + cpu->lcd.m3_cycles) -7 ) &&

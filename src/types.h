@@ -39,9 +39,41 @@ typedef struct {                     // This is the struct that is
     uint8_t select_direction;        // which column is being read
 } _joystick;                         //
 
+typedef struct {
+    int16_t  posx;
+    int16_t  posy;
+    uint8_t  hflip;
+    uint8_t  vflip;
+
+    uint8_t  palette_number;
+
+    uint8_t  priority; // 1 if above background
+                       // PS: Actual bit in OAM is 0 for when above
+    uint8_t  tile;
+    uint8_t  tileaddr;
+
+    uint8_t  color_bit1;
+    uint8_t  color_bit2;
+
+    uint16_t tile_addr;
+} _sprite_info;
+
+typedef struct {
+    _sprite_info sprites[40];
+    uint8_t sprite_pivot;
+    uint16_t pixel_pipeline_cycles;
+
+    uint8_t priority_cache[144 * 160];
+    uint8_t sprite_x_cache[144 * 160];
+    uint8_t sprite_stall_buckets[(168 + 256 + 7) / 8]; // Big enough? Should be
+} _lcd_status;
+
 typedef struct {              // This is a struct that holds all information
                               // relative to the LCD controller. Somethings
                               // are mirrored from RAM.
+
+    _lcd_status lcd_status;   // Status about the inner workings of the LCD
+                              // such as cache and sprite priority
 
     uint8_t active_line;      // The line number being draw, can be read from 0xff44
     uint8_t lyc_trigger;      // The line on 0xff45 used to trigger LYC
