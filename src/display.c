@@ -371,29 +371,6 @@ void fetch_sprites ( _cpu_info *cpu ) {
     }
 }
 
-// This should not be needed. Lets leave it here for now TODO: Remove me later
-/*void sort_sprites ( ) {*/
-    // Dumb bubble sort
-    // Should be fast enough
-
-    /*int run;*/
-
-    /*do {*/
-        /*run = 0;*/
-        /*for (int i = 0; i < cpu->lcd.lcd_status.sprite_pivot; ++i) {*/
-            /*if ( (sprites[i].posx >  sprites[i+1].posy) ||*/
-                /*((sprites[i].posx == sprites[i+1].posy) && sprites[i].tile > sprites[i+1].tile)) {*/
-
-                /*_sprite_info t = sprites[i  ];*/
-                /*sprites[i  ]   = sprites[i+1];*/
-                /*sprites[i+1]   = t;*/
-
-                /*run = 1;*/
-            /*}*/
-        /*}*/
-    /*} while ( run );*/
-/*}*/
-
 void draw_sprites ( _cpu_info *cpu ) {
     uint32_t *buffer = get_frame_buffer();
     if ( buffer == NULL ) return; // FIXME
@@ -590,8 +567,7 @@ void display_update( _cpu_info *cpu ) {
 
         if ( cpu->lcd.power && cpu->lcd.sprite_enable ) {
             fetch_sprites(cpu);
-            /*sort_sprites(cpu);*/
-            draw_sprites(cpu);
+            draw_sprites(cpu);   // If there is something wrong, try sorting sprites as expected
             cpu->lcd.m3_cycles += cpu->lcd.lcd_status.pixel_pipeline_cycles;
         }
 
