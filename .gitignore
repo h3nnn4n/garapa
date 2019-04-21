@@ -7,3 +7,5 @@ main
 *.txt
 *.log
 *.sav
+.DS_Store
+.vscode
