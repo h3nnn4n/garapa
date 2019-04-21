@@ -26,6 +26,7 @@ SOURCES=utils.c                      \
 		ch3.c                        \
 		ch4.c                        \
 		interrupts.c                 \
+		plugin.c                     \
 		instructions_stack_io_control.c
 
 ROM_PATH=../roms/cpu_instrs/individual/

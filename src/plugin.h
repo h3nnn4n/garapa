@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2016-2018  Renan S. Silva                                    *
+ * Copyright (C) 2019  Renan S. Silva                                         *
  *                                                                            *
  * This software is provided 'as-is', without any express or implied          *
  * warranty. In no event will the authors be held liable for any damages      *
@@ -17,54 +17,12 @@
  *    misrepresented as being the original software.                          *
  * 3. This notice may not be removed or altered from any source distribution. *
  ******************************************************************************/
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <time.h>
-#include <assert.h>
 
-#include <sys/types.h>
+#ifndef PLUGIN_H
+#define PLUGIN_H
 
-#include "utils.h"
-#include "audio.h"
-#include "types.h"
-#include "memory.h"
-#include "plugin.h"
-#include "cartridge.h"
-#include "decoder.h"
-#include "graphics.h"
-#include "display.h"
-#include "disassembler.h"
-#include "automated_tests.h"
-#include "automated_tests.h"
+void load_plugin();
+void load_plugin_dylib();
+void load_plugin_so();
 
-int main(int argc, char *argv[]) {
-    _cpu_info cpu;
-    sdl_init();
-
-    atexit(sdl_quit);
-
-    if ( argc == 1 ) {
-        test_control.test_enable = 1;
-        test_run ();
-        return 0;
-    }
-
-    test_control.test_enable = 0;
-
-    init_cpu(&cpu);
-
-    apu_sdl_init(&cpu);
-
-    load_rom ( &cpu, argv[1], 0x0000 );
-
-    /*print_rom_info(&cpu);*/
-
-    load_plugin();
-
-    while ( 1 ) {
-        decoder        ( &cpu );
-    }
-
-    return 0;
-}
+#endif

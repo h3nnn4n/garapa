@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2016-2018  Renan S. Silva                                    *
+ * Copyright (C) 2019  Renan S. Silva                                         *
  *                                                                            *
  * This software is provided 'as-is', without any express or implied          *
  * warranty. In no event will the authors be held liable for any damages      *
@@ -17,54 +17,57 @@
  *    misrepresented as being the original software.                          *
  * 3. This notice may not be removed or altered from any source distribution. *
  ******************************************************************************/
-#include <stdio.h>
+
 #include <stdlib.h>
-#include <unistd.h>
-#include <time.h>
-#include <assert.h>
+#include <stdio.h>
+#include <dlfcn.h>
 
-#include <sys/types.h>
-
-#include "utils.h"
-#include "audio.h"
-#include "types.h"
-#include "memory.h"
 #include "plugin.h"
-#include "cartridge.h"
-#include "decoder.h"
-#include "graphics.h"
-#include "display.h"
-#include "disassembler.h"
-#include "automated_tests.h"
-#include "automated_tests.h"
 
-int main(int argc, char *argv[]) {
-    _cpu_info cpu;
-    sdl_init();
+void (*plugin)();
 
-    atexit(sdl_quit);
+void load_plugin() {
+#ifdef __APPLE__
+    load_plugin_dylib();
+#endif
 
-    if ( argc == 1 ) {
-        test_control.test_enable = 1;
-        test_run ();
-        return 0;
+#ifdef __linux__
+    load_pluginso();
+#endif
+}
+
+void load_plugin_dylib() {
+    char *error;
+    void *handle;
+
+    handle = dlopen("./plugin.dylib", RTLD_LAZY);
+    if (!handle) {
+        fputs(dlerror(), stderr);
+        printf("plugin.dylib was not found");
+        return;
     }
 
-    test_control.test_enable = 0;
+    plugin = dlsym(handle, "global_callback");
+    if ((error = dlerror()) != NULL) {
+        fputs(error, stderr);
+        exit(1);
+    }
+}
 
-    init_cpu(&cpu);
+void load_plugin_so() {
+    char *error;
+    void *handle;
 
-    apu_sdl_init(&cpu);
-
-    load_rom ( &cpu, argv[1], 0x0000 );
-
-    /*print_rom_info(&cpu);*/
-
-    load_plugin();
-
-    while ( 1 ) {
-        decoder        ( &cpu );
+    handle = dlopen("./plugin.so", RTLD_LAZY);
+    if (!handle) {
+        fputs(dlerror(), stderr);
+        printf("plugin.so was not found");
+        return;
     }
 
-    return 0;
+    plugin = dlsym(handle, "global_callback");
+    if ((error = dlerror()) != NULL) {
+        fputs(error, stderr);
+        exit(1);
+    }
 }
