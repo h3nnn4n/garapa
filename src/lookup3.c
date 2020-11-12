@@ -43,6 +43,9 @@ on 1 byte), but shoehorning those bytes into integers efficiently is messy.
 # include <endian.h>    /* attempt to define endianness */
 #endif
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough="
+
 /*
  * My best guess at if you are big-endian or little-endian.  This may
  * need adjustment.
@@ -759,3 +762,5 @@ uint32_t hashbig( const void *key, size_t length, uint32_t initval)
   final(a,b,c);
   return c;
 }
+
+#pragma GCC diagnostic pop
