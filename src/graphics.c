@@ -20,10 +20,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "SDL.h"
-#include "SDL_ttf.h"
-#include "SDL_video.h"
-#include "SDL_render.h"
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_video.h>
+#include <SDL2/SDL_render.h>
 
 #include "types.h"
 #include "overlay.h"

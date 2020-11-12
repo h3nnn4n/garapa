@@ -19,7 +19,7 @@
  ******************************************************************************/
 #include <stdint.h>
 
-#include "SDL.h"
+#include <SDL2/SDL.h>
 
 #include "audio_types.h"
 #include "audio.h"

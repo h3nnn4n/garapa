@@ -22,7 +22,7 @@
 
 #include <stdint.h>
 
-#include "SDL.h"
+#include <SDL2/SDL.h>
 
 #define BUFFER_SIZE 1024
 //#define SAMPLE_RATE 44100
