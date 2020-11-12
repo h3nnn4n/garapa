@@ -20,6 +20,8 @@
 #ifndef AUTOMATED_TESTS_H
 #define AUTOMATED_TESTS_H
 
+#include <stdint.h>
+
 typedef struct {
     char name[4096];
     uint32_t frames;
