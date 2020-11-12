@@ -36,7 +36,7 @@ typedef struct {
     uint8_t   test_enable;
 } _test_control;
 
-_test_control test_control;
+extern _test_control test_control;
 
 uint32_t test_get_hash    (                                                ) ;
 uint8_t test_step         ( _test_control *t                               ) ;

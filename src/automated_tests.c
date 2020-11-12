@@ -45,6 +45,8 @@
 #define C_WHT   "\x1B[37m"
 #define C_RESET "\x1B[0m"
 
+_test_control test_control;
+
 _test_info tests_to_run[] = {
 
     /*[>{ "../roms/interrupt_time/interrupt_time.gb"               , 250, 0x0b6d0b00 },<]*/
