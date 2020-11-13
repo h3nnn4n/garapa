@@ -39,9 +39,8 @@
 
 int main(int argc, char *argv[]) {
     _cpu_info cpu;
-    graphics_init();
-
     atexit(graphics_exit);
+    if (graphics_init()) exit(-1);
 
     if ( argc == 1 ) {
         test_control.test_enable = 1;

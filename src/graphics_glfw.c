@@ -31,12 +31,110 @@ GLFWwindow *window;
 
 static uint32_t *pixels = NULL;
 
-static const int WINDOW_WIDTH = 160;
-static const int WINDOW_HEIGHT = 144;
+/*static const int WINDOW_WIDTH = 160;*/
+/*static const int WINDOW_HEIGHT = 144;*/
+static const int WINDOW_WIDTH = 800;
+static const int WINDOW_HEIGHT = 600;
+
+const char *vertexShaderSource = "#version 330 core\n"
+"layout (location = 0) in vec3 aPos;\n"
+"void main()\n"
+"{\n"
+"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+"}\0";
+const char *fragmentShaderSource = "#version 330 core\n"
+"out vec4 FragColor;\n"
+"void main()\n"
+"{\n"
+"   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+"}\n\0";
+
+int shaderProgram;
+unsigned int VBO, VAO, EBO;
 
 uint32_t *get_glfw_frame_buffer () {
   /*return pixels;*/
   return NULL;
+}
+
+void build_shaders() {
+  int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+  glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+  glCompileShader(vertexShader);
+
+  int success;
+  char infoLog[512];
+  glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+  if (!success) {
+    glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+    fprintf(
+        stderr,
+        "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n%s\n",
+        infoLog
+        );
+  }
+
+  // fragment shader
+  int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+  glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+  glCompileShader(fragmentShader);
+  glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+  if (!success) {
+    glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+    fprintf(
+        stderr,
+        "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n%s\n",
+        infoLog
+        );
+  }
+
+  // link shaders
+  shaderProgram = glCreateProgram();
+  glAttachShader(shaderProgram, vertexShader);
+  glAttachShader(shaderProgram, fragmentShader);
+  glLinkProgram(shaderProgram);
+
+  glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+  if (!success) {
+    glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+    fprintf(
+        stderr,
+        "ERROR::SHADER::PROGRAM_LINKING::COMPILATION_FAILED\n%s\n",
+        infoLog
+        );
+  }
+  glDeleteShader(vertexShader);
+  glDeleteShader(fragmentShader);
+}
+
+void build_quad() {
+  float vertices[] = {
+    0.5f,  0.5f, 0.0f,
+    0.5f, -0.5f, 0.0f,
+    -0.5f, -0.5f, 0.0f,
+    -0.5f,  0.5f, 0.0f
+  };
+  unsigned int indices[] = {
+    0, 1, 3,
+    1, 2, 3
+  };
+  glGenVertexArrays(1, &VAO);
+  glGenBuffers(1, &VBO);
+  glGenBuffers(1, &EBO);
+
+  glBindVertexArray(VAO);
+
+  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+  glEnableVertexAttribArray(0);
+
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindVertexArray(0);
 }
 
 int glfw_init () {
@@ -44,6 +142,10 @@ int glfw_init () {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+#ifdef __APPLE__
+  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
 
   window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Here comes dat gameboi", NULL, NULL);
   if (window == NULL) {
@@ -59,12 +161,15 @@ int glfw_init () {
     return -1;
   }
 
+  build_shaders();
+  build_quad();
+
   pixels = malloc ( sizeof ( uint32_t ) * WINDOW_HEIGHT * WINDOW_WIDTH);
   memset(pixels, 255, WINDOW_WIDTH * WINDOW_HEIGHT * sizeof(uint32_t));
 
   glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-  glCullFace(GL_BACK);
+  glCullFace(GL_FRONT);
   glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_FRAMEBUFFER_SRGB);
@@ -73,9 +178,19 @@ int glfw_init () {
 }
 
 void flip_screen_glfw ( _cpu_info *cpu ) {
-  glfwSwapBuffers(window);
-
   if (glfwWindowShouldClose(window)) exit(0);
+  if (glfwGetCurrentContext() != window) glfwMakeContextCurrent(window);
+
+  glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  glUseProgram(shaderProgram);
+  glBindVertexArray(VAO);
+  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+  glBindVertexArray(0);
+
+  glfwSwapBuffers(window);
+  glfwPollEvents();
 }
 
 void input_update_glfw ( _cpu_info *cpu ) {
@@ -84,5 +199,9 @@ void input_update_glfw ( _cpu_info *cpu ) {
 }
 
 void glfw_exit() {
+  glDeleteVertexArrays(1, &VAO);
+  glDeleteBuffers(1, &VBO);
+  glDeleteBuffers(1, &EBO);
+  glDeleteProgram(shaderProgram);
   glfwTerminate();
 }
