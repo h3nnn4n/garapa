@@ -44,7 +44,7 @@ on 1 byte), but shoehorning those bytes into integers efficiently is messy.
 #endif
 
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wimplicit-fallthrough="
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
 
 /*
  * My best guess at if you are big-endian or little-endian.  This may
