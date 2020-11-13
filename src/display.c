@@ -271,7 +271,6 @@ uint8_t display_test_screenmode ( _cpu_info *cpu ) {
 void draw_background_and_window( _cpu_info *cpu ) {
     uint32_t *buffer = get_frame_buffer();
     uint8_t  *memory = cpu->mem_controller.memory;
-    if ( buffer == NULL ) return;
 
     uint16_t posx;
     uint16_t posy;
@@ -317,7 +316,9 @@ void draw_background_and_window( _cpu_info *cpu ) {
 
         cpu->lcd.lcd_status.priority_cache[cpu->lcd.active_line * 160 + i] = color > 0 ? 1 : 0;
 
-        buffer[cpu->lcd.active_line*160 + i] = cpu->lcd.colors[cpu->lcd.bg_palette[color]];
+        if (buffer != NULL) {
+            buffer[cpu->lcd.active_line*160 + i] = cpu->lcd.colors[cpu->lcd.bg_palette[color]];
+        }
 
         test_write_to_buffer(&test_control,
                               cpu->lcd.active_line*160 + i,
@@ -373,7 +374,6 @@ void fetch_sprites ( _cpu_info *cpu ) {
 
 void draw_sprites ( _cpu_info *cpu ) {
     uint32_t *buffer = get_frame_buffer();
-    if ( buffer == NULL ) return; // FIXME
 
     cpu->lcd.lcd_status.pixel_pipeline_cycles    = 0;
 
@@ -438,12 +438,14 @@ void draw_sprites ( _cpu_info *cpu ) {
 
                 if ( !color ) continue;
 
-                buffer[cpu->lcd.active_line*160 + posx + j] = pallete ? cpu->lcd.colors[cpu->lcd.spr2_palette[color]] :
-                                                                        cpu->lcd.colors[cpu->lcd.spr1_palette[color]];
-                test_write_to_buffer(&test_control,
-                                      cpu->lcd.active_line*160 + posx + j,
-                                      pallete ? cpu->lcd.colors[cpu->lcd.spr2_palette[color]] :
-                                                cpu->lcd.colors[cpu->lcd.spr1_palette[color]]);
+                if (buffer != NULL) {
+                    buffer[cpu->lcd.active_line*160 + posx + j] = pallete ? cpu->lcd.colors[cpu->lcd.spr2_palette[color]] :
+                                                                            cpu->lcd.colors[cpu->lcd.spr1_palette[color]];
+                    test_write_to_buffer(&test_control,
+                                          cpu->lcd.active_line*160 + posx + j,
+                                          pallete ? cpu->lcd.colors[cpu->lcd.spr2_palette[color]] :
+                                                    cpu->lcd.colors[cpu->lcd.spr1_palette[color]]);
+                }
             }
 
             if ( rendered ) {
