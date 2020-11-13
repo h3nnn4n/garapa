@@ -27,7 +27,6 @@ OPTIMIZATION=-O0 -g
 LDFLAGS = $(OPTIMIZATION) -Wl,-Ldeps/glfw/build/src/
 
 LIBS = -lm -lglfw -lpthread -ldl -lstdc++ `sdl2-config --cflags --libs` -lSDL2_ttf
-ECHOFLAGS = -e
 
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
