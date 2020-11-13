@@ -25,6 +25,7 @@
 #include "types.h"
 #include "overlay.h"
 #include "graphics.h"
+#include "glfw_input_handling.h"
 
 GLFWwindow *window;
 
@@ -46,7 +47,7 @@ int glfw_init () {
 
   window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Here comes dat gameboi", NULL, NULL);
   if (window == NULL) {
-    printf("Failed to create GLFW window\n");
+    fprintf(stderr, "Failed to create GLFW window\n");
     glfwTerminate();
     return -1;
   }
@@ -54,7 +55,7 @@ int glfw_init () {
   glfwMakeContextCurrent(window);
 
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-    printf("Failed to initialize GLAD\n");
+    fprintf(stderr, "Failed to initialize GLAD\n");
     return -1;
   }
 
@@ -62,14 +63,6 @@ int glfw_init () {
   memset(pixels, 255, WINDOW_WIDTH * WINDOW_HEIGHT * sizeof(uint32_t));
 
   glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-  /*glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);*/
-  /*glfwSetCursorPosCallback(window, mouse_callback);*/
-  /*glfwSetScrollCallback(window, scroll_callback);*/
-  /*glfwSetMouseButtonCallback(window, mouse_click_callback);*/
-  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-  /*glEnable(GL_DEBUG_OUTPUT);*/
-  /*glDebugMessageCallback(MessageCallback, 0);*/
 
   glCullFace(GL_BACK);
   glEnable(GL_CULL_FACE);
@@ -80,9 +73,14 @@ int glfw_init () {
 }
 
 void flip_screen_glfw ( _cpu_info *cpu ) {
+  glfwSwapBuffers(window);
+
+  if (glfwWindowShouldClose(window)) exit(0);
 }
 
 void input_update_glfw ( _cpu_info *cpu ) {
+  glfwPollEvents();
+  process_input_glfw(window, cpu);
 }
 
 void glfw_exit() {
