@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2016-2018  Renan S. Silva                                    *
+ * Copyright (C) 2016-2020  Renan S. Silva                                    *
  *                                                                            *
  * This software is provided 'as-is', without any express or implied          *
  * warranty. In no event will the authors be held liable for any damages      *
@@ -39,9 +39,9 @@
 
 int main(int argc, char *argv[]) {
     _cpu_info cpu;
-    sdl_init();
+    graphics_init();
 
-    atexit(sdl_quit);
+    atexit(graphics_exit);
 
     if ( argc == 1 ) {
         test_control.test_enable = 1;

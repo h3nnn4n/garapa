@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2016-2018  Renan S. Silva                                    *
+ * Copyright (C) 2016-2020  Renan S. Silva                                    *
  *                                                                            *
  * This software is provided 'as-is', without any express or implied          *
  * warranty. In no event will the authors be held liable for any damages      *
@@ -36,7 +36,7 @@ void draw_array(_cpu_info *cpu, uint16_t base, uint8_t offset, int x, int y, int
         strcat(text, text2);
     }
 
-    draw_text_with_bg(text, x, y, r, g, b);
+    /*draw_text_with_bg(text, x, y, r, g, b);*/
 }
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"

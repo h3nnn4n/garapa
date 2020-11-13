@@ -24,14 +24,10 @@
 
 #include "types.h"
 
-uint32_t *get_frame_buffer (                ) ;
-void     flip_screen       ( _cpu_info *cpu ) ;
-void     sdl_init          (                ) ;
-void     input_update      ( _cpu_info *cpu ) ;
-void     sdl_quit          (                ) ;
-
-void draw_rectangle(int x, int y, int x2, int y2, int r, int g, int b);
-void draw_text(char *text, int x, int y, int r, int g, int b);
-void draw_text_with_bg(char *text, int x, int y, int r, int g, int b);
+uint32_t get_frame_buffer();
+int graphics_init ( );
+void flip_screen ( _cpu_info *cpu );
+void input_update ( _cpu_info *cpu );
+void graphics_exit ( );
 
 #endif /* GRAPHICS_meu_H */

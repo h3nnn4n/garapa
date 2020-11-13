@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2016-2018  Renan S. Silva                                    *
+ * Copyright (C) 2016-2020  Renan S. Silva                                    *
  *                                                                            *
  * This software is provided 'as-is', without any express or implied          *
  * warranty. In no event will the authors be held liable for any damages      *
@@ -80,7 +80,7 @@ void decoder( _cpu_info *cpu ) {
                 emulate_HALT ( cpu );
             break;
         case 0x00:
-            input_update   ( cpu );
+            input_update( cpu );
             break;
         case 0xde:
             emulate_SBI( cpu );

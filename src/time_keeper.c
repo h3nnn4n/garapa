@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2016-2018  Renan S. Silva                                    *
+ * Copyright (C) 2016-2020  Renan S. Silva                                    *
  *                                                                            *
  * This software is provided 'as-is', without any express or implied          *
  * warranty. In no event will the authors be held liable for any damages      *
@@ -30,7 +30,7 @@
 #include "time_keeper.h"
 #include "memory.h"
 #include "display.h"
-#include "graphics.h"
+#include "graphics_glfw.h"
 
 void print_timer_state ( _cpu_info *cpu ) {
     /*printf(" CYCLES: %8llu /%8llu  TIMER: %4x  DIV: %2x  TIMA: %2x  TMA: %2x  TIMA_delay: %2d  Enable: %c  Speed: %2x\n",*/
@@ -232,7 +232,7 @@ void timer_tick_and_full_mcycle ( _cpu_info *cpu ) {
         apu_update_on_div_change ( cpu );
     }
 
-    input_update   ( cpu );
+    input_update_glfw ( cpu );
 }
 
 void timer_update( _cpu_info *cpu ) {
