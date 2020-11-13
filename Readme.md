@@ -28,4 +28,4 @@ I would like to thank mehcode and gekkio for all the help and support they gave 
 
 License
 =======
-See `LICENSE` for more info.
+See [`LICENSE`](LICENSE) for more info.
