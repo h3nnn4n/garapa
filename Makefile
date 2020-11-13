@@ -26,8 +26,19 @@ OPTIMIZATION=-O0 -g
 
 LDFLAGS = $(OPTIMIZATION) -Wl,-Ldeps/glfw/build/src/
 
-LIBS = -lm -lglfw -lpthread -ldl -lstdc++ -lGL `sdl2-config --cflags --libs` -lSDL2_ttf
+LIBS = -lm -lglfw -lpthread -ldl -lstdc++ `sdl2-config --cflags --libs` -lSDL2_ttf
 ECHOFLAGS = -e
+
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Linux)
+  LIBS += -lGL
+  ECHOFLAGS = -e
+endif
+ifeq ($(UNAME_S),Darwin)
+  LIBS += -framework OpenGL
+  CFLAGS += -Wno-unused-command-line-argument
+  CPPFLAGS += -Wno-unused-command-line-argument -Wno-mismatched-tags
+endif
 
 LD_LIBRARY_PATH = deps/glfw/build/src/
 
