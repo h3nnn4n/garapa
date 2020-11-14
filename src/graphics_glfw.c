@@ -36,8 +36,11 @@ GLFWwindow *window;
 
 static uint32_t *pixels = NULL;
 
-static const int WINDOW_WIDTH = 160;
-static const int WINDOW_HEIGHT = 144;
+static const int scale = 4;
+static const int PPU_SCREEN_WIDTH = 160;
+static const int PPU_SCREEN_HEIGHT = 144;
+static const int WINDOW_WIDTH = PPU_SCREEN_HEIGHT * scale;
+static const int WINDOW_HEIGHT = PPU_SCREEN_HEIGHT * scale;
 
 unsigned int VBO, VAO, EBO;
 unsigned int texture1;
@@ -121,15 +124,16 @@ int glfw_init () {
   }
 
   glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+  glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
   glEnable(GL_DEBUG_OUTPUT);
   glDebugMessageCallback(MessageCallback, 0);
 
-  assert((sizeof(uint32_t) * WINDOW_WIDTH * WINDOW_HEIGHT) > 0 &&
+  assert((sizeof(uint32_t) * PPU_SCREEN_WIDTH * PPU_SCREEN_HEIGHT) > 0 &&
          "??? trying to allocate no pixels??? Invalid screen size???");
-  pixels = malloc(    sizeof(uint32_t) * WINDOW_WIDTH * WINDOW_HEIGHT);
+  pixels = malloc(    sizeof(uint32_t) * PPU_SCREEN_WIDTH * PPU_SCREEN_HEIGHT);
   assert(pixels != NULL && "failed to allocate pixel matrix for the display");
-  memset(pixels, 255, sizeof(uint32_t) * WINDOW_WIDTH * WINDOW_HEIGHT);
+  memset(pixels, 255, sizeof(uint32_t) * PPU_SCREEN_WIDTH * PPU_SCREEN_HEIGHT);
 
   shader = newShader("shaders/shader.vert", "shaders/shader.frag", NULL);
   build_quad();
@@ -158,7 +162,7 @@ void flip_screen_glfw ( _cpu_info *cpu ) {
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, texture1);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
-               WINDOW_WIDTH, WINDOW_HEIGHT,
+               PPU_SCREEN_WIDTH, PPU_SCREEN_HEIGHT,
                0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
   glBindVertexArray(VAO);

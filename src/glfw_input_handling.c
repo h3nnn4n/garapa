@@ -49,3 +49,8 @@ void process_input_glfw(GLFWwindow *window, _cpu_info *cpu) {
     cpu->joystick.button_right = 1;
   }
 }
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+  glViewport(0, 0, width, height);
+}
