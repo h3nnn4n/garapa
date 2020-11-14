@@ -25,6 +25,7 @@
 #include <stb_image.h>
 
 #include "types.h"
+#include "debug.h"
 #include "overlay.h"
 #include "graphics.h"
 #include "shader_c.h"
@@ -51,8 +52,8 @@ uint32_t *get_glfw_frame_buffer () {
 void build_quad() {
   float vertices[] = {
     // positions          // colors           // texture coords
-    0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
-    0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
+     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
+     0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
     -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
     -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left
   };
@@ -60,7 +61,6 @@ void build_quad() {
     0, 1, 3, // first triangle
     1, 2, 3  // second triangle
   };
-  unsigned int VBO, VAO, EBO;
   glGenVertexArrays(1, &VAO);
   glGenBuffers(1, &VBO);
   glGenBuffers(1, &EBO);
@@ -124,19 +124,23 @@ int glfw_init () {
   }
 
   glfwMakeContextCurrent(window);
-  glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
     fprintf(stderr, "Failed to initialize GLAD\n");
     return -1;
   }
 
+  glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+
+  glEnable(GL_DEBUG_OUTPUT);
+  glDebugMessageCallback(MessageCallback, 0);
+
+  pixels = malloc ( sizeof ( uint32_t ) * WINDOW_HEIGHT * WINDOW_WIDTH);
+  memset(pixels, 255, sizeof(uint32_t) * WINDOW_WIDTH * WINDOW_HEIGHT);
+
   shader = newShader("shaders/shader.vert", "shaders/shader.frag", NULL);
   build_quad();
   load_texture();
-
-  pixels = malloc ( sizeof ( uint32_t ) * WINDOW_HEIGHT * WINDOW_WIDTH);
-  memset(pixels, 255, WINDOW_WIDTH * WINDOW_HEIGHT * sizeof(uint32_t));
 
   glCullFace(GL_FRONT);
   glEnable(GL_CULL_FACE);
@@ -156,10 +160,11 @@ void flip_screen_glfw ( _cpu_info *cpu ) {
   glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+  Shader_use(shader);
+
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, texture1);
 
-  Shader_use(shader);
   glBindVertexArray(VAO);
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 

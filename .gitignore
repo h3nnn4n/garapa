@@ -10,3 +10,6 @@ main
 .DS_Store
 .vscode
 garapa
+
+*.frag.final
+*.vert.final
