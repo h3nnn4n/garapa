@@ -81,7 +81,7 @@ void build_quad() {
   glEnableVertexAttribArray(2);
 }
 
-void load_texture() {
+void build_texture() {
   glGenTextures(1, &texture1);
   glBindTexture(GL_TEXTURE_2D, texture1);
 
@@ -91,17 +91,9 @@ void load_texture() {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-  int width, height, nrChannels;
-  stbi_set_flip_vertically_on_load(1);
-
-  unsigned char *data = stbi_load("awesomeface.png", &width, &height, &nrChannels, 0);
-  if (data) {
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);
-  } else {
-    fprintf(stderr, "Failed to load texture");
-  }
-  stbi_image_free(data);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+               WINDOW_WIDTH, WINDOW_HEIGHT,
+               0, GL_RGB, GL_UNSIGNED_BYTE, pixels);
 }
 
 int glfw_init () {
@@ -141,7 +133,7 @@ int glfw_init () {
 
   shader = newShader("shaders/shader.vert", "shaders/shader.frag", NULL);
   build_quad();
-  load_texture();
+  build_texture();
 
   glCullFace(GL_FRONT);
   glEnable(GL_CULL_FACE);
@@ -165,6 +157,9 @@ void flip_screen_glfw ( _cpu_info *cpu ) {
 
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, texture1);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+               WINDOW_WIDTH, WINDOW_HEIGHT,
+               0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
   glBindVertexArray(VAO);
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
