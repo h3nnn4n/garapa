@@ -13,3 +13,5 @@ garapa
 
 *.frag.final
 *.vert.final
+
+__pycache__

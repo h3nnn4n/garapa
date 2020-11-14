@@ -43,9 +43,9 @@
 
 int main(int argc, char **argv) {
     _cpu_info cpu;
-    atexit(graphics_exit);
-
     py_init(argc, argv);
+
+    atexit(graphics_exit);
 
     if (graphics_init()) exit(-1);
 
