@@ -17,6 +17,9 @@
  *    misrepresented as being the original software.                          *
  * 3. This notice may not be removed or altered from any source distribution. *
  ******************************************************************************/
+
+#define PY_SSIZE_T_CLEAN
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -33,13 +36,17 @@
 #include "decoder.h"
 #include "graphics.h"
 #include "display.h"
+#include "python_api.h"
 #include "disassembler.h"
 #include "time_keeper.h"
 #include "automated_tests.h"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char **argv) {
     _cpu_info cpu;
     atexit(graphics_exit);
+
+    py_init(argc, argv);
+
     if (graphics_init()) exit(-1);
 
     if ( argc == 1 ) {

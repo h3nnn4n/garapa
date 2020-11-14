@@ -22,11 +22,13 @@ LINKS = -Ldeps/glfw/build/src/ \
 CPPFLAGS = -Wall -std=c++11 $(OPTIMIZATION) $(OPTIONS) $(LINKS) $(INCLUDES)
 CFLAGS = -Wall -Wextra -pedantic -std=gnu11 $(OPTIMIZATION) $(OPTIONS) $(LINKS) $(INCLUDES)
 
-OPTIMIZATION=-O0 -g
+OPTIMIZATION=-O3
 
 LDFLAGS = $(OPTIMIZATION) -Wl,-Ldeps/glfw/build/src/
 
-LIBS = -lm -lglfw -lpthread -ldl -lstdc++ `sdl2-config --cflags --libs` -lSDL2_ttf
+LIBS = -lm -lglfw -lpthread -ldl -lstdc++ \
+       `sdl2-config --cflags --libs` -lSDL2_ttf \
+       `python3-config --cflags --ldflags`
 
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
@@ -52,7 +54,7 @@ IMGUI_FILES := $(wildcard ./deps/cimgui/*.cpp) \
   $(wildcard ./deps/cimgui/imgui/examples/imgui_impl_glfw.cpp) \
   $(wildcard ./deps/cimgui/imgui/examples/imgui_impl_opengl3.cpp) \
   $(wildcard ./deps/cimplot/*.cpp) \
-  $(wildcard ./deps/cimplot/implot/*.cpp) \
+  $(wildcard ./deps/cimplot/implot/*.cpp)
 
 SOURCES := $(STB_FILES:.c=.o) \
   $(CPP_FILES:.cpp=.o) \
@@ -75,20 +77,20 @@ gdb: $(TARGET)
 $(BUILDDIR)/%.o: %.c
 	@echo $(ECHOFLAGS) "[CC]\t$<"
 	@mkdir -p "$(dir $@)"
-	@$(CC) $(CFLAGS) $(L_INC) $(CUSTOM) -o "$@" -c "$<"
+	@$(CC) $(CFLAGS) $(LIBS) -o "$@" -c "$<"
 
 $(BUILDDIR)/%.o: %.cpp
 	@echo $(ECHOFLAGS) "[CXX]\t$<"
 	@mkdir -p "$(dir $@)"
-	@$(CXX) $(CPPFLAGS) $(L_INC) $(CUSTOM) -o "$@" -c "$<"
+	@$(CXX) $(CPPFLAGS) $(LIBS) -o "$@" -c "$<"
 
 $(TARGET).o: $(OBJS) $(LDSCRIPT)
 	@echo $(ECHOFLAGS) "[LD]\t$@"
-	@$(CC) $(LDFLAGS) -o "$@" $(OBJS) $(LIBS) $(CUSTOM)
+	@$(CC) $(LDFLAGS) -o "$@" $(OBJS) $(LIBS)
 
 $(TARGET): $(OBJS) $(LDSCRIPT)
 	@echo $(ECHOFLAGS) "[LD]\t$@"
-	@$(CC) $(LDFLAGS) -o "$@" $(OBJS) $(LIBS) $(CUSTOM)
+	@$(CC) $(LDFLAGS) -o "$@" $(OBJS) $(LIBS)
 
 -include $(OBJS:.o=.d)
 
