@@ -24,7 +24,7 @@
 
 #include "types.h"
 
-uint32_t get_frame_buffer();
+uint32_t *get_frame_buffer();
 int graphics_init ( );
 void flip_screen ( _cpu_info *cpu );
 void input_update ( _cpu_info *cpu );
