@@ -1,2 +1,5 @@
+import garapa
+
+
 def main():
-    print("hello world")
+    print(garapa.hello_world())

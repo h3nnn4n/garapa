@@ -4,6 +4,24 @@
 
 #include "python_api.h"
 
+static PyObject* garapa_hello_world(__attribute__((unused)) PyObject *self, __attribute__((unused)) PyObject *args) {
+  return Py_BuildValue("s", "hello world, garapa is tasty");
+}
+
+static PyMethodDef EmbMethods[] = {
+  {"hello_world", garapa_hello_world, METH_VARARGS, "Return a garapa greeting."},
+  {NULL, NULL, 0, NULL}
+};
+
+static PyModuleDef EmbModule = {
+  PyModuleDef_HEAD_INIT, "garapa", NULL, -1, EmbMethods,
+  NULL, NULL, NULL, NULL
+};
+
+static PyObject* PyInit_garapa(void) {
+  return PyModule_Create(&EmbModule);
+}
+
 void py_init(__attribute__((unused)) int argc, char **argv) {
   wchar_t *program = Py_DecodeLocale(argv[0], NULL);
   if (program == NULL) {
@@ -19,6 +37,7 @@ void py_init(__attribute__((unused)) int argc, char **argv) {
 
   PyObject *pName, *pModule, *pFunc;
 
+  PyImport_AppendInittab("garapa", &PyInit_garapa);
   Py_SetProgramName(program);
   Py_Initialize();
   PySys_SetArgv(argc, wargv);
