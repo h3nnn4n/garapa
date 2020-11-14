@@ -17,6 +17,7 @@
  *    misrepresented as being the original software.                          *
  * 3. This notice may not be removed or altered from any source distribution. *
  ******************************************************************************/
+#include <assert.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <glad/glad.h>
@@ -35,18 +36,15 @@ GLFWwindow *window;
 
 static uint32_t *pixels = NULL;
 
-/*static const int WINDOW_WIDTH = 160;*/
-/*static const int WINDOW_HEIGHT = 144;*/
-static const int WINDOW_WIDTH = 800;
-static const int WINDOW_HEIGHT = 600;
+static const int WINDOW_WIDTH = 160;
+static const int WINDOW_HEIGHT = 144;
 
 unsigned int VBO, VAO, EBO;
 unsigned int texture1;
 Shader *shader;
 
 uint32_t *get_glfw_frame_buffer () {
-  /*return pixels;*/
-  return NULL;
+  return pixels;
 }
 
 void build_quad() {
@@ -135,7 +133,10 @@ int glfw_init () {
   glEnable(GL_DEBUG_OUTPUT);
   glDebugMessageCallback(MessageCallback, 0);
 
-  pixels = malloc ( sizeof ( uint32_t ) * WINDOW_HEIGHT * WINDOW_WIDTH);
+  assert((sizeof(uint32_t) * WINDOW_WIDTH * WINDOW_HEIGHT) > 0 &&
+         "??? trying to allocate no pixels??? Invalid screen size???");
+  pixels = malloc(    sizeof(uint32_t) * WINDOW_WIDTH * WINDOW_HEIGHT);
+  assert(pixels != NULL && "failed to allocate pixel matrix for the display");
   memset(pixels, 255, sizeof(uint32_t) * WINDOW_WIDTH * WINDOW_HEIGHT);
 
   shader = newShader("shaders/shader.vert", "shaders/shader.frag", NULL);
