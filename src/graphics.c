@@ -21,7 +21,6 @@
 #include <stdlib.h>
 
 #include "types.h"
-#include "overlay.h"
 #include "graphics_glfw.h"
 
 #define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"

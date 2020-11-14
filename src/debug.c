@@ -10,12 +10,12 @@ MessageCallback( GLenum source,
                  GLenum severity,
                  GLsizei length,
                  const GLchar* message,
-                 const void* userParam )
+                 __attribute__((unused)) const void* userParam )
 {
   int is_error = type == GL_DEBUG_TYPE_ERROR;
-  fprintf( stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
+  fprintf( stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s, source = %d, id = %d, length = %d\n",
          ( is_error ? "** GL ERROR **" : "" ),
-         type, severity, message );
+         type, severity, message, source, id, length );
 
   if (is_error) {
     abort();

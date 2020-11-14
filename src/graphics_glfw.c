@@ -27,7 +27,6 @@
 
 #include "types.h"
 #include "debug.h"
-#include "overlay.h"
 #include "graphics.h"
 #include "shader_c.h"
 #include "glfw_input_handling.h"
@@ -151,7 +150,7 @@ int glfw_init () {
   return 0;
 }
 
-void flip_screen_glfw ( _cpu_info *cpu ) {
+void flip_screen_glfw (__attribute__((unused)) _cpu_info *cpu ) {
   if (glfwWindowShouldClose(window)) exit(0);
   if (glfwGetCurrentContext() != window) glfwMakeContextCurrent(window);
 
