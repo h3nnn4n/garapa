@@ -124,6 +124,7 @@ int glfw_init () {
   }
 
   glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+  glfwSetWindowAspectRatio(window, PPU_SCREEN_WIDTH, PPU_SCREEN_HEIGHT);
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
   glEnable(GL_DEBUG_OUTPUT);
