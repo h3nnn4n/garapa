@@ -21,7 +21,10 @@
 #define GRAPHICS_meu_H
 
 #define SDL_MAIN_HANDLED
+
+#ifdef __APPLE__
 #define GL_SILENCE_DEPRECATION
+#endif
 
 #include "types.h"
 
