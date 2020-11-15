@@ -20,7 +20,7 @@ LINKS = -Ldeps/glfw/build/src/ \
 	-Ldeps/glad/src/
 
 CPPFLAGS = -Wall -std=c++11 $(OPTIMIZATION) $(OPTIONS) $(LINKS) $(INCLUDES)
-CFLAGS = -Wall -Wextra -Werror -pedantic -std=gnu11 $(OPTIMIZATION) $(OPTIONS) $(LINKS) $(INCLUDES)
+CFLAGS = -Wall -Wextra -pedantic -std=gnu11 $(OPTIMIZATION) $(OPTIONS) $(LINKS) $(INCLUDES)
 
 OPTIMIZATION=-O3
 
