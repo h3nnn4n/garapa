@@ -114,7 +114,8 @@ void emulate_ADI ( _cpu_info *cpu ) {
 
 void emulate_ADC ( _cpu_info *cpu ) {
     uint16_t answer = 0;
-    uint8_t a, b;
+    uint8_t a;
+    uint8_t b = 0;
     a = cpu->a;
 
     switch ( cpu->opcode ) {
@@ -170,7 +171,7 @@ void emulate_ADC ( _cpu_info *cpu ) {
 }
 
 void emulate_ACI ( _cpu_info *cpu ) {
-    uint16_t t;
+    uint16_t t = 0;
 
     switch ( cpu->opcode ) {
         case 0xce: // ACI
