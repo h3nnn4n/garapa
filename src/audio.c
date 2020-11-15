@@ -29,9 +29,7 @@
 #include "ch3.h"
 #include "ch4.h"
 
-#define __use_audio
-
-#ifdef __use_audio
+#if defined(USE_SDL_AUDIO)
 void apu_sdl_init( _cpu_info *cpu ) {
     SDL_InitSubSystem(SDL_INIT_AUDIO);
 
