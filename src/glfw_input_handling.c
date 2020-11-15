@@ -1,3 +1,4 @@
+#include "graphics.h" // To supress openGL deprecation
 #include "glfw_input_handling.h"
 
 void process_input_glfw(GLFWwindow *window, _cpu_info *cpu) {

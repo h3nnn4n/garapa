@@ -21,6 +21,7 @@
 #define GRAPHICS_meu_H
 
 #define SDL_MAIN_HANDLED
+#define GL_SILENCE_DEPRECATION
 
 #include "types.h"
 

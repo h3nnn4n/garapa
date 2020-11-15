@@ -383,7 +383,7 @@ void apu_write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ){
                 // still doing automatic updates, volume is incremented by 1,
                 // otherwise if the envelope was in subtract mode, volume is
                 // incremented by 2.
-                if ( cpu->apu.ch1.volume_envl_period == 0 && (cpu->apu.ch1.volume > 0 || cpu->apu.ch1.volume < 0x0f)) {
+                if ( cpu->apu.ch1.volume_envl_period == 0 && (cpu->apu.ch1.volume > 0 && cpu->apu.ch1.volume < 0x0f)) {
                     cpu->apu.ch1.volume += 1;
                     if (cpu->apu.ch1.volume_envl_direction) {
                         cpu->apu.ch1.volume += 1;
@@ -465,7 +465,7 @@ void apu_write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ){
                 // still doing automatic updates, volume is incremented by 1,
                 // otherwise if the envelope was in subtract mode, volume is
                 // incremented by 2.
-                if ( cpu->apu.ch2.volume_envl_period == 0 && (cpu->apu.ch2.volume > 0 || cpu->apu.ch2.volume < 0x0f)) {
+                if ( cpu->apu.ch2.volume_envl_period == 0 && (cpu->apu.ch2.volume > 0 && cpu->apu.ch2.volume < 0x0f)) {
                     cpu->apu.ch2.volume += 1;
                     if (cpu->apu.ch2.volume_envl_direction) {
                         cpu->apu.ch2.volume += 1;
@@ -546,7 +546,7 @@ void apu_write_byte ( _cpu_info *cpu, uint16_t addr, uint8_t data ){
                 // still doing automatic updates, volume is incremented by 1,
                 // otherwise if the envelope was in subtract mode, volume is
                 // incremented by 2.
-                if ( cpu->apu.ch4.volume_envl_period == 0 && (cpu->apu.ch4.volume > 0 || cpu->apu.ch4.volume < 0x0f)) {
+                if ( cpu->apu.ch4.volume_envl_period == 0 && (cpu->apu.ch4.volume > 0 && cpu->apu.ch4.volume < 0x0f)) {
                     cpu->apu.ch4.volume += 1;
                     if (cpu->apu.ch4.volume_envl_direction) {
                         cpu->apu.ch4.volume += 1;

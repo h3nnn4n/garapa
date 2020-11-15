@@ -192,6 +192,7 @@ void display_write_LYC ( _cpu_info *cpu, uint8_t data ) {
 }
 
 uint8_t display_read_stat  ( _cpu_info *cpu ) {
+    if ( debug_display ) printf("ff41 lcd control write\n");
     return 0x80 |
         ( cpu->lcd.lyc_enable    << 6 ) |
         ( cpu->lcd.mode2_oam     << 5 ) |
@@ -201,7 +202,6 @@ uint8_t display_read_stat  ( _cpu_info *cpu ) {
           cpu->lcd.lyc_trigger   ==
           cpu->lcd.active_line ) << 2   |
         ( cpu->lcd.mode );
-    if ( debug_display ) printf("ff41 lcd control write\n");
 }
 
 // 0xff41 lcd stat
