@@ -31,23 +31,19 @@
 #include "shader_c.h"
 #include "glfw_input_handling.h"
 
-GLFWwindow *window;
-
 static uint32_t *pixels = NULL;
 
+#if defined(USE_GLFW)
 static const int scale = 4;
 static const int PPU_SCREEN_WIDTH = 160;
 static const int PPU_SCREEN_HEIGHT = 144;
 static const int WINDOW_WIDTH = PPU_SCREEN_HEIGHT * scale;
 static const int WINDOW_HEIGHT = PPU_SCREEN_HEIGHT * scale;
 
+GLFWwindow *window;
+Shader *shader;
 unsigned int VBO, VAO, EBO;
 unsigned int texture1;
-Shader *shader;
-
-uint32_t *get_glfw_frame_buffer () {
-  return pixels;
-}
 
 void build_quad() {
   float vertices[] = {
@@ -183,4 +179,17 @@ void glfw_exit() {
   glDeleteBuffers(1, &EBO);
   Shader_destroy(shader);
   glfwTerminate();
+}
+
+#else
+
+int glfw_init() { return 0; }
+void glfw_exit() {}
+void flip_screen_glfw ( __attribute__((unused)) _cpu_info *cpu ) {}
+void input_update_glfw ( __attribute__((unused)) _cpu_info *cpu ) {}
+
+#endif
+
+uint32_t *get_glfw_frame_buffer () {
+  return pixels;
 }
