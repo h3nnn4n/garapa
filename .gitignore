@@ -15,3 +15,5 @@ garapa
 *.vert.final
 
 __pycache__
+
+.cache
