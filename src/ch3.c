@@ -22,7 +22,7 @@
 #include "ch3.h"
 #include "types.h"
 
-void apu_ch3_reset ( _cpu_info *cpu ){
+void apu_ch3_reset(_cpu_info *cpu) {
     cpu->apu.ch3.wave_ram[0]  = 0x84;
     cpu->apu.ch3.wave_ram[1]  = 0x40;
     cpu->apu.ch3.wave_ram[2]  = 0x43;
@@ -41,47 +41,47 @@ void apu_ch3_reset ( _cpu_info *cpu ){
     cpu->apu.ch3.wave_ram[15] = 0xda;
 
     cpu->apu.ch3.length = 0;
-    apu_ch3_clear( cpu );
+    apu_ch3_clear(cpu);
 }
 
-void apu_ch3_clear ( _cpu_info *cpu ){
-    cpu->apu.ch3.enable                = 0;
-    cpu->apu.ch3.dac_enable            = 0;
+void apu_ch3_clear(_cpu_info *cpu) {
+    cpu->apu.ch3.enable     = 0;
+    cpu->apu.ch3.dac_enable = 0;
 
-    cpu->apu.ch3.length_enable         = 0;
+    cpu->apu.ch3.length_enable = 0;
 
-    cpu->apu.ch3.volume                = 0;
-    cpu->apu.ch3.frequency             = 0;
-    cpu->apu.ch3.timer                 = 0;
+    cpu->apu.ch3.volume    = 0;
+    cpu->apu.ch3.frequency = 0;
+    cpu->apu.ch3.timer     = 0;
 
-    cpu->apu.ch3.wave_ram_buffer       = 0;
+    cpu->apu.ch3.wave_ram_buffer          = 0;
     cpu->apu.ch3.wave_ram_buffer_position = 0;
 }
 
-void apu_ch3_trigger ( _cpu_info *cpu ){
+void apu_ch3_trigger(_cpu_info *cpu) {
     cpu->apu.ch3.enable = 1;
 
-    if ( cpu->apu.ch3.length == 0 ) {
-        if ( cpu->apu.ch3.length_enable && ( cpu->apu.frame_seq_step % 2 == 1 ) ) {
+    if (cpu->apu.ch3.length == 0) {
+        if (cpu->apu.ch3.length_enable && (cpu->apu.frame_seq_step % 2 == 1)) {
             cpu->apu.ch3.length = 255;
         } else {
             cpu->apu.ch3.length = 256;
         }
     }
 
-    cpu->apu.ch3.timer = ( 2048 - cpu->apu.ch3.frequency ) * 4;
+    cpu->apu.ch3.timer = (2048 - cpu->apu.ch3.frequency) * 4;
 
     cpu->apu.ch3.wave_ram_buffer_position = 0;
 }
 
-void apu_ch3_step( _cpu_info *cpu ) {
-    if ( cpu->apu.ch3.timer > 0 ) {
+void apu_ch3_step(_cpu_info *cpu) {
+    if (cpu->apu.ch3.timer > 0) {
         cpu->apu.ch3.timer--;
     }
 
-    if ( cpu->apu.ch3.timer == 0 ) {
-        cpu->apu.ch3.wave_ram_buffer_position ++;
-        if ( cpu->apu.ch3.wave_ram_buffer_position >= 32 ) {
+    if (cpu->apu.ch3.timer == 0) {
+        cpu->apu.ch3.wave_ram_buffer_position++;
+        if (cpu->apu.ch3.wave_ram_buffer_position >= 32) {
             cpu->apu.ch3.wave_ram_buffer_position = 0;
         }
 
@@ -89,26 +89,25 @@ void apu_ch3_step( _cpu_info *cpu ) {
         cpu->apu.ch3.wave_ram_buffer >>= (1 - (cpu->apu.ch3.wave_ram_buffer_position % 2)) * 4;
         cpu->apu.ch3.wave_ram_buffer &= 0x0F;
 
-        cpu->apu.ch3.timer = ( 2048 - cpu->apu.ch3.frequency ) * 4;
+        cpu->apu.ch3.timer = (2048 - cpu->apu.ch3.frequency) * 4;
     }
 }
 
-uint16_t apu_ch3_sample( _cpu_info *cpu ) {
-    if ( cpu->apu.ch3.enable ) {
-        return (uint16_t)(cpu->apu.ch3.wave_ram_buffer >> ((cpu->apu.ch3.volume > 0) ? (cpu->apu.ch3.volume - 1) : (4)));
+uint16_t apu_ch3_sample(_cpu_info *cpu) {
+    if (cpu->apu.ch3.enable) {
+        return (uint16_t)(cpu->apu.ch3.wave_ram_buffer >>
+                          ((cpu->apu.ch3.volume > 0) ? (cpu->apu.ch3.volume - 1) : (4)));
     } else {
         return 0;
     }
 }
 
-uint8_t apu_is_ch3_enabled ( _cpu_info *cpu ) {
-    return cpu->apu.ch3.enable && cpu->apu.ch3.dac_enable;
-}
+uint8_t apu_is_ch3_enabled(_cpu_info *cpu) { return cpu->apu.ch3.enable && cpu->apu.ch3.dac_enable; }
 
-void apu_ch3_step_length( _cpu_info *cpu ) {
-    if ( cpu->apu.ch3.length_enable && cpu->apu.ch3.length > 0 ) {
+void apu_ch3_step_length(_cpu_info *cpu) {
+    if (cpu->apu.ch3.length_enable && cpu->apu.ch3.length > 0) {
         cpu->apu.ch3.length -= 1;
-        if ( cpu->apu.ch3.length == 0 ) {
+        if (cpu->apu.ch3.length == 0) {
             cpu->apu.ch3.enable = 0;
         }
     }

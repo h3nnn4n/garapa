@@ -22,6 +22,6 @@
 
 #include "types.h"
 
-void out_put(_cpu_info *cpu) ;
+void out_put(_cpu_info *cpu);
 
 #endif /* WAD_OUTPUT_H */

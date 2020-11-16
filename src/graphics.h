@@ -29,9 +29,9 @@
 #include "types.h"
 
 uint32_t *get_frame_buffer();
-int graphics_init ( );
-void flip_screen ( _cpu_info *cpu );
-void input_update ( _cpu_info *cpu );
-void graphics_exit ( );
+int       graphics_init();
+void      flip_screen(_cpu_info *cpu);
+void      input_update(_cpu_info *cpu);
+void      graphics_exit();
 
 #endif /* GRAPHICS_meu_H */

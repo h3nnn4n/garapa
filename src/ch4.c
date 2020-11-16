@@ -17,18 +17,18 @@
  *    misrepresented as being the original software.                          *
  * 3. This notice may not be removed or altered from any source distribution. *
  ******************************************************************************/
-#include <stdint.h>
 #include "ch4.h"
 #include "types.h"
+#include <stdint.h>
 
-void apu_ch4_reset ( _cpu_info *cpu ){
-    apu_ch4_clear( cpu );
+void apu_ch4_reset(_cpu_info *cpu) {
+    apu_ch4_clear(cpu);
     cpu->apu.ch4.length = 0;
 }
 
-void apu_ch4_clear ( _cpu_info *cpu ){
-    cpu->apu.ch4.enable                = 0;
-    cpu->apu.ch4.length_enable         = 0;
+void apu_ch4_clear(_cpu_info *cpu) {
+    cpu->apu.ch4.enable        = 0;
+    cpu->apu.ch4.length_enable = 0;
 
     cpu->apu.ch4.volume                = 0;
     cpu->apu.ch4.volume_envl_initial   = 0;
@@ -36,18 +36,18 @@ void apu_ch4_clear ( _cpu_info *cpu ){
     cpu->apu.ch4.volume_envl_period    = 0;
     cpu->apu.ch4.volume_envl_timer     = 0;
 
-    cpu->apu.ch4.shift                 = 0;
-    cpu->apu.ch4.width                 = 0;
-    cpu->apu.ch4.divisor               = 0;
-    cpu->apu.ch4.lfsr                  = 0;
+    cpu->apu.ch4.shift   = 0;
+    cpu->apu.ch4.width   = 0;
+    cpu->apu.ch4.divisor = 0;
+    cpu->apu.ch4.lfsr    = 0;
 }
 
-void apu_ch4_step( _cpu_info *cpu ) {
-    if ( cpu->apu.ch4.timer > 0 ) {
+void apu_ch4_step(_cpu_info *cpu) {
+    if (cpu->apu.ch4.timer > 0) {
         cpu->apu.ch4.timer--;
     }
 
-    if ( cpu->apu.ch4.timer == 0 ) {
+    if (cpu->apu.ch4.timer == 0) {
         // Using a noise channel clock shift of 14 or 15 results in the
         // LFSR receiving no clocks.
         if (cpu->apu.ch4.shift < 14) {
@@ -78,9 +78,9 @@ void apu_ch4_step( _cpu_info *cpu ) {
     }
 }
 
-uint16_t apu_ch4_sample( _cpu_info *cpu ) {
-    if ( cpu->apu.ch4.enable ) {
-        if (( cpu->apu.ch4.lfsr & 0x1 ) == 0) {
+uint16_t apu_ch4_sample(_cpu_info *cpu) {
+    if (cpu->apu.ch4.enable) {
+        if ((cpu->apu.ch4.lfsr & 0x1) == 0) {
             return cpu->apu.ch4.volume;
         } else {
             return 0;
@@ -90,36 +90,36 @@ uint16_t apu_ch4_sample( _cpu_info *cpu ) {
     }
 }
 
-uint8_t apu_is_ch4_enabled ( _cpu_info *cpu ) {
+uint8_t apu_is_ch4_enabled(_cpu_info *cpu) {
     return cpu->apu.ch4.enable && (cpu->apu.ch4.volume_envl_initial > 0 || cpu->apu.ch4.volume_envl_direction);
 }
 
-void apu_ch4_step_length( _cpu_info *cpu ) {
-    if ( cpu->apu.ch4.length_enable && cpu->apu.ch4.length > 0 ) {
+void apu_ch4_step_length(_cpu_info *cpu) {
+    if (cpu->apu.ch4.length_enable && cpu->apu.ch4.length > 0) {
         cpu->apu.ch4.length -= 1;
-        if ( cpu->apu.ch4.length == 0 ) {
+        if (cpu->apu.ch4.length == 0) {
             cpu->apu.ch4.enable = 0;
         }
     }
 }
 
-void apu_ch4_step_volume( _cpu_info *cpu ) {
-    if ( cpu->apu.ch4.volume_envl_timer > 0 ) {
+void apu_ch4_step_volume(_cpu_info *cpu) {
+    if (cpu->apu.ch4.volume_envl_timer > 0) {
         cpu->apu.ch4.volume_envl_timer -= 1;
     }
 
-    if ( cpu->apu.ch4.volume_envl_period > 0 && cpu->apu.ch4.volume_envl_timer == 0 ) {
-        if ( cpu->apu.ch4.volume_envl_direction ) {
-            if ( cpu->apu.ch4.volume < 0xF ) {
+    if (cpu->apu.ch4.volume_envl_period > 0 && cpu->apu.ch4.volume_envl_timer == 0) {
+        if (cpu->apu.ch4.volume_envl_direction) {
+            if (cpu->apu.ch4.volume < 0xF) {
                 cpu->apu.ch4.volume += 1;
             }
-        } else if ( cpu->apu.ch4.volume > 0 ) {
+        } else if (cpu->apu.ch4.volume > 0) {
             cpu->apu.ch4.volume -= 1;
         }
     }
 
-    if ( cpu->apu.ch4.volume_envl_timer == 0 ) {
-        if ( cpu->apu.ch4.volume_envl_period == 0 ) {
+    if (cpu->apu.ch4.volume_envl_timer == 0) {
+        if (cpu->apu.ch4.volume_envl_period == 0) {
             cpu->apu.ch4.volume_envl_timer = 8;
         } else {
             cpu->apu.ch4.volume_envl_timer = cpu->apu.ch4.volume_envl_period;
@@ -130,28 +130,28 @@ void apu_ch4_step_volume( _cpu_info *cpu ) {
 uint16_t get_divisor(uint8_t index) {
     if (index == 1) {
         return 16;
-    } else if ( index == 2 ) {
+    } else if (index == 2) {
         return 32;
-    } else if ( index == 3 ) {
+    } else if (index == 3) {
         return 48;
-    } else if ( index == 4 ) {
+    } else if (index == 4) {
         return 64;
-    } else if ( index == 5 ) {
+    } else if (index == 5) {
         return 80;
-    } else if ( index == 6 ) {
+    } else if (index == 6) {
         return 96;
-    } else if ( index == 7 ) {
+    } else if (index == 7) {
         return 112;
     } else {
         return 8;
     }
 }
 
-void apu_ch4_trigger ( _cpu_info *cpu ) {
+void apu_ch4_trigger(_cpu_info *cpu) {
     cpu->apu.ch4.enable = 1;
 
-    if ( cpu->apu.ch4.length == 0 ) {
-        if ( cpu->apu.ch4.length_enable && ( cpu->apu.frame_seq_step % 2 == 1 ) ) {
+    if (cpu->apu.ch4.length == 0) {
+        if (cpu->apu.ch4.length_enable && (cpu->apu.frame_seq_step % 2 == 1)) {
             cpu->apu.ch4.length = 63;
         } else {
             cpu->apu.ch4.length = 64;
@@ -161,13 +161,13 @@ void apu_ch4_trigger ( _cpu_info *cpu ) {
     cpu->apu.ch4.timer = get_divisor(cpu->apu.ch4.divisor) << cpu->apu.ch4.shift;
 
     cpu->apu.ch4.volume = cpu->apu.ch4.volume_envl_initial;
-    if ( cpu->apu.ch4.volume_envl_period == 0 ) {
+    if (cpu->apu.ch4.volume_envl_period == 0) {
         cpu->apu.ch4.volume_envl_timer = 8;
     } else {
         cpu->apu.ch4.volume_envl_timer = cpu->apu.ch4.volume_envl_period;
     }
 
-    if ( cpu->apu.frame_seq_step == 7 ) {
+    if (cpu->apu.frame_seq_step == 7) {
         cpu->apu.ch4.volume_envl_timer++;
     }
 

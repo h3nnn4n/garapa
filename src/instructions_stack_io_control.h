@@ -22,14 +22,14 @@
 
 #include "types.h"
 
-void emulate_PUSH      ( _cpu_info *cpu );
-void emulate_POP       ( _cpu_info *cpu );
-void emulate_IN        ( _cpu_info *cpu );
-void emulate_OUT       ( _cpu_info *cpu );
-void emulate_EI        ( _cpu_info *cpu );
-void emulate_DI        ( _cpu_info *cpu );
-void emulate_HALT      ( _cpu_info *cpu );
-void emulate_STOP      ( _cpu_info *cpu );
-void emulate_INTERRUPT ( _cpu_info *cpu );
+void emulate_PUSH(_cpu_info *cpu);
+void emulate_POP(_cpu_info *cpu);
+void emulate_IN(_cpu_info *cpu);
+void emulate_OUT(_cpu_info *cpu);
+void emulate_EI(_cpu_info *cpu);
+void emulate_DI(_cpu_info *cpu);
+void emulate_HALT(_cpu_info *cpu);
+void emulate_STOP(_cpu_info *cpu);
+void emulate_INTERRUPT(_cpu_info *cpu);
 
 #endif /* INSTRUCTIONS_STACK_IO_CONTROL_H */

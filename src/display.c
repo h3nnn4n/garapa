@@ -24,87 +24,69 @@
 #include "automated_tests.h"
 
 #include "debug.h"
-#include "types.h"
-#include "memory.h"
 #include "display.h"
 #include "graphics.h"
+#include "memory.h"
+#include "types.h"
 
-#define dma_read(cpu,addr) (_read_byte(cpu, addr))
+#define dma_read(cpu, addr) (_read_byte(cpu, addr))
 
 // 0xff47
-void write_bg_palette ( _cpu_info *cpu, uint8_t data ) {
-    cpu->lcd.bg_palette[0] = ( data >> 0 ) & 0x03;
-    cpu->lcd.bg_palette[1] = ( data >> 2 ) & 0x03;
-    cpu->lcd.bg_palette[2] = ( data >> 4 ) & 0x03;
-    cpu->lcd.bg_palette[3] = ( data >> 6 ) & 0x03;
+void write_bg_palette(_cpu_info *cpu, uint8_t data) {
+    cpu->lcd.bg_palette[0] = (data >> 0) & 0x03;
+    cpu->lcd.bg_palette[1] = (data >> 2) & 0x03;
+    cpu->lcd.bg_palette[2] = (data >> 4) & 0x03;
+    cpu->lcd.bg_palette[3] = (data >> 6) & 0x03;
 }
 
 // 0xff48
-void write_spr1_palette ( _cpu_info *cpu, uint8_t data ) {
-    cpu->lcd.spr1_palette[0] = ( data >> 0 ) & 0x03;
-    cpu->lcd.spr1_palette[1] = ( data >> 2 ) & 0x03;
-    cpu->lcd.spr1_palette[2] = ( data >> 4 ) & 0x03;
-    cpu->lcd.spr1_palette[3] = ( data >> 6 ) & 0x03;
+void write_spr1_palette(_cpu_info *cpu, uint8_t data) {
+    cpu->lcd.spr1_palette[0] = (data >> 0) & 0x03;
+    cpu->lcd.spr1_palette[1] = (data >> 2) & 0x03;
+    cpu->lcd.spr1_palette[2] = (data >> 4) & 0x03;
+    cpu->lcd.spr1_palette[3] = (data >> 6) & 0x03;
 }
 
 // 0xff49
-void write_spr2_palette ( _cpu_info *cpu, uint8_t data ) {
-    cpu->lcd.spr2_palette[0] = ( data >> 0 ) & 0x03;
-    cpu->lcd.spr2_palette[1] = ( data >> 2 ) & 0x03;
-    cpu->lcd.spr2_palette[2] = ( data >> 4 ) & 0x03;
-    cpu->lcd.spr2_palette[3] = ( data >> 6 ) & 0x03;
+void write_spr2_palette(_cpu_info *cpu, uint8_t data) {
+    cpu->lcd.spr2_palette[0] = (data >> 0) & 0x03;
+    cpu->lcd.spr2_palette[1] = (data >> 2) & 0x03;
+    cpu->lcd.spr2_palette[2] = (data >> 4) & 0x03;
+    cpu->lcd.spr2_palette[3] = (data >> 6) & 0x03;
 }
 
-void write_scroll_y ( _cpu_info *cpu, uint8_t data ) {
-    cpu->lcd.bg_scroll_y = data;
-}
+void write_scroll_y(_cpu_info *cpu, uint8_t data) { cpu->lcd.bg_scroll_y = data; }
 
-void write_scroll_x ( _cpu_info *cpu, uint8_t data ) {
-    cpu->lcd.bg_scroll_x = data;
-}
+void write_scroll_x(_cpu_info *cpu, uint8_t data) { cpu->lcd.bg_scroll_x = data; }
 
-void write_window_y ( _cpu_info *cpu, uint8_t data ) {
-    cpu->lcd.window_scroll_y = data;
-}
+void write_window_y(_cpu_info *cpu, uint8_t data) { cpu->lcd.window_scroll_y = data; }
 
-void write_window_x ( _cpu_info *cpu, uint8_t data ) {
-    cpu->lcd.window_scroll_x = data;
-}
+void write_window_x(_cpu_info *cpu, uint8_t data) { cpu->lcd.window_scroll_x = data; }
 
 // SCY
-uint8_t read_scroll_y ( _cpu_info *cpu ) {
-    return cpu->lcd.bg_scroll_y;
-}
+uint8_t read_scroll_y(_cpu_info *cpu) { return cpu->lcd.bg_scroll_y; }
 
 // SCX
-uint8_t read_scroll_x ( _cpu_info *cpu ) {
-    return cpu->lcd.bg_scroll_x;
-}
+uint8_t read_scroll_x(_cpu_info *cpu) { return cpu->lcd.bg_scroll_x; }
 
-uint8_t read_window_y ( _cpu_info *cpu ) {
-    return cpu->lcd.window_scroll_y;
-}
+uint8_t read_window_y(_cpu_info *cpu) { return cpu->lcd.window_scroll_y; }
 
-uint8_t read_window_x ( _cpu_info *cpu ) {
-    return cpu->lcd.window_scroll_x;
-}
+uint8_t read_window_x(_cpu_info *cpu) { return cpu->lcd.window_scroll_x; }
 
-uint8_t read_lcd_control ( _cpu_info *cpu ) {
-    return dma_read ( cpu, 0xff40 );
-}
+uint8_t read_lcd_control(_cpu_info *cpu) { return dma_read(cpu, 0xff40); }
 
 // 0xff40
-void write_lcd_control ( _cpu_info *cpu, uint8_t data ) {
-    cpu->lcd.power          = ( data & 0x80 ) != 0; // Bit 7
-    cpu->lcd.window_tilemap = ( data & 0x40 ) != 0; // Bit 6
-    cpu->lcd.window_enabled = ( data & 0x20 ) != 0; // Bit 5
-    cpu->lcd.bg_and_tilemap = ( data & 0x10 ) != 0; // Bit 4
-    cpu->lcd.bg_tileset     = ( data & 0x08 ) != 0; // Bit 3
-    cpu->lcd.sprite_size    = ( data & 0x04 ) != 0; // Bit 2
-    cpu->lcd.sprite_enable  = ( data & 0x02 ) != 0; // Bit 1
-    cpu->lcd.bg_enable      = ( data & 0x01 ) != 0; // Bit 0
+void write_lcd_control(_cpu_info *cpu, uint8_t data) {
+    cpu->lcd.power          = (data & 0x80) != 0; // Bit 7
+    cpu->lcd.window_tilemap = (data & 0x40) != 0; // Bit 6
+    cpu->lcd.window_enabled = (data & 0x20) != 0; // Bit 5
+    cpu->lcd.bg_and_tilemap = (data & 0x10) != 0; // Bit 4
+    cpu->lcd.bg_tileset     = (data & 0x08) != 0; // Bit 3
+    cpu->lcd.sprite_size    = (data & 0x04) != 0; // Bit 2
+    cpu->lcd.sprite_enable  = (data & 0x02) != 0; // Bit 1
+    cpu->lcd.bg_enable      = (data & 0x01) != 0; // Bit 0
 
-    if ( cpu->lcd.power == 0 ) {
+    if (cpu->lcd.power == 0) {
         cpu->lcd.active_line  = 0;
         cpu->lcd.cycles_spent = 0;
         cpu->lcd.mode         = 0;
@@ -119,123 +101,91 @@ void write_lcd_control ( _cpu_info *cpu, uint8_t data ) {
 // 0 = Off
 // 1 = On
 // bit 7
-uint8_t display_test_lcdpower ( _cpu_info *cpu ) {
-    return cpu->lcd.power;
-}
+uint8_t display_test_lcdpower(_cpu_info *cpu) { return cpu->lcd.power; }
 
 // 0 = 0x9800 - 0x9bff
 // 1 = 0x9c00 - 0x9fff
 // bit 6
-uint8_t display_test_windowtilemap ( _cpu_info *cpu ) {
-    return cpu->lcd.window_tilemap;
-}
+uint8_t display_test_windowtilemap(_cpu_info *cpu) { return cpu->lcd.window_tilemap; }
 
 // 0 = Disabled
 // 1 = Disabled
 // bit 5
-uint8_t display_test_windowenable ( _cpu_info *cpu ) {
-    return cpu->lcd.window_enabled;
-}
+uint8_t display_test_windowenable(_cpu_info *cpu) { return cpu->lcd.window_enabled; }
 
 // 0 = 0x8800 - 0x97ff
 // 1 = 0x8000 - 0xfff
 // bit 4
-uint8_t display_test_bg_tileset_select ( _cpu_info *cpu ) {
-    return cpu->lcd.bg_and_tilemap;
-}
+uint8_t display_test_bg_tileset_select(_cpu_info *cpu) { return cpu->lcd.bg_and_tilemap; }
 
 // 0 = 0x9800 - 0x9bff
 // 1 = 0x9c00 - 0x9fff
 // bit 3
-uint8_t display_test_tilemap_select ( _cpu_info *cpu ) {
-    return cpu->lcd.bg_tileset;
-}
+uint8_t display_test_tilemap_select(_cpu_info *cpu) { return cpu->lcd.bg_tileset; }
 
 // 0 = 8x8
 // 1 = 8x16
 // bit 2
-uint8_t display_test_sprite_size ( _cpu_info *cpu ) {
-    return cpu->lcd.sprite_size;
-}
+uint8_t display_test_sprite_size(_cpu_info *cpu) { return cpu->lcd.sprite_size; }
 
 // 0 = Disabled
 // 1 = Disabled
-uint8_t display_test_sprite_enabled ( _cpu_info *cpu ) {
-    return cpu->lcd.sprite_enable;
-}
+uint8_t display_test_sprite_enabled(_cpu_info *cpu) { return cpu->lcd.sprite_enable; }
 
 // 0 = Disabled
 // 1 = Disabled
-uint8_t display_test_bg_enabled ( _cpu_info *cpu ) {
-    return cpu->lcd.bg_enable;
-}
+uint8_t display_test_bg_enabled(_cpu_info *cpu) { return cpu->lcd.bg_enable; }
 
 // Current horizontal line being draw
 // mapped 0xff44
-uint8_t display_read_LY ( _cpu_info *cpu ) {
-    if ( display_test_lcdpower(cpu) )
+uint8_t display_read_LY(_cpu_info *cpu) {
+    if (display_test_lcdpower(cpu))
         return cpu->lcd.active_line;
 
     return 0x00;
 }
 
 // The value on 0xff45 used to trigger the LYC interrupt
-uint8_t display_read_LYC ( _cpu_info *cpu ) {
-    if ( display_test_lcdpower(cpu) )
+uint8_t display_read_LYC(_cpu_info *cpu) {
+    if (display_test_lcdpower(cpu))
         return cpu->lcd.lyc_trigger;
 
     return 0x00;
 }
 
-void display_write_LYC ( _cpu_info *cpu, uint8_t data ) {
-    cpu->lcd.lyc_trigger = data;
-}
+void display_write_LYC(_cpu_info *cpu, uint8_t data) { cpu->lcd.lyc_trigger = data; }
 
-uint8_t display_read_stat  ( _cpu_info *cpu ) {
-    if ( debug_display ) printf("ff41 lcd control write\n");
-    return 0x80 |
-        ( cpu->lcd.lyc_enable    << 6 ) |
-        ( cpu->lcd.mode2_oam     << 5 ) |
-        ( cpu->lcd.mode1_vblank  << 4 ) |
-        ( cpu->lcd.mode0_hblank  << 3 ) |
-        ( cpu->lcd.lyc_delay     == 0  &&
-          cpu->lcd.lyc_trigger   ==
-          cpu->lcd.active_line ) << 2   |
-        ( cpu->lcd.mode );
+uint8_t display_read_stat(_cpu_info *cpu) {
+    if (debug_display)
+        printf("ff41 lcd control write\n");
+    return 0x80 | (cpu->lcd.lyc_enable << 6) | (cpu->lcd.mode2_oam << 5) | (cpu->lcd.mode1_vblank << 4) |
+           (cpu->lcd.mode0_hblank << 3) |
+           (cpu->lcd.lyc_delay == 0 && cpu->lcd.lyc_trigger == cpu->lcd.active_line) << 2 | (cpu->lcd.mode);
 }
 
 // 0xff41 lcd stat
-void display_write_stat ( _cpu_info *cpu, uint8_t data ) {
+void display_write_stat(_cpu_info *cpu, uint8_t data) {
     cpu->lcd.lyc_enable   = (data & 0x40) != 0; // bit 6
     cpu->lcd.mode2_oam    = (data & 0x20) != 0; // bit 5
     cpu->lcd.mode1_vblank = (data & 0x10) != 0; // bit 4
     cpu->lcd.mode0_hblank = (data & 0x08) != 0; // bit 3
-    if ( debug_display ) printf("ff41 lcd control write\n");
+    if (debug_display)
+        printf("ff41 lcd control write\n");
 }
 
 // LY = LYC check enable
-uint8_t display_test_LYC_enable ( _cpu_info *cpu ) {
-    return cpu->lcd.lyc_enable;
-}
+uint8_t display_test_LYC_enable(_cpu_info *cpu) { return cpu->lcd.lyc_enable; }
 
-uint8_t display_test_mode2_oam ( _cpu_info *cpu ) {
-    return cpu->lcd.mode2_oam;
-}
+uint8_t display_test_mode2_oam(_cpu_info *cpu) { return cpu->lcd.mode2_oam; }
 
-uint8_t display_test_mode1_vblank ( _cpu_info *cpu ) {
-    return cpu->lcd.mode1_vblank;
-}
+uint8_t display_test_mode1_vblank(_cpu_info *cpu) { return cpu->lcd.mode1_vblank; }
 
-uint8_t display_test_mode0_hblank ( _cpu_info *cpu ) {
-    return cpu->lcd.mode0_hblank;
-}
+uint8_t display_test_mode0_hblank(_cpu_info *cpu) { return cpu->lcd.mode0_hblank; }
 
-uint8_t display_test_LYC_LY_trigger ( _cpu_info *cpu ) {
-    return cpu->lcd.lyc_ly_triggered;
-}
+uint8_t display_test_LYC_LY_trigger(_cpu_info *cpu) { return cpu->lcd.lyc_ly_triggered; }
 
-uint8_t display_test_screenmode ( _cpu_info *cpu ) {
-    if ( display_test_lcdpower(cpu) )
+uint8_t display_test_screenmode(_cpu_info *cpu) {
+    if (display_test_lcdpower(cpu))
         return cpu->lcd.mode;
 
     return 0x00;
@@ -268,65 +218,65 @@ uint8_t display_test_screenmode ( _cpu_info *cpu ) {
  * Bit 0 - BG Display (for CGB see below) (0=Off, 1=On)
  */
 
-void draw_background_and_window( _cpu_info *cpu ) {
+void draw_background_and_window(_cpu_info *cpu) {
     uint32_t *buffer = get_frame_buffer();
-    uint8_t  *memory = cpu->mem_controller.memory;
+    uint8_t * memory = cpu->mem_controller.memory;
 
     uint16_t posx;
     uint16_t posy;
-    uint8_t color;
+    uint8_t  color;
 
     uint16_t bg_addr;
     uint16_t tile_addr;
 
     /*for (int i = 0; i < 160; i+=2) { // screen is 160 pixels wide*/
-    for (int i = 0; i < 160; i+=1) { // screen is 160 pixels wide
-        if ( display_test_windowenable ( cpu ) &&          // If windows is active
-            cpu->lcd.active_line >= read_window_y ( cpu ) &&  // and on current scanline
-            read_window_y ( cpu ) - cpu->lcd.active_line < 144 // and on current scanline
-            ) {
-            posy = cpu->lcd.active_line - read_window_y ( cpu ); // Calculate the y position
-            posx = i - read_window_x ( cpu ) + 7;
-            bg_addr = display_test_windowtilemap ( cpu ) ?       // Select address with the tilemap
-                            0x9c00:
-                            0x9800;
+    for (int i = 0; i < 160; i += 1) {                      // screen is 160 pixels wide
+        if (display_test_windowenable(cpu) &&               // If windows is active
+            cpu->lcd.active_line >= read_window_y(cpu) &&   // and on current scanline
+            read_window_y(cpu) - cpu->lcd.active_line < 144 // and on current scanline
+        ) {
+            posy    = cpu->lcd.active_line - read_window_y(cpu); // Calculate the y position
+            posx    = i - read_window_x(cpu) + 7;
+            bg_addr = display_test_windowtilemap(cpu) ? // Select address with the tilemap
+                          0x9c00
+                                                      : 0x9800;
         } else {
-            posy = cpu->lcd.active_line + read_scroll_y ( cpu );  // Calculate the y position
-            bg_addr = display_test_tilemap_select ( cpu ) ?       // Select address with the tilemap
-                            0x9c00:
-                            0x9800;
-            posx = read_scroll_x ( cpu ) + i;
+            posy    = cpu->lcd.active_line + read_scroll_y(cpu); // Calculate the y position
+            bg_addr = display_test_tilemap_select(cpu) ?         // Select address with the tilemap
+                          0x9c00
+                                                       : 0x9800;
+            posx    = read_scroll_x(cpu) + i;
             posy %= 256;
             posx %= 256;
         }
 
-        uint8_t tile_number = memory[bg_addr + (posy/8) * 32 + posx/8]; // Read the tilenumber
+        uint8_t tile_number = memory[bg_addr + (posy / 8) * 32 + posx / 8]; // Read the tilenumber
 
-        if (display_test_bg_tileset_select ( cpu ) ) // Reads from the correct position
-            tile_addr = 0x8000 +  tile_number * 16;
+        if (display_test_bg_tileset_select(cpu)) // Reads from the correct position
+            tile_addr = 0x8000 + tile_number * 16;
         else
-            tile_addr = 0x9000 +  ((int8_t) tile_number * 16); // Uses 0x9000 instead 0x8800 because the tilenumber here has a signal
+            tile_addr = 0x9000 + ((int8_t)tile_number *
+                                  16); // Uses 0x9000 instead 0x8800 because the tilenumber here has a signal
 
-        uint16_t offset = (posy % 8 ) * 2;
-        uint8_t bit1 = dma_read(cpu, tile_addr + offset    );
-        uint8_t bit2 = dma_read(cpu, tile_addr + offset + 1);
+        uint16_t offset = (posy % 8) * 2;
+        uint8_t  bit1   = dma_read(cpu, tile_addr + offset);
+        uint8_t  bit2   = dma_read(cpu, tile_addr + offset + 1);
 
         color = (((bit2 & (0x01 << (((posx % 8) - 7) * -1))) != 0) << 1) |
-                 ((bit1 & (0x01 << (((posx % 8) - 7) * -1))) != 0)       ;
+                ((bit1 & (0x01 << (((posx % 8) - 7) * -1))) != 0);
 
         cpu->lcd.lcd_status.priority_cache[cpu->lcd.active_line * 160 + i] = color > 0 ? 1 : 0;
 
         if (buffer != NULL) {
-            buffer[cpu->lcd.active_line*160 + i] = cpu->lcd.colors[cpu->lcd.bg_palette[color]];
+            buffer[cpu->lcd.active_line * 160 + i] = cpu->lcd.colors[cpu->lcd.bg_palette[color]];
         }
 
-        test_write_to_buffer(&test_control,
-                              cpu->lcd.active_line*160 + i,
-                              cpu->lcd.colors[cpu->lcd.bg_palette[color]]);
+        test_write_to_buffer(&test_control, cpu->lcd.active_line * 160 + i,
+                             cpu->lcd.colors[cpu->lcd.bg_palette[color]]);
     }
 }
 
-void fetch_sprites ( _cpu_info *cpu ) {
+void fetch_sprites(_cpu_info *cpu) {
     cpu->lcd.lcd_status.sprite_pivot = 0;
 
     // OAM = 0xfe00
@@ -335,11 +285,11 @@ void fetch_sprites ( _cpu_info *cpu ) {
     // bit2 = tile number
     // bit3 = atributes
     // TODO: Sprites Priority
-    for (int i = 0; i < 40; ++i) { // Loops over the 40 sprites
-        int16_t posy      = dma_read(cpu, 0xfe00 + (i*4    )) - 16; // Reads the y coordinate
-        int16_t posx      = dma_read(cpu, 0xfe00 + (i*4 + 1)) - 8 ; // Reads the x coordinate
-        uint16_t tileaddr = dma_read(cpu, 0xfe00 + (i*4 + 2)); // Tile index
-        uint8_t flags     = dma_read(cpu, 0xfe00 + (i*4 + 3)); // Tile flags
+    for (int i = 0; i < 40; ++i) {                                   // Loops over the 40 sprites
+        int16_t  posy     = dma_read(cpu, 0xfe00 + (i * 4)) - 16;    // Reads the y coordinate
+        int16_t  posx     = dma_read(cpu, 0xfe00 + (i * 4 + 1)) - 8; // Reads the x coordinate
+        uint16_t tileaddr = dma_read(cpu, 0xfe00 + (i * 4 + 2));     // Tile index
+        uint8_t  flags    = dma_read(cpu, 0xfe00 + (i * 4 + 3));     // Tile flags
 
         cpu->lcd.lcd_status.sprites[cpu->lcd.lcd_status.sprite_pivot].posx  = posx;
         cpu->lcd.lcd_status.sprites[cpu->lcd.lcd_status.sprite_pivot].posy  = posy;
@@ -351,31 +301,31 @@ void fetch_sprites ( _cpu_info *cpu ) {
 
         /*printf(" sprite %04x x: %4d  y: %4d\n", 0xfe00 + (i*4    ), posx, posy);*/
 
-        if ( ( cpu->lcd.active_line >= posy ) && // Checks if the sprite overlaps the current line
-             ( cpu->lcd.active_line < posy + ( cpu->lcd.sprite_size ? 16 : 8 ) ) ) {
+        if ((cpu->lcd.active_line >= posy) && // Checks if the sprite overlaps the current line
+            (cpu->lcd.active_line < posy + (cpu->lcd.sprite_size ? 16 : 8))) {
 
             uint8_t line_offset = cpu->lcd.active_line - posy;
 
-            if ( flags & 0x40 ) // VHLIP
-                line_offset = (7 + display_test_sprite_size(cpu)*8) - line_offset;
+            if (flags & 0x40) // VHLIP
+                line_offset = (7 + display_test_sprite_size(cpu) * 8) - line_offset;
 
             line_offset *= 2;
 
             uint16_t addr = 0x8000 + (tileaddr * 16) + line_offset;
 
             cpu->lcd.lcd_status.sprites[cpu->lcd.lcd_status.sprite_pivot].tileaddr   = addr;
-            cpu->lcd.lcd_status.sprites[cpu->lcd.lcd_status.sprite_pivot].color_bit1 = dma_read(cpu, addr    );
+            cpu->lcd.lcd_status.sprites[cpu->lcd.lcd_status.sprite_pivot].color_bit1 = dma_read(cpu, addr);
             cpu->lcd.lcd_status.sprites[cpu->lcd.lcd_status.sprite_pivot].color_bit2 = dma_read(cpu, addr + 1);
 
-            cpu->lcd.lcd_status.sprite_pivot ++;
+            cpu->lcd.lcd_status.sprite_pivot++;
         }
     }
 }
 
-void draw_sprites ( _cpu_info *cpu ) {
+void draw_sprites(_cpu_info *cpu) {
     uint32_t *buffer = get_frame_buffer();
 
-    cpu->lcd.lcd_status.pixel_pipeline_cycles    = 0;
+    cpu->lcd.lcd_status.pixel_pipeline_cycles = 0;
 
     uint8_t  rendered        = 0;
     uint16_t has_sprite_at_0 = 0;
@@ -391,14 +341,14 @@ void draw_sprites ( _cpu_info *cpu ) {
 
     int sprites_to_draw = cpu->lcd.lcd_status.sprite_pivot <= 10 ? cpu->lcd.lcd_status.sprite_pivot : 10;
     for (int i = 0; i < sprites_to_draw; ++i) {
-        int16_t posy      = cpu->lcd.lcd_status.sprites[i].posy;
-        int16_t posx      = cpu->lcd.lcd_status.sprites[i].posx;
-        uint8_t pallete   = cpu->lcd.lcd_status.sprites[i].palette_number;
+        int16_t posy    = cpu->lcd.lcd_status.sprites[i].posy;
+        int16_t posx    = cpu->lcd.lcd_status.sprites[i].posx;
+        uint8_t pallete = cpu->lcd.lcd_status.sprites[i].palette_number;
 
-        if ( sprites_draw >= 10 ) break;
+        if (sprites_draw >= 10)
+            break;
 
-        if ( ( cpu->lcd.active_line >= posy ) &&
-             ( cpu->lcd.active_line < posy + ( cpu->lcd.sprite_size ? 16 : 8 ) ) ) {
+        if ((cpu->lcd.active_line >= posy) && (cpu->lcd.active_line < posy + (cpu->lcd.sprite_size ? 16 : 8))) {
 
             uint8_t bit1 = cpu->lcd.lcd_status.sprites[i].color_bit1;
             uint8_t bit2 = cpu->lcd.lcd_status.sprites[i].color_bit2;
@@ -406,74 +356,72 @@ void draw_sprites ( _cpu_info *cpu ) {
             for (int j = 0; j < 8; ++j) {
                 uint8_t color;
                 uint8_t j_flip;
-                cache_index = cpu->lcd.active_line * 160 + posx + j;
+                cache_index    = cpu->lcd.active_line * 160 + posx + j;
                 uint8_t pcache = cpu->lcd.lcd_status.priority_cache[cache_index];
 
-                if ( (pcache & 0x02 ) &&
-                     (cpu->lcd.lcd_status.sprite_x_cache[cache_index] <= posx +8 ) )
+                if ((pcache & 0x02) && (cpu->lcd.lcd_status.sprite_x_cache[cache_index] <= posx + 8))
                     continue;
 
-                if ( pcache & 0x04 )
+                if (pcache & 0x04)
                     continue;
 
-                if ( (pcache & 0x01) &&
-                     (cpu->lcd.lcd_status.sprites[i].priority) )
+                if ((pcache & 0x01) && (cpu->lcd.lcd_status.sprites[i].priority))
                     continue;
 
-                if ( cpu->lcd.lcd_status.sprites[i].hflip )
+                if (cpu->lcd.lcd_status.sprites[i].hflip)
                     j_flip = 7 - j;
                 else
                     j_flip = j;
 
-                if ( posx + j_flip >= 160 )
+                if (posx + j_flip >= 160)
                     continue;
 
-                color = (((bit2 & (0x80 >> j_flip)) != 0) << 1) |
-                         ((bit1 & (0x80 >> j_flip)) != 0)       ;
+                color = (((bit2 & (0x80 >> j_flip)) != 0) << 1) | ((bit1 & (0x80 >> j_flip)) != 0);
 
                 cpu->lcd.lcd_status.priority_cache[cache_index] |= color > 0 ? 0x02 : 0x00;
-                cpu->lcd.lcd_status.sprite_x_cache[cache_index]  = posx + j;
+                cpu->lcd.lcd_status.sprite_x_cache[cache_index] = posx + j;
 
                 rendered = 1;
 
-                if ( !color ) continue;
+                if (!color)
+                    continue;
 
                 if (buffer != NULL) {
-                    buffer[cpu->lcd.active_line*160 + posx + j] = pallete ? cpu->lcd.colors[cpu->lcd.spr2_palette[color]] :
-                                                                            cpu->lcd.colors[cpu->lcd.spr1_palette[color]];
-                    test_write_to_buffer(&test_control,
-                                          cpu->lcd.active_line*160 + posx + j,
-                                          pallete ? cpu->lcd.colors[cpu->lcd.spr2_palette[color]] :
-                                                    cpu->lcd.colors[cpu->lcd.spr1_palette[color]]);
+                    buffer[cpu->lcd.active_line * 160 + posx + j] = pallete
+                                                                        ? cpu->lcd.colors[cpu->lcd.spr2_palette[color]]
+                                                                        : cpu->lcd.colors[cpu->lcd.spr1_palette[color]];
+                    test_write_to_buffer(&test_control, cpu->lcd.active_line * 160 + posx + j,
+                                         pallete ? cpu->lcd.colors[cpu->lcd.spr2_palette[color]]
+                                                 : cpu->lcd.colors[cpu->lcd.spr1_palette[color]]);
                 }
             }
 
-            if ( rendered ) {
+            if (rendered) {
                 int16_t posx2 = posx + 8;
-                if ( posx2 < 168 ) {
+                if (posx2 < 168) {
                     cpu->lcd.lcd_status.pixel_pipeline_cycles += 6;
 
-                    int16_t x = posx2 + (int16_t) cpu->lcd.bg_scroll_x;
+                    int16_t x = posx2 + (int16_t)cpu->lcd.bg_scroll_x;
 
-                    if ( x < 0 ) {
+                    if (x < 0) {
                         x = 0;
                     }
 
-                    if ( x <= 0 ) {
+                    if (x <= 0) {
                         has_sprite_at_0 = 1;
                     }
 
                     uint32_t bucket_index = (x >> 3);
-                    int32_t stall = 5 - (x & 0x07);
+                    int32_t  stall        = 5 - (x & 0x07);
 
-                    if ( stall < 0) {
+                    if (stall < 0) {
                         stall = 0;
                     }
 
                     cpu->lcd.lcd_status.sprite_stall_buckets[bucket_index] =
-                        stall > cpu->lcd.lcd_status.sprite_stall_buckets[bucket_index] ?
-                        stall :
-                        cpu->lcd.lcd_status.sprite_stall_buckets[bucket_index];
+                        stall > cpu->lcd.lcd_status.sprite_stall_buckets[bucket_index]
+                            ? stall
+                            : cpu->lcd.lcd_status.sprite_stall_buckets[bucket_index];
                 }
 
                 sprites_draw++;
@@ -485,7 +433,7 @@ void draw_sprites ( _cpu_info *cpu ) {
         cpu->lcd.lcd_status.pixel_pipeline_cycles += cpu->lcd.lcd_status.sprite_stall_buckets[i];
     }
 
-    if ( has_sprite_at_0 ) {
+    if (has_sprite_at_0) {
         cpu->lcd.lcd_status.pixel_pipeline_cycles += cpu->lcd.bg_scroll_x & 0x07;
     }
 
@@ -510,25 +458,26 @@ void draw_sprites ( _cpu_info *cpu ) {
 // Mode 2: Access VRAM but no OAM
 // Mode 3: No access to VRAM and OAM
 
-void display_update( _cpu_info *cpu ) {
-    uint8_t         irq             = 0;
+void display_update(_cpu_info *cpu) {
+    uint8_t irq = 0;
 
-    if ( !display_test_lcdpower(cpu) ) return;
+    if (!display_test_lcdpower(cpu))
+        return;
 
-    if ( debug_display ) printf(" PPU: Power: %2d  Spent: %3d  mode: %2d  ly: %3d  lyc: %3d  ",
-            cpu->lcd.power,
-            cpu->lcd.cycles_spent, cpu->lcd.mode, cpu->lcd.active_line, cpu->lcd.lyc_trigger);
+    if (debug_display)
+        printf(" PPU: Power: %2d  Spent: %3d  mode: %2d  ly: %3d  lyc: %3d  ", cpu->lcd.power, cpu->lcd.cycles_spent,
+               cpu->lcd.mode, cpu->lcd.active_line, cpu->lcd.lyc_trigger);
 
     cpu->lcd.mode_cmp = 255;
 
-    if ( cpu->lcd.lyc_delay > 0 ) {
-        cpu->lcd.lyc_delay --;
+    if (cpu->lcd.lyc_delay > 0) {
+        cpu->lcd.lyc_delay--;
     }
 
     cpu->lcd.cycles_spent++;
 
-    if ( cpu->lcd.mode == 0 && cpu->lcd.cycles_spent == 5 ) {
-        if ( cpu->lcd.active_line < 144 ) {
+    if (cpu->lcd.mode == 0 && cpu->lcd.cycles_spent == 5) {
+        if (cpu->lcd.active_line < 144) {
             cpu->lcd.mode = 2;
         } else {
             cpu->lcd.mode = 1;
@@ -537,20 +486,20 @@ void display_update( _cpu_info *cpu ) {
             /*printf("VBLANK Interrupt\n");*/
             cpu->interrupts.pending_vblank = 1;
 
-            flip_screen( cpu );
-            cpu->die = test_step ( &test_control );
+            flip_screen(cpu);
+            cpu->die = test_step(&test_control);
         }
-    } else if ( cpu->lcd.mode == 0 && cpu->lcd.cycles_spent >= 1 && cpu->lcd.cycles_spent < 5 && cpu->lcd.active_line >= 1 &&
-                cpu->lcd.active_line <= 143 ) {
+    } else if (cpu->lcd.mode == 0 && cpu->lcd.cycles_spent >= 1 && cpu->lcd.cycles_spent < 5 &&
+               cpu->lcd.active_line >= 1 && cpu->lcd.active_line <= 143) {
         cpu->lcd.mode_cmp = 2;
-    } else if ( cpu->lcd.mode == 2 && cpu->lcd.cycles_spent == 85 ) {
+    } else if (cpu->lcd.mode == 2 && cpu->lcd.cycles_spent == 85) {
         cpu->lcd.mode = 3;
 
         cpu->lcd.m3_cycles = 175;
 
-        if ( ( cpu->lcd.bg_scroll_x % 8 ) == 0 ) {
+        if ((cpu->lcd.bg_scroll_x % 8) == 0) {
             // Do nothing
-        } else if ( ( cpu->lcd.bg_scroll_x % 8 ) <= 4 ) {
+        } else if ((cpu->lcd.bg_scroll_x % 8) <= 4) {
             cpu->lcd.m3_cycles += 4;
         } else {
             cpu->lcd.m3_cycles += 8;
@@ -561,65 +510,70 @@ void display_update( _cpu_info *cpu ) {
             cpu->lcd.lcd_status.sprite_x_cache[i] = 0;
         }
 
-        for (int i = 0; i < (160 + 256 + 7)/8; ++i) {
+        for (int i = 0; i < (160 + 256 + 7) / 8; ++i) {
             cpu->lcd.lcd_status.sprite_stall_buckets[i] = 0;
         }
 
         draw_background_and_window(cpu);
 
-        if ( cpu->lcd.power && cpu->lcd.sprite_enable ) {
+        if (cpu->lcd.power && cpu->lcd.sprite_enable) {
             fetch_sprites(cpu);
-            draw_sprites(cpu);   // If there is something wrong, try sorting sprites as expected
+            draw_sprites(cpu); // If there is something wrong, try sorting sprites as expected
             cpu->lcd.m3_cycles += cpu->lcd.lcd_status.pixel_pipeline_cycles;
         }
 
-    } else if ( cpu->lcd.mode == 3 && cpu->lcd.cycles_spent >= ((85 + cpu->lcd.m3_cycles) -7 ) &&
-            cpu->lcd.cycles_spent < (85 + cpu->lcd.m3_cycles ) ) {
+    } else if (cpu->lcd.mode == 3 && cpu->lcd.cycles_spent >= ((85 + cpu->lcd.m3_cycles) - 7) &&
+               cpu->lcd.cycles_spent < (85 + cpu->lcd.m3_cycles)) {
         cpu->lcd.mode_cmp = 0;
-    } else if ( cpu->lcd.mode == 3 && cpu->lcd.cycles_spent == (85 + cpu->lcd.m3_cycles) ) {
+    } else if (cpu->lcd.mode == 3 && cpu->lcd.cycles_spent == (85 + cpu->lcd.m3_cycles)) {
         cpu->lcd.mode = 0;
-    } else if ( cpu->lcd.mode == 0 && cpu->lcd.cycles_spent == 457 ) {
+    } else if (cpu->lcd.mode == 0 && cpu->lcd.cycles_spent == 457) {
         cpu->lcd.active_line += 1;
-        cpu->lcd.lyc_delay = 3;
-        cpu->lcd.mode = 0;
+        cpu->lcd.lyc_delay    = 3;
+        cpu->lcd.mode         = 0;
         cpu->lcd.cycles_spent = 1;
-    } else if ( cpu->lcd.mode == 1 ) {
-        if ( cpu->lcd.cycles_spent == 457 ) {
+    } else if (cpu->lcd.mode == 1) {
+        if (cpu->lcd.cycles_spent == 457) {
             cpu->lcd.cycles_spent = 1;
 
-            if ( cpu->lcd.active_line == 0 ) {
+            if (cpu->lcd.active_line == 0) {
                 cpu->lcd.mode = 0;
             } else {
                 cpu->lcd.active_line += 1;
                 cpu->lcd.lyc_delay = 3;
             }
-        } else if ( cpu->lcd.active_line == 153 && cpu->lcd.cycles_spent == 5 ) {
+        } else if (cpu->lcd.active_line == 153 && cpu->lcd.cycles_spent == 5) {
             cpu->lcd.active_line = 0;
-            cpu->lcd.lyc_delay = 3;
+            cpu->lcd.lyc_delay   = 3;
         }
     }
 
-    if ( cpu->lcd.mode_cmp == 255 ) {
+    if (cpu->lcd.mode_cmp == 255) {
         cpu->lcd.mode_cmp = cpu->lcd.mode;
     }
 
     if (((cpu->lcd.lyc_delay == 0) && (cpu->lcd.active_line == cpu->lcd.lyc_trigger) && (cpu->lcd.lyc_enable == 1)) ||
-         (cpu->lcd.mode_cmp == 0 && cpu->lcd.mode0_hblank ) ||
-         (cpu->lcd.mode_cmp == 2 && cpu->lcd.mode2_oam    ) ||
-         (cpu->lcd.mode_cmp == 1 && (cpu->lcd.mode2_oam || cpu->lcd.mode1_vblank))) {
+        (cpu->lcd.mode_cmp == 0 && cpu->lcd.mode0_hblank) || (cpu->lcd.mode_cmp == 2 && cpu->lcd.mode2_oam) ||
+        (cpu->lcd.mode_cmp == 1 && (cpu->lcd.mode2_oam || cpu->lcd.mode1_vblank))) {
         irq = 1;
     }
 
-    if ( debug_display ) printf("m3_cycles: %3d  irq: %2d %2d\n", cpu->lcd.m3_cycles, cpu->lcd.stat_irq, irq);
+    if (debug_display)
+        printf("m3_cycles: %3d  irq: %2d %2d\n", cpu->lcd.m3_cycles, cpu->lcd.stat_irq, irq);
 
-    if ( !cpu->lcd.stat_irq && irq ) {
+    if (!cpu->lcd.stat_irq && irq) {
         /*printf("STAT Interrupt\n");*/
-        if ( debug_display ) {
+        if (debug_display) {
             printf("STAT Interrupt: ");
-            if((cpu->lcd.lyc_delay == 0) && (cpu->lcd.active_line == cpu->lcd.lyc_trigger) && (cpu->lcd.lyc_enable == 1)) printf("LYC\n");
-            if (cpu->lcd.mode_cmp == 0 && cpu->lcd.mode0_hblank ) printf("MODE0\n");
-            if (cpu->lcd.mode_cmp == 2 && cpu->lcd.mode2_oam    ) printf("MODE2\n");
-            if (cpu->lcd.mode_cmp == 1 && (cpu->lcd.mode2_oam || cpu->lcd.mode1_vblank)) printf("MODE1\n");
+            if ((cpu->lcd.lyc_delay == 0) && (cpu->lcd.active_line == cpu->lcd.lyc_trigger) &&
+                (cpu->lcd.lyc_enable == 1))
+                printf("LYC\n");
+            if (cpu->lcd.mode_cmp == 0 && cpu->lcd.mode0_hblank)
+                printf("MODE0\n");
+            if (cpu->lcd.mode_cmp == 2 && cpu->lcd.mode2_oam)
+                printf("MODE2\n");
+            if (cpu->lcd.mode_cmp == 1 && (cpu->lcd.mode2_oam || cpu->lcd.mode1_vblank))
+                printf("MODE1\n");
         }
         cpu->interrupts.pending_lcdstat = 1;
     }

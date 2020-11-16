@@ -23,7 +23,7 @@
 #include <stdint.h>
 
 typedef struct {
-    char name[4096];
+    char     name[4096];
     uint32_t frames;
     uint32_t hash;
 } _test_info;
@@ -38,14 +38,13 @@ typedef struct {
 
 extern _test_control test_control;
 
-uint32_t test_get_hash    (                                                ) ;
-uint8_t test_step         ( _test_control *t                               ) ;
-void test_create_buffer   ( _test_control* t                               ) ;
-void test_reset_buffer    ( _test_control* t                               ) ;
-void test_free_buffer     ( _test_control* t                               ) ;
-void test_write_to_buffer ( _test_control* t, uint16_t addr, uint32_t data ) ;
-void test_run             (                                                ) ;
-void test_run_adjust      (                                                ) ;
-
+uint32_t test_get_hash();
+uint8_t  test_step(_test_control *t);
+void     test_create_buffer(_test_control *t);
+void     test_reset_buffer(_test_control *t);
+void     test_free_buffer(_test_control *t);
+void     test_write_to_buffer(_test_control *t, uint16_t addr, uint32_t data);
+void     test_run();
+void     test_run_adjust();
 
 #endif /* AUTOMATED_TESTS_H */

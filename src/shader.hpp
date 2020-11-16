@@ -3,13 +3,12 @@
 
 #include <glad/glad.h>
 
-#include <string>
 #include <fstream>
-#include <sstream>
 #include <iostream>
+#include <sstream>
+#include <string>
 
-class Shader
-{
+class Shader {
   public:
     unsigned int ID;
 
@@ -19,16 +18,16 @@ class Shader
 
     bool useGeometryShader;
 
-    Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath);
+    Shader(const char *vertexPath, const char *fragmentPath, const char *geometryPath);
 
     void use();
 
     void setBool(const std::string &name, bool value) const;
     void setInt(const std::string &name, int value) const;
     void setFloat(const std::string &name, float value) const;
-    void setVec3(const std::string &name, float* value) const;
+    void setVec3(const std::string &name, float *value) const;
     void setVec3(const std::string &name, float v1, float v2, float v3) const;
-    void setMatrix4(const std::string &name, float* value) const;
+    void setMatrix4(const std::string &name, float *value) const;
 
     void reload_changes();
 
@@ -36,7 +35,7 @@ class Shader
     int inotify_fd;
 
     void checkCompileErrors(GLuint shader, std::string type, std::string extra);
-    void load(const char* vertexPath, const char* fragmentPath, const char* geometryPath);
+    void load(const char *vertexPath, const char *fragmentPath, const char *geometryPath);
 };
 
 #endif

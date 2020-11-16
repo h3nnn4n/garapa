@@ -22,44 +22,44 @@
 
 #include "types.h"
 
-unsigned short int out2( unsigned char *buffer, unsigned int pc ) ;
-void out1 ( _cpu_info *cpu ) ;
+unsigned short int out2(unsigned char *buffer, unsigned int pc);
+void               out1(_cpu_info *cpu);
 
 void out_put(_cpu_info *cpu) {
     /*printf ( "TRACE:wadatsumi::gb::cpu:%11llu: ", cpu->cycles_machine ) ;*/
     /*printf ( "Cycles: %11llu: ", cpu->cycles_machine ) ;*/
-    printf ( "%11llu: ", cpu->cycles_machine ) ;
-    if ( cpu->pc < 0x8000 ) {
-        out2   ( cpu->mem_controller.rom, cpu->pc                        ) ;
+    printf("%11llu: ", cpu->cycles_machine);
+    if (cpu->pc < 0x8000) {
+        out2(cpu->mem_controller.rom, cpu->pc);
     } else {
-        out2   ( cpu->mem_controller.memory, cpu->pc                     ) ;
+        out2(cpu->mem_controller.memory, cpu->pc);
     }
-    out1   ( cpu                                                        ) ;
-    puts   ( ""                                                         ) ;
+    out1(cpu);
+    puts("");
 }
 
-/*TRACE:wadatsumi::gb::cpu:    1787559: JR 0xFE                   PC: 0xC8B0 AF: 0x00C0 BC: 0xD826 DE: 0xD826 HL: 0xCC00 SP: 0xDFFF*/
-void out1 ( _cpu_info *cpu ) {
-    uint8_t f = ( (cpu->flags.z ) ? 0x80 : 0x00 ) |
-                ( (cpu->flags.n ) ? 0x40 : 0x00 ) |
-                ( (cpu->flags.h ) ? 0x20 : 0x00 ) |
-                ( (cpu->flags.c ) ? 0x10 : 0x00 ) ;
+/*TRACE:wadatsumi::gb::cpu:    1787559: JR 0xFE                   PC: 0xC8B0 AF: 0x00C0 BC: 0xD826 DE: 0xD826 HL: 0xCC00
+ * SP: 0xDFFF*/
+void out1(_cpu_info *cpu) {
+    uint8_t f = ((cpu->flags.z) ? 0x80 : 0x00) | ((cpu->flags.n) ? 0x40 : 0x00) | ((cpu->flags.h) ? 0x20 : 0x00) |
+                ((cpu->flags.c) ? 0x10 : 0x00);
 
-    printf(" PC: 0x%04X AF: 0x%02X%02X BC: 0x%02X%02X DE: 0x%02X%02X HL: 0x%02X%02X SP: 0x%04X",
-            cpu->pc, cpu->a, f, cpu->b, cpu->c, cpu->d, cpu->e, cpu->h, cpu->l, cpu->sp);
+    printf(" PC: 0x%04X AF: 0x%02X%02X BC: 0x%02X%02X DE: 0x%02X%02X HL: 0x%02X%02X SP: 0x%04X", cpu->pc, cpu->a, f,
+           cpu->b, cpu->c, cpu->d, cpu->e, cpu->h, cpu->l, cpu->sp);
     /*printf(" F: %c%c%c%c CYCLES: %16llu IPS: %16llu\n",*/
-            /*cpu->flags.z  ? 'z' : '.',*/
-            /*cpu->flags.n  ? 'n' : '.',*/
-            /*cpu->flags.h  ? 'h' : '.',*/
-            /*cpu->flags.c  ? 'c' : '.',*/
-            /*cpu->cycles_machine      ,*/
-            /*cpu->instructions_executed);*/
+    /*cpu->flags.z  ? 'z' : '.',*/
+    /*cpu->flags.n  ? 'n' : '.',*/
+    /*cpu->flags.h  ? 'h' : '.',*/
+    /*cpu->flags.c  ? 'c' : '.',*/
+    /*cpu->cycles_machine      ,*/
+    /*cpu->instructions_executed);*/
     /*printf(BYTE_TO_BINARY_PATTERN"\n", BYTE_TO_BINARY(f));*/
 }
 
-unsigned short int out2( unsigned char *buffer, unsigned int pc ) {
+unsigned short int out2(unsigned char *buffer, unsigned int pc) {
     unsigned short int op_size = 1;
 
+    // clang-format off
     switch ( buffer[pc] ) {
 /*TRACE:wadatsumi::gb::cpu:    1787559: JR 0xFE                   PC: 0xC8B0 AF: 0x00C0 BC: 0xD826 DE: 0xD826 HL: 0xCC00 SP: 0xDFFF*/
         case 0x00:   printf ( "NOP                      "                                  ); op_size = 1; break;
@@ -613,6 +613,7 @@ unsigned short int out2( unsigned char *buffer, unsigned int pc ) {
             printf ( " %04x is not implemented " , buffer[pc] );
             break;
     }
+    // clang-format on
 
     return op_size;
 }

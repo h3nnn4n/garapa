@@ -17,45 +17,45 @@
  *    misrepresented as being the original software.                          *
  * 3. This notice may not be removed or altered from any source distribution. *
  ******************************************************************************/
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
 
+#include "audio.h"
+#include "cartridge.h"
+#include "disassembler.h"
+#include "display.h"
 #include "types.h"
 #include "utils.h"
-#include "disassembler.h"
-#include "cartridge.h"
-#include "display.h"
-#include "audio.h"
 
-void load_rom ( _cpu_info *cpu, const char* fname, uint16_t offset ) {
+void load_rom(_cpu_info *cpu, const char *fname, uint16_t offset) {
     FILE *f = NULL;
     /*off_t buffer_size = -1;*/
 
     f = fopen(fname, "rb");
 
-    if ( f == NULL )
+    if (f == NULL)
         fprintf(stderr, "Error while opening: %s\n", fname);
 
     /*buffer_size = fsize( fname );*/
 
-    if ( fread(cpu->mem_controller.memory, 0x0200, 1, f) != 1 ) {
+    if (fread(cpu->mem_controller.memory, 0x0200, 1, f) != 1) {
         printf("Something went weird while reading the ROM\n");
         exit(-1);
     }
 
-    cpu->mem_controller.ram_size = get_ram_code ( cpu->mem_controller.memory );
-    cpu->mem_controller.rom_size = get_rom_code ( cpu->mem_controller.memory );
+    cpu->mem_controller.ram_size = get_ram_code(cpu->mem_controller.memory);
+    cpu->mem_controller.rom_size = get_rom_code(cpu->mem_controller.memory);
 
-    cpu->mem_controller.rom           = calloc ( 1, get_rom_size(cpu->mem_controller.memory ));
-    cpu->mem_controller.cartridge_ram = calloc ( 1, get_ram_size(cpu->mem_controller.memory ));
+    cpu->mem_controller.rom           = calloc(1, get_rom_size(cpu->mem_controller.memory));
+    cpu->mem_controller.cartridge_ram = calloc(1, get_ram_size(cpu->mem_controller.memory));
 
-    fseek (f, 0 , SEEK_SET);
+    fseek(f, 0, SEEK_SET);
 
-    if ( fread(cpu->mem_controller.rom + offset, get_rom_size(cpu->mem_controller.memory ), 1, f) != 1 ) {
+    if (fread(cpu->mem_controller.rom + offset, get_rom_size(cpu->mem_controller.memory), 1, f) != 1) {
         printf("Something went weird while reading the ROM\n");
         exit(-1);
     }
@@ -78,8 +78,8 @@ off_t fsize(const char *filename) {
     return -1;
 }
 
-void init_cpu( _cpu_info *cpu ) {
-    cpu->mem_controller.memory          = calloc ( 1, 0xffff );
+void init_cpu(_cpu_info *cpu) {
+    cpu->mem_controller.memory          = calloc(1, 0xffff);
     cpu->mem_controller.rom             = NULL;
     cpu->mem_controller.cartridge_ram   = NULL;
     cpu->mem_controller.rom_bank_number = 1;
@@ -87,10 +87,10 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->mem_controller.ram_mode        = 0;
     cpu->mem_controller.ram_enable      = 0;
 
-    cpu->halt_bug        = 0;
-    cpu->cycles_clock    = 0;
-    cpu->cycles_machine  = 0;
-    cpu->cycles_left     = 0;
+    cpu->halt_bug       = 0;
+    cpu->cycles_clock   = 0;
+    cpu->cycles_machine = 0;
+    cpu->cycles_left    = 0;
 
     cpu->dma.oam_dma_source      = 0;
     cpu->dma.oam_dma_next_source = 0;
@@ -106,38 +106,38 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->joystick.button_select = 1;
     cpu->joystick.button_start  = 1;
 
-    cpu->joystick.button_left   = 1;
-    cpu->joystick.button_right  = 1;
-    cpu->joystick.button_down   = 1;
-    cpu->joystick.button_up     = 1;
+    cpu->joystick.button_left  = 1;
+    cpu->joystick.button_right = 1;
+    cpu->joystick.button_down  = 1;
+    cpu->joystick.button_up    = 1;
 
-    apu_reset( cpu );
+    apu_reset(cpu);
 
-    cpu->pc     = 0;
-    cpu->a      = 0;
-    cpu->b      = 0;
-    cpu->c      = 0;
-    cpu->d      = 0;
-    cpu->e      = 0;
-    cpu->h      = 0;
-    cpu->l      = 0;
+    cpu->pc = 0;
+    cpu->a  = 0;
+    cpu->b  = 0;
+    cpu->c  = 0;
+    cpu->d  = 0;
+    cpu->e  = 0;
+    cpu->h  = 0;
+    cpu->l  = 0;
 
-    cpu->lcd.lyc_trigger      = 0;
-    cpu->lcd.active_line      = 0;
-    cpu->lcd.mode             = 0;
-    cpu->lcd.m3_cycles        = 0;
-    cpu->lcd.stat_irq         = 0;
-    cpu->lcd.lyc_delay        = 0;
-    cpu->lcd.cycles_spent     = 0;
+    cpu->lcd.lyc_trigger  = 0;
+    cpu->lcd.active_line  = 0;
+    cpu->lcd.mode         = 0;
+    cpu->lcd.m3_cycles    = 0;
+    cpu->lcd.stat_irq     = 0;
+    cpu->lcd.lyc_delay    = 0;
+    cpu->lcd.cycles_spent = 0;
 
-    cpu->lcd.power            = 1;
-    cpu->lcd.window_tilemap   = 0;
-    cpu->lcd.window_enabled   = 0;
-    cpu->lcd.bg_and_tilemap   = 1;
-    cpu->lcd.bg_tileset       = 0;
-    cpu->lcd.sprite_size      = 0;
-    cpu->lcd.sprite_enable    = 0;
-    cpu->lcd.bg_enable        = 1;
+    cpu->lcd.power          = 1;
+    cpu->lcd.window_tilemap = 0;
+    cpu->lcd.window_enabled = 0;
+    cpu->lcd.bg_and_tilemap = 1;
+    cpu->lcd.bg_tileset     = 0;
+    cpu->lcd.sprite_size    = 0;
+    cpu->lcd.sprite_enable  = 0;
+    cpu->lcd.bg_enable      = 1;
 
     cpu->lcd.lyc_enable       = 0;
     cpu->lcd.mode2_oam        = 0;
@@ -145,10 +145,10 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->lcd.mode0_hblank     = 0;
     cpu->lcd.lyc_ly_triggered = 0;
 
-    cpu->lcd.window_scroll_y  = 0;
-    cpu->lcd.window_scroll_x  = 0;
-    cpu->lcd.bg_scroll_x      = 0;
-    cpu->lcd.bg_scroll_y      = 0;
+    cpu->lcd.window_scroll_y = 0;
+    cpu->lcd.window_scroll_x = 0;
+    cpu->lcd.bg_scroll_x     = 0;
+    cpu->lcd.bg_scroll_y     = 0;
 
     cpu->lcd.bg_palette[0] = 3;
     cpu->lcd.bg_palette[1] = 2;
@@ -170,10 +170,10 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->lcd.colors[2] = 0x808080;
     cpu->lcd.colors[3] = 0x000000;
 
-    cpu->flags.z   = 0;
-    cpu->flags.n   = 0;
-    cpu->flags.h   = 0;
-    cpu->flags.c   = 0;
+    cpu->flags.z = 0;
+    cpu->flags.n = 0;
+    cpu->flags.h = 0;
+    cpu->flags.c = 0;
 
     cpu->halted                = 0;
     cpu->stoped                = 0;
@@ -187,16 +187,16 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->timer.DIV  = 0;
     cpu->timer.TMA  = 0;
 
-    cpu->timer.TIMA_timer = 0;
+    cpu->timer.TIMA_timer        = 0;
     cpu->timer.TIMA_reload_timer = 0;
-    cpu->timer._timer           = 0;
-    cpu->timer._timer_old       = 0;
+    cpu->timer._timer            = 0;
+    cpu->timer._timer_old        = 0;
 
-    cpu->interrupts.masked_vblank   = 1;
-    cpu->interrupts.masked_lcdstat  = 1;
-    cpu->interrupts.masked_timer    = 1;
-    cpu->interrupts.masked_serial   = 1;
-    cpu->interrupts.masked_joypad   = 1;
+    cpu->interrupts.masked_vblank  = 1;
+    cpu->interrupts.masked_lcdstat = 1;
+    cpu->interrupts.masked_timer   = 1;
+    cpu->interrupts.masked_serial  = 1;
+    cpu->interrupts.masked_joypad  = 1;
 
     cpu->interrupts.pending_vblank  = 0;
     cpu->interrupts.pending_lcdstat = 0;
@@ -211,13 +211,13 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->pc = 0x100;
     cpu->sp = 0xfffe;
 
-    cpu->a  = 0x01;
-    cpu->b  = 0x00;
-    cpu->c  = 0x13;
-    cpu->d  = 0x00;
-    cpu->e  = 0xd8;
-    cpu->h  = 0x01;
-    cpu->l  = 0x4d;
+    cpu->a = 0x01;
+    cpu->b = 0x00;
+    cpu->c = 0x13;
+    cpu->d = 0x00;
+    cpu->e = 0xd8;
+    cpu->h = 0x01;
+    cpu->l = 0x4d;
 
     cpu->flags.z = 1;
     cpu->flags.n = 0;
@@ -267,41 +267,34 @@ void init_cpu( _cpu_info *cpu ) {
     cpu->mem_controller.memory[0xff4b] = 0x00;
 }
 
-void unimplemented_opcode( _cpu_info *cpu ) {
-    disassembler ( cpu );
+void unimplemented_opcode(_cpu_info *cpu) {
+    disassembler(cpu);
     exit(-1);
 }
 
-int parity_bit ( int b ) {
+int parity_bit(int b) {
     int bits = 0;
     int i    = 0;
 
     for (i = 0; i < 8; ++i)
-        if ( b & ( 1 << i ) )
+        if (b & (1 << i))
             bits += 1;
 
     return bits & 1 ? 0 : 1;
 }
 
-void print_registers ( _cpu_info *cpu ) {
-    uint8_t f = ( (cpu->flags.z ) ? 0x80 : 0x00 ) |
-                ( (cpu->flags.n ) ? 0x40 : 0x00 ) |
-                ( (cpu->flags.h ) ? 0x20 : 0x00 ) |
-                ( (cpu->flags.c ) ? 0x10 : 0x00 ) ;
+void print_registers(_cpu_info *cpu) {
+    uint8_t f = ((cpu->flags.z) ? 0x80 : 0x00) | ((cpu->flags.n) ? 0x40 : 0x00) | ((cpu->flags.h) ? 0x20 : 0x00) |
+                ((cpu->flags.c) ? 0x10 : 0x00);
 
-    printf(" AF: %02x%02x BC: %02x%02x DE: %02x%02x HL: %02x%02x PC: %04x SP: %04x",
-            cpu->a, f, cpu->b, cpu->c, cpu->d, cpu->e, cpu->h, cpu->l, cpu->pc, cpu->sp);
-    printf(" F: %c%c%c%c CYCLES: %16llu IPS: %16llu\n",
-            cpu->flags.z  ? 'z' : '.',
-            cpu->flags.n  ? 'n' : '.',
-            cpu->flags.h  ? 'h' : '.',
-            cpu->flags.c  ? 'c' : '.',
-            cpu->cycles_machine      ,
-            cpu->instructions_executed);
+    printf(" AF: %02x%02x BC: %02x%02x DE: %02x%02x HL: %02x%02x PC: %04x SP: %04x", cpu->a, f, cpu->b, cpu->c, cpu->d,
+           cpu->e, cpu->h, cpu->l, cpu->pc, cpu->sp);
+    printf(" F: %c%c%c%c CYCLES: %16llu IPS: %16llu\n", cpu->flags.z ? 'z' : '.', cpu->flags.n ? 'n' : '.',
+           cpu->flags.h ? 'h' : '.', cpu->flags.c ? 'c' : '.', cpu->cycles_machine, cpu->instructions_executed);
     /*printf(BYTE_TO_BINARY_PATTERN"\n", BYTE_TO_BINARY(f));*/
 }
 
-void print_state( _cpu_info *cpu ) {
-    disassembler   ( cpu );
-    print_registers( cpu );
+void print_state(_cpu_info *cpu) {
+    disassembler(cpu);
+    print_registers(cpu);
 }

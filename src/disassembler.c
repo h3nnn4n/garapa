@@ -21,13 +21,14 @@
 #include <stdlib.h>
 
 #include "disassembler.h"
-#include "types.h"
 #include "memory.h"
+#include "types.h"
 
-unsigned short int disassembler( _cpu_info *cpu ) {
+unsigned short int disassembler(_cpu_info *cpu) {
     unsigned short int op_size = 1;
-    uint16_t pc = cpu->pc;
+    uint16_t           pc      = cpu->pc;
 
+    // clang-format off
     switch ( read_byte(cpu, pc) ) {
         case 0x00:   printf ( " %04x : %02x      """"    NOP                     "  , pc, read_byte(cpu, pc)                                                          ); op_size = 1; break;
         case 0x01:   printf ( " %04x : %02x %02x %02x    LD BC, 0x%02x%02x           ",pc, read_byte(cpu, pc), read_byte(cpu, pc+1), read_byte(cpu, pc+2) , read_byte(cpu, pc+1), read_byte(cpu, pc+2) ); op_size = 3; break;
@@ -580,6 +581,7 @@ unsigned short int disassembler( _cpu_info *cpu ) {
             printf ( " %04x is not implemented " , read_byte(cpu, pc) );
             break;
     }
+    // clang-format on
 
     return op_size;
 }

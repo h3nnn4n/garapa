@@ -22,6 +22,6 @@
 
 #include "types.h"
 
-unsigned short int disassembler( _cpu_info *cpu ) ;
+unsigned short int disassembler(_cpu_info *cpu);
 
 #endif /* DISASSEMBLER_H */

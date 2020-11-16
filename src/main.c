@@ -20,26 +20,26 @@
 
 #define PY_SSIZE_T_CLEAN
 
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <time.h>
-#include <assert.h>
+#include <unistd.h>
 
 #include <sys/types.h>
 
-#include "utils.h"
 #include "audio.h"
-#include "types.h"
-#include "memory.h"
+#include "automated_tests.h"
 #include "cartridge.h"
 #include "decoder.h"
-#include "graphics.h"
-#include "display.h"
-#include "python_api.h"
 #include "disassembler.h"
+#include "display.h"
+#include "graphics.h"
+#include "memory.h"
+#include "python_api.h"
 #include "time_keeper.h"
-#include "automated_tests.h"
+#include "types.h"
+#include "utils.h"
 
 int main(int argc, char **argv) {
     _cpu_info cpu;
@@ -47,11 +47,12 @@ int main(int argc, char **argv) {
 
     atexit(graphics_exit);
 
-    if (graphics_init()) exit(-1);
+    if (graphics_init())
+        exit(-1);
 
-    if ( argc == 1 ) {
+    if (argc == 1) {
         test_control.test_enable = 1;
-        test_run ();
+        test_run();
         return 0;
     }
 
@@ -61,12 +62,12 @@ int main(int argc, char **argv) {
 
     apu_sdl_init(&cpu);
 
-    load_rom ( &cpu, argv[1], 0x0000 );
+    load_rom(&cpu, argv[1], 0x0000);
 
     /*print_rom_info(&cpu);*/
 
-    while ( 1 ) {
-        decoder        ( &cpu );
+    while (1) {
+        decoder(&cpu);
     }
 
     return 0;

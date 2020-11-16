@@ -23,19 +23,12 @@
 #include <glad/glad.h>
 
 #pragma GCC diagnostic ignored "-Wunused-variable"
-static int debug_decoder    = 0;
-static int debug_display    = 0;
-static int debug_interrupts = 0;
-static int debug_timer      = 0;
+static int             debug_decoder    = 0;
+static int             debug_display    = 0;
+static int             debug_interrupts = 0;
+static int             debug_timer      = 0;
 
-
-void GLAPIENTRY
-MessageCallback( GLenum source,
-                 GLenum type,
-                 GLuint id,
-                 GLenum severity,
-                 GLsizei length,
-                 const GLchar* message,
-                 const void* userParam );
+void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
+                                const GLchar *message, const void *userParam);
 
 #endif /* DEBUG_H */

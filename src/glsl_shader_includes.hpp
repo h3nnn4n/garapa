@@ -59,9 +59,9 @@
  *    - Language	:	C++ (can easily be converted into other languages)
  **/
 
-#include <string>
 #include <fstream>
 #include <iostream>
+#include <string>
 
 class Shadinclude {
   public:
