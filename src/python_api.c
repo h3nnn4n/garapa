@@ -10,35 +10,6 @@
 
 static _context *current_context = NULL;
 
-void set_current_context(_context *context) {
-  current_context = context;
-}
-
-static PyObject *garapa_hello_world(__attribute__((unused)) PyObject *self, __attribute__((unused)) PyObject *args) {
-    return Py_BuildValue("s", "hello world, garapa is tasty");
-}
-
-static PyObject *garapa_peek(__attribute__((unused)) PyObject *self, PyObject *args) {
-    assert(current_context != NULL && "Current context is NULL!! Good luck peeking into that");
-
-    if (current_context == NULL) {
-        printf("Warning, current_context is NULL!\n");
-        return NULL;
-    }
-
-    // This feels so wrong lol
-    // Plz help me
-    int *py_addr_value = NULL;
-    if (!PyArg_ParseTuple(args, "i", &py_addr_value)) {
-        fprintf(stderr, "failed to parse args!\n");
-    }
-
-    uint16_t addr = (uint16_t) py_addr_value;
-    uint8_t value = read_byte(current_context->cpu_info, addr);
-
-    return Py_BuildValue("i", value);
-}
-
 static PyMethodDef EmbMethods[] = {
   {"hello_world", garapa_hello_world, METH_VARARGS, "Return a garapa greeting."},
   {"peek", garapa_peek, METH_VARARGS, "Peeking into the memory"},
@@ -48,6 +19,33 @@ static PyMethodDef EmbMethods[] = {
 static PyModuleDef EmbModule = {PyModuleDef_HEAD_INIT, "garapa", NULL, -1, EmbMethods, NULL, NULL, NULL, NULL};
 
 static PyObject *PyInit_garapa(void) { return PyModule_Create(&EmbModule); }
+
+void set_current_context(_context *context) {
+  current_context = context;
+}
+
+PyObject *garapa_hello_world(__attribute__((unused)) PyObject *self, __attribute__((unused)) PyObject *args) {
+    return Py_BuildValue("s", "hello world, garapa is tasty");
+}
+
+PyObject *garapa_peek(__attribute__((unused)) PyObject *self, PyObject *args) {
+    assert(current_context != NULL && "Current context is NULL!! Good luck peeking into that");
+
+    if (current_context == NULL) {
+        printf("Warning, current_context is NULL!\n");
+        return NULL;
+    }
+
+    long py_addr_value;
+    if (!PyArg_ParseTuple(args, "i", &py_addr_value)) {
+        fprintf(stderr, "failed to parse args!\n");
+    }
+
+    uint16_t addr = (uint16_t) py_addr_value;
+    uint8_t value = read_byte(current_context->cpu_info, addr);
+
+    return PyLong_FromLong(value);
+}
 
 void py_init(__attribute__((unused)) int argc, char **argv) {
     wchar_t *program = Py_DecodeLocale(argv[0], NULL);
