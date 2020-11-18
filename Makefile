@@ -30,6 +30,9 @@ LIBS = -lm -lglfw -lpthread -ldl -lstdc++ \
        `sdl2-config --cflags --libs` -lSDL2_ttf \
        `python3-config --cflags --ldflags`
 
+BLACKLIST = -DNDEBUG
+LIBS := $(filter-out $(BLACKLIST),$(LIBS))
+
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
   LIBS += -lGL
