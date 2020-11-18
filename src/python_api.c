@@ -18,7 +18,7 @@ static PyObject *garapa_hello_world(__attribute__((unused)) PyObject *self, __at
     return Py_BuildValue("s", "hello world, garapa is tasty");
 }
 
-static PyObject *garapa_peek(__attribute__((unused)) PyObject *self, __attribute__((unused)) PyObject *args) {
+static PyObject *garapa_peek(__attribute__((unused)) PyObject *self, PyObject *args) {
     assert(current_context != NULL && "Current context is NULL!! Good luck peeking into that");
 
     if (current_context == NULL) {
