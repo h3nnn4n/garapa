@@ -89,9 +89,9 @@ void Shader::load(const char *vertexPath, const char *fragmentPath, const char *
     if (useGeometryShader)
         gShaderCode = geometryCode.c_str();
 
-    unsigned int vertex;
-    unsigned int fragment;
-    unsigned int geometry;
+    unsigned int vertex = 0;
+    unsigned int fragment = 0;
+    unsigned int geometry = 0;
 
     {
         vertex = glCreateShader(GL_VERTEX_SHADER);
