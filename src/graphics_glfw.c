@@ -23,10 +23,10 @@
 
 #include <stb_image.h>
 
-#include "graphics_glfw.h"
 #include "debug.h"
 #include "glfw_input_handling.h"
 #include "graphics.h"
+#include "graphics_glfw.h"
 #include "shader_c.h"
 #include "types.h"
 

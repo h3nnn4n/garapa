@@ -244,7 +244,7 @@ typedef struct {                    // Struct that holds ALL information relativ
 } _cpu_info;     //
 
 typedef struct {
-  _cpu_info *cpu_info;
+    _cpu_info *cpu_info;
 } _context;
 
 #endif /* TYPES_H */

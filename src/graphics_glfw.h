@@ -1,8 +1,11 @@
 #ifndef __GRAPHICS_GLFW
 #define __GRAPHICS_GLFW
 
+// clang-format off
+// the glad import has to come first
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+// clang-format on
 
 #include "types.h"
 

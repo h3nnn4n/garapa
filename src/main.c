@@ -18,9 +18,9 @@
  * 3. This notice may not be removed or altered from any source distribution. *
  ******************************************************************************/
 
-#include "types.h"
-#include "core.h"
 #include "automated_tests.h"
+#include "core.h"
+#include "types.h"
 
 int main(int argc, char **argv) {
     _context *context = build_emulation_context(argc, argv);

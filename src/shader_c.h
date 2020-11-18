@@ -13,7 +13,7 @@ extern "C" {
 typedef struct Shader  Shader;
 #pragma GCC diagnostic pop
 #else
-typedef struct Shader  Shader;
+typedef struct Shader Shader;
 #endif
 
 Shader *newShader(const char *vertexPath, const char *fragmentPath, const char *geometryPath);

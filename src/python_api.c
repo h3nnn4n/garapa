@@ -3,28 +3,25 @@
 #include <Python.h>
 
 #include "assert.h"
-#include "types.h"
 #include "memory.h"
 #include "python_api.h"
-
+#include "types.h"
 
 static _context *current_context = NULL;
 static PyObject *vblank_callback = NULL;
 
 static PyMethodDef EmbMethods[] = {
-  {"hello_world", garapa_hello_world, METH_VARARGS, "Return a garapa greeting."},
-  {"peek", garapa_peek, METH_VARARGS, "Peeking into the memory"},
-  {"set_vblank_callback", garapa_set_vblank_callback, METH_VARARGS, "Sets a callback to be run on vblank"},
-  {NULL, NULL, 0, NULL},
+    {"hello_world", garapa_hello_world, METH_VARARGS, "Return a garapa greeting."},
+    {"peek", garapa_peek, METH_VARARGS, "Peeking into the memory"},
+    {"set_vblank_callback", garapa_set_vblank_callback, METH_VARARGS, "Sets a callback to be run on vblank"},
+    {NULL, NULL, 0, NULL},
 };
 
 static PyModuleDef EmbModule = {PyModuleDef_HEAD_INIT, "garapa", NULL, -1, EmbMethods, NULL, NULL, NULL, NULL};
 
 static PyObject *PyInit_garapa(void) { return PyModule_Create(&EmbModule); }
 
-void set_current_context(_context *context) {
-  current_context = context;
-}
+void set_current_context(_context *context) { current_context = context; }
 
 PyObject *garapa_hello_world(__attribute__((unused)) PyObject *self, __attribute__((unused)) PyObject *args) {
     return Py_BuildValue("s", "hello world, garapa is tasty");
@@ -48,7 +45,8 @@ PyObject *garapa_set_vblank_callback(__attribute__((unused)) PyObject *self, __a
     }
 
     // Decrease the ref count of the old callback, if any
-    if (vblank_callback != NULL) Py_XDECREF(vblank_callback);
+    if (vblank_callback != NULL)
+        Py_XDECREF(vblank_callback);
 
     vblank_callback = temp;
     Py_XINCREF(vblank_callback);
@@ -69,8 +67,8 @@ PyObject *garapa_peek(__attribute__((unused)) PyObject *self, PyObject *args) {
         fprintf(stderr, "failed to parse args!\n");
     }
 
-    uint16_t addr = (uint16_t) py_addr_value;
-    uint8_t value = read_byte(current_context->cpu_info, addr);
+    uint16_t addr  = (uint16_t)py_addr_value;
+    uint8_t  value = read_byte(current_context->cpu_info, addr);
 
     return PyLong_FromLong(value);
 }
@@ -118,7 +116,8 @@ void py_init(__attribute__((unused)) int argc, char **argv) {
 }
 
 void trigger_vblank_callback() {
-    if (vblank_callback == NULL) return;
+    if (vblank_callback == NULL)
+        return;
 
     assert(PyCallable_Check(vblank_callback) && "Callback must be callable");
     PyObject_CallObject(vblank_callback, NULL);
