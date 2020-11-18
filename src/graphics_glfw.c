@@ -32,7 +32,6 @@
 
 static uint32_t *pixels = NULL;
 
-#define USE_GLFW
 #if defined(USE_GLFW)
 static const int scale             = 4;
 static const int PPU_SCREEN_WIDTH  = 160;
