@@ -5,12 +5,16 @@
 extern "C" {
 #endif
 
+#if defined(__APPLE__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmismatched-tags"
 // It looks like this isnt supported by microsoft (class and struct with the
 // same name).  Lets just silence it
 typedef struct Shader  Shader;
 #pragma GCC diagnostic pop
+#else
+typedef struct Shader  Shader;
+#endif
 
 Shader *newShader(const char *vertexPath, const char *fragmentPath, const char *geometryPath);
 
