@@ -1,8 +1,36 @@
 import garapa
 
+old_screen_id = 0
+
 
 def on_vblank():
-    pass
+    global old_screen_id
+
+    current_screen_id = garapa.peek(0xffe1)
+
+    if old_screen_id == current_screen_id:
+        return
+
+    old_screen_id = current_screen_id
+
+    if current_screen_id == 0xff:
+        print('booting')
+    elif current_screen_id == 0x24:
+        print('preboot')
+    elif current_screen_id == 0x25:
+        print('credits')
+    elif current_screen_id == 0x35:
+        print('after credits')
+    elif current_screen_id == 0x06:
+        print('pre main menu')
+    elif current_screen_id == 0x07:
+        print('main menu')
+    elif current_screen_id == 0x00:
+        print('game menu')
+    elif current_screen_id == 0x0a:
+        print('demo ?? 0x0a')
+    else:
+        print('?? %02x' % current_screen_id)
 
 
 def dump_bytes():
