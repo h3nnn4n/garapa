@@ -9,10 +9,12 @@
 
 
 static _context *current_context = NULL;
+static PyObject *vblank_callback = NULL;
 
 static PyMethodDef EmbMethods[] = {
   {"hello_world", garapa_hello_world, METH_VARARGS, "Return a garapa greeting."},
   {"peek", garapa_peek, METH_VARARGS, "Peeking into the memory"},
+  {"set_vblank_callback", garapa_set_vblank_callback, METH_VARARGS, "Sets a callback to be run on vblank"},
   {NULL, NULL, 0, NULL},
 };
 
@@ -26,6 +28,32 @@ void set_current_context(_context *context) {
 
 PyObject *garapa_hello_world(__attribute__((unused)) PyObject *self, __attribute__((unused)) PyObject *args) {
     return Py_BuildValue("s", "hello world, garapa is tasty");
+}
+
+PyObject *garapa_set_vblank_callback(__attribute__((unused)) PyObject *self, __attribute__((unused)) PyObject *args) {
+    assert(current_context != NULL && "Current context is NULL!! Good luck peeking into that");
+
+    PyObject *temp;
+
+    if (!PyArg_ParseTuple(args, "O", &temp)) {
+        fprintf(stderr, "failed to parse args\n");
+        PyErr_SetString(PyExc_TypeError, "failed to parse args");
+        return NULL;
+    }
+
+    if (!PyCallable_Check(temp)) {
+        fprintf(stderr, "parameter is not callable\n");
+        PyErr_SetString(PyExc_TypeError, "parameter is not callable");
+        return NULL;
+    }
+
+    // Decrease the ref count of the old callback, if any
+    if (vblank_callback != NULL) Py_XDECREF(vblank_callback);
+
+    vblank_callback = temp;
+    Py_XINCREF(vblank_callback);
+
+    Py_RETURN_NONE;
 }
 
 PyObject *garapa_peek(__attribute__((unused)) PyObject *self, PyObject *args) {
@@ -87,9 +115,11 @@ void py_init(__attribute__((unused)) int argc, char **argv) {
         Py_XDECREF(pFunc);
         Py_DECREF(pModule);
     }
+}
 
-    if (Py_FinalizeEx() < 0) {
-        fprintf(stderr, "Py_FinalizeEx returned an error");
-        exit(-1);
-    }
+void trigger_vblank_callback() {
+    if (vblank_callback == NULL) return;
+
+    assert(PyCallable_Check(vblank_callback) && "Callback must be callable");
+    PyObject_CallObject(vblank_callback, NULL);
 }

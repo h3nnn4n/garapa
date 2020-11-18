@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2016-2018  Renan S. Silva                                    *
+ * Copyright (C) 2016-2020  Renan S. Silva                                    *
  *                                                                            *
  * This software is provided 'as-is', without any express or implied          *
  * warranty. In no event will the authors be held liable for any damages      *
@@ -26,6 +26,7 @@
 #include "time_keeper.h"
 #include "types.h"
 #include "utils.h"
+#include "python_api.h"
 
 // Bit 0: V-Blank  Interrupt Request (INT 40h)  (1=Request)
 // Bit 1: LCD STAT Interrupt Request (INT 48h)  (1=Request)
@@ -71,6 +72,8 @@ void emulate_INTERRUPT(_cpu_info *cpu) {
             cpu->pc                        = 0x0040;
             cpu->interrupts.pending_vblank = 0;
             doit                           = 0;
+
+            trigger_vblank_callback(); // For the python api
         } else if (intn & 0x02) { // lcdstat
             if (debug_interrupts)
                 printf("STAT\n");
