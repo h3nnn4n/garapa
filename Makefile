@@ -22,7 +22,7 @@ LINKS = -Ldeps/glfw/build/src/ \
 CPPFLAGS = -Wall -std=c++11 $(OPTIMIZATION) $(OPTIONS) $(LINKS) $(INCLUDES)
 CFLAGS = -Wall -Wextra -pedantic -std=gnu11 $(OPTIMIZATION) $(OPTIONS) $(LINKS) $(INCLUDES)
 
-OPTIMIZATION=-O3
+OPTIMIZATION=-O0
 
 LDFLAGS = $(OPTIMIZATION) -Wl,-Ldeps/glfw/build/src/
 
@@ -32,6 +32,9 @@ PYTHON_FLAGS = $(shell python3-config --cflags --ldflags)
 LIBS = -lm -lglfw -lpthread -ldl -lstdc++
 LIBS += $(SDL_FLAGS)
 LIBS += $(filter-out -DNDEBUG,$(PYTHON_FLAGS))
+
+BLACKLIST = -O0 -O1 -O2 -O3 -Os
+LIBS := $(filter-out $(BLACKLIST), $(LIBS))
 
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
