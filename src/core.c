@@ -17,13 +17,15 @@ _context* build_emulation_context(int argc, char **argv) {
     _context *context = malloc(sizeof(_context));
     context->cpu_info = malloc(sizeof(_cpu_info));
 
+    init_cpu(context->cpu_info);
+    load_rom(context->cpu_info, argv[1], 0x0000);
+
+    set_current_context(context);
+
     py_init(argc, argv);
 
     if (graphics_init()) exit(-1);
     atexit(graphics_exit);
-
-    init_cpu(context->cpu_info);
-    load_rom(context->cpu_info, argv[1], 0x0000);
 
     return context;
 }
