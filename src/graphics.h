@@ -17,8 +17,8 @@
  *    misrepresented as being the original software.                          *
  * 3. This notice may not be removed or altered from any source distribution. *
  ******************************************************************************/
-#ifndef GRAPHICS_meu_H
-#define GRAPHICS_meu_H
+#ifndef GRAPHICS_H
+#define GRAPHICS_H
 
 #define SDL_MAIN_HANDLED
 
@@ -34,4 +34,4 @@ void      flip_screen(_cpu_info *cpu);
 void      input_update(_cpu_info *cpu);
 void      graphics_exit();
 
-#endif /* GRAPHICS_meu_H */
+#endif /* GRAPHICS_H */

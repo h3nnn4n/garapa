@@ -17,14 +17,13 @@
  *    misrepresented as being the original software.                          *
  * 3. This notice may not be removed or altered from any source distribution. *
  ******************************************************************************/
-#include <GLFW/glfw3.h>
 #include <assert.h>
-#include <glad/glad.h>
 #include <stdint.h>
 #include <stdlib.h>
 
 #include <stb_image.h>
 
+#include "graphics_glfw.h"
 #include "debug.h"
 #include "glfw_input_handling.h"
 #include "graphics.h"
@@ -33,6 +32,7 @@
 
 static uint32_t *pixels = NULL;
 
+#define USE_GLFW
 #if defined(USE_GLFW)
 static const int scale             = 4;
 static const int PPU_SCREEN_WIDTH  = 160;

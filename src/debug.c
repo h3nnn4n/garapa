@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <glad/glad.h>
+#include "debug.h"
+
 
 void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
                                 const GLchar *message, __attribute__((unused)) const void *userParam) {
@@ -10,6 +11,7 @@ void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum se
             (is_error ? "** GL ERROR **" : ""), type, severity, message, source, id, length);
 
     if (is_error) {
+        fprintf(stderr, "Found openGL error. Aborting!\n");
         abort();
     }
 }

@@ -18,56 +18,17 @@
  * 3. This notice may not be removed or altered from any source distribution. *
  ******************************************************************************/
 
-#define PY_SSIZE_T_CLEAN
-
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <unistd.h>
-
-#include <sys/types.h>
-
-#include "audio.h"
-#include "automated_tests.h"
-#include "cartridge.h"
-#include "decoder.h"
-#include "disassembler.h"
-#include "display.h"
-#include "graphics.h"
-#include "memory.h"
-#include "python_api.h"
-#include "time_keeper.h"
 #include "types.h"
-#include "utils.h"
+#include "core.h"
+#include "automated_tests.h"
 
 int main(int argc, char **argv) {
-    _cpu_info cpu;
-    py_init(argc, argv);
+    _context *context = build_emulation_context(argc, argv);
 
-    atexit(graphics_exit);
-
-    if (graphics_init())
-        exit(-1);
-
-    if (argc == 1) {
-        test_control.test_enable = 1;
+    if (context == NULL && test_control.test_enable) {
         test_run();
-        return 0;
-    }
-
-    test_control.test_enable = 0;
-
-    init_cpu(&cpu);
-
-    apu_sdl_init(&cpu);
-
-    load_rom(&cpu, argv[1], 0x0000);
-
-    /*print_rom_info(&cpu);*/
-
-    while (1) {
-        decoder(&cpu);
+    } else {
+        emulation_loop(context);
     }
 
     return 0;

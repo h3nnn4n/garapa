@@ -243,4 +243,8 @@ typedef struct {                    // Struct that holds ALL information relativ
     uint8_t die; // Used by the test routines. Signals when emulator should stop;
 } _cpu_info;     //
 
+typedef struct {
+  _cpu_info *cpu_info;
+} _context;
+
 #endif /* TYPES_H */
