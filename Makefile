@@ -26,12 +26,12 @@ OPTIMIZATION=-O3
 
 LDFLAGS = $(OPTIMIZATION) -Wl,-Ldeps/glfw/build/src/
 
-LIBS = -lm -lglfw -lpthread -ldl -lstdc++ \
-       `sdl2-config --cflags --libs` -lSDL2_ttf \
-       `python3-config --cflags --ldflags`
+SDL_FLAGS = $(shell sdl2-config --cflags --libs) -lSDL2_ttf
+PYTHON_FLAGS = $(shell python3-config --cflags --ldflags)
 
-BLACKLIST = -DNDEBUG
-LIBS := $(filter-out $(BLACKLIST),$(LIBS))
+LIBS = -lm -lglfw -lpthread -ldl -lstdc++
+LIBS += $(SDL_FLAGS)
+LIBS += $(filter-out -DNDEBUG,$(PYTHON_FLAGS))
 
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
