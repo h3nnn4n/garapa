@@ -15,7 +15,7 @@ def on_vblank():
     if old_screen_id == current_screen_id:
         garapa.set_input(
             KEYS[key_pivot % 8],
-            1 if key_pivot > 8 > 0.5 else 0
+            1 if key_pivot >= 8 else 0
         )
 
         key_pivot += 1
