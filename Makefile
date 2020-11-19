@@ -19,15 +19,18 @@ INCLUDES = -Isrc \
 LINKS = -Ldeps/glfw/build/src/ \
 	-Ldeps/glad/src/
 
-CPPFLAGS = -Wall -std=c++11 $(OPTIMIZATION) $(OPTIONS) $(LINKS) $(INCLUDES)
-CFLAGS = -Wall -Wextra -pedantic -std=gnu11 $(OPTIMIZATION) $(OPTIONS) $(LINKS) $(INCLUDES)
+SDL_FLAGS = $(shell sdl2-config --cflags --libs) -lSDL2_ttf
+PYTHON_FLAGS = $(shell python3-config --cflags --ldflags)
+PYTHON_INCLUDE_FLAGS = $(filter -I%, $(PYTHON_FLAGS))
+
+INCLUDES += $(PYTHON_INCLUDE_FLAGS)
+
+override CPPFLAGS += -Wall -std=c++11 $(OPTIMIZATION) $(OPTIONS) $(INCLUDES)
+override CFLAGS += -Wall -Wextra -pedantic -std=gnu11 $(OPTIMIZATION) $(OPTIONS) $(INCLUDES)
 
 OPTIMIZATION=-O0
 
 LDFLAGS = $(OPTIMIZATION) -Wl,-Ldeps/glfw/build/src/
-
-SDL_FLAGS = $(shell sdl2-config --cflags --libs) -lSDL2_ttf
-PYTHON_FLAGS = $(shell python3-config --cflags --ldflags)
 
 LIBS = -lm -lglfw -lpthread -ldl -lstdc++
 LIBS += $(SDL_FLAGS)
@@ -83,12 +86,12 @@ gdb: $(TARGET)
 $(BUILDDIR)/%.o: %.c
 	@echo $(ECHOFLAGS) "[CC]\t$<"
 	@mkdir -p "$(dir $@)"
-	@$(CC) $(CFLAGS) $(LIBS) -o "$@" -c "$<"
+	@$(CC) $(CFLAGS) -o "$@" -c "$<"
 
 $(BUILDDIR)/%.o: %.cpp
 	@echo $(ECHOFLAGS) "[CXX]\t$<"
 	@mkdir -p "$(dir $@)"
-	@$(CXX) $(CPPFLAGS) $(LIBS) -o "$@" -c "$<"
+	@$(CXX) $(CPPFLAGS) -o "$@" -c "$<"
 
 $(TARGET).o: $(OBJS) $(LDSCRIPT)
 	@echo $(ECHOFLAGS) "[LD]\t$@"
