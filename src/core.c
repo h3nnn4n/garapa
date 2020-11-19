@@ -8,6 +8,9 @@
 #include "utils.h"
 
 _context *build_emulation_context(int argc, char **argv) {
+    if (graphics_init())
+        exit(-1);
+
     test_control.test_enable = 0;
     if (argc == 1) {
         test_control.test_enable = 1;
@@ -24,8 +27,6 @@ _context *build_emulation_context(int argc, char **argv) {
 
     py_init(argc, argv);
 
-    if (graphics_init())
-        exit(-1);
     atexit(graphics_exit);
 
     return context;
