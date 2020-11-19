@@ -1,19 +1,28 @@
 import garapa
 
-from random import random, shuffle
 
+KEYS = ['right', 'left', 'up', 'down', 'a', 'b', 'select', 'start']
 old_screen_id = 0
+key_pivot = 0
 
 
 def on_vblank():
     global old_screen_id
+    global key_pivot
 
-    keys = ['right', 'left', 'up', 'down', 'a', 'b', 'select', 'start']
     current_screen_id = garapa.peek(0xffe1)
 
     if old_screen_id == current_screen_id:
-        shuffle(keys)
-        garapa.set_input(keys[0], 1 if random() > 0.5 else 0)
+        garapa.set_input(
+            KEYS[key_pivot % 8],
+            1 if key_pivot > 8 > 0.5 else 0
+        )
+
+        key_pivot += 1
+
+        if key_pivot >= 16:
+            key_pivot = 0
+
         return
 
     old_screen_id = current_screen_id
@@ -50,9 +59,9 @@ def dump_bytes():
 
 
 def main():
-    garapa.disable_user_input()
     print(garapa.hello_world())
 
+    garapa.disable_user_input()
     garapa.set_vblank_callback(on_vblank)
 
     for key in ['right', 'left', 'up', 'down', 'a', 'b', 'select', 'start']:
