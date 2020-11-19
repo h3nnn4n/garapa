@@ -9,11 +9,15 @@
 
 static _context *current_context = NULL;
 static PyObject *vblank_callback = NULL;
+static int       user_input_enabled = 1;
 
 static PyMethodDef EmbMethods[] = {
     {"hello_world", garapa_hello_world, METH_VARARGS, "Return a garapa greeting."},
     {"peek", garapa_peek, METH_VARARGS, "Peeking into the memory"},
     {"set_vblank_callback", garapa_set_vblank_callback, METH_VARARGS, "Sets a callback to be run on vblank"},
+    {"enable_user_input", garapa_enable_user_input, METH_VARARGS, "Allows user input to pe processes"},
+    {"disable_user_input", garapa_disable_user_input, METH_VARARGS, "Prevents user input from being processed"},
+    {"set_input", garapa_set_input, METH_VARARGS, "Set the console input keys register"},
     {NULL, NULL, 0, NULL},
 };
 
@@ -22,6 +26,16 @@ static PyModuleDef EmbModule = {PyModuleDef_HEAD_INIT, "garapa", NULL, -1, EmbMe
 static PyObject *PyInit_garapa(void) { return PyModule_Create(&EmbModule); }
 
 void set_current_context(_context *context) { current_context = context; }
+
+PyObject *garapa_enable_user_input(__attribute__((unused)) PyObject *self, __attribute__((unused)) PyObject *args) {
+    user_input_enabled = 1;
+    Py_RETURN_NONE;
+}
+
+PyObject *garapa_disable_user_input(__attribute__((unused)) PyObject *self, __attribute__((unused)) PyObject *args) {
+    user_input_enabled = 0;
+    Py_RETURN_NONE;
+}
 
 PyObject *garapa_hello_world(__attribute__((unused)) PyObject *self, __attribute__((unused)) PyObject *args) {
     return Py_BuildValue("s", "hello world, garapa is tasty");
@@ -73,6 +87,47 @@ PyObject *garapa_peek(__attribute__((unused)) PyObject *self, PyObject *args) {
     return PyLong_FromLong(value);
 }
 
+PyObject *garapa_set_input(__attribute__((unused)) PyObject *self, PyObject *args) {
+    assert(current_context != NULL && "Current context is NULL!! Good luck peeking into that");
+
+    long  key_state;
+    char *key_name;
+
+    if (!PyArg_ParseTuple(args, "si", &key_name, &key_state)) {
+        fprintf(stderr, "failed to parse args!\n");
+    }
+
+    if (strcmp(key_name, "right")) {
+        current_context->cpu_info->joystick.button_right = !key_state;
+    } else if (strcmp(key_name, "left")) {
+        current_context->cpu_info->joystick.button_left = !key_state;
+    } else if (strcmp(key_name, "up")) {
+        current_context->cpu_info->joystick.button_up = !key_state;
+    } else if (strcmp(key_name, "down")) {
+        current_context->cpu_info->joystick.button_down = !key_state;
+    } else if (strcmp(key_name, "a")) {
+        current_context->cpu_info->joystick.button_a = !key_state;
+    } else if (strcmp(key_name, "b")) {
+        current_context->cpu_info->joystick.button_b = !key_state;
+    } else if (strcmp(key_name, "select")) {
+        current_context->cpu_info->joystick.button_select = !key_state;
+    } else if (strcmp(key_name, "start")) {
+        current_context->cpu_info->joystick.button_start = !key_state;
+    } else {
+        fprintf(stderr, "Got invalid key press: %s\nAborting\n", key_name);
+        exit(-1);
+    }
+
+    if (PyErr_Occurred()) {
+        fprintf(stderr, "An error occurred when running the python file. Aborting\n");
+        exit(-1);
+    }
+
+    Py_RETURN_NONE;
+}
+
+int is_user_input_enabled() { return user_input_enabled; }
+
 void py_init(__attribute__((unused)) int argc, char **argv) {
     wchar_t *program = Py_DecodeLocale(argv[0], NULL);
     if (program == NULL) {
@@ -112,6 +167,11 @@ void py_init(__attribute__((unused)) int argc, char **argv) {
 
         Py_XDECREF(pFunc);
         Py_DECREF(pModule);
+    }
+
+    if (PyErr_Occurred()) {
+        fprintf(stderr, "An error occurred when running the python file. Aborting\n");
+        exit(-1);
     }
 }
 

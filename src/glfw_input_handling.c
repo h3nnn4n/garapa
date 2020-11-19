@@ -1,7 +1,10 @@
 #include "glfw_input_handling.h"
-#include "graphics.h" // To supress openGL deprecation
+#include "python_api.h"
 
 void process_input_glfw(GLFWwindow *window, _cpu_info *cpu) {
+    if (!is_user_input_enabled())
+        return;
+
     if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
         cpu->joystick.button_a = 0;
     } else if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_RELEASE) {
