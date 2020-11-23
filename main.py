@@ -65,6 +65,6 @@ def main():
     garapa.set_vblank_callback(on_vblank)
 
     for key in ['right', 'left', 'up', 'down', 'a', 'b', 'select', 'start']:
-        garapa.set_input(key, 1)
+        garapa.set_input(key, 0)
 
     dump_bytes()
