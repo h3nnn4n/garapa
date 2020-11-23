@@ -93,25 +93,25 @@ PyObject *garapa_set_input(__attribute__((unused)) PyObject *self, PyObject *arg
     long  key_state;
     char *key_name;
 
-    if (!PyArg_ParseTuple(args, "si", &key_name, &key_state)) {
+    if (!PyArg_ParseTuple(args, "sd", &key_name, &key_state)) {
         fprintf(stderr, "failed to parse args!\n");
     }
 
-    if (strcmp(key_name, "right")) {
+    if (strcmp(key_name, "right") == 0) {
         current_context->cpu_info->joystick.button_right = !key_state;
-    } else if (strcmp(key_name, "left")) {
+    } else if (strcmp(key_name, "left") == 0) {
         current_context->cpu_info->joystick.button_left = !key_state;
-    } else if (strcmp(key_name, "up")) {
+    } else if (strcmp(key_name, "up") == 0) {
         current_context->cpu_info->joystick.button_up = !key_state;
-    } else if (strcmp(key_name, "down")) {
+    } else if (strcmp(key_name, "down") == 0) {
         current_context->cpu_info->joystick.button_down = !key_state;
-    } else if (strcmp(key_name, "a")) {
+    } else if (strcmp(key_name, "a") == 0) {
         current_context->cpu_info->joystick.button_a = !key_state;
-    } else if (strcmp(key_name, "b")) {
+    } else if (strcmp(key_name, "b") == 0) {
         current_context->cpu_info->joystick.button_b = !key_state;
-    } else if (strcmp(key_name, "select")) {
+    } else if (strcmp(key_name, "select") == 0) {
         current_context->cpu_info->joystick.button_select = !key_state;
-    } else if (strcmp(key_name, "start")) {
+    } else if (strcmp(key_name, "start") == 0) {
         current_context->cpu_info->joystick.button_start = !key_state;
     } else {
         fprintf(stderr, "Got invalid key press: %s\nAborting\n", key_name);
