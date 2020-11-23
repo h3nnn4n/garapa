@@ -3,25 +3,23 @@ import garapa
 
 KEYS = ['right', 'left', 'up', 'down', 'a', 'b', 'select', 'start']
 old_screen_id = 0
-key_pivot = 0
+frame_count = 0
 
 
 def on_vblank():
     global old_screen_id
-    global key_pivot
+    global frame_count
 
     current_screen_id = garapa.peek(0xffe1)
 
+    frame_count += 1
+
     if old_screen_id == current_screen_id:
-        garapa.set_input(
-            KEYS[key_pivot % 8],
-            1 if key_pivot >= 8 else 0
-        )
-
-        key_pivot += 1
-
-        if key_pivot >= 16:
-            key_pivot = 0
+        if current_screen_id not in [0x24, 0x25, 0x00]:
+            garapa.set_input(
+                'start',
+                1 if frame_count % 2 == 0 else 0
+            )
 
         return
 
@@ -39,6 +37,14 @@ def on_vblank():
         print('pre main menu')
     elif current_screen_id == 0x07:
         print('main menu')
+    elif current_screen_id == 0x08:
+        print('transition to game type menu')
+    elif current_screen_id == 0x0e:
+        print('game type menu')
+    elif current_screen_id == 0x10:
+        print('transition to A-type game menu')
+    elif current_screen_id == 0x11:
+        print('A-type level select')
     elif current_screen_id == 0x00:
         print('game menu')
     elif current_screen_id == 0x0a:
