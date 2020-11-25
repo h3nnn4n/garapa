@@ -27,10 +27,16 @@
 #include "ch2.h"
 #include "ch3.h"
 #include "ch4.h"
+#include "config.h"
 #include "types.h"
+
+#define USE_SDL_AUDIO
 
 #if defined(USE_SDL_AUDIO)
 void apu_sdl_init(_cpu_info *cpu) {
+    if (get_config_flag("enable_audio") == 0)
+        return;
+
     SDL_InitSubSystem(SDL_INIT_AUDIO);
 
     SDL_memset(&cpu->apu.want, 0, sizeof(cpu->apu.want));
@@ -59,6 +65,8 @@ void apu_sdl_init(_cpu_info *cpu) {
         SDL_PauseAudioDevice(cpu->apu.dev, 1);
         SDL_PauseAudioDevice(cpu->apu.dev, 0);
     }
+
+    /*printf("audio system initialized\n");*/
 }
 
 #else

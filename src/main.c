@@ -18,16 +18,72 @@
  * 3. This notice may not be removed or altered from any source distribution. *
  ******************************************************************************/
 
+#include <getopt.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "automated_tests.h"
+#include "config.h"
 #include "core.h"
+#include "python_api.h"
 #include "types.h"
 
 int main(int argc, char **argv) {
-    _context *context = build_emulation_context(argc, argv);
+    int            c;
+    static _config config;
+    memset(&config, 0, sizeof(config));
 
-    if (context == NULL && test_control.test_enable) {
+    while (1) {
+        static struct option long_options[] = {{"enable-video", no_argument, &config.enable_video, 1},
+                                               {"disable-video", no_argument, &config.enable_video, 0},
+                                               {"enable-audio", no_argument, &config.enable_audio, 1},
+                                               {"disable-audio", no_argument, &config.enable_audio, 0},
+                                               {"run-test-roms", no_argument, &config.run_test_roms, 1},
+                                               {"rom", required_argument, 0, 'r'},
+                                               {0, 0, 0, 0}};
+
+        int option_index = 0;
+
+        c = getopt_long(argc, argv, "abc:d:f:", long_options, &option_index);
+
+        if (c == -1)
+            break;
+
+        switch (c) {
+            case 0:
+                if (long_options[option_index].flag != 0)
+                    break;
+
+                printf("option %s", long_options[option_index].name);
+                if (optarg)
+                    printf(" with arg %s", optarg);
+
+                printf("\n");
+                break;
+
+            case 'r': {
+                char *rom_name = malloc(sizeof(char) * (strlen(optarg) + 2));
+                memcpy(rom_name, optarg, sizeof(char) * strlen(optarg));
+                config.rom_name = rom_name;
+                printf("%s\n", rom_name);
+            } break;
+
+            case '?':
+                /* getopt_long already printed an error message. */
+                break;
+
+            default: abort();
+        }
+    }
+
+    set_config(&config);
+
+    if (get_config_flag("run_test_roms")) {
+        test_control.test_enable = 1;
         test_run();
     } else {
+        _context *context = build_emulation_context();
+        py_init(argc, argv);
         emulation_loop(context);
     }
 

@@ -23,6 +23,7 @@
 
 #include <stb_image.h>
 
+#include "config.h"
 #include "debug.h"
 #include "glfw_input_handling.h"
 #include "graphics.h"
@@ -31,6 +32,8 @@
 #include "types.h"
 
 static uint32_t *pixels = NULL;
+
+#define USE_GLFW
 
 #if defined(USE_GLFW)
 static const int scale             = 4;
@@ -92,6 +95,9 @@ void build_texture() {
 }
 
 int glfw_init() {
+    if (get_config_flag("enable_video") == 0)
+        return 0;
+
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -144,6 +150,9 @@ int glfw_init() {
 }
 
 void flip_screen_glfw(__attribute__((unused)) _cpu_info *cpu) {
+    if (get_config_flag("enable_video") == 0)
+        return;
+
     if (glfwWindowShouldClose(window))
         exit(0);
     if (glfwGetCurrentContext() != window)
@@ -166,11 +175,17 @@ void flip_screen_glfw(__attribute__((unused)) _cpu_info *cpu) {
 }
 
 void input_update_glfw(_cpu_info *cpu) {
+    if (get_config_flag("enable_video") == 0)
+        return;
+
     glfwPollEvents();
     process_input_glfw(window, cpu);
 }
 
 void glfw_exit() {
+    if (get_config_flag("enable_video") == 0)
+        return;
+
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &EBO);
