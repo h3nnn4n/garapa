@@ -87,7 +87,7 @@ int main(int argc, char **argv) {
     if (get_config_flag("run_test_roms")) {
         test_control.test_enable = 1;
         test_run();
-    } else {
+    } else if (get_config_value_s("rom_name") != NULL) {
         _context *context = build_emulation_context();
 
         if (config.python_filename != NULL)
