@@ -40,6 +40,7 @@ int main(int argc, char **argv) {
                                                {"disable-audio", no_argument, &config.enable_audio, 0},
                                                {"run-test-roms", no_argument, &config.run_test_roms, 1},
                                                {"rom", required_argument, 0, 'r'},
+                                               {"python", required_argument, 0, 'p'},
                                                {0, 0, 0, 0}};
 
         int option_index = 0;
@@ -63,9 +64,14 @@ int main(int argc, char **argv) {
 
             case 'r': {
                 char *rom_name = malloc(sizeof(char) * (strlen(optarg) + 2));
-                memcpy(rom_name, optarg, sizeof(char) * strlen(optarg));
+                memcpy(rom_name, optarg, sizeof(char) * (strlen(optarg) + 1));
                 config.rom_name = rom_name;
-                printf("%s\n", rom_name);
+            } break;
+
+            case 'p': {
+                char *python_filename = malloc(sizeof(char) * (strlen(optarg) + 2));
+                memcpy(python_filename, optarg, sizeof(char) * (strlen(optarg) + 1));
+                config.python_filename = python_filename;
             } break;
 
             case '?':
@@ -83,7 +89,10 @@ int main(int argc, char **argv) {
         test_run();
     } else {
         _context *context = build_emulation_context();
-        py_init(argc, argv);
+
+        if (config.python_filename != NULL)
+            py_init(argc, argv);
+
         emulation_loop(context);
     }
 

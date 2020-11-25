@@ -6,6 +6,7 @@ typedef struct {
     int run_test_roms;
 
     char *rom_name;
+    char *python_filename;
 } _config;
 
 _config *get_config();

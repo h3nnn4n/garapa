@@ -35,6 +35,10 @@ char *get_config_value_s(char *key_name) {
         return config.rom_name;
     }
 
+    if (strcmp("python_filename", key_name) == 0) {
+        return config.python_filename;
+    }
+
     assert(0 && "invalid config value!");
     return 0;
 }
