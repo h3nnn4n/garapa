@@ -7,6 +7,7 @@ typedef struct {
 
     char *rom_name;
     char *python_filename;
+    char *python_function;
 } _config;
 
 _config *get_config();

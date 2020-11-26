@@ -3,6 +3,7 @@
 #include <Python.h>
 
 #include "assert.h"
+#include "config.h"
 #include "memory.h"
 #include "python_api.h"
 #include "types.h"
@@ -148,13 +149,18 @@ void py_init(__attribute__((unused)) int argc, char **argv) {
     Py_Initialize();
     PySys_SetArgv(argc, wargv);
 
-    pName   = PyUnicode_DecodeFSDefault("main");
+    pName   = PyUnicode_DecodeFSDefault(get_config_value_s("python_filename"));
     pModule = PyImport_Import(pName);
 
     Py_DECREF(pName);
 
     if (pModule != NULL) {
-        pFunc = PyObject_GetAttrString(pModule, "main");
+        char *fname = "main";
+
+        if (get_config_value_s("python_function") != NULL)
+            fname = get_config_value_s("python_function");
+
+        pFunc = PyObject_GetAttrString(pModule, fname);
 
         if (pFunc && PyCallable_Check(pFunc)) {
             PyObject_CallObject(pFunc, NULL);
@@ -162,7 +168,7 @@ void py_init(__attribute__((unused)) int argc, char **argv) {
             if (PyErr_Occurred())
                 PyErr_Print();
 
-            fprintf(stderr, "Failed to call \"%s\"\n", "main");
+            fprintf(stderr, "Failed to call \"%s\"\n", fname);
         }
 
         Py_XDECREF(pFunc);
@@ -171,6 +177,7 @@ void py_init(__attribute__((unused)) int argc, char **argv) {
 
     if (PyErr_Occurred()) {
         fprintf(stderr, "An error occurred when running the python file. Aborting\n");
+        PyErr_Print();
         exit(-1);
     }
 }

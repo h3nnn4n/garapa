@@ -39,6 +39,10 @@ char *get_config_value_s(char *key_name) {
         return config.python_filename;
     }
 
+    if (strcmp("python_function", key_name) == 0) {
+        return config.python_function;
+    }
+
     assert(0 && "invalid config value!");
     return 0;
 }
