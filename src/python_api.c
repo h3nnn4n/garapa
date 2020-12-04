@@ -19,6 +19,7 @@ static PyMethodDef EmbMethods[] = {
     {"enable_user_input", garapa_enable_user_input, METH_VARARGS, "Allows user input to pe processes"},
     {"disable_user_input", garapa_disable_user_input, METH_VARARGS, "Prevents user input from being processed"},
     {"set_input", garapa_set_input, METH_VARARGS, "Set the console input keys register"},
+    {"kill_emulator", garapa_kill_emulator, METH_VARARGS, "Kill the emulator"},
     {NULL, NULL, 0, NULL},
 };
 
@@ -36,6 +37,10 @@ PyObject *garapa_enable_user_input(__attribute__((unused)) PyObject *self, __att
 PyObject *garapa_disable_user_input(__attribute__((unused)) PyObject *self, __attribute__((unused)) PyObject *args) {
     user_input_enabled = 0;
     Py_RETURN_NONE;
+}
+
+PyObject *garapa_kill_emulator(__attribute__((unused)) PyObject *self, __attribute__((unused)) PyObject *args) {
+    exit(0);
 }
 
 PyObject *garapa_hello_world(__attribute__((unused)) PyObject *self, __attribute__((unused)) PyObject *args) {
