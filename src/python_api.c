@@ -193,4 +193,10 @@ void trigger_vblank_callback() {
 
     assert(PyCallable_Check(vblank_callback) && "Callback must be callable");
     PyObject_CallObject(vblank_callback, NULL);
+
+    if (PyErr_Occurred()) {
+        PyErr_Print();
+        fprintf(stderr, "Got a python exception. Aborting\n");
+        exit(-1);
+    }
 }
