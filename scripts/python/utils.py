@@ -40,4 +40,4 @@ def dump_sprite(addr=0x8000):
     png.from_array(
         png_data,
         'L'
-    ).save(f"sprite_{name_suffix}.png")
+    ).save(f"sprite_{name_suffix:.0f}.png")
