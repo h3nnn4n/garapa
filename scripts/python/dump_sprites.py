@@ -13,7 +13,8 @@ def on_vblank():
     # wait 60 frames before dumping first sprite
     if frame_count <= 60: return
 
-    utils.dump_sprite(0x8000)
+    for offset in range(0, 0x180):
+        utils.dump_sprite(0x8000 + offset * 0x10)
 
     garapa.kill_emulator()
 

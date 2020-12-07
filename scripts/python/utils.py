@@ -8,8 +8,8 @@ def init_joystick():
         garapa.set_input(key, 0)
 
 
-def dump_sprite(addr=0x8000):
-    name_suffix = (addr - 0x8000) / 0x000f
+def dump_sprite(base_addr=0x8000):
+    name_suffix = (base_addr - 0x8000) / 0x0010
 
     png_data = [[]]
     colors = [
@@ -19,7 +19,7 @@ def dump_sprite(addr=0x8000):
         0x000000,
     ]
 
-    for index, addr in enumerate(range(addr, addr + 0xf + 1)):
+    for index, addr in enumerate(range(base_addr, base_addr + 0x10)):
         data = garapa.peek(addr)
 
         b1 = (data & 0b00000011) >> 0
@@ -36,6 +36,8 @@ def dump_sprite(addr=0x8000):
             png_data.append([])
 
     png_data.pop()
+
+    print(f'dumping 0x{base_addr:x} {name_suffix}')
 
     png.from_array(
         png_data,
