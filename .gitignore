@@ -17,3 +17,5 @@ garapa
 __pycache__
 
 .cache
+
+*.png
